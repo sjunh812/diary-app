@@ -9,12 +9,13 @@ import kotlinx.datetime.number
 import kotlinx.datetime.onDay
 import kotlinx.datetime.plus
 
-/** 돌아보기 기간(FR-028). 이전·다음은 같은 종류로 한 칸씩, 오늘이 든 기간 뒤로는 가지 않음 */
+/** 돌아보기 기간(FR-028). 이전·다음은 같은 종류로 한 칸씩, 첫날이 든 기간 앞으로·오늘이 든 기간 뒤로는 가지 않음 */
 sealed interface StatsPeriod {
     /** 전체면 null */
     val range: DateRange?
 
-    fun previous(): StatsPeriod?
+    /** [first]가 든 기간이면 null */
+    fun previous(first: LocalDate): StatsPeriod?
 
     /** 오늘이 든 기간이면 null */
     fun next(today: LocalDate): StatsPeriod?
@@ -27,7 +28,7 @@ sealed interface StatsPeriod {
 
         override val range: DateRange get() = DateRange(start, start.plus(DatePeriod(days = 6)))
 
-        override fun previous(): StatsPeriod = Week(start.minus(DatePeriod(days = 7)))
+        override fun previous(first: LocalDate): StatsPeriod? = if (first >= start) null else Week(start.minus(DatePeriod(days = 7)))
 
         override fun next(today: LocalDate): StatsPeriod? = if (today <= range.end) null else Week(start.plus(DatePeriod(days = 7)))
 
@@ -39,15 +40,10 @@ sealed interface StatsPeriod {
     data class Month(val month: YearMonth) : StatsPeriod {
         override val range: DateRange get() = DateRange(month.onDay(1), month.onDay(month.numberOfDays))
 
-        override fun previous(): StatsPeriod = Month(
-            if (month.month.number ==
-                1
-            ) {
-                YearMonth(month.year - 1, 12)
-            } else {
-                YearMonth(month.year, month.month.number - 1)
-            }
-        )
+        override fun previous(first: LocalDate): StatsPeriod? {
+            if (first >= range.start) return null
+            return Month(if (month.month.number == 1) YearMonth(month.year - 1, 12) else YearMonth(month.year, month.month.number - 1))
+        }
 
         override fun next(today: LocalDate): StatsPeriod? {
             if (today <= range.end) return null
@@ -58,7 +54,7 @@ sealed interface StatsPeriod {
     data class Year(val year: Int) : StatsPeriod {
         override val range: DateRange get() = DateRange(LocalDate(year, 1, 1), LocalDate(year, 12, 31))
 
-        override fun previous(): StatsPeriod = Year(year - 1)
+        override fun previous(first: LocalDate): StatsPeriod? = if (first.year >= year) null else Year(year - 1)
 
         override fun next(today: LocalDate): StatsPeriod? = if (today.year <= year) null else Year(year + 1)
     }
@@ -66,7 +62,7 @@ sealed interface StatsPeriod {
     data object All : StatsPeriod {
         override val range: DateRange? = null
 
-        override fun previous(): StatsPeriod? = null
+        override fun previous(first: LocalDate): StatsPeriod? = null
 
         override fun next(today: LocalDate): StatsPeriod? = null
     }

@@ -166,7 +166,7 @@ fun InsightRoute(
     val period = state.period
     val advancedOpen by viewModel.advancedOpen.collectAsStateWithLifecycle()
     val today by viewModel.todayState.collectAsStateWithLifecycle()
-    val firstYear by viewModel.firstYear.collectAsStateWithLifecycle()
+    val first by viewModel.first.collectAsStateWithLifecycle()
     LifecycleResumeEffect(viewModel) {
         viewModel.refreshToday()
         onPauseOrDispose {}
@@ -181,7 +181,7 @@ fun InsightRoute(
         onPrevious = viewModel::previous,
         onNext = viewModel::next,
         onJump = viewModel::jump,
-        firstYear = firstYear,
+        first = first,
         onMood = {
             viewModel.tried()
             onMood(it, period.range)
@@ -209,9 +209,9 @@ internal fun InsightScreen(
     onPrevious: () -> Unit,
     onNext: () -> Unit,
     onMood: (Mood) -> Unit,
+    first: LocalDate,
     modifier: Modifier = Modifier,
     onJump: (StatsPeriod) -> Unit = {},
-    firstYear: Int? = null,
     failed: Boolean = false,
     onRetry: () -> Unit = {},
     onPeriod: (DateRange) -> Unit = {},
@@ -295,7 +295,7 @@ internal fun InsightScreen(
                 Spacer(Modifier.height(DiarySpacing.x1))
                 PeriodNav(
                     periodLabel(period, dates),
-                    period.previous() != null,
+                    period.previous(first) != null,
                     period.next(today) != null,
                     onPrevious,
                     onNext,
@@ -345,7 +345,7 @@ internal fun InsightScreen(
         InsightPeriodSheet(
             period,
             today,
-            firstYear,
+            first,
             onPick = {
                 picking = false
                 onJump(it)

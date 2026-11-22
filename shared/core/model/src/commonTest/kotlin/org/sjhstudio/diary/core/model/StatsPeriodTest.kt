@@ -26,9 +26,39 @@ class StatsPeriodTest {
         assertEquals(StatsPeriod.Month(YearMonth(2026, 11)), StatsPeriod.Month(YearMonth(2026, 10)).next(today))
     }
 
+    /** 첫날이 든 기간까지. 사이 빈 기간도 넘김 */
+    @Test
+    fun periods_do_not_go_before_the_first_day() {
+        val first = LocalDate(2026, 3, 1)
+        assertNull(StatsPeriod.Month(YearMonth(2026, 3)).previous(first))
+        assertEquals(StatsPeriod.Month(YearMonth(2026, 3)), StatsPeriod.Month(YearMonth(2026, 4)).previous(first))
+        assertNull(StatsPeriod.Year(2026).previous(first))
+        assertEquals(StatsPeriod.Year(2026), StatsPeriod.Year(2027).previous(first))
+        // 2026-03-01은 일요일이라 그 주가 첫 주
+        assertNull(StatsPeriod.Week(first).previous(first))
+        assertEquals(StatsPeriod.Week(first), StatsPeriod.Week(LocalDate(2026, 3, 8)).previous(first))
+    }
+
+    /** 첫날이 주 가운데면 그날이 든 주까지 */
+    @Test
+    fun the_first_week_holds_the_first_day() {
+        val first = LocalDate(2026, 4, 1)
+        assertEquals(StatsPeriod.Week(LocalDate(2026, 3, 29)), StatsPeriod.Week(LocalDate(2026, 4, 5)).previous(first))
+        assertNull(StatsPeriod.Week(LocalDate(2026, 3, 29)).previous(first))
+    }
+
+    /** 첫날보다 이른 기간을 보던 중이면 앞으로 가지 않음 */
+    @Test
+    fun a_period_before_the_first_day_has_no_previous() {
+        val first = LocalDate(2026, 3, 1)
+        assertNull(StatsPeriod.Month(YearMonth(2025, 1)).previous(first))
+        assertNull(StatsPeriod.Year(2024).previous(first))
+        assertNull(StatsPeriod.Week(LocalDate(2025, 1, 5)).previous(first))
+    }
+
     @Test
     fun months_cross_years() {
-        assertEquals(StatsPeriod.Month(YearMonth(2025, 12)), StatsPeriod.Month(YearMonth(2026, 1)).previous())
+        assertEquals(StatsPeriod.Month(YearMonth(2025, 12)), StatsPeriod.Month(YearMonth(2026, 1)).previous(LocalDate(2025, 1, 1)))
         assertEquals(StatsPeriod.Month(YearMonth(2026, 1)), StatsPeriod.Month(YearMonth(2025, 12)).next(today))
     }
 
@@ -40,7 +70,7 @@ class StatsPeriodTest {
     @Test
     fun whole_time_has_no_range_or_neighbors() {
         assertNull(StatsPeriod.All.range)
-        assertNull(StatsPeriod.All.previous())
+        assertNull(StatsPeriod.All.previous(today))
         assertNull(StatsPeriod.All.next(today))
     }
 }

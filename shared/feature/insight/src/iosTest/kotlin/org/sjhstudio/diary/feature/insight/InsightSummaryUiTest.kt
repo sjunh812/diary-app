@@ -24,7 +24,8 @@ class InsightSummaryUiTest {
                     onKind = {},
                     onPrevious = {},
                     onNext = {},
-                    onMood = {}
+                    onMood = {},
+                    first = LocalDate(2026, 1, 1)
                 )
             }
         }
