@@ -24,14 +24,22 @@ internal actual fun rememberPlatformDateFormat(language: String): DiaryDateForma
     val current = NSLocale.currentLocale
     val device = current.localeIdentifier
     return remember(language, device) {
-        val tag = formatLocaleTag(language, device)
-        // 기기 언어와 같으면 기기 지역 설정까지 따름
-        // 달력만 그레고리력으로. 기기 달력이 일본 연호·불기면 틀에 연호(G)가 끼어 "西暦", "AD"가 붙음
-        val base = if (tag == languageTag(device)) device else tag
-        val parts = NSLocale.componentsFromLocaleIdentifier(base) + (NSLocaleCalendar to NSCalendarIdentifierGregorian)
-        val locale = NSLocale(localeIdentifier = NSLocale.localeIdentifierFromComponents(parts))
-        IosDateFormat(locale, is24Hour = usesTwentyFourHour(current))
+        val is24Hour = usesTwentyFourHour(current)
+        formats.getOrPut(Triple(language, device, is24Hour)) { platformFormat(language, device, is24Hour) }
     }
+}
+
+// 목록 줄마다 형식 열두 개를 새로 만들지 않게 같은 언어·지역·시각 표기면 하나를 같이 씀. 화면 스레드에서만 씀
+private val formats = mutableMapOf<Triple<String, String, Boolean>, IosDateFormat>()
+
+private fun platformFormat(language: String, device: String, is24Hour: Boolean): IosDateFormat {
+    val tag = formatLocaleTag(language, device)
+    // 기기 언어와 같으면 기기 지역 설정까지 따름
+    // 달력만 그레고리력으로. 기기 달력이 일본 연호·불기면 틀에 연호(G)가 끼어 "西暦", "AD"가 붙음
+    val base = if (tag == languageTag(device)) device else tag
+    val parts = NSLocale.componentsFromLocaleIdentifier(base) + (NSLocaleCalendar to NSCalendarIdentifierGregorian)
+    val locale = NSLocale(localeIdentifier = NSLocale.localeIdentifierFromComponents(parts))
+    return IosDateFormat(locale, is24Hour)
 }
 
 /**

@@ -25,9 +25,14 @@ internal actual fun rememberPlatformDateFormat(language: String): DiaryDateForma
     val device = LocalConfiguration.current.locales[0].toLanguageTag()
     val is24Hour = DateFormat.is24HourFormat(context)
     return remember(language, device, is24Hour) {
-        AndroidDateFormat(Locale.forLanguageTag(formatLocaleTag(language, device)), is24Hour)
+        formats.getOrPut(Triple(language, device, is24Hour)) {
+            AndroidDateFormat(Locale.forLanguageTag(formatLocaleTag(language, device)), is24Hour)
+        }
     }
 }
+
+// 목록 줄마다 형식 열두 개를 새로 만들지 않게 같은 언어·지역·시각 표기면 하나를 같이 씀. 화면 스레드에서만 씀
+private val formats = mutableMapOf<Triple<String, String, Boolean>, AndroidDateFormat>()
 
 private class AndroidDateFormat(locale: Locale, override val is24Hour: Boolean) : DiaryDateFormat {
     private val monthFormat = formatter(locale, DateSkeleton.MONTH)
