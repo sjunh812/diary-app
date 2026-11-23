@@ -32,7 +32,6 @@ import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
-import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsChoiceRow
@@ -245,8 +244,7 @@ private fun FormattingPlusSheet(onPlus: () -> Unit, onDismiss: () -> Unit) {
                 onDismiss()
                 onPlus()
             },
-            size = DiaryButtonSize.XLarge,
-            secondaryKind = DiaryButtonKind.Weak
+            size = DiaryButtonSize.XLarge
         )
     }
 }
