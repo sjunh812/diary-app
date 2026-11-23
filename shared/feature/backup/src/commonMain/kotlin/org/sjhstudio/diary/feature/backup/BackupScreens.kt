@@ -199,6 +199,7 @@ fun BackupSettingsRoute(
     val statusFailed by viewModel.statusFailed.collectAsStateWithLifecycle()
     val status = loaded ?: BackupStatus()
     val connecting by viewModel.connecting.collectAsStateWithLifecycle()
+    val photoProgress by viewModel.photoProgress.collectAsStateWithLifecycle()
     val found by viewModel.found.collectAsStateWithLifecycle()
     val rollback by viewModel.rollback.collectAsStateWithLifecycle()
     val connectFailure by viewModel.connectFailure.collectAsStateWithLifecycle()
@@ -237,7 +238,8 @@ fun BackupSettingsRoute(
                     else -> BackupStatusRead.Loaded
                 },
                 onRetryStatus = viewModel::retryStatus,
-                onLink = rememberOpenWebLink(toast)
+                onLink = rememberOpenWebLink(toast),
+                receivingPhotos = photoProgress != null
             )
             statusBar(openPicker)
         }
@@ -341,7 +343,8 @@ fun BackupSettingsScreen(
     fileState: FileBackupUi = FileBackupUi.Idle,
     statusRead: BackupStatusRead = BackupStatusRead.Loaded,
     onRetryStatus: () -> Unit = {},
-    onLink: (String) -> Unit = {}
+    onLink: (String) -> Unit = {},
+    receivingPhotos: Boolean = false
 ) {
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -373,7 +376,7 @@ fun BackupSettingsScreen(
                 // 읽기 전에 기본값으로 그리면 켜 둔 백업이 잠깐 꺼짐으로 보임
                 // 읽는 데 한 순간이라 아무것도 그리지 않음
             } else if (status.connection == BackupConnection.NotConnected) {
-                NotConnected(connecting, onConnect)
+                NotConnected(connecting, receivingPhotos, onConnect)
                 FileRestoreNotice(fileState)
                 DiarySettingsRow(
                     stringResource(Res.string.file_top),
@@ -538,7 +541,7 @@ private fun Rollback(info: RollbackInfo, onRollBack: () -> Unit) {
  * 드라이브·파일 백업·파일 복원 세 갈래로 가는 화면이라 버튼을 아래에 붙이지 않고 위에서부터 쌓음
  */
 @Composable
-private fun NotConnected(connecting: Boolean, onConnect: () -> Unit) {
+private fun NotConnected(connecting: Boolean, receivingPhotos: Boolean, onConnect: () -> Unit) {
     Column(Modifier.fillMaxWidth()) {
         DiaryResultHeader(
             DiaryIcons.CloudUpload,
@@ -568,12 +571,14 @@ private fun NotConnected(connecting: Boolean, onConnect: () -> Unit) {
                     )
                 )
             )
+            // 파일에서 사진을 꺼내는 동안은 연결이 끝날 때까지 기다려 '연결 중'만 몇 분씩 돎
+            // 받는 중임은 아래 사진 받기 상자가 알림
             DiaryButton(
                 stringResource(Res.string.backup_connect),
                 onConnect,
                 Modifier.fillMaxWidth(),
                 size = DiaryButtonSize.XLarge,
-                enabled = !connecting
+                enabled = !connecting && !receivingPhotos
             )
         }
         Spacer(Modifier.height(DiarySpacing.x4))

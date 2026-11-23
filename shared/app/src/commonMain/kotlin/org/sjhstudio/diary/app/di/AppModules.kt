@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import okio.SYSTEM
@@ -228,7 +229,7 @@ private fun coreModule(isDebug: Boolean) = module {
         )
     }
     single { AppUpdateRepository(get(), get(), get(), get<BackupAppInfo>().versionName, get(APP_SCOPE)) }
-    single { HomeTopState(get(), get(), get(), get(APP_SCOPE)) }
+    single { HomeTopState(get(), get(), get(), get(APP_SCOPE), get<RestoreRepository>().photoProgress.map { it != null }) }
     single { HomeMonths(get(), get(APP_SCOPE)) }
     single { AdRemoval(get(APP_SCOPE), get<LockController>().appLocked, get<AdRepository>()::watchReward) }
 }

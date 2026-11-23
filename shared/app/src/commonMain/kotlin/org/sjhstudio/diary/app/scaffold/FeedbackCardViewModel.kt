@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -62,7 +63,9 @@ class HomeTopState(
     private val backup: BackupRepository,
     private val prompts: PromptRepository,
     private val updates: AppUpdateRepository,
-    private val scope: CoroutineScope
+    private val scope: CoroutineScope,
+    /** 복원한 사진을 받는 중. 그동안 연결은 받기가 끝날 때까지 기다려 백업 안내를 띄우지 않음 */
+    private val receivingPhotos: Flow<Boolean> = flowOf(false)
 ) {
     private val read = MutableStateFlow<HomeTop>(HomeTop.Reading)
     val top: StateFlow<HomeTop> = read.asStateFlow()
@@ -87,7 +90,7 @@ class HomeTopState(
                         }
                     }.stateIn(this, SharingStarted.Eagerly, null)
                 // 백업 안내는 새 버전 확인(iOS는 네트워크)을 기다리지 않음
-                backup.nudge
+                combine(backup.nudge, receivingPhotos) { nudge, receiving -> nudge.takeUnless { receiving } }
                     .flatMapLatest { nudge -> if (nudge != null) flowOf(HomeTop.Backup(nudge)) else next.map { it ?: pending() } }
                     .collect { read.value = it }
             }

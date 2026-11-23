@@ -5,14 +5,15 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.update
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.model.AccountChange
@@ -29,13 +30,16 @@ import org.sjhstudio.diary.core.ui.stateInSafely
 @OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("TooManyFunctions") // 홈 줄, 백업 화면, 백업 설정이 같은 상태를 함께 봄
 class BackupViewModel(private val controller: BackupRepository, private val restore: RestoreRepository) : ViewModel() {
-    private val statusAttempt = MutableStateFlow(0)
+    /** [다시 시도]를 누를 때마다 옴 */
+    private val statusRetries = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
 
-    // 다시 읽을 때 읽는 중으로 돌리지 않음. 화면에 돌아올 때마다 줄이 사라졌다 나오지 않게
+    // 화면에 돌아와 다시 읽을 때는 읽는 중으로 돌리지 않음. 줄이 사라졌다 나오지 않게
+    // [다시 시도]로 읽을 때만 읽는 중을 보여 누른 것이 보이게
     private val statusRead: StateFlow<StatusRead> =
-        statusAttempt.flatMapLatest {
+        statusRetries.map { true }.onStart { emit(false) }.flatMapLatest { retried ->
             controller.status
                 .map<BackupStatus, StatusRead> { StatusRead.Loaded(it) }
+                .onStart { if (retried) emit(StatusRead.Loading) }
                 .catch { if (it is Exception) emit(StatusRead.Failed) else throw it }
         }.stateInSafely(viewModelScope, WhileUiSubscribed, StatusRead.Loading)
 
@@ -56,7 +60,9 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
             (it as? StatusRead.Loaded)?.status ?: BackupStatus()
         }.stateInSafely(viewModelScope, WhileUiSubscribed, BackupStatus())
 
-    fun retryStatus() = statusAttempt.update { it + 1 }
+    fun retryStatus() {
+        statusRetries.tryEmit(Unit)
+    }
 
     /** 지금 백업이 올리지 않고 끝났을 때 한 번 옴 */
     val skipped: Flow<BackupSkip> = controller.skipped
@@ -90,11 +96,11 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
 
     /**
      * [hint]는 예전 앱이 쓰던 구글 계정
-     * Android에서 먼저 보임
+     * Android에서 먼저 보임. 계정 선택 창이 떠 있는 동안 다시 눌러도 한 번만 물음
      */
     fun connect(hint: String? = null) {
+        if (!_connecting.compareAndSet(expect = false, update = true)) return
         viewModelScope.launchSafely {
-            _connecting.value = true
             try {
                 // 연결 실패 까닭은 [connectFailure]가 말함. 예상하지 못한 예외에도 앱을 끄지 않음
                 quietly { controller.connect(hint) }

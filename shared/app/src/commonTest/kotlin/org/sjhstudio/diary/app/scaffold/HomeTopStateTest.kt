@@ -3,6 +3,7 @@ package org.sjhstudio.diary.app.scaffold
 import androidx.datastore.preferences.core.emptyPreferences
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
@@ -78,6 +79,21 @@ class HomeTopStateTest {
         backup.nudge.value = nudge
         val state = HomeTopState(backup, prompts(), updates, backgroundScope)
         state.start()
+        assertEquals(HomeTop.Backup(nudge), state.top.value)
+    }
+
+    /** 복원한 사진을 받는 동안은 백업 안내를 띄우지 않음. 연결은 받기가 끝날 때까지 기다려 눌러도 반응이 없음 */
+    @Test
+    fun the_backup_nudge_waits_while_photos_arrive() = runTest(UnconfinedTestDispatcher()) {
+        val nudge = BackupNudge(10, 2, null)
+        backup.nudge.value = nudge
+        val receiving = MutableStateFlow(true)
+        val state = HomeTopState(backup, prompts(), updates(), backgroundScope, receiving)
+        state.start()
+        assertNotEquals(HomeTop.Backup(nudge), state.top.value)
+
+        receiving.value = false
+
         assertEquals(HomeTop.Backup(nudge), state.top.value)
     }
 
