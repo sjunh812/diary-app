@@ -160,6 +160,31 @@ class BackupRunnerTest {
         assertEquals(1, names(DriveLayout.KIND_SNAPSHOT).size)
         assertTrue(manifest().media.none { it.inBackup })
         assertEquals(2, store.current().photosNotBackedUp)
+        assertTrue(store.current().photosWaitingForWifi)
+    }
+
+    /** 바뀐 것이 없어 건너뛴 자동 백업도 사진이 Wi-Fi를 기다리면 적음. 업데이트 전부터 남아 있던 사진에도 버튼이 보이게 */
+    @Test
+    fun a_skipped_run_still_records_photos_waiting_for_wifi() = runTest {
+        seed()
+        runner().run()
+        network.isUnmetered = false
+        store.update { it.copy(photosNotBackedUp = 2, photosWaitingForWifi = false) }
+
+        assertEquals(BackupOutcome.Unchanged, runner().runIfChanged())
+
+        assertTrue(store.current().photosWaitingForWifi)
+    }
+
+    /** 사진을 올릴 수 있는 연결에서 끝난 백업은 Wi-Fi를 기다린다고 적지 않음 */
+    @Test
+    fun a_backup_on_wifi_does_not_wait_for_wifi() = runTest {
+        seed()
+        store.update { it.copy(photosWaitingForWifi = true) }
+
+        runner().run()
+
+        assertFalse(store.current().photosWaitingForWifi)
     }
 
     @Test

@@ -57,6 +57,7 @@
     <string name="backup_line_yesterday">昨日 %1$s</string>
     <plurals name="backup_photos_unusable"><item quantity="other">見つからない写真%1$s枚はバックアップできませんでした。</item></plurals>
     <plurals name="backup_photos_waiting"><item quantity="other">写真%1$s枚はWi-Fi接続時にアップロードします。</item></plurals>
+    <plurals name="backup_photos_next"><item quantity="other">写真%1$s枚は次のバックアップでアップロードします。</item></plurals>
     <!-- 복원(B2~B6) -->
     <string name="restore_row">Google ドライブから復元</string>
     <string name="restore_row_body">別のデバイスや以前のアプリのバックアップを統合します。</string>
@@ -245,6 +246,7 @@
     <string name="backup_done_title">バックアップが終わりました</string>
     <string name="backup_done_body">日記と写真をすべてドライブにアップロードしました。</string>
     <string name="backup_done_left">写真%1$s枚はWi-Fi接続時にアップロードします。</string>
+    <plurals name="backup_done_left_space"><item quantity="other">ドライブの空き容量が足りず、写真%1$s枚をアップロードできませんでした。</item></plurals>
     <string name="backup_stopped_title">バックアップを完了できませんでした</string>
     <string name="restore_stopped_title">復元を完了できませんでした</string>
     <string name="restore_see_result">見る</string>

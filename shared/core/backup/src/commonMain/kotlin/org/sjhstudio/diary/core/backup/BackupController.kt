@@ -49,6 +49,12 @@ import org.sjhstudio.diary.core.platform.DriveAuthorizer
 import org.sjhstudio.diary.core.platform.TokenResult
 
 /**
+ * 마지막 백업이 Wi-Fi를 기다리느라 사진을 남겼고 지금도 Wi-Fi에서만 올림
+ * 공간 부족, 아직 받지 않은 복원 사진, 그 뒤 새로 넣은 사진은 Wi-Fi 기다림이 아님
+ */
+internal fun BackupPrefs.photosHeldForWifi(): Boolean = !photosOnCellular && photosWaitingForWifi
+
+/**
  * 연결한 드라이브에서 권할 백업
  * 새 백업을 먼저 고르고, 없으면 예전 앱이 올린 백업을 고름
  * 예전 백업은 편수를 몰라 0편으로 옴
@@ -157,6 +163,7 @@ class BackupController(
                     lastFailure = prefs.lastFailure,
                     autoEnabled = prefs.autoEnabled,
                     photosOnCellular = prefs.photosOnCellular,
+                    photosHeldForWifi = prefs.photosHeldForWifi(),
                     bytesShort = prefs.bytesShort,
                     restoredBackupAt = prefs.restoredBackupAt,
                     findingBackup = findingBackup
@@ -492,6 +499,7 @@ class BackupController(
         lastFailure = null,
         alertAt = null,
         photosNotBackedUp = 0,
+        photosWaitingForWifi = false,
         bytesShort = 0,
         restoredBackupAt = null
     )

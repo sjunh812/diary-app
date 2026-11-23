@@ -31,6 +31,7 @@ import org.sjhstudio.diary.core.backup.BackupController
 import org.sjhstudio.diary.core.backup.BackupOutcome
 import org.sjhstudio.diary.core.backup.BackupRunner
 import org.sjhstudio.diary.core.data.RestoreRepository
+import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupProgress
 import org.sjhstudio.diary.core.platform.BackupAlertPoster
@@ -136,8 +137,14 @@ class BackupNowWorker(context: Context, params: WorkerParameters) :
         if (appIsVisible()) return
         val text =
             when (outcome) {
-                is BackupOutcome.Done -> backupDoneText(outcome.photosLeft)
+                // 짐작하지 않고 이번 백업이 기록한 부족 공간과 Wi-Fi 기다림으로 까닭 구분
+                is BackupOutcome.Done -> {
+                    val prefs = get<BackupStore>().current()
+                    backupDoneText(outcome.photosLeft, driveFull = prefs.bytesShort > 0, waitingForWifi = prefs.photosWaitingForWifi)
+                }
+
                 is BackupOutcome.Failed -> backupStoppedText(outcome.kind)
+
                 else -> return
             }
         BackupAlertPoster(applicationContext, backupChannelName()).show(text.first, text.second)

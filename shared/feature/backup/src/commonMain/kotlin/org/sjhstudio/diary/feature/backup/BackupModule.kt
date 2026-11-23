@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.feature.backup
 
+import org.jetbrains.compose.resources.getPluralString
 import org.jetbrains.compose.resources.getString
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -17,9 +18,11 @@ import org.sjhstudio.diary.feature.backup.resources.backup_alert_title
 import org.sjhstudio.diary.feature.backup.resources.backup_channel
 import org.sjhstudio.diary.feature.backup.resources.backup_done_body
 import org.sjhstudio.diary.feature.backup.resources.backup_done_left
+import org.sjhstudio.diary.feature.backup.resources.backup_done_left_space
 import org.sjhstudio.diary.feature.backup.resources.backup_done_title
 import org.sjhstudio.diary.feature.backup.resources.backup_folder_body
 import org.sjhstudio.diary.feature.backup.resources.backup_folder_title
+import org.sjhstudio.diary.feature.backup.resources.backup_photos_next
 import org.sjhstudio.diary.feature.backup.resources.backup_readme_body
 import org.sjhstudio.diary.feature.backup.resources.backup_running
 import org.sjhstudio.diary.feature.backup.resources.backup_running_photos
@@ -66,10 +69,17 @@ suspend fun backupFolderText(): Pair<String, String> = getString(Res.string.back
 
 /**
  * 앱을 나가 있는 동안 지금 백업이 끝났을 때의 알림
+ * 남은 사진은 드라이브 공간 부족([driveFull]), Wi-Fi 기다림([waitingForWifi]), 그 밖(다음 백업)으로 나눠 말함
  * 일기 내용은 넣지 않음(헌법 II)
  */
-suspend fun backupDoneText(photosLeft: Int): Pair<String, String> {
-    val body = if (photosLeft > 0) getString(Res.string.backup_done_left, photosLeft.grouped()) else getString(Res.string.backup_done_body)
+suspend fun backupDoneText(photosLeft: Int, driveFull: Boolean, waitingForWifi: Boolean): Pair<String, String> {
+    val body =
+        when {
+            photosLeft == 0 -> getString(Res.string.backup_done_body)
+            driveFull -> getPluralString(Res.plurals.backup_done_left_space, photosLeft, photosLeft.grouped())
+            waitingForWifi -> getString(Res.string.backup_done_left, photosLeft.grouped())
+            else -> getPluralString(Res.plurals.backup_photos_next, photosLeft, photosLeft.grouped())
+        }
     return getString(Res.string.backup_done_title) to body
 }
 

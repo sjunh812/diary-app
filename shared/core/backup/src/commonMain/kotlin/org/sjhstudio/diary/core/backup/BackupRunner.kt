@@ -161,6 +161,9 @@ class BackupRunner(
         val prefs = store.current()
         val nothingToUpload = prefs.photosNotBackedUp == 0 || !mayUploadPhotos(prefs.photosOnCellular)
         if (nothingToUpload && !repaired(prefs.unusablePhotos) && sameAsLastBackup(prefs, fingerprint())) {
+            // 사진이 남았는데 올릴 수 없는 연결이라 건너뜀. 백업 화면이 Wi-Fi 기다림으로 말하게 적음
+            val waiting = prefs.photosNotBackedUp > 0 && !mayUploadPhotos(prefs.photosOnCellular)
+            if (waiting && !prefs.photosWaitingForWifi) store.update { it.copy(photosWaitingForWifi = true) }
             failures.unchanged()
             BackupOutcome.Unchanged
         } else {
@@ -262,7 +265,9 @@ class BackupRunner(
         val photos = sendPhotos(snapshot, folders, account, now, cellularOnce)
         // 사진을 더 올리지 못했고 글도 그대로면 같은 내용 백업
         if (automatic && photos.uploaded.isEmpty() && sameAsLastBackup(store.current(), fingerprint)) {
-            store.update { it.copy(photosNotBackedUp = photos.left, unusablePhotos = photos.unusable) }
+            store.update {
+                it.copy(photosNotBackedUp = photos.left, photosWaitingForWifi = photos.waitingForWifi, unusablePhotos = photos.unusable)
+            }
             failures.unchanged(photos.bytesShort)
             return BackupOutcome.Unchanged
         }
@@ -284,6 +289,7 @@ class BackupRunner(
                 failingSince = null,
                 lastFailure = BackupFailure.NO_SPACE.takeIf { photos.bytesShort > 0 },
                 photosNotBackedUp = photos.left,
+                photosWaitingForWifi = photos.waitingForWifi,
                 unusablePhotos = photos.unusable
             )
         }
@@ -324,7 +330,9 @@ class BackupRunner(
         val unusable: Set<String>,
         val left: Int,
         val bytesShort: Long,
-        val damaged: List<DriveFile>
+        val damaged: List<DriveFile>,
+        /** 사진을 올릴 수 없는 연결이라 올릴 사진을 남김 */
+        val waitingForWifi: Boolean
     )
 
     private suspend fun sendPhotos(
@@ -376,7 +384,8 @@ class BackupRunner(
                 it.sha256 !in inBackup && it.sha256 !in unusable
             },
             short,
-            damaged
+            damaged,
+            waitingForWifi = !allowed && missing.isNotEmpty()
         )
     }
 

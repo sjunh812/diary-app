@@ -87,6 +87,8 @@ data class BackupStatus(
     val lastFailure: BackupFailure? = null,
     val autoEnabled: Boolean = false,
     val photosOnCellular: Boolean = false,
+    /** 마지막 백업이 Wi-Fi를 기다리느라 사진을 남김. 그 뒤 새로 넣은 사진은 다음 백업이 올림 */
+    val photosHeldForWifi: Boolean = false,
     /** 공간이 부족해 못 올린 사진의 양 */
     val bytesShort: Long = 0,
     /** 드라이브 백업을 복원했으면 그 백업을 만든 시각 */

@@ -57,6 +57,7 @@
     <string name="backup_line_yesterday">어제 %1$s</string>
     <plurals name="backup_photos_unusable"><item quantity="other">찾을 수 없는 사진 %1$s장은 백업하지 못했어요.</item></plurals>
     <plurals name="backup_photos_waiting"><item quantity="other">사진 %1$s장은 Wi-Fi에 연결되면 올려요.</item></plurals>
+    <plurals name="backup_photos_next"><item quantity="other">사진 %1$s장은 다음 백업 때 올려요.</item></plurals>
     <!-- 복원(B2~B6) -->
     <string name="restore_row">구글 드라이브에서 복원하기</string>
     <string name="restore_row_body">다른 기기나 예전 앱의 백업을 합쳐요.</string>
@@ -245,6 +246,7 @@
     <string name="backup_done_title">백업을 완료했어요</string>
     <string name="backup_done_body">일기와 사진을 드라이브에 모두 올렸어요.</string>
     <string name="backup_done_left">사진 %1$s장은 Wi-Fi에 연결되면 올려요.</string>
+    <plurals name="backup_done_left_space"><item quantity="other">사진 %1$s장은 드라이브 공간이 부족해 올리지 못했어요.</item></plurals>
     <string name="backup_stopped_title">백업을 완료하지 못했어요</string>
     <string name="restore_stopped_title">복원을 완료하지 못했어요</string>
     <string name="restore_see_result">보기</string>

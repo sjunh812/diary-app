@@ -118,6 +118,7 @@ import org.sjhstudio.diary.feature.backup.resources.backup_last
 import org.sjhstudio.diary.feature.backup.resources.backup_no_space_title
 import org.sjhstudio.diary.feature.backup.resources.backup_now
 import org.sjhstudio.diary.feature.backup.resources.backup_options
+import org.sjhstudio.diary.feature.backup.resources.backup_photos_next
 import org.sjhstudio.diary.feature.backup.resources.backup_photos_unusable
 import org.sjhstudio.diary.feature.backup.resources.backup_photos_waiting
 import org.sjhstudio.diary.feature.backup.resources.backup_reconnect
@@ -625,6 +626,14 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit) {
         // 첫 백업이 끊긴 때도 같음
         // 올린 사진은 남아 있음
         status.lastFailure != null -> FailedStatus(status.lastFailure, last)
+
+        // 마지막 백업이 Wi-Fi를 기다리느라 남긴 사진이 아니면 다음 백업이 올림(새로 넣은 사진, 모바일 데이터 허용)
+        status.photosNotBackedUp > 0 && last != null && !status.photosHeldForWifi ->
+            DiaryStatusBox(
+                DiaryIcons.ShieldCheck,
+                last,
+                pluralStringResource(Res.plurals.backup_photos_next, status.photosNotBackedUp, status.photosNotBackedUp.grouped())
+            )
 
         status.photosNotBackedUp > 0 && last != null ->
             DiaryStatusBox(

@@ -54,6 +54,8 @@ data class BackupPrefs(
     // 걸어 둔 7일 실패 알림 시각. 실패를 적을 때 이 시각을 그대로 두고 문구만 바꿈
     val alertAt: Instant? = null,
     val photosNotBackedUp: Int = 0,
+    /** 마지막 백업이 사진을 올릴 수 없는 연결이라 올릴 사진을 남김 */
+    val photosWaitingForWifi: Boolean = false,
     val nudgeDismissCount: Int = 0,
     val nudgeHiddenUntil: Instant? = null,
     val userDisconnected: Boolean = false,
@@ -144,6 +146,7 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         lastFailure = BackupFailure.fromName(this[Keys.LAST_FAILURE]),
         alertAt = instant(Keys.ALERT_AT),
         photosNotBackedUp = this[Keys.PHOTOS_NOT_BACKED_UP] ?: 0,
+        photosWaitingForWifi = this[Keys.PHOTOS_WAITING_FOR_WIFI] ?: false,
         nudgeDismissCount = this[Keys.NUDGE_DISMISS_COUNT] ?: 0,
         nudgeHiddenUntil = instant(Keys.NUDGE_HIDDEN_UNTIL),
         userDisconnected = this[Keys.USER_DISCONNECTED] ?: false,
@@ -179,6 +182,7 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         setOrRemove(Keys.LAST_FAILURE, prefs.lastFailure?.name)
         setOrRemove(Keys.ALERT_AT, prefs.alertAt?.toEpochMilliseconds())
         this[Keys.PHOTOS_NOT_BACKED_UP] = prefs.photosNotBackedUp
+        this[Keys.PHOTOS_WAITING_FOR_WIFI] = prefs.photosWaitingForWifi
         this[Keys.NUDGE_DISMISS_COUNT] = prefs.nudgeDismissCount
         setOrRemove(Keys.NUDGE_HIDDEN_UNTIL, prefs.nudgeHiddenUntil?.toEpochMilliseconds())
         this[Keys.USER_DISCONNECTED] = prefs.userDisconnected
@@ -220,6 +224,7 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         val LAST_FAILURE = stringPreferencesKey("last_failure")
         val ALERT_AT = longPreferencesKey("failure_alert_at")
         val PHOTOS_NOT_BACKED_UP = intPreferencesKey("photos_not_backed_up")
+        val PHOTOS_WAITING_FOR_WIFI = booleanPreferencesKey("photos_waiting_for_wifi")
         val NUDGE_DISMISS_COUNT = intPreferencesKey("nudge_dismiss_count")
         val NUDGE_HIDDEN_UNTIL = longPreferencesKey("nudge_hidden_until")
         val USER_DISCONNECTED = booleanPreferencesKey("user_disconnected")

@@ -60,6 +60,7 @@
         <item quantity="other">%1$s photos couldn't be found, so they weren't backed up.</item>
     </plurals>
     <plurals name="backup_photos_waiting"><item quantity="one">%1$s photo uploads on Wi-Fi.</item><item quantity="other">%1$s photos upload on Wi-Fi.</item></plurals>
+    <plurals name="backup_photos_next"><item quantity="one">%1$s photo uploads at the next backup.</item><item quantity="other">%1$s photos upload at the next backup.</item></plurals>
     <!-- 복원(B2~B6) -->
     <string name="restore_row">Restore from Google Drive</string>
     <string name="restore_row_body">Merge a backup from another device or the previous version.</string>
@@ -248,6 +249,7 @@
     <string name="backup_done_title">Backup finished</string>
     <string name="backup_done_body">Your entries and photos are all on Drive.</string>
     <string name="backup_done_left">Remaining photos will upload on Wi-Fi (%1$s).</string>
+    <plurals name="backup_done_left_space"><item quantity="one">%1$s photo wasn't uploaded because Drive is out of space.</item><item quantity="other">%1$s photos weren't uploaded because Drive is out of space.</item></plurals>
     <string name="backup_stopped_title">Backup didn't finish</string>
     <string name="restore_stopped_title">Couldn't finish the restore</string>
     <string name="restore_see_result">View</string>
