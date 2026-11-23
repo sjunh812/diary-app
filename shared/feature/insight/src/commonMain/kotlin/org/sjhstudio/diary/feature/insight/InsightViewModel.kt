@@ -138,14 +138,20 @@ class InsightViewModel(
      * 넘기고 고를 수 있는 첫날. 첫 일기가 든 달의 1일, 일기가 없으면 이번 달 1일
      * 화살표와 기간 고르기가 함께 씀. 주도 달 단위라 가벼운 달 목록만 읽음
      * [previous]가 값을 바로 읽어 화면이 없어도 따라감
-     * 달 목록을 읽기 전에는 null. 이번 달 1일로 두면 ‹ 화살표가 잠깐 꺼짐으로 보임
-     * 읽기 실패 시 이번 달 1일로 두고 [retry]에서 다시 읽음
+     * 달 목록을 읽기 전과 읽지 못했을 때는 null. 이번 달 1일로 두면 ‹ 화살표가 앞 기록이 없다는 꺼짐으로 보임
+     * 읽기 실패는 [retry]에서 다시 읽음
      */
     @OptIn(ExperimentalCoroutinesApi::class)
     val first: StateFlow<LocalDate?> =
         attempt
-            .flatMapLatest { entries.months().catch { if (it is Exception) emit(emptySet()) else throw it } }
-            .combine(_todayState) { months, today -> minOf(months.minOrNull() ?: today.yearMonth, today.yearMonth).onDay(1) }
+            .flatMapLatest {
+                entries.months()
+                    .map<Set<YearMonth>, Set<YearMonth>?> { it }
+                    .catch { if (it is Exception) emit(null) else throw it }
+            }
+            .combine(_todayState) { months, today ->
+                months?.let { minOf(it.minOrNull() ?: today.yearMonth, today.yearMonth).onDay(1) }
+            }
             .stateInSafely(viewModelScope, SharingStarted.Eagerly, null)
 
     fun retry() {

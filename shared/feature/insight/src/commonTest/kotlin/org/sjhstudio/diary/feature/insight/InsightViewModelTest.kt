@@ -27,8 +27,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
-import kotlinx.datetime.onDay
-import kotlinx.datetime.yearMonth
 import org.sjhstudio.diary.core.data.ContextTips
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.data.diary.StatsRepository
@@ -416,9 +414,9 @@ class InsightViewModelTest {
         assertEquals(LocalDate(2023, 5, 1), model.first.value)
     }
 
-    /** 달 목록을 못 읽으면 이번 달 1일로 두고, 다시 시도에서 다시 읽음 */
+    /** 달 목록을 못 읽으면 첫날을 모름으로 두고, 다시 시도에서 다시 읽음 */
     @Test
-    fun the_first_day_falls_back_to_this_month_and_rereads_on_retry() = runTest(dispatcher) {
+    fun the_first_day_stays_unknown_when_months_fail_and_rereads_on_retry() = runTest(dispatcher) {
         var reads = 0
         val written = entriesOn(LocalDate(2023, 5, 2))
         val flaky =
@@ -428,7 +426,7 @@ class InsightViewModelTest {
             }
         val model = testInsightViewModel(NoStats, { today }, entries = flaky)
         runCurrent()
-        assertEquals(today.yearMonth.onDay(1), model.first.value)
+        assertNull(model.first.value)
 
         model.retry()
         runCurrent()
