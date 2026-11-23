@@ -44,8 +44,7 @@ import org.sjhstudio.diary.core.backup.RestoreCatalog
 import org.sjhstudio.diary.core.backup.RestoreController
 import org.sjhstudio.diary.core.backup.RestorePlanner
 import org.sjhstudio.diary.core.backup.RollbackManager
-import org.sjhstudio.diary.core.backup.backupToOffer
-import org.sjhstudio.diary.core.backup.offerIfNew
+import org.sjhstudio.diary.core.backup.findBackupToOffer
 import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.data.AppUpdateRepository
 import org.sjhstudio.diary.core.data.BackupRepository
@@ -335,12 +334,7 @@ private val backupModule =
                 scope = get(APP_SCOPE),
                 migrated = { get<LegacyMigration>().report() != null },
                 legacyAccount = { get<SettingsRepository>().settings.first().legacyBackup?.account },
-                findBackup = {
-                    val restore = get<RestoreRepository>()
-                    val latest = backupToOffer(restore.backups().entriesOrNull, get<LegacyMigration>().report() != null)
-                    // 권하지 않으면 확인하려고 받은 사본을 지움
-                    offerIfNew(latest) { restore.prepare(it) }.also { if (it == null && latest != null) restore.dismiss() }
-                },
+                findBackup = { findBackupToOffer(get(), get<LegacyMigration>().report() != null) },
                 alerts = get(),
                 gate = get()
             )

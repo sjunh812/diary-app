@@ -64,7 +64,6 @@ import org.sjhstudio.diary.core.model.AccountChange
 import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupFailure
-import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.ExpectedLeave
 import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
@@ -131,8 +130,6 @@ import org.sjhstudio.diary.feature.backup.resources.backup_running_body
 import org.sjhstudio.diary.feature.backup.resources.backup_running_body_open
 import org.sjhstudio.diary.feature.backup.resources.backup_running_body_quiet
 import org.sjhstudio.diary.feature.backup.resources.backup_running_photos
-import org.sjhstudio.diary.feature.backup.resources.backup_skip_busy
-import org.sjhstudio.diary.feature.backup.resources.backup_skip_empty
 import org.sjhstudio.diary.feature.backup.resources.backup_space_manage
 import org.sjhstudio.diary.feature.backup.resources.backup_space_note
 import org.sjhstudio.diary.feature.backup.resources.backup_space_photos
@@ -206,11 +203,6 @@ fun BackupSettingsRoute(
     val access = rememberNotificationAccess()
     val running = status.running != null
     val toast = remember { DiaryToastState() }
-    val nothingYet = stringResource(Res.string.backup_skip_empty)
-    val busy = stringResource(Res.string.backup_skip_busy)
-    LaunchedEffect(viewModel) {
-        viewModel.skipped.collect { skip -> toast.show(if (skip == BackupSkip.NO_ENTRIES) nothingYet else busy) }
-    }
     // 백업이 시작되면 끝날 때 알릴 수 있게 한 번 물음
     // 거절해도 백업은 그대로 실행
     LaunchedEffect(running) { if (running) access.askInContext() }

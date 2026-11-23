@@ -28,6 +28,25 @@ class BackupFailureLog(private val store: BackupStore, private val clock: Clock 
         }
     }
 
+    /**
+     * 드라이브를 찾는 데 성공함. 찾기가 남겼을 수 있는 연결·드라이브·기기 실패를 지움
+     * 다시 연결과 공간 부족은 찾기로 풀리지 않아 남김
+     */
+    suspend fun searched(at: Instant) {
+        val left =
+            try {
+                store.update { if (it.lastFailure in SEARCH_FAILURES) it.copy(lastFailure = null, failingSince = null) else it }
+                store.current().lastFailure
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                // 못 지우면 다음 백업 성공이 지움. 알림은 그대로 둠
+                return
+            }
+        // 다시 연결·공간 부족이 남았으면 백업은 여전히 멈춘 것이라 7일 알림을 미루지 않음
+        if (left == null) stillFine(at)
+    }
+
     /** 백업이 끝났거나 바뀐 것이 없거나 다시 연결해 [from]부터 7일 뒤로 알림을 미룸 */
     suspend fun stillFine(from: Instant) {
         try {
@@ -71,3 +90,5 @@ class BackupFailureLog(private val store: BackupStore, private val clock: Clock 
         val ALERT_AFTER = 7.days
     }
 }
+
+private val SEARCH_FAILURES = setOf(BackupFailure.OFFLINE, BackupFailure.DRIVE_ERROR, BackupFailure.LOCAL_IO)

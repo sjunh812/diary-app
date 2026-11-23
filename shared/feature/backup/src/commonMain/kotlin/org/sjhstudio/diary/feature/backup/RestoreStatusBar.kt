@@ -22,6 +22,7 @@ import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryStatusBox
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastResult
@@ -30,6 +31,7 @@ import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.PhotoStop
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.model.RollbackRun
@@ -40,6 +42,9 @@ import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.backup_folder_body
 import org.sjhstudio.diary.feature.backup.resources.backup_folder_ok
 import org.sjhstudio.diary.feature.backup.resources.backup_folder_title
+import org.sjhstudio.diary.feature.backup.resources.backup_skip_busy
+import org.sjhstudio.diary.feature.backup.resources.backup_skip_empty
+import org.sjhstudio.diary.feature.backup.resources.backup_skip_not_checked
 import org.sjhstudio.diary.feature.backup.resources.file_stopped_notice
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending_body
@@ -101,6 +106,26 @@ fun BundleStoppedNotice(toast: DiaryToastState, onOpen: () -> Unit) {
             viewModel.shown()
             val shown = toast.show(getString(Res.string.file_stopped_notice), getString(Res.string.restore_see_result))
             if (shown == DiaryToastResult.ActionPerformed) open()
+        }
+    }
+}
+
+/**
+ * 지금 백업이나 연결이 올리지 않고 끝난 까닭을 앱 틀 토스트로 한 번 알림
+ * 홈 권하기 카드에서 연결해도 받도록 한 곳에서만 받음. 두 곳에서 받으면 두 번 뜸
+ */
+@Composable
+fun BackupSkipNotice(toast: DiaryToastState) {
+    val backup = koinInject<BackupRepository>()
+    LaunchedEffect(backup) {
+        backup.skipped.collect { skip ->
+            val text =
+                when (skip) {
+                    BackupSkip.NO_ENTRIES -> Res.string.backup_skip_empty
+                    BackupSkip.BUSY -> Res.string.backup_skip_busy
+                    BackupSkip.NOT_CHECKED -> Res.string.backup_skip_not_checked
+                }
+            toast.show(getString(text))
         }
     }
 }

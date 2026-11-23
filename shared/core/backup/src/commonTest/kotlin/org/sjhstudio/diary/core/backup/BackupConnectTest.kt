@@ -21,6 +21,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.sjhstudio.diary.core.datastore.BackupPrefs
 import org.sjhstudio.diary.core.datastore.BackupStore
+import org.sjhstudio.diary.core.drive.DriveException
 import org.sjhstudio.diary.core.model.AccountChange
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
@@ -95,6 +96,79 @@ class BackupConnectTest {
 
         assertEquals(0, scheduler.startedNow)
         assertEquals(entry, reopened.foundBackup.value)
+    }
+
+    /** 드라이브를 못 읽으면 없음으로 보지 않음. 다른 기기 백업을 묻기 전에 올리지 않게(US2 시나리오 7) */
+    @Test
+    fun a_drive_that_cannot_be_read_does_not_start_a_backup() = runTest {
+        val controller = controller(find = { throw DriveException(BackupFailure.OFFLINE) })
+
+        controller.connect()
+
+        assertEquals(0, scheduler.startedNow)
+        assertTrue(store.current().foundBackupWaiting)
+        // 멈춘 까닭을 화면에 둬 지금 백업으로 다시 찾게 함
+        assertEquals(BackupFailure.OFFLINE, store.current().lastFailure)
+    }
+
+    /** 다시 찾기에 성공하면 찾기가 남긴 끊김 안내를 지움. 권유가 떠도 화면이 끊겼다고 하지 않게 */
+    @Test
+    fun a_search_that_succeeds_clears_its_offline_notice() = runTest {
+        var reads = 0
+        val controller = controller(find = { if (reads++ == 0) throw DriveException(BackupFailure.OFFLINE) else entry })
+        controller.connect()
+
+        controller.backUpNow()
+
+        assertEquals(entry, controller.foundBackup.value)
+        assertNull(store.current().lastFailure)
+        assertNull(store.current().failingSince)
+    }
+
+    /** 찾지 못했던 드라이브는 지금 백업을 누르면 다시 찾아 권함. 눌러도 아무 일이 없지 않게 */
+    @Test
+    fun backing_up_after_a_failed_search_searches_again() = runTest {
+        var reads = 0
+        val controller = controller(find = { if (reads++ == 0) error("오프라인") else entry })
+        controller.connect()
+
+        controller.backUpNow()
+
+        assertEquals(entry, controller.foundBackup.value)
+        assertEquals(0, scheduler.startedNow)
+    }
+
+    /** 새 찾기는 앞 찾기를 멈춤. 앞 찾기는 바꾸기 전 계정일 수 있어 그 결과가 남지 않게 */
+    @Test
+    fun a_new_search_stops_the_one_before() = runTest {
+        backedUp()
+        store.update { it.copy(foundBackupWaiting = true) }
+        val stuck = CompletableDeferred<BackupEntry?>()
+        var reads = 0
+        val controller = controller(find = { if (reads++ == 0) stuck.await() else null })
+        launch(UnconfinedTestDispatcher(testScheduler)) { controller.backUpIfDue() }
+
+        authorizer.account = DriveAccount("sub-2", "work@gmail.com")
+        controller.connect()
+        stuck.complete(entry)
+
+        assertNull(controller.foundBackup.value)
+        assertFalse(store.current().foundBackupWaiting)
+        assertEquals(1, scheduler.startedNow)
+    }
+
+    /** 드라이브를 찾는 도중 연결을 끊으면 찾기도 멈춤. 끊은 계정의 권유가 뒤늦게 뜨지 않게 */
+    @Test
+    fun disconnecting_stops_the_search() = runTest {
+        val searching = CompletableDeferred<BackupEntry?>()
+        val controller = controller(find = { searching.await() })
+        launch(UnconfinedTestDispatcher(testScheduler)) { controller.connect() }
+
+        controller.disconnect()
+        searching.complete(entry)
+
+        assertNull(controller.foundBackup.value)
+        assertFalse(store.current().foundBackupWaiting)
     }
 
     @Test
@@ -451,6 +525,34 @@ class BackupConnectTest {
         controller.backUpNow()
 
         assertEquals(0, scheduler.startedNow)
+    }
+
+    /** 까닭을 모르는 찾기 실패는 기록하지 않고 누른 사람에게 한 번 알림. 눌렀는데 반응이 없으면 안 됨 */
+    @Test
+    fun a_search_failing_for_an_unknown_reason_is_told_to_whoever_pressed() = runTest {
+        val controller = controller(find = { error("로그인 페이지") })
+        val told = mutableListOf<BackupSkip>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { controller.skipped.toList(told) }
+        controller.connect()
+
+        controller.backUpNow()
+
+        assertNull(store.current().lastFailure)
+        assertEquals(listOf(BackupSkip.NOT_CHECKED, BackupSkip.NOT_CHECKED), told)
+    }
+
+    /** 앱을 열 때 다시 찾다 실패하면 누른 사람이 없어 알리지 않음 */
+    @Test
+    fun a_search_at_app_open_fails_quietly() = runTest {
+        backedUp()
+        store.update { it.copy(foundBackupWaiting = true) }
+        val controller = controller(find = { error("로그인 페이지") })
+        val told = mutableListOf<BackupSkip>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { controller.skipped.toList(told) }
+
+        controller.backUpIfDue()
+
+        assertTrue(told.isEmpty())
     }
 
     /** 일기가 없거나 복원 중이면 올리지 않고 끝남. 눌렀는데 반응이 없으면 안 됨 */

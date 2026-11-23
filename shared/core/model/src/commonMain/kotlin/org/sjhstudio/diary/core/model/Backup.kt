@@ -38,7 +38,10 @@ enum class BackupSkip {
     NO_ENTRIES,
 
     /** 복원이나 기록 이전이 도는 중 */
-    BUSY
+    BUSY,
+
+    /** 드라이브의 백업을 까닭을 모르게 확인하지 못함. 아는 까닭은 상태 상자가 말함 */
+    NOT_CHECKED
 }
 
 /** 드라이브 연결 상태 */
