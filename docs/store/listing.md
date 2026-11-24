@@ -29,7 +29,6 @@ Play는 목록 태그를 받지 않아 줄머리표(•)로 쓰고 묶음 제목
 
 ```text
 바쁜 날에도 쓰기 쉽게 꼭 필요한 것만 담은 일기장 앱이에요. 매일 한 편씩 쓰는 습관을 만들어 보세요.
-회원가입은 필요 없어요.
 
 <b>일기 쓰기</b>
 • 사진, 날씨, 장소를 함께 담아요. 사진은 한 편에 10장까지예요.
@@ -65,7 +64,6 @@ Play는 목록 태그를 받지 않아 줄머리표(•)로 쓰고 묶음 제목
 
 ```text
 A diary with just what you need, so it's easy to write even on busy days.
-No sign-up needed.
 
 <b>Write</b>
 • Add photos, weather, and place. Up to 10 photos per entry.
@@ -101,7 +99,6 @@ Contact: sjunh812@naver.com
 
 ```text
 忙しい日でも書きやすいように、必要なものだけを入れた日記帳です。
-会員登録は不要です。
 
 <b>日記を書く</b>
 • 写真、天気、場所を一緒に残せます。写真は1件に10枚までです。
@@ -142,7 +139,6 @@ App Store는 `<b>`를 그리지 않아 묶음 제목을 그대로 두고, "태�
 
 ```text
 바쁜 날에도 쓰기 쉽게 꼭 필요한 것만 담은 일기장 앱이에요. 매일 한 편씩 쓰는 습관을 만들어 보세요.
-회원가입은 필요 없어요.
 
 일기 쓰기
 • 사진, 날씨, 장소를 함께 담아요. 사진은 한 편에 10장까지예요.
@@ -185,7 +181,6 @@ Plus 구독 안내
 
 ```text
 A diary with just what you need, so it's easy to write even on busy days.
-No sign-up needed.
 
 Write
 • Add photos, weather, and place. Up to 10 photos per entry.
@@ -228,7 +223,6 @@ Privacy Policy: https://sjunh812.pages.dev/1day1diary/privacy/
 
 ```text
 忙しい日でも書きやすいように、必要なものだけを入れた日記帳です。
-会員登録は不要です。
 
 日記を書く
 • 写真、天気、場所を一緒に残せます。写真は1件に10枚までです。
@@ -298,7 +292,7 @@ Your entries and photos stay on your device and your own Google Drive.
 日記と写真は、自分の端末と自分のGoogleドライブだけに残ります。
 ```
 
-"회원가입 없이"는 설명 첫머리에 있어 홍보 문구에서 뺐다. 홍보 문구와 설명 첫 줄이 화면에 이어 보여 같은 말이 두 번 나오지 않게 했다.
+홍보 문구와 설명 첫 줄이 화면에 이어 보여 같은 말이 두 번 나오지 않게 했다. 설명 첫머리의 "회원가입은 필요 없어요"는 세 문장의 말끝이 매번 바뀌어 어색해 뺐다(2026-11-24 사용자 결정).
 
 키워드(100자). 한국어는 이름의 "일기"와 부제의 "일기장"을 되풀이하지 않는다. 붙여 쓴 검색어(기분일기 등)는 남긴다(2026-11-16)
 
