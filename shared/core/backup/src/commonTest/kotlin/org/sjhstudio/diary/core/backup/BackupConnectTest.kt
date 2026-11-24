@@ -498,10 +498,12 @@ class BackupConnectTest {
         backedUp()
         store.update { it.copy(lastFailure = BackupFailure.AUTH, failingSince = Instant.parse("2026-11-01T00:00:00Z")) }
 
-        controller().changeAccount()
+        assertEquals(AccountChange.KEPT, controller().changeAccount())
 
         assertNull(store.current().lastFailure)
         assertNull(store.current().failingSince)
+        // [다시 연결]과 같게 멈춘 백업을 이어 함
+        assertEquals(1, scheduler.startedNow)
     }
 
     /** 재시도를 기다리는 동안 다시 눌러도 그 요청과 "이번만 모바일 데이터"가 시스템까지 감 */
