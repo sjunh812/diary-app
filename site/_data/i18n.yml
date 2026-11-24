@@ -18,7 +18,7 @@ ko:
   lead: 짧게 써도 매일 쌓이면 나만의 기록이 돼요.
   alt_list: 지난 일기 목록 화면
   features: 주요 기능
-  write_label: 쓰기
+  write_label: 일기 쓰기
   write_title: 사진과 기분도<br>같이 남겨요
   write_body: 사진, 날씨, 장소를 함께 담아요. 아홉 가지 기분으로 그날을 표시할 수도 있어요.
   alt_write: 기분을 고르고 일기를 쓰는 화면
@@ -90,7 +90,7 @@ en:
   lead: Short entries add up to a record of your own.
   alt_list: List of past entries
   features: Key features
-  write_label: Write
+  write_label: Writing
   write_title: Add photos<br>and your mood
   write_body: Add photos, the weather, and where you were. You can also mark the day with one of nine moods.
   alt_write: Picking a mood while writing an entry
@@ -160,7 +160,7 @@ ja:
   lead: 短くても、毎日つづければ自分だけの記録になります。
   alt_list: 過去の日記の一覧画面
   features: 主な機能
-  write_label: 書く
+  write_label: 日記を書く
   write_title: 写真や気分も<br>一緒に残せます
   write_body: 写真、天気、場所を一緒に残せます。9種類の気分で、その日を記録することもできます。
   alt_write: 気分を選んで日記を書く画面
