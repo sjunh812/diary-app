@@ -33,10 +33,12 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -155,6 +157,10 @@ internal class WriteActions(
 
 private enum class Sheet { Mood, Weather, Place, DateTime }
 
+/** 저장한 값과, 다시 만들 때 쓰던 중이었는지를 함께 보아 돌려줄 초점을 되살림 */
+private fun refocusSaver(writing: () -> Boolean) =
+    Saver<MutableState<Boolean>, Boolean>(save = { it.value }, restore = { mutableStateOf(it || writing()) })
+
 /** [wantsFocus]는 편집기가 그려진 뒤 커서와 키보드를 줄지 */
 private class EditorInputState(val wantsFocus: Boolean, val onFocusGiven: () -> Unit)
 
@@ -179,9 +185,14 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     // 쓰던 중에 시트를 열면 닫은 뒤 커서와 키보드를 돌려줌
     // 시트가 뜰 때 초점을 거둬, 돌려주지 않으면 본문을 다시 눌러야 하고 커서도 누른 자리로 옮겨짐
     var editorFocused by rememberSaveable { mutableStateOf(false) }
-    // 회전처럼 화면을 다시 만들면 초점이 사라짐. 쓰던 중이었으면 돌려줌
-    var refocus by remember { mutableStateOf(editorFocused) }
+    // 돌려줄 초점. 시트를 연 채 화면을 돌려도 닫으면 돌려주게 저장함
+    // 회전처럼 화면을 다시 만들면 초점이 사라짐. 쓰던 중이었으면 다시 만든 화면에서도 돌려줌
+    var refocus by rememberSaveable(saver = refocusSaver { editorFocused }) { mutableStateOf(false) }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
+    // 화면을 다시 만들려고 내려가며 잃는 초점은 기억하지 않음
+    val onEditorFocus = { focused: Boolean ->
+        if (focused || lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) editorFocused = focused
+    }
     val openSheet = { target: Sheet ->
         refocus = editorFocused
         sheet = target
@@ -220,13 +231,6 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     val plusPrompt = plusPromptOf(state)
     // 사용자가 연 창이 먼저. 권유는 다른 창이 없을 때 한 장씩
     val othersOpen = sheet != null || state.resume != null || askDiscard || askDiscardHere || cameraOff
-    // 화면을 다시 만들려고 내려가며 잃는 초점과, 시트·권유·창이 거둔 초점은 그만 쓴 것이 아님
-    // 기억하면 그 사이 화면을 돌렸을 때 닫아도 커서와 키보드가 돌아오지 않음
-    val modalOpen = othersOpen || plusPrompt != null
-    val onEditorFocus = { focused: Boolean ->
-        val leftWriting = lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED) && !modalOpen
-        if (focused || leftWriting) editorFocused = focused
-    }
     // Plus 화면으로 가면 남아 있던 되돌리기까지 지움. 되돌리면 Plus 화면 위에 키보드가 떠 첫 뒤로 가기가 키보드 내리기에 쓰임
     // 닫으면 누른 순간 쓰던 중이었을 때 커서와 키보드를 돌려줌
     when (val prompt = plusPrompt.takeUnless { othersOpen }) {
@@ -288,7 +292,11 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
         val open = pickToOpen ?: return@LaunchedEffect
         vm.photoPickOpened()
         when {
-            open.source == PhotoSource.CAMERA && cameraAccess.blocked() -> cameraOff = true
+            open.source == PhotoSource.CAMERA && cameraAccess.blocked() -> {
+                // 창을 닫으면 누른 순간 쓰던 중이었을 때 커서와 키보드를 돌려줌
+                refocus = refocus || open.writing
+                cameraOff = true
+            }
 
             open.source == PhotoSource.CAMERA -> {
                 ExpectedLeave.mark()
@@ -323,7 +331,9 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     }
     // 새 글을 열 때, 시트를 닫거나 화면을 다시 만든 뒤 쓰던 중이었을 때 커서와 키보드를 줌
     // 편집기가 입력을 받을 수 있게 된 뒤에 편집기 쪽에서 줌
-    val wantsFocus = (refocus && sheet == null && plusPrompt == null) || (!autoFocused && state.resume == null && !state.isEdit)
+    // 시트·권유·창이 덮고 있는 동안에는 주지 않고 닫힌 뒤에 줌
+    val covered = othersOpen || plusPrompt != null
+    val wantsFocus = (refocus && !covered) || (!autoFocused && state.resume == null && !state.isEdit)
     val editorInput =
         remember(wantsFocus) {
             EditorInputState(wantsFocus) {
@@ -513,10 +523,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                 cameraOff = false
                 cameraAccess.openSettings()
             },
-            onDismiss = {
-                cameraOff = false
-                refocus = editorFocused
-            }
+            onDismiss = { cameraOff = false }
         )
     }
     if (askDiscard) {
@@ -675,8 +682,8 @@ private fun Notices(state: WriteUiState, modifier: Modifier = Modifier) {
 }
 
 /**
- * 저장 실패와 불러오기 실패는 글이 길어도 보이게 스크롤 밖에 둠
- * 안내가 맨 위에 있으면 닫기를 눌러도 아무 일이 없는 것처럼 보임
+ * 저장 실패는 글이 길어도 보이게 스크롤 밖 도구 줄 위에 둠
+ * 불러오기 실패는 쓸 내용이 없어 위 줄 바로 아래에 이것만 그림
  */
 @Composable
 private fun FailureNotice(state: WriteUiState) {

@@ -9,9 +9,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.test.v2.runComposeUiTest
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.uikit.LocalUIViewController
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
@@ -50,14 +53,19 @@ class WriteRouteUiTest {
     }
 
     /** 화면을 돌리는 흉내. 컴포지션을 없앴다가 저장해 둔 상태로 다시 만듦 */
-    private fun ComposeUiTest.showWrite(viewModel: WriteViewModel, dark: () -> Boolean = { false }, shown: () -> Boolean) {
+    private fun ComposeUiTest.showWrite(
+        viewModel: WriteViewModel,
+        target: WriteTarget = WriteTarget.Edit("e1"),
+        dark: () -> Boolean = { false },
+        shown: () -> Boolean
+    ) {
         setContent {
             CompositionLocalProvider(LocalUIViewController provides UIViewController()) {
                 DiaryTheme(darkTheme = dark()) {
                     val holder = rememberSaveableStateHolder()
                     if (shown()) {
                         holder.SaveableStateProvider("write") {
-                            WriteRoute(target = WriteTarget.Edit("e1"), onSaved = {}, onClosed = {}, injected = viewModel)
+                            WriteRoute(target = target, onSaved = {}, onClosed = {}, injected = viewModel)
                         }
                     }
                 }
@@ -104,7 +112,7 @@ class WriteRouteUiTest {
         val viewModel = testWriteViewModel(WriteTarget.Edit("e1"), repository, timeZone = TimeZone.UTC)
         var shown by mutableStateOf(true)
         var dark by mutableStateOf(true)
-        showWrite(viewModel, { dark }) { shown }
+        showWrite(viewModel, dark = { dark }) { shown }
         onAllNodes(hasSetTextAction())[0].performTextInput("새 글 ")
         waitForIdle()
         val typed = editorText()
@@ -153,6 +161,44 @@ class WriteRouteUiTest {
         waitForIdle()
 
         assertEquals("일기 나", editorText())
+    }
+
+    /** 열지 못한 일기는 빈 일기처럼 보이지 않게 편집기 없이 실패 안내만 그림 */
+    @Test
+    fun an_entry_that_cannot_open_has_no_editor() = runComposeUiTest {
+        val viewModel = testWriteViewModel(WriteTarget.Edit("e1"), FakeDraftRepository(), timeZone = TimeZone.UTC)
+        showWrite(viewModel) { true }
+
+        assertTrue(onAllNodes(hasSetTextAction()).fetchSemanticsNodes().isEmpty())
+    }
+
+    /** 새 글은 편집기가 그려지자마자 바로 쓸 수 있게 커서를 받음 */
+    @Test
+    fun a_new_entry_gets_the_cursor() = runComposeUiTest {
+        val viewModel = testWriteViewModel(WriteTarget.New(LocalDate(2026, 11, 1)), FakeDraftRepository(), timeZone = TimeZone.UTC)
+        showWrite(viewModel, target = WriteTarget.New(LocalDate(2026, 11, 1))) { true }
+
+        onAllNodes(hasSetTextAction())[0].assertIsFocused()
+    }
+
+    /** 쓰는 중 테마가 바뀌어도 고르던 범위가 그대로 남음 */
+    @Test
+    fun a_theme_change_while_writing_keeps_the_selection() = runComposeUiTest {
+        val key = DraftKey.Edit("e1")
+        val repository = FakeDraftRepository(editable = mapOf("e1" to draft(key, "<p>고르던 글</p>")))
+        val viewModel = testWriteViewModel(WriteTarget.Edit("e1"), repository, timeZone = TimeZone.UTC)
+        var dark by mutableStateOf(false)
+        showWrite(viewModel, dark = { dark }) { true }
+        val editor = onAllNodes(hasSetTextAction())[0]
+        editor.performTextInputSelection(TextRange(0, 3))
+        waitForIdle()
+
+        dark = true
+        waitForIdle()
+
+        val selection = editor.fetchSemanticsNode().config[SemanticsProperties.TextSelectionRange]
+        assertEquals(TextRange(0, 3), selection)
+        assertEquals("고르던 글", editorText())
     }
 
     @AfterTest

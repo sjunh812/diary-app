@@ -127,7 +127,7 @@ fun DiaryButton(
             modifier =
                 Modifier
                     .heightIn(min = spec.height)
-                    .alpha(if (enabled) 1f else DiaryStateAlpha.DISABLED_CONTENT)
+                    .alpha(if (enabled || loading) 1f else DiaryStateAlpha.DISABLED_CONTENT)
                     .diaryPress(interaction, colors.textPrimary, spec.shape)
                     .clip(spec.shape)
                     .background(container)
