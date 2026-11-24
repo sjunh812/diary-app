@@ -6,7 +6,7 @@ ko:
   home: /1day1diary/
   screens: /assets/screens/
   description: 바쁜 사람을 위한 간편한 일기장, 1일 1일기
-  og: 기분 하나, 한 줄이면 끝. 바쁜 날에도 오늘 일기를 남길 수 있어요.
+  og: 한 줄이면 오늘 일기 끝. 짧게 써도 매일 쌓이면 나만의 기록이 돼요.
   get: 앱 다운로드
   privacy: 개인정보처리방침
   terms: 이용약관
@@ -14,13 +14,13 @@ ko:
   copied: 주소를 복사했어요
   mail: "메일 주소:"
   language: 언어
-  hero: 기분 하나,<br><em class="hl">한 줄</em>이면 끝
-  lead: 바쁜 날에도 금방 쓰고 닫을 수 있어요.
+  hero: <em class="hl">한 줄</em>이면<br>오늘 일기 끝
+  lead: 짧게 써도 매일 쌓이면 나만의 기록이 돼요.
   alt_list: 지난 일기 목록 화면
   features: 주요 기능
   write_label: 쓰기
-  write_title: 기분만 골라도<br>반은 쓴 거예요
-  write_body: 아홉 가지 기분 중 하나를 고르고 떠오르는 대로 적어요. 사진과 날씨, 장소도 같이 남길 수 있어요.
+  write_title: 사진과 기분도<br>같이 남겨요
+  write_body: 사진, 날씨, 장소를 함께 담아요. 아홉 가지 기분으로 그날을 표시할 수도 있어요.
   alt_write: 기분을 고르고 일기를 쓰는 화면
   insight_label: 돌아보기
   insight_title: 어떤 기분이 많았는지<br>한눈에 봐요
@@ -77,8 +77,8 @@ en:
   name: 1 Day 1 Diary
   home: /en/1day1diary/
   screens: /assets/screens/en/
-  description: A simple diary for busy people. One mood and one line, and today's entry is done.
-  og: One mood, one line, done. Keep a diary even on busy days.
+  description: A simple diary for busy people. One line, and today's entry is done.
+  og: Today's entry, in one line. Short entries add up to a record of your own.
   get: Download
   privacy: Privacy Policy (Korean)
   terms: Terms (Korean)
@@ -86,13 +86,13 @@ en:
   copied: copied
   mail: "Email:"
   language: Language
-  hero: One mood,<br><em class="hl">one line</em>. Done.
-  lead: Keep a diary even on your busiest days.
+  hero: Today's entry,<br>in <em class="hl">one line</em>
+  lead: Short entries add up to a record of your own.
   alt_list: List of past entries
   features: Key features
   write_label: Write
-  write_title: Pick a mood and<br>you're halfway there
-  write_body: Choose one of nine moods and write whatever comes to mind. You can add photos, the weather, and where you were.
+  write_title: Add photos<br>and your mood
+  write_body: Add photos, the weather, and where you were. You can also mark the day with one of nine moods.
   alt_write: Picking a mood while writing an entry
   insight_label: Look back
   insight_title: See which moods<br>came up most
@@ -147,8 +147,8 @@ ja:
   name: 1日1日記
   home: /ja/1day1diary/
   screens: /assets/screens/ja/
-  description: 忙しい人のためのかんたん日記帳。気分をひとつ選んで1行書けば、今日の日記は完了。
-  og: 気分をひとつ、1行で完了。忙しい日でも今日の日記を残せます。
+  description: 忙しい人のためのかんたん日記帳。1行書けば、今日の日記は完了。
+  og: 1行で今日の日記は完了。短くても、毎日つづければ自分だけの記録になります。
   get: ダウンロード
   privacy: プライバシーポリシー（韓国語）
   terms: 利用規約（韓国語）
@@ -156,13 +156,13 @@ ja:
   copied: をコピーしました
   mail: "メールアドレス:"
   language: 言語
-  hero: 気分をひとつ、<br><em class="hl">1行</em>で完了
-  lead: 忙しい日でも、気軽に今日の日記を残せます。
+  hero: <em class="hl">1行</em>で<br>今日の日記は完了
+  lead: 短くても、毎日つづければ自分だけの記録になります。
   alt_list: 過去の日記の一覧画面
   features: 主な機能
   write_label: 書く
-  write_title: 気分を選べば<br>半分は書けたも同然
-  write_body: 9種類の気分から1つ選んで、思いついたことを書くだけ。写真や天気、場所も一緒に残せます。
+  write_title: 写真や気分も<br>一緒に残せます
+  write_body: 写真、天気、場所を一緒に残せます。9種類の気分で、その日を記録することもできます。
   alt_write: 気分を選んで日記を書く画面
   insight_label: ふりかえり
   insight_title: どんな気分が多かったか<br>ひと目でわかる

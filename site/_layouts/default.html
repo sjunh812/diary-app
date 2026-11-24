@@ -110,11 +110,18 @@ html[lang=ja] .hero h1{font-size:60px}
 .hero-visual::before{content:"";position:absolute;width:600px;height:600px;top:0;left:50%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,var(--selected) 0%,transparent 68%);pointer-events:none}
 .phone.hero-shot{position:relative;width:320px;margin-bottom:-180px;-webkit-mask-image:linear-gradient(180deg,#000 42%,transparent 70%);mask-image:linear-gradient(180deg,#000 42%,transparent 70%)}
 
-/* 기분 얼굴(Headspace·Duolingo처럼 앱만의 얼굴로 첫인상): 첫 화면 폰 둘레에 여섯, 마지막 권유에 아홉. 움직이지 않음 */
+/* 기분 얼굴(Headspace·Duolingo처럼 앱만의 얼굴로 첫인상): 첫 화면 폰 둘레에 여섯(떠 있음), 마지막 권유에 아홉(가만히) */
 .ring{position:absolute;inset:0;z-index:2;pointer-events:none}
 .ring .face{position:absolute;width:64px;height:64px;filter:drop-shadow(0 8px 16px rgba(26,28,32,.12))}
 .ring .f0{left:2%;top:12%}.ring .f1{right:4%;top:4%;width:56px;height:56px}.ring .f2{left:-2%;top:46%;width:52px;height:52px}
 .ring .f3{right:0;top:38%}.ring .f4{left:12%;top:76%;width:48px;height:48px}.ring .f5{right:12%;top:70%;width:44px;height:44px}
+/* 처음 열 때 하나씩 살짝 튀어나오고(600ms), 그 뒤로 각자 다른 속도로 8px 위아래로 떠 있음
+   속도와 시작점을 엇갈려 같이 움직이지 않게. 움직임 줄이기면 .motion이 없어 가만히 있음 */
+@keyframes face-in{from{opacity:0;scale:.6}}
+@keyframes face-float{50%{translate:0 -8px}}
+.motion .ring .face{will-change:translate;animation:face-in 600ms cubic-bezier(.34,1.56,.64,1) var(--in) both,face-float var(--float) ease-in-out var(--phase) infinite}
+.ring .f0{--in:.15s;--float:4.6s;--phase:-1.2s}.ring .f1{--in:.25s;--float:5.4s;--phase:-3.1s}.ring .f2{--in:.35s;--float:5s;--phase:-.4s}
+.ring .f3{--in:.45s;--float:4.2s;--phase:-2.6s}.ring .f4{--in:.55s;--float:5.8s;--phase:-4s}.ring .f5{--in:.65s;--float:4.8s;--phase:-1.8s}
 .face-row{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
 .face-row .face{width:48px;height:48px}
 /* 휴대폰 틀 */
