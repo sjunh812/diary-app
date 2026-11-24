@@ -565,5 +565,5 @@ Plusが登場しました
 영어(원어민 검수 전): One line, and today is done / Keep your day with photos / Your moods on a calendar / Look back on your moods / Make it your color / Back up photos to your own Drive.
 일본어(원어민 검수 전): 1行で今日の日記は完了 / 写真と一緒に残せます / その日の気分がカレンダーに / どんな気分が多かったかふり返れます / 好きな色に変えられます / 写真まで自分のドライブに.
 
-그래픽 이미지·App Store 헤더·검색 결과 그림은 1번 제목과 설명에 목록 화면을 둔다. 헤더는 Apple 안전 영역(가운데 1646×661)에 글만 두고, 넓은 화면에서만 보이는 양옆에 화면을 둔다.
+그래픽 이미지·App Store 헤더·검색 결과 그림은 1번 제목과 설명에 목록 화면을 둔다. 가로 그림은 제목의 낱말 하나("한 줄", "One line", "1行")만 브랜드색 #6550B9로 강조하고, 글자는 화면보다 무겁지 않게 줄였다(사용자 요청 2026-11-24). 헤더는 Apple 안전 영역(가운데 1646×661)에 글만 두고, 넓은 화면에서만 보이는 양옆에 화면을 둔다.
 만드는 법: 폰·태블릿 `swift scripts/store/make_store_screens.swift <캡처> <결과> <언어> <폭> <높이> <앞이름> [tablet]`, 가로 그림 `swift scripts/store/make_banner.swift <캡처> <결과> <언어> feature|header|search`. 캡처는 `docs/store/source/ios/<언어>/`(iPhone 17 Pro)와 `ipad/`(iPad Pro 13" 세로)다.

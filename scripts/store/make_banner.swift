@@ -19,6 +19,9 @@ func color(_ hex: UInt32, _ a: CGFloat = 1) -> NSColor {
     NSColor(srgbRed: CGFloat((hex >> 16) & 255) / 255, green: CGFloat((hex >> 8) & 255) / 255, blue: CGFloat(hex & 255) / 255, alpha: a)
 }
 let bg = color(0xF5F2FF), ink = color(0x1A1C20), sub = color(0x6E6A80), line = color(0xE4DEF7)
+// 강조는 낱말 하나만. 라벤더 브랜드색 중 글자 대비가 되는 진한 단계
+let accent = color(0x6550B9)
+let accentWord = ["ko": "한 줄", "en": "One line", "ja": "1行"]
 let statusCut: CGFloat = 162
 
 let copy: [String: (String, String)] = [
@@ -39,7 +42,11 @@ func attributed(_ s: String, _ px: CGFloat, _ c: NSColor, bold: Bool, align: NST
 
 // 제목과 설명을 한 덩어리로 x, 가운데 y에 그림
 func block(x: CGFloat, centerY: CGFloat, width: CGFloat, title: CGFloat, align: NSTextAlignment) {
-    let t = attributed(copy[lang]!.0, title, ink, bold: true, align: align)
+    let t = NSMutableAttributedString(attributedString: attributed(copy[lang]!.0, title, ink, bold: true, align: align))
+    if let r = copy[lang]!.0.range(of: accentWord[lang]!) {
+        let range = NSRange(r, in: copy[lang]!.0)
+        t.addAttributes([.foregroundColor: accent, .strokeColor: accent], range: range)
+    }
     let s = attributed(copy[lang]!.1, title * 0.46, sub, bold: false, align: align)
     let th = t.boundingRect(with: NSSize(width: width, height: 4000), options: [.usesLineFragmentOrigin]).height
     let sh = s.boundingRect(with: NSSize(width: width, height: 4000), options: [.usesLineFragmentOrigin]).height
@@ -82,17 +89,18 @@ bg.setFill(); NSRect(x: 0, y: 0, width: W, height: H).fill()
 switch mode {
 case "feature":
     // 왼쪽 글, 오른쪽에 아래가 잘린 화면 한 장
-    block(x: 80, centerY: H / 2, width: 520, title: 64, align: .left)
+    block(x: 80, centerY: H / 2, width: 520, title: 50, align: .left)
     phone("home", x: 640, top: 56, width: 320)
 case "header":
     // 안전 영역(1646×661, 가운데)에 글. 넓은 화면에서만 보이는 양옆에 화면
-    block(x: 1097, centerY: 493 + 661 / 2, width: 1646, title: 150, align: .center)
+    block(x: 1097, centerY: 493 + 661 / 2, width: 1646, title: 124, align: .center)
     phone("home", x: 3000, top: 330, width: 720)
     phone("detail", x: 120, top: 330, width: 720)
 case "search":
     // 왼쪽 글, 오른쪽 화면(안전 영역 836~3004 안)
-    block(x: 900, centerY: H / 2, width: 1300, title: 200, align: .left)
-    phone("home", x: 2060, top: 360, width: 900)
+    // 영어는 줄이 길어 두 줄에 들어가게 조금 줄임
+    block(x: 900, centerY: H / 2, width: 1160, title: lang == "en" ? 124 : 150, align: .left)
+    phone("home", x: 2170, top: 380, width: 830)
 default:
     fatalError(mode)
 }
