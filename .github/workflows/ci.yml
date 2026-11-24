@@ -136,7 +136,7 @@ jobs:
   ios:
     name: iOS 시험과 Xcode 빌드
     needs: changes
-    # macOS 러너로 1시간 가까이 걸려 PR과 손으로 돌릴 때만. 푸시는 PR에서 이미 본 것이라 건너뜀
+    # macOS 러너로 1시간 가까이 걸려 PR과 손으로 돌릴 때만. PR 없이 올린 커밋은 출시 전 로컬 전체 검사로 확인
     if: ${{ !cancelled() && github.event_name != 'push' && (needs.changes.result == 'skipped' || needs.changes.outputs.ios == 'true') }}
     # macos-latest는 어느 날 이미지와 Xcode가 바뀐다. 올릴 때는 여기 두 줄을 같이 고친다.
     runs-on: macos-26
