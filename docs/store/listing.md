@@ -13,7 +13,7 @@ Google Play 2.0.0 기준이다. 스크린샷은 `docs/store/screens/`(폰 `phone
 
 ## 간단한 설명
 
-Play는 2026-11-24에 자세한 설명(기본 등록정보 세 언어, 맞춤 등록정보 영어·일본어)을 게시했다. 같은 날 아래 간단한 설명을 기본·맞춤 등록정보 여섯 곳에 넣어 검토에 보냈다. 관리형 게시가 꺼져 있어 승인되면 바로 게시된다.
+Play는 2026-11-24에 아래 간단한 설명을 게시했다. 같은 날 자세한 설명 첫머리를 두 줄로 바꿔 기본·맞춤 등록정보 여섯 곳을 검토에 보냈다. 관리형 게시가 꺼져 있어 승인되면 바로 게시된다. App Store 설명은 Play와 같은 글을 다음 버전 제출 때 넣는다(출시된 버전은 설명을 고칠 수 없다).
 
 - 한국어: 한 줄이면 오늘 일기 끝. 짧게 써도 매일 쌓이면 나만의 기록이 돼요.
 - 영어: Today's entry in one line. Short entries add up to a record of your own.
@@ -28,7 +28,8 @@ Play는 목록 태그를 받지 않아 줄머리표(•)로 쓰고 묶음 제목
 ### 한국어
 
 ```text
-바쁜 날에도 쓰기 쉽게 꼭 필요한 것만 담은 일기장 앱이에요. 매일 한 편씩 쓰는 습관을 만들어 보세요.
+바쁜 날에도 쓰기 쉽게 꼭 필요한 것만 담은 일기장이에요.
+매일 한 편씩 쓰는 습관을 만들어 보세요.
 
 <b>일기 쓰기</b>
 • 사진, 날씨, 장소를 함께 담아요. 사진은 한 편에 10장까지예요.
@@ -64,6 +65,7 @@ Play는 목록 태그를 받지 않아 줄머리표(•)로 쓰고 묶음 제목
 
 ```text
 A diary with just what you need, so it's easy to write even on busy days.
+Build a habit of writing one entry a day.
 
 <b>Write</b>
 • Add photos, weather, and place. Up to 10 photos per entry.
@@ -99,6 +101,7 @@ Contact: sjunh812@naver.com
 
 ```text
 忙しい日でも書きやすいように、必要なものだけを入れた日記帳です。
+毎日1つずつ書く習慣をつくってみましょう。
 
 <b>日記を書く</b>
 • 写真、天気、場所を一緒に残せます。写真は1件に10枚までです。
@@ -138,7 +141,8 @@ App Store는 `<b>`를 그리지 않아 묶음 제목을 그대로 두고, "태�
 ### 한국어
 
 ```text
-바쁜 날에도 쓰기 쉽게 꼭 필요한 것만 담은 일기장 앱이에요. 매일 한 편씩 쓰는 습관을 만들어 보세요.
+바쁜 날에도 쓰기 쉽게 꼭 필요한 것만 담은 일기장이에요.
+매일 한 편씩 쓰는 습관을 만들어 보세요.
 
 일기 쓰기
 • 사진, 날씨, 장소를 함께 담아요. 사진은 한 편에 10장까지예요.
@@ -181,6 +185,7 @@ Plus 구독 안내
 
 ```text
 A diary with just what you need, so it's easy to write even on busy days.
+Build a habit of writing one entry a day.
 
 Write
 • Add photos, weather, and place. Up to 10 photos per entry.
@@ -223,6 +228,7 @@ Privacy Policy: https://sjunh812.pages.dev/1day1diary/privacy/
 
 ```text
 忙しい日でも書きやすいように、必要なものだけを入れた日記帳です。
+毎日1つずつ書く習慣をつくってみましょう。
 
 日記を書く
 • 写真、天気、場所を一緒に残せます。写真は1件に10枚までです。
