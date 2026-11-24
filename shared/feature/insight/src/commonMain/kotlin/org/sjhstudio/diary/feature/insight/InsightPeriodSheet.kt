@@ -21,29 +21,29 @@ import org.sjhstudio.diary.feature.insight.resources.insight_period_sheet_title
 
 /**
  * 기간 고르기(Figma "시안 · 돌아보기 기간 고르기")
- * 주는 날짜를 눌러 그 주로, 월·년은 칸을 눌러 바로 감. 오늘 뒤로는 가지 않음
- * [firstYear]는 첫 일기의 해. 지금 보는 해가 더 이르면 그 해부터
+ * 주는 날짜를 눌러 그 주로, 월·년은 칸을 눌러 바로 감
+ * 화살표와 같은 범위: [first]가 든 기간부터 오늘이 든 기간까지. 지금 보는 기간이 더 이르면 그 기간부터
  */
 @Composable
 internal fun InsightPeriodSheet(
     period: StatsPeriod,
     today: LocalDate,
-    firstYear: Int?,
+    first: LocalDate,
     onPick: (StatsPeriod) -> Unit,
     onDismiss: () -> Unit
 ) {
     val title = stringResource(Res.string.insight_period_sheet_title)
-    val shownYear = period.range?.start?.year ?: today.year
-    val years = minOf(firstYear ?: today.year, shownYear, today.year)..today.year
+    val from = minOf(first, period.range?.start ?: first)
+    val years = from.year..today.year
     when (period) {
-        is StatsPeriod.Week -> WeekSheet(period, today, years.first, title, onPick, onDismiss)
+        is StatsPeriod.Week -> WeekSheet(period, today, from, title, onPick, onDismiss)
 
         is StatsPeriod.Month -> DiaryMonthSheet(
             title = title,
             initialYear = period.month.year,
             shown = period.month,
             years = years.toList(),
-            enabled = { it <= today.yearMonth },
+            enabled = { it in from.yearMonth..today.yearMonth },
             onPick = { onPick(StatsPeriod.Month(it)) },
             onDismiss = onDismiss
         )
@@ -54,16 +54,18 @@ internal fun InsightPeriodSheet(
     }
 }
 
+/** [from]이 든 달부터 넘기고, [from]이 든 주부터 고름 */
 @Composable
 private fun WeekSheet(
     week: StatsPeriod.Week,
     today: LocalDate,
-    firstYear: Int,
+    from: LocalDate,
     title: String,
     onPick: (StatsPeriod) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val first = YearMonth(firstYear, 1).index
+    val first = from.yearMonth.index
+    val earliest = StatsPeriod.Week.of(from).start
     val last = today.yearMonth.index
     // 주가 두 달에 걸치면 오늘에 가까운 쪽 달을 먼저 보임
     // 돌려도 넘기던 달 유지
@@ -80,7 +82,7 @@ private fun WeekSheet(
                 month,
                 isPicked = { false },
                 onPick = { onPick(StatsPeriod.Week.of(it)) },
-                enabled = { StatsPeriod.Week.of(it).start <= today },
+                enabled = { it >= earliest && StatsPeriod.Week.of(it).start <= today },
                 isPickedWeek = { it == week.start }
             )
         }

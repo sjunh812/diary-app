@@ -6,6 +6,7 @@ import org.sjhstudio.diary.app.maintenance.DiaryCleanup
 import org.sjhstudio.diary.app.scaffold.HomeTopState
 import org.sjhstudio.diary.core.data.AppUpdateRepository
 import org.sjhstudio.diary.core.data.BackupRepository
+import org.sjhstudio.diary.core.data.CustomThemeReset
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.feature.home.HomeMonths
@@ -20,9 +21,11 @@ class AppRootViewModel(
     private val restore: RestoreRepository,
     private val updates: AppUpdateRepository,
     homeTop: HomeTopState,
-    homeMonths: HomeMonths
+    homeMonths: HomeMonths,
+    customTheme: CustomThemeReset
 ) : ViewModel() {
     init {
+        viewModelScope.launchSafely { customTheme.watch() }
         homeTop.start()
         // 홈 큰 제목이 첫 장면부터 맞는 달이게 홈보다 먼저 읽기 시작
         homeMonths.start()

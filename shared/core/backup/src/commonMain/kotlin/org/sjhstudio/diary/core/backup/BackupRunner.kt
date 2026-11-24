@@ -132,20 +132,24 @@ class BackupRunner(
     /** [cellularOnce]는 사용자가 이번만 모바일 데이터로 사진을 올리겠다고 고른 경우 */
     suspend fun run(cellularOnce: Boolean = false): BackupOutcome = running(cellularOnce, automatic = false)
 
-    private suspend fun running(cellularOnce: Boolean, automatic: Boolean): BackupOutcome = runCatchingFailure {
-        // 기록 이전이 끝나기 전의 일기는 일부뿐
-        // 그 상태를 가장 새 백업으로 남기지 않음
-        if (!dataReady() || !gate.tryEnter()) return@runCatchingFailure BackupOutcome.Busy
-        try {
-            if (db.backupDao().entryRows() == 0) return@runCatchingFailure BackupOutcome.Empty
-            store.update { it.copy(lastAttemptAt = clock.now()) }
-            runCatchingFailure { backUp(cellularOnce, automatic) }
-        } finally {
-            _progress.value = null
-            clearOutgoing()
-            gate.leave()
+    private suspend fun running(cellularOnce: Boolean, automatic: Boolean, stillAllowed: suspend () -> Boolean = { true }): BackupOutcome =
+        runCatchingFailure {
+            // 기록 이전이 끝나기 전의 일기는 일부뿐
+            // 그 상태를 가장 새 백업으로 남기지 않음
+            if (!dataReady() || !gate.tryEnter()) return@runCatchingFailure BackupOutcome.Busy
+            try {
+                // 잠금을 쥔 뒤 다시 봄. 앞서 본 뒤 계정이 바뀌어도 새 드라이브를 찾기 전에 올리지 않게
+                // 재시도·지금 백업도 이 자리를 지나 찾은 백업에 답하기 전에는 올리지 않음(스펙 003 US2 시나리오 7)
+                if (store.current().foundBackupWaiting || !stillAllowed()) return@runCatchingFailure BackupOutcome.Unchanged
+                if (db.backupDao().entryRows() == 0) return@runCatchingFailure BackupOutcome.Empty
+                store.update { it.copy(lastAttemptAt = clock.now()) }
+                runCatchingFailure { backUp(cellularOnce, automatic) }
+            } finally {
+                _progress.value = null
+                clearOutgoing()
+                gate.leave()
+            }
         }
-    }
 
     /**
      * 자동 백업
@@ -153,14 +157,17 @@ class BackupRunner(
      * 올리지 못한 사진이 남아 있어도 이번에 더 올릴 수 없으면 같음
      * 같은 내용 백업이 쌓이면 최근 5개 시점이 밀려남
      */
-    suspend fun runIfChanged(): BackupOutcome = runCatchingFailure {
+    suspend fun runIfChanged(stillAllowed: suspend () -> Boolean = { true }): BackupOutcome = runCatchingFailure {
         val prefs = store.current()
         val nothingToUpload = prefs.photosNotBackedUp == 0 || !mayUploadPhotos(prefs.photosOnCellular)
         if (nothingToUpload && !repaired(prefs.unusablePhotos) && sameAsLastBackup(prefs, fingerprint())) {
+            // 사진이 남았는데 올릴 수 없는 연결이라 건너뜀. 백업 화면이 Wi-Fi 기다림으로 말하게 적음
+            val waiting = prefs.photosNotBackedUp > 0 && !mayUploadPhotos(prefs.photosOnCellular)
+            if (waiting && !prefs.photosWaitingForWifi) store.update { it.copy(photosWaitingForWifi = true) }
             failures.unchanged()
             BackupOutcome.Unchanged
         } else {
-            running(cellularOnce = false, automatic = true)
+            running(cellularOnce = false, automatic = true, stillAllowed)
         }
     }
 
@@ -244,6 +251,8 @@ class BackupRunner(
         val fingerprint = fingerprint()
         step(BackupStep.Preparing)
         val account = signedIn()
+        // 성공 기록은 시작할 때 연결돼 있던 계정의 것
+        val connectedAtStart = store.current().accountKey
         val deviceId = store.deviceId()
         val folders = openFolders(account)
 
@@ -256,7 +265,9 @@ class BackupRunner(
         val photos = sendPhotos(snapshot, folders, account, now, cellularOnce)
         // 사진을 더 올리지 못했고 글도 그대로면 같은 내용 백업
         if (automatic && photos.uploaded.isEmpty() && sameAsLastBackup(store.current(), fingerprint)) {
-            store.update { it.copy(photosNotBackedUp = photos.left, unusablePhotos = photos.unusable) }
+            store.update {
+                it.copy(photosNotBackedUp = photos.left, photosWaitingForWifi = photos.waitingForWifi, unusablePhotos = photos.unusable)
+            }
             failures.unchanged(photos.bytesShort)
             return BackupOutcome.Unchanged
         }
@@ -267,7 +278,9 @@ class BackupRunner(
         step(BackupStep.Verifying)
         check(snapshotFile.id.isNotEmpty())
         db.rememberBases(snapshot.path)
+        // 끝나 가는 사이 연결을 끊거나 바꿨으면 적지 않음. 남기면 다음에 이은 계정의 백업처럼 보임
         store.update {
+            if (connectedAtStart == null || it.accountKey != connectedAtStart) return@update it
             it.copy(
                 lastSuccessAt = now,
                 lastSuccessSnapshot = base,
@@ -276,6 +289,7 @@ class BackupRunner(
                 failingSince = null,
                 lastFailure = BackupFailure.NO_SPACE.takeIf { photos.bytesShort > 0 },
                 photosNotBackedUp = photos.left,
+                photosWaitingForWifi = photos.waitingForWifi,
                 unusablePhotos = photos.unusable
             )
         }
@@ -316,7 +330,9 @@ class BackupRunner(
         val unusable: Set<String>,
         val left: Int,
         val bytesShort: Long,
-        val damaged: List<DriveFile>
+        val damaged: List<DriveFile>,
+        /** 사진을 올릴 수 없는 연결이라 올릴 사진을 남김 */
+        val waitingForWifi: Boolean
     )
 
     private suspend fun sendPhotos(
@@ -368,7 +384,8 @@ class BackupRunner(
                 it.sha256 !in inBackup && it.sha256 !in unusable
             },
             short,
-            damaged
+            damaged,
+            waitingForWifi = !allowed && missing.isNotEmpty()
         )
     }
 

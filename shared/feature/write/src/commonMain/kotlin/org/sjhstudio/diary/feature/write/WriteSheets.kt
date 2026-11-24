@@ -216,7 +216,7 @@ private fun PlaceField(text: String, finding: Boolean, onChange: (String) -> Uni
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 textStyle = DiaryTheme.typography.body.copy(color = colors.textPrimary),
-                cursorBrush = SolidColor(colors.accent)
+                cursorBrush = SolidColor(colors.accentIcon)
             )
         }
         if (finding) {

@@ -5,6 +5,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
@@ -61,7 +63,7 @@ class InsightPeriodSheetUiTest {
                             picked = it
                             period = it
                         },
-                        firstYear = 2024
+                        first = LocalDate(2024, 1, 1)
                     )
                 }
             }
@@ -96,9 +98,46 @@ class InsightPeriodSheetUiTest {
         assertEquals(
             StatsPeriod.Week(LocalDate(2026, 11, 1)),
             pick(StatsPeriod.Week(LocalDate(2026, 11, 8)), {
-                it.monthDay(LocalDate(2026, 11, 8))
+                it.dateRange(LocalDate(2026, 11, 8), LocalDate(2026, 11, 14), withYear = false)
             }) { "4" }
         )
+    }
+
+    /** 첫 일기가 든 달이면 화살표도 시트도 그 앞으로 가지 않음 */
+    @Test
+    fun arrows_and_sheet_start_at_the_first_month() = runComposeUiTest {
+        var title = ""
+        var previous = ""
+        var next = ""
+        var february = ""
+        var march = ""
+        setContent {
+            title = stringResource(Res.string.insight_period_sheet_title)
+            previous = stringResource(Res.string.insight_previous)
+            next = stringResource(Res.string.insight_next)
+            val dates = rememberDiaryDateFormat()
+            february = dates.monthShort(LocalDate(2026, 2, 1))
+            march = dates.monthShort(LocalDate(2026, 3, 1))
+            DiaryTheme(darkTheme = false) {
+                InsightScreen(
+                    period = StatsPeriod.Month(YearMonth(2026, 3)),
+                    data = InsightData(MoodCounts(emptyMap(), 0), emptyList(), emptyMap()),
+                    today = today,
+                    onKind = {},
+                    onPrevious = {},
+                    onNext = {},
+                    onMood = {},
+                    first = LocalDate(2026, 3, 1)
+                )
+            }
+        }
+        onNode(hasContentDescription(previous)).assertIsNotEnabled()
+        onNode(hasContentDescription(next)).assertIsEnabled()
+        onNode(hasText("2026", substring = true).and(hasClickAction())).performClick()
+        waitForIdle()
+        onNode(hasText(title)).assertExists()
+        onNode(hasText(february).and(hasClickAction())).assertIsNotEnabled()
+        onNode(hasText(march).and(hasClickAction())).assertIsEnabled()
     }
 
     /** 전체는 넘기거나 고를 기간이 없어 기간 줄을 두지 않음 */
@@ -119,7 +158,8 @@ class InsightPeriodSheetUiTest {
                     onKind = {},
                     onPrevious = {},
                     onNext = {},
-                    onMood = {}
+                    onMood = {},
+                    first = today
                 )
             }
         }

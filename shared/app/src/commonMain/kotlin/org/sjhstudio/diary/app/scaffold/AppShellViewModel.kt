@@ -23,6 +23,7 @@ import org.sjhstudio.diary.app.lock.LockState
 import org.sjhstudio.diary.app.navigation.EntryDetailKey
 import org.sjhstudio.diary.app.navigation.WriteKey
 import org.sjhstudio.diary.core.data.AdRepository
+import org.sjhstudio.diary.core.data.CustomThemeReset
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PromptRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
@@ -178,7 +179,7 @@ class AppShellViewModel(
 /** 앱 틀 화면 모델 등록. 앱과 화면 시험이 함께 씀 */
 val appShellModule =
     module {
-        viewModel { AppRootViewModel(get(), get(), get(), get(), get(), get()) }
+        viewModel { AppRootViewModel(get(), get(), get(), get(), get(), get(), CustomThemeReset(get(), get())) }
         viewModel {
             val ads = get<AdRepository>()
             AppShellViewModel(

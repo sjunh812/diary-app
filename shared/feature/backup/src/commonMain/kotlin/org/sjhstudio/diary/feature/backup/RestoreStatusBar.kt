@@ -17,12 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryStatusBox
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastResult
@@ -31,6 +31,7 @@ import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.PhotoStop
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.model.RollbackRun
@@ -41,6 +42,9 @@ import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.backup_folder_body
 import org.sjhstudio.diary.feature.backup.resources.backup_folder_ok
 import org.sjhstudio.diary.feature.backup.resources.backup_folder_title
+import org.sjhstudio.diary.feature.backup.resources.backup_skip_busy
+import org.sjhstudio.diary.feature.backup.resources.backup_skip_empty
+import org.sjhstudio.diary.feature.backup.resources.backup_skip_not_checked
 import org.sjhstudio.diary.feature.backup.resources.file_stopped_notice
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending_body
@@ -53,6 +57,8 @@ import org.sjhstudio.diary.feature.backup.resources.restore_wait_account
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_file
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_network
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_now
+import org.sjhstudio.diary.feature.backup.resources.restore_wait_other_account
+import org.sjhstudio.diary.feature.backup.resources.restore_wait_other_account_unnamed
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_pick
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_running
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_wifi
@@ -101,6 +107,26 @@ fun BundleStoppedNotice(toast: DiaryToastState, onOpen: () -> Unit) {
             viewModel.shown()
             val shown = toast.show(getString(Res.string.file_stopped_notice), getString(Res.string.restore_see_result))
             if (shown == DiaryToastResult.ActionPerformed) open()
+        }
+    }
+}
+
+/**
+ * 지금 백업이나 연결이 올리지 않고 끝난 까닭을 앱 틀 토스트로 한 번 알림
+ * 홈 권하기 카드에서 연결해도 받도록 한 곳에서만 받음. 두 곳에서 받으면 두 번 뜸
+ */
+@Composable
+fun BackupSkipNotice(toast: DiaryToastState) {
+    val backup = koinInject<BackupRepository>()
+    LaunchedEffect(backup) {
+        backup.skipped.collect { skip ->
+            val text =
+                when (skip) {
+                    BackupSkip.NO_ENTRIES -> Res.string.backup_skip_empty
+                    BackupSkip.BUSY -> Res.string.backup_skip_busy
+                    BackupSkip.NOT_CHECKED -> Res.string.backup_skip_not_checked
+                }
+            toast.show(getString(text))
         }
     }
 }
@@ -188,8 +214,8 @@ private fun Rollback(run: RollbackRun, onRollBack: () -> Unit, modifier: Modifie
 private fun Waiting(waiting: WaitingPhotos, onFetch: () -> Unit, onPickFile: () -> Unit, modifier: Modifier = Modifier) {
     val (label, action) =
         when (waiting.stop) {
-            // 받는 중이거나 연결이 풀렸으면 눌러도 나아지지 않음
-            null, PhotoStop.ACCOUNT -> null to null
+            // 받는 중이거나 연결이 풀렸거나 다른 계정이면 눌러도 나아지지 않음
+            null, PhotoStop.ACCOUNT, PhotoStop.OTHER_ACCOUNT -> null to null
 
             PhotoStop.FILE -> Res.string.restore_wait_pick to onPickFile
 
@@ -198,7 +224,7 @@ private fun Waiting(waiting: WaitingPhotos, onFetch: () -> Unit, onPickFile: () 
     DiaryStatusBox(
         DiaryIcons.Download,
         pluralStringResource(Res.plurals.restore_note_pending, waiting.count, waiting.count.grouped()),
-        stringResource(waitingBody(waiting.stop)),
+        waitingBody(waiting),
         modifier,
         actionLabel = label?.let { stringResource(it) },
         onAction = action
@@ -206,12 +232,25 @@ private fun Waiting(waiting: WaitingPhotos, onFetch: () -> Unit, onPickFile: () 
 }
 
 /** 시스템이 깨워 주지 않는 플랫폼에서는 앱을 다시 열어야 이어짐 */
-private fun waitingBody(stop: PhotoStop?): StringResource = when (stop) {
-    null -> Res.string.restore_wait_running
-    PhotoStop.NO_SPACE -> Res.string.restore_note_pending_space_body
-    PhotoStop.ACCOUNT -> Res.string.restore_wait_account
-    PhotoStop.FILE -> Res.string.restore_wait_file
-    PhotoStop.NETWORK -> if (workContinuesInBackground) Res.string.restore_wait_network else Res.string.restore_note_pending_body
-    PhotoStop.WIFI -> if (workContinuesInBackground) Res.string.restore_wait_wifi else Res.string.restore_note_pending_body
-    PhotoStop.INTERRUPTED -> Res.string.restore_note_pending_body
+@Composable
+private fun waitingBody(waiting: WaitingPhotos): String = when (waiting.stop) {
+    null -> stringResource(Res.string.restore_wait_running)
+
+    PhotoStop.NO_SPACE -> stringResource(Res.string.restore_note_pending_space_body)
+
+    PhotoStop.ACCOUNT -> stringResource(Res.string.restore_wait_account)
+
+    // 이메일을 모르는 계정이면 이름 없이
+    PhotoStop.OTHER_ACCOUNT -> waiting.account?.let { stringResource(Res.string.restore_wait_other_account, it) }
+        ?: stringResource(Res.string.restore_wait_other_account_unnamed)
+
+    PhotoStop.FILE -> stringResource(Res.string.restore_wait_file)
+
+    PhotoStop.NETWORK -> stringResource(
+        if (workContinuesInBackground) Res.string.restore_wait_network else Res.string.restore_note_pending_body
+    )
+
+    PhotoStop.WIFI -> stringResource(if (workContinuesInBackground) Res.string.restore_wait_wifi else Res.string.restore_note_pending_body)
+
+    PhotoStop.INTERRUPTED -> stringResource(Res.string.restore_note_pending_body)
 }

@@ -12,6 +12,7 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import kotlin.test.Test
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.BackupConnection
@@ -34,7 +35,9 @@ import org.sjhstudio.diary.feature.backup.resources.backup_line_receiving
 import org.sjhstudio.diary.feature.backup.resources.backup_no_space_title
 import org.sjhstudio.diary.feature.backup.resources.backup_now
 import org.sjhstudio.diary.feature.backup.resources.backup_options
+import org.sjhstudio.diary.feature.backup.resources.backup_photos_next
 import org.sjhstudio.diary.feature.backup.resources.backup_stopped_title
+import org.sjhstudio.diary.feature.backup.resources.backup_upload_cellular
 import org.sjhstudio.diary.feature.backup.resources.restore_legacy_row
 import org.sjhstudio.diary.feature.backup.resources.restore_row
 
@@ -69,6 +72,48 @@ class BackupStatusUiTest {
         onNodeWithText(title).assertExists()
         onNode(hasText(reason, substring = true)).assertExists()
         onAllNodesWithText(allDone).assertCountEquals(0)
+    }
+
+    /** 모바일 데이터로도 올리게 해 두었으면 남은 사진을 Wi-Fi를 기다린다고 말하지 않고 모바일 데이터 버튼도 없음 */
+    @Test
+    fun photos_left_with_mobile_data_allowed_do_not_wait_for_wifi() = runComposeUiTest {
+        var next = ""
+        var cellular = ""
+        setContent {
+            next = pluralStringResource(Res.plurals.backup_photos_next, 2, "2")
+            cellular = stringResource(Res.string.backup_upload_cellular)
+            Screen(connected.copy(photosNotBackedUp = 2, photosOnCellular = true))
+        }
+
+        onNode(hasText(next, substring = true)).assertExists()
+        onAllNodesWithText(cellular).assertCountEquals(0)
+    }
+
+    /** Wi-Fi에서만이어도 마지막 백업이 Wi-Fi 때문에 남긴 사진이 아니면 다음 백업이 올림 */
+    @Test
+    fun new_photos_on_wifi_only_wait_for_the_next_backup() = runComposeUiTest {
+        var next = ""
+        var cellular = ""
+        setContent {
+            next = pluralStringResource(Res.plurals.backup_photos_next, 2, "2")
+            cellular = stringResource(Res.string.backup_upload_cellular)
+            Screen(connected.copy(photosNotBackedUp = 2, photosHeldForWifi = false))
+        }
+
+        onNode(hasText(next, substring = true)).assertExists()
+        onAllNodesWithText(cellular).assertCountEquals(0)
+    }
+
+    /** 마지막 백업이 Wi-Fi를 기다리느라 남겼으면 Wi-Fi 안내와 모바일 데이터 버튼 */
+    @Test
+    fun photos_held_for_wifi_offer_mobile_data() = runComposeUiTest {
+        var cellular = ""
+        setContent {
+            cellular = stringResource(Res.string.backup_upload_cellular)
+            Screen(connected.copy(photosNotBackedUp = 2, photosHeldForWifi = true))
+        }
+
+        onNodeWithText(cellular).assertExists()
     }
 
     /** 연결한 뒤 드라이브를 찾는 동안에는 찾는다고 말하고 백업을 막음 */

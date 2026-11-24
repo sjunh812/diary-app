@@ -31,17 +31,23 @@ location.replace('/'+s+'/1day1diary/'+location.hash)})();
 <meta property="og:image:alt" content="{{ t.name }}">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/favicon.png">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-<style>
+{% if lang != 'ja' %}<link rel="preload" href="/assets/fonts/changwon-round.woff2" as="font" type="font/woff2" crossorigin>
+{% endif %}<style>
+/* 글꼴: 스토어 그림·앱 캡처와 같은 창원단감둥근체(한글 2350자로 줄임). 굵기가 하나라 굵은 글은 테두리로 두껍게(스토어 그림과 같은 방식)
+   일본어는 이 글꼴에 한자가 없어 시스템 글꼴(docs/design.md 여러 언어) */
+@font-face{font-family:"Changwon Round";src:url(/assets/fonts/changwon-round.woff2) format("woff2");font-display:swap}
 :root{--ease:cubic-bezier(.05,.7,.1,1);--toast:#2A3038;--onToast:#fff;--canvas:#fff;--card:#F8F8FF;--sunken:#F3F4F5;--line:#EEEFF1;--text:#1A1C20;--text2:#555D6D;--text3:#868B94;--accent:#6E56CF;--accentText:#6550B9;--selected:#EBE4FF;--onAccent:#fff;--frame:#E9EAEE;--header:rgba(255,255,255,.82);--divider:#E6E8EB}
 @media (prefers-color-scheme:dark){:root{--canvas:#16171B;--card:#1D2025;--sunken:#2B2E35;--line:#2B2E35;--text:#F3F4F5;--text2:#DCDEE3;--text3:#9BA0AA;--accentText:#BAA7FF;--selected:#291F43;--frame:#2B2E35;--header:rgba(22,23,27,.82);--divider:#3A3E46;--toast:#393D46;--onToast:#F3F4F5}}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;scroll-behavior:smooth;scroll-padding-top:72px}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
-body{margin:0;overflow-x:hidden;background:var(--canvas);color:var(--text);font:16px/1.7 "Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Hiragino Sans","Noto Sans JP",sans-serif;word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
+body{margin:0;overflow-x:hidden;background:var(--canvas);color:var(--text);font:16px/1.7 "Changwon Round",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-synthesis:none;word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
 a{color:var(--accentText)}
 /* 일본어는 띄어쓰기가 없어 keep-all이면 줄이 넘침. 구절 단위로 줄바꿈 */
-html[lang=ja] body{word-break:normal;line-break:strict}
+html[lang=ja] body{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;font-synthesis:weight;word-break:normal;line-break:strict}
+/* 굵은 글: 큰 제목은 글자 크기의 3.4%, 작은 글은 1.6% 테두리(make_screens.swift와 같음) */
+html:not([lang=ja]) :is(h1,h2,.section-title){-webkit-text-stroke:.034em currentColor}
+html:not([lang=ja]) :is(h3,.label,.button,.brand,.faq summary,th,strong,b,footer .langs a[aria-current]){-webkit-text-stroke:.016em currentColor}
 @supports (word-break:auto-phrase){html[lang=ja] body{word-break:auto-phrase}}
 /* 제목은 줄 길이를 고르게, 설명은 마지막 줄에 한 단어만 남지 않게 */
 h1,h2,h3{text-wrap:balance}
@@ -90,6 +96,8 @@ th{background:var(--sunken);font-weight:600}
 .hero{position:relative;overflow-x:clip;padding:104px 0 0;background:linear-gradient(180deg,var(--card) 0%,var(--canvas) 100%)}
 .hero-grid{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:48px}
 .hero h1{font-size:72px;line-height:1.16;font-weight:800;letter-spacing:-.035em;margin:0 0 20px}
+/* 일본어는 한 줄 글자 수가 많아 줄여 두 줄에 맞춤 */
+html[lang=ja] .hero h1{font-size:60px}
 /* 첫 제목에서 한 곳만 브랜드색. 앱의 약속(하루 한 줄)을 짚음 */
 .hl{font-style:normal;color:var(--accentText)}
 .lead{font-size:20px;line-height:1.6;color:var(--text2);margin:0}
@@ -102,24 +110,23 @@ th{background:var(--sunken);font-weight:600}
 .hero-visual::before{content:"";position:absolute;width:600px;height:600px;top:0;left:50%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,var(--selected) 0%,transparent 68%);pointer-events:none}
 .phone.hero-shot{position:relative;width:320px;margin-bottom:-180px;-webkit-mask-image:linear-gradient(180deg,#000 42%,transparent 70%);mask-image:linear-gradient(180deg,#000 42%,transparent 70%)}
 
-/* 기분 얼굴(Headspace·Duolingo처럼 앱만의 얼굴로 첫인상): 첫 화면 폰 둘레에 여섯, 마지막 권유에 아홉. 움직이지 않음 */
+/* 기분 얼굴(Headspace·Duolingo처럼 앱만의 얼굴로 첫인상): 첫 화면 폰 둘레에 여섯(떠 있음), 마지막 권유에 아홉(가만히) */
 .ring{position:absolute;inset:0;z-index:2;pointer-events:none}
 .ring .face{position:absolute;width:64px;height:64px;filter:drop-shadow(0 8px 16px rgba(26,28,32,.12))}
 .ring .f0{left:2%;top:12%}.ring .f1{right:4%;top:4%;width:56px;height:56px}.ring .f2{left:-2%;top:46%;width:52px;height:52px}
 .ring .f3{right:0;top:38%}.ring .f4{left:12%;top:76%;width:48px;height:48px}.ring .f5{right:12%;top:70%;width:44px;height:44px}
+/* 처음 열 때 하나씩 살짝 튀어나오고(600ms), 그 뒤로 각자 다른 속도로 8px 위아래로 떠 있음
+   속도와 시작점을 엇갈려 같이 움직이지 않게. 움직임 줄이기면 .motion이 없어 가만히 있음 */
+@keyframes face-in{from{opacity:0;scale:.6}}
+@keyframes face-float{50%{translate:0 -8px}}
+.motion .ring .face{will-change:translate;animation:face-in 600ms cubic-bezier(.34,1.56,.64,1) var(--in) both,face-float var(--float) ease-in-out var(--phase) infinite}
+.ring .f0{--in:.15s;--float:4.6s;--phase:-1.2s}.ring .f1{--in:.25s;--float:5.4s;--phase:-3.1s}.ring .f2{--in:.35s;--float:5s;--phase:-.4s}
+.ring .f3{--in:.45s;--float:4.2s;--phase:-2.6s}.ring .f4{--in:.55s;--float:5.8s;--phase:-4s}.ring .f5{--in:.65s;--float:4.8s;--phase:-1.8s}
 .face-row{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
 .face-row .face{width:48px;height:48px}
 /* 휴대폰 틀 */
 .phone{width:260px;padding:7px;border-radius:41px;background:var(--frame);box-shadow:0 1px 2px rgba(26,28,32,.06),0 24px 56px rgba(26,28,32,.14)}
 .phone img{display:block;width:100%;height:auto;border-radius:34px}
-/* 가상 상태바: 스크린샷의 안드로이드 상태바는 가장자리에 붙어 둥근 틀에 잘려서 지우고 다시 그림
-   폰 폭에 따라 같은 비율로 줄도록 폰 폭(cqw) 단위. 높이는 지운 띠(원본 1080 가운데 84px, 화면 폭의 7.8%)와 같음 */
-.phone{position:relative;container-type:inline-size}
-.statusbar{position:absolute;z-index:1;top:7px;left:7px;right:7px;display:flex;align-items:center;justify-content:space-between;height:7.8cqw;padding:0 9.5cqw 0 10cqw;color:#1A1C20;font-size:3.5cqw;font-weight:600;letter-spacing:-.01em;line-height:1;font-variant-numeric:tabular-nums}
-.statusbar svg{width:16.5cqw;height:auto}
-/* 시트 뒤가 어둡게 덮인 화면은 상태바도 같이 덮인 색 */
-.phone.dim .statusbar{color:rgba(26,28,32,.55)}
-
 /* 기능: 넓은 화면은 한 섹션에 하나, 글과 화면을 번갈아. 제목 44px(Day One 48, 토스 40) */
 .features{padding:120px 0 0}
 .feature{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:64px;padding:0 0 120px}
@@ -128,16 +135,24 @@ th{background:var(--sunken);font-weight:600}
 .feature h2,.wide-card h2{font-size:44px;line-height:1.28;font-weight:800;margin:0 0 20px;letter-spacing:-.03em}
 .feature p,.wide-card p{margin:0;font-size:19px;line-height:1.65;color:var(--text2)}
 .feature-text{max-width:420px;justify-self:center}
-.feature-visual{position:relative;display:flex;justify-content:center}
+/* 폰 뒤에 옅은 면을 깔아 화면이 바탕에 떠 보이지 않게. 면 안쪽 여백은 폰과 면 사이 간격보다 넓게 */
+.feature-visual{position:relative;display:flex;justify-content:center;padding:56px 0;border-radius:32px;background:var(--card)}
 .feature .phone{width:280px}
 .features:focus-visible{outline-offset:4px}
 
 /* 태블릿: 넓은 화면이라 기기 하나를 크게 */
 .wide-card{text-align:center;padding:0}
 .wide-card p{max-width:560px;margin:0 auto}
-/* 사진 귀퉁이에 남은 기기 모서리(지름 약 30px)가 보이지 않게 둥글림. 틀은 사진 반지름 + 틀 두께 */
-.tablet{width:min(960px,100%);margin:56px auto 0;padding:10px;border-radius:34px;background:var(--frame);box-shadow:0 24px 56px rgba(26,28,32,.14)}
-.tablet img{display:block;width:100%;height:auto;border-radius:24px}
+/* iPad 캡처 귀퉁이에 남은 기기 모서리가 보이지 않게 둥글림. 틀은 사진 반지름 + 틀 두께 */
+.tablet{width:min(960px,100%);margin:56px auto 0;padding:10px;border-radius:50px;background:var(--frame);box-shadow:0 24px 56px rgba(26,28,32,.14)}
+.tablet img{display:block;width:100%;height:auto;border-radius:40px}
+
+/* 이런 것도 돼요: 작은 기능을 같은 크기 칸에. 제목과 한 줄 설명만 */
+.more{padding:140px 0 0}
+.more-list{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:0;padding:0;list-style:none}
+.more-list li{padding:28px;border-radius:24px;background:var(--card)}
+.more-list h3{margin:0 0 8px;font-size:19px;line-height:1.4}
+.more-list p{margin:0;font-size:16px;line-height:1.6;color:var(--text2)}
 
 /* 믿고 쓰는 까닭: 상자 없이 아이콘 원·제목·설명만 */
 .section-title{font-size:44px;line-height:1.28;font-weight:800;letter-spacing:-.03em;text-align:center;margin:0 0 56px}
@@ -189,7 +204,10 @@ footer .langs a[aria-current]{color:var(--text);font-weight:600}
 /* 태블릿 폭: 글과 화면은 나란히 두되 줄임 */
 @media (max-width:1024px){
   .hero h1{font-size:56px}
+  html[lang=ja] .hero h1{font-size:46px}
   .feature{gap:40px;padding-bottom:96px}
+  .feature-visual{padding:44px 0}
+  .more-list{grid-template-columns:repeat(2,1fr)}
   .feature h2,.wide-card h2,.section-title,.cta h2{font-size:38px}
   .feature .phone{width:240px}
   .phone.hero-shot{width:280px}
@@ -202,6 +220,7 @@ footer .langs a[aria-current]{color:var(--text);font-weight:600}
   .hero-grid{grid-template-columns:1fr;gap:40px}
   .badges{justify-content:center}
   .hero h1{font-size:40px;margin:0 0 16px}
+  html[lang=ja] .hero h1{font-size:34px}
   .lead{font-size:17px}
   .badges{margin-top:28px}
   .hero-visual::before{width:400px;height:400px;top:0}
@@ -211,7 +230,7 @@ footer .langs a[aria-current]{color:var(--text);font-weight:600}
   .features::-webkit-scrollbar{display:none}
   .feature{display:flex;flex-direction:column;scroll-snap-align:start;height:620px;gap:0;padding:36px 24px 0;overflow:hidden;border-radius:28px;background:var(--card);text-align:center}
   .feature:nth-child(even) .feature-text{order:0}
-  .feature-visual{padding:0;margin-top:28px;background:none}
+  .feature-visual{padding:0;margin-top:28px;border-radius:0;background:none}
   /* 쓰기 화면은 기분 시트가 아래쪽이라 기분 얼굴까지 보이게 카드를 높이고 폰을 줄임 */
   .feature .phone{width:196px}
   /* 넘기는 줄의 화면 밖 카드는 세로 스크롤로 보이지 않아 줄째 띄움 */
@@ -223,9 +242,13 @@ footer .langs a[aria-current]{color:var(--text);font-weight:600}
   .feature p,.wide-card p,.trust-list p{font-size:16px;line-height:1.6}
   .label{font-size:15px;margin-bottom:8px}
   .wide-card{margin-top:88px}
-  .tablet{margin-top:36px;padding:6px;border-radius:18px}
-  .tablet img{border-radius:12px}
-  .trust,.faq{padding-top:96px}
+  .tablet{margin-top:36px;padding:6px;border-radius:22px}
+  .tablet img{border-radius:16px}
+  .trust,.faq,.more{padding-top:96px}
+  .more-list{grid-template-columns:1fr;gap:12px}
+  .more-list li{padding:20px 24px;border-radius:20px}
+  .more-list h3{font-size:17px;margin-bottom:4px}
+  .more-list p{font-size:15px}
   .section-title{margin-bottom:36px}
   .trust-list{grid-template-columns:1fr;gap:36px}
   .trust-list h3{margin-top:16px;font-size:18px}

@@ -414,7 +414,7 @@ private fun TopActions(favoritesOnly: Boolean, onToggle: () -> Unit, onSearch: (
             DiaryIcon(
                 if (favoritesOnly) DiaryIcons.StarFilled else DiaryIcons.StarOutline,
                 contentDescription = stringResource(Res.string.home_favorites_only),
-                tint = if (favoritesOnly) colors.accent else colors.textPrimary
+                tint = if (favoritesOnly) colors.accentIcon else colors.textPrimary
             )
         }
     }

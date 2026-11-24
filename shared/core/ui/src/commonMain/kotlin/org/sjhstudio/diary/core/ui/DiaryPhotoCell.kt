@@ -58,7 +58,7 @@ fun DiaryPhotoCell(photos: List<String?>, modifier: Modifier = Modifier, more: I
         if (extra > 0) {
             BasicText(
                 "+$extra",
-                style = DiaryTheme.typography.micro.copy(color = DiaryTheme.colors.onAccent),
+                style = DiaryTheme.typography.micro.copy(color = DiaryTheme.colors.onPhotoContent),
                 modifier =
                     Modifier
                         .align(Alignment.BottomEnd)

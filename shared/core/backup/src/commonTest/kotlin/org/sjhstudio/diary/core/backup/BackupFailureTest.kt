@@ -40,7 +40,7 @@ class BackupFailureTest {
     fun setUp() {
         dir = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "backup-failure-${Random.nextLong()}"
         drive = FakeDrive(fs)
-        phone = TestPhone(dir / "phone", drive)
+        phone = TestPhone(dir / "phone", drive, connected = true)
     }
 
     @AfterTest

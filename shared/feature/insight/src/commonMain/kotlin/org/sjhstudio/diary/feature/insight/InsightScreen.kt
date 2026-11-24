@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,9 +43,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
@@ -145,7 +152,6 @@ import org.sjhstudio.diary.feature.insight.resources.insight_top_past
 import org.sjhstudio.diary.feature.insight.resources.insight_top_week
 import org.sjhstudio.diary.feature.insight.resources.insight_top_year
 import org.sjhstudio.diary.feature.insight.resources.insight_week_number
-import org.sjhstudio.diary.feature.insight.resources.insight_week_range
 import org.sjhstudio.diary.feature.insight.resources.insight_write
 import org.sjhstudio.diary.feature.insight.resources.insight_year_map
 import org.sjhstudio.diary.feature.insight.resources.tip_insight_open
@@ -166,7 +172,7 @@ fun InsightRoute(
     val period = state.period
     val advancedOpen by viewModel.advancedOpen.collectAsStateWithLifecycle()
     val today by viewModel.todayState.collectAsStateWithLifecycle()
-    val firstYear by viewModel.firstYear.collectAsStateWithLifecycle()
+    val first by viewModel.first.collectAsStateWithLifecycle()
     LifecycleResumeEffect(viewModel) {
         viewModel.refreshToday()
         onPauseOrDispose {}
@@ -181,7 +187,7 @@ fun InsightRoute(
         onPrevious = viewModel::previous,
         onNext = viewModel::next,
         onJump = viewModel::jump,
-        firstYear = firstYear,
+        first = first,
         onMood = {
             viewModel.tried()
             onMood(it, period.range)
@@ -209,9 +215,9 @@ internal fun InsightScreen(
     onPrevious: () -> Unit,
     onNext: () -> Unit,
     onMood: (Mood) -> Unit,
+    first: LocalDate?,
     modifier: Modifier = Modifier,
     onJump: (StatsPeriod) -> Unit = {},
-    firstYear: Int? = null,
     failed: Boolean = false,
     onRetry: () -> Unit = {},
     onPeriod: (DateRange) -> Unit = {},
@@ -294,12 +300,13 @@ internal fun InsightScreen(
             } else {
                 Spacer(Modifier.height(DiarySpacing.x1))
                 PeriodNav(
-                    periodLabel(period, dates),
-                    period.previous() != null,
+                    periodLabel(period, dates, today),
+                    first?.let { period.previous(it) != null },
                     period.next(today) != null,
                     onPrevious,
                     onNext,
-                    onPick = { picking = true }
+                    // 첫날을 읽기 전에는 고를 범위를 몰라 누르지 않음. 누른 것이 남았다가 시트가 늦게 저절로 뜸
+                    onPick = if (first != null) ({ picking = true }) else null
                 )
             }
             // 빈 한 줄은 위 24를 스스로 둠
@@ -310,12 +317,10 @@ internal fun InsightScreen(
             // 처음 보는 기간을 잠깐 읽는 동안 하얗게 번쩍이지 않게 천천히 옅어짐
             val reduceMotion = rememberReduceMotion()
             val shade by animateFloatAsState(if (data == null) 0f else 1f, tween(if (reduceMotion) 0 else DiaryMotion.QUICK_MILLIS))
-            val hidden =
-                if (data == null) {
-                    Modifier.fillMaxWidth().alpha(shade).clearAndSetSemantics {}
-                } else {
-                    Modifier.fillMaxWidth().alpha(shade)
-                }
+            // 옅어지는 값은 그리기 단계에서만 읽음. 화면을 짤 때 읽으면 옅어지는 동안 화면 전체를 프레임마다 다시 짬
+            // 숨긴 앞 기간은 스크린 리더도 읽지 않고 누르거나 초점이 가지 않음. 누르면 보이지 않는 칸의 기간으로 찾기가 열림
+            val inert = if (data == null) Modifier.clearAndSetSemantics {}.blockTouches() else Modifier
+            val hidden = Modifier.fillMaxWidth().graphicsLayer { alpha = shade }.then(inert)
             if (shown?.counts?.total != 0) Spacer(Modifier.height(DiarySpacing.x3))
             // 탭을 처음 열 때는 뼈대가 바로, 기간을 바꾸는 다시 읽기는 0.3초 뒤라 짧은 틈에는 안 보임
             Box {
@@ -330,8 +335,13 @@ internal fun InsightScreen(
                 }
                 when {
                     data != null -> Unit
+
                     failed -> LoadFailedLine(onRetry)
-                    else -> InsightSkeleton(period.kind, delayed = shown != null)
+
+                    // 다시 읽는 동안은 앞 기간 자리 안에서만 그림. 뼈대 크기를 따르면 아래 광고가 밀렸다 돌아오며 깜빡임
+                    shown != null -> InsightSkeleton(period.kind, Modifier.matchParentSize().clipToBounds())
+
+                    else -> InsightSkeleton(period.kind, delayed = false)
                 }
             }
             if (shown != null && shown.counts.total > 0) {
@@ -341,11 +351,11 @@ internal fun InsightScreen(
             }
         }
     }
-    if (picking) {
+    if (picking && first != null) {
         InsightPeriodSheet(
             period,
             today,
-            firstYear,
+            first,
             onPick = {
                 picking = false
                 onJump(it)
@@ -355,13 +365,9 @@ internal fun InsightScreen(
     }
 }
 
-@Composable
-private fun periodLabel(period: StatsPeriod, dates: DiaryDateFormat): String = when (period) {
-    is StatsPeriod.Week -> stringResource(
-        Res.string.insight_week_range,
-        dates.monthDay(period.range.start),
-        dates.monthDay(period.range.end)
-    )
+/** 주는 올해면 연도를 뺌(홈 달 머리글과 같음). 해가 바뀌는 주는 형식이 양쪽에 연도를 붙임. 월·년은 늘 연도 */
+internal fun periodLabel(period: StatsPeriod, dates: DiaryDateFormat, today: LocalDate): String = when (period) {
+    is StatsPeriod.Week -> dates.dateRange(period.range.start, period.range.end, withYear = period.range.start.year != today.year)
 
     is StatsPeriod.Month -> dates.yearMonth(period.month.onDay(1))
 
@@ -371,26 +377,28 @@ private fun periodLabel(period: StatsPeriod, dates: DiaryDateFormat): String = w
     StatsPeriod.All -> ""
 }
 
-/** 기간 이름을 누르면 기간 고르기. 전체 기간처럼 고를 곳이 없으면 [onPick]이 null */
+/** 기간 이름을 누르면 기간 고르기. 고를 범위를 모르면 [onPick]이 null */
 @Composable
 private fun PeriodNav(
     label: String,
-    hasPrevious: Boolean,
+    hasPrevious: Boolean?,
     hasNext: Boolean,
     onPrevious: () -> Unit,
     onNext: () -> Unit,
-    onPick: () -> Unit
+    onPick: (() -> Unit)?
 ) {
     val colors = DiaryTheme.colors
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        // 넘길 곳이 없으면 자리는 두고 흐리게
+        // 넘길 곳이 없으면 자리는 두고 흐리게. 첫날을 읽기 전([hasPrevious]가 null)에는 꺼짐이라 하지 않고 자리만
         // 누르는 칸 안쪽 여백만큼 밀어 화살표를 위아래 내용과 같은 선에 맞춤
         DiaryIconButton(
             DiaryIcons.ChevronLeft,
             stringResource(Res.string.insight_previous),
             onPrevious,
-            Modifier.offset(x = -DiarySpacing.x3),
-            enabled = hasPrevious
+            Modifier
+                .offset(x = -DiarySpacing.x3)
+                .then(if (hasPrevious == null) Modifier.alpha(0f).clearAndSetSemantics {} else Modifier),
+            enabled = hasPrevious == true
         )
         Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
             // 이름과 아래 화살표를 한 덩어리로 가운데에. 누르는 면은 달력 시트 제목과 같음
@@ -402,9 +410,10 @@ private fun PeriodNav(
                     .clickable(
                         interactionSource = interaction,
                         indication = null,
+                        enabled = onPick != null,
                         role = Role.Button,
                         onClickLabel = stringResource(Res.string.insight_period_sheet_title),
-                        onClick = onPick
+                        onClick = { onPick?.invoke() }
                     )
                     .padding(horizontal = DiarySpacing.x2),
                 verticalAlignment = Alignment.CenterVertically
@@ -433,6 +442,8 @@ private fun PeriodLabel(label: String) {
     val text =
         buildAnnotatedString {
             append(label)
+            // 화살표만 다음 줄로 떨어지지 않게 마지막 낱말에 붙임
+            append(WORD_JOINER)
             appendInlineContent(CHEVRON_ID, " ")
         }
     val inline =
@@ -568,6 +579,8 @@ private fun String.withFaces(): AnnotatedString = buildAnnotatedString {
         val index = rest.substring(start + 1, end)
         // 대체 글자가 비면 Compose가 예외를 던져 빈칸 하나로 둠(화면 읽기·복사용)
         appendInlineContent(faceId(index), " ")
+        // 얼굴만 윗줄 끝에 남지 않게 이름에 붙임
+        append(WORD_JOINER)
         rest = rest.substring(end + 1)
     }
 }
@@ -811,3 +824,17 @@ private const val MONTHS = 12
 internal const val WIDE_COLUMNS = 6
 private const val MAP_LABEL_EVERY = 3
 private const val DAYS_MAX = 31
+
+/**
+ * 안쪽 누르기와 키보드 초점을 막음. 자리만 남긴 숨긴 내용용
+ * 누름의 시작만 소비해 안쪽 클릭은 막고 끌기는 그대로 둠. 이동까지 소비하면 화면 스크롤이 멈춤
+ */
+private fun Modifier.blockTouches(): Modifier = focusProperties { onEnter = { cancelFocusChange() } }
+    .focusGroup()
+    .pointerInput(Unit) {
+        awaitPointerEventScope {
+            while (true) {
+                awaitPointerEvent(PointerEventPass.Initial).changes.forEach { if (it.changedToDownIgnoreConsumed()) it.consume() }
+            }
+        }
+    }

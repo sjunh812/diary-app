@@ -10,7 +10,6 @@ import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.RelockAfter
-import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.feature.settings.FontSettingsScreen
 import org.sjhstudio.diary.feature.settings.FontUiState
@@ -20,9 +19,8 @@ import org.sjhstudio.diary.feature.settings.SettingsPane
 import org.sjhstudio.diary.feature.settings.SettingsScreen
 import org.sjhstudio.diary.feature.settings.SettingsUiState
 import org.sjhstudio.diary.feature.settings.TextSizeSettingsScreen
-import org.sjhstudio.diary.feature.settings.ThemeSettingsScreen
 
-// 설정 목록(S6), 글꼴(G1), 본문 글자 크기(G2), 화면 모드(G3), 매일 알림(R1) 프리뷰
+// 설정 목록(S6), 글꼴(G1), 본문 글자 크기(G2), 매일 알림(R1) 프리뷰. 테마는 ThemePreviews
 // 값은 Figma 화면과 같음
 
 private val sample =
@@ -68,19 +66,6 @@ private fun TextSizeLight() = TextSize(dark = false)
 @Preview(name = "G2 본문 글자 크기 · 다크", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
 private fun TextSizeDark() = TextSize(dark = true)
-
-@Composable
-private fun Theme(dark: Boolean) = DiaryTheme(darkTheme = dark) {
-    ThemeSettingsScreen(ThemeMode.SYSTEM, onSelect = {}, onBack = {})
-}
-
-@Preview(name = "G3 화면 모드 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
-@Composable
-private fun ThemeLight() = Theme(dark = false)
-
-@Preview(name = "G3 화면 모드 · 다크", locale = "ko", widthDp = 390, heightDp = 844)
-@Composable
-private fun ThemeDark() = Theme(dark = true)
 
 @Composable
 private fun Reminder(dark: Boolean, state: ReminderUiState) = DiaryTheme(darkTheme = dark) {

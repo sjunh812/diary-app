@@ -15,6 +15,9 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import io.github.alexzhirkevich.compottie.LottieCompositionSpec
 import io.github.alexzhirkevich.compottie.rememberLottieComposition
 import io.github.alexzhirkevich.compottie.rememberLottiePainter
+import kotlin.math.roundToInt
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.Mood
 
@@ -29,14 +32,22 @@ fun DiaryLottie(read: suspend () -> ByteArray, millis: Int, active: Boolean, mod
     val still = rememberReduceMotion() || LocalInspectionMode.current
     val progress = remember { Animatable(if (still) 1f else 0f) }
     val palette = lottiePalette()
-    val template by produceState<String?>(null) { value = read().decodeToString() }
-    val json = remember(template, palette) { template?.let { painted(it, palette) } }
+    // 파일 읽기와 색 바꾸기(수십 KB 문자열)는 화면 스레드 밖에서
+    val json by produceState<String?>(null, palette) {
+        value = withContext(Dispatchers.Default) { painted(read().decodeToString(), palette) }
+    }
     val result = rememberLottieComposition(json) { LottieCompositionSpec.JsonString(json.orEmpty()) }
     val composition = if (json == null) null else result.value
     LaunchedEffect(active, still, composition) {
-        if (active && !still && composition != null) progress.animateTo(1f, tween(millis, easing = LinearEasing))
+        // 다크 전환처럼 중간에 다시 불려도 남은 만큼만. 처음 길이로 다시 돌면 느리게 흐름
+        val left = ((1f - progress.value) * millis).roundToInt()
+        if (active && !still && composition != null) progress.animateTo(1f, tween(left, easing = LinearEasing))
     }
-    Image(rememberLottiePainter(composition = composition, progress = { progress.value }), contentDescription = null, modifier = modifier)
+    Image(
+        rememberLottiePainter(composition = composition, progress = { progress.value }),
+        contentDescription = null,
+        modifier = modifier
+    )
 }
 
 @Composable
@@ -44,10 +55,13 @@ private fun lottiePalette(): Map<String, Color> {
     val colors = DiaryTheme.colors
     return mapOf(
         "@surface" to colors.surface,
+        "@raised" to colors.raised,
         "@sunken" to colors.sunken,
         "@selected" to colors.selected,
         "@line" to colors.line,
         "@accent" to colors.accent,
+        // 바탕 위 선과 그림. 아주 옅은 테마 색에서도 보이게(목록 아이콘과 같은 토큰)
+        "@accentText" to colors.accentText,
         "@onAccent" to colors.onAccent,
         "@textPrimary" to colors.textPrimary,
         "@textTertiary" to colors.textTertiary,

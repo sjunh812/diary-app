@@ -33,6 +33,7 @@
     <string name="backup_when_day_time">%1$s %2$s</string>
     <string name="backup_group_account">계정</string>
     <string name="backup_account">구글 계정</string>
+    <string name="backup_account_busy">백업이나 복원이 끝나면 계정을 바꿀 수 있어요.</string>
     <string name="backup_group_upload">올리기</string>
     <string name="backup_wifi_only">사진은 Wi-Fi에서만</string>
     <string name="backup_wifi_only_body">끄면 모바일 데이터로도 사진을 올려요.</string>
@@ -56,6 +57,7 @@
     <string name="backup_line_yesterday">어제 %1$s</string>
     <plurals name="backup_photos_unusable"><item quantity="other">찾을 수 없는 사진 %1$s장은 백업하지 못했어요.</item></plurals>
     <plurals name="backup_photos_waiting"><item quantity="other">사진 %1$s장은 Wi-Fi에 연결되면 올려요.</item></plurals>
+    <plurals name="backup_photos_next"><item quantity="other">사진 %1$s장은 다음 백업 때 올려요.</item></plurals>
     <!-- 복원(B2~B6) -->
     <string name="restore_row">구글 드라이브에서 복원하기</string>
     <string name="restore_row_body">다른 기기나 예전 앱의 백업을 합쳐요.</string>
@@ -113,6 +115,8 @@
     <string name="restore_wait_network">인터넷에 연결되면 이어서 받아요.</string>
     <string name="restore_wait_wifi">Wi-Fi에 연결되면 이어서 받아요. 모바일 데이터로 받으려면 [지금 받기]를 눌러주세요.</string>
     <string name="restore_wait_account">드라이브 연결이 끊겨서 멈췄어요. 다시 연결하면 이어서 받아요.</string>
+    <string name="restore_wait_other_account">%1$s 계정 드라이브에 있는 사진이에요. 그 계정으로 연결하면 받을 수 있어요.</string>
+    <string name="restore_wait_other_account_unnamed">처음 복원한 계정의 드라이브에 있는 사진이에요. 그 계정으로 연결하면 받을 수 있어요.</string>
     <string name="restore_wait_file">복원한 파일을 다시 선택하면 남은 사진을 받아요.</string>
     <string name="restore_wait_now">지금 받기</string>
     <string name="restore_wait_pick">파일 선택</string>
@@ -243,6 +247,7 @@
     <string name="backup_done_title">백업을 완료했어요</string>
     <string name="backup_done_body">일기와 사진을 드라이브에 모두 올렸어요.</string>
     <string name="backup_done_left">사진 %1$s장은 Wi-Fi에 연결되면 올려요.</string>
+    <plurals name="backup_done_left_space"><item quantity="other">사진 %1$s장은 드라이브 공간이 부족해 올리지 못했어요.</item></plurals>
     <string name="backup_stopped_title">백업을 완료하지 못했어요</string>
     <string name="restore_stopped_title">복원을 완료하지 못했어요</string>
     <string name="restore_see_result">보기</string>
@@ -258,6 +263,7 @@
     <string name="backup_status_failed">백업 상태를 불러오지 못했어요</string>
     <string name="backup_skip_empty">아직 백업할 일기가 없어요</string>
     <string name="backup_skip_busy">다른 작업이 끝난 뒤에 다시 눌러주세요</string>
+    <string name="backup_skip_not_checked">구글 드라이브의 백업을 확인하지 못했어요. 잠시 뒤 [지금 백업]을 눌러주세요.</string>
     <string name="backup_connect_failed_title">구글 드라이브에 연결하지 못했어요</string>
     <string name="backup_connect_failed_offline">인터넷 연결을 확인하고 다시 시도해 주세요.</string>
     <string name="backup_connect_failed_auth">구글 계정을 확인하지 못했어요. 잠시 뒤 다시 시도해 주세요.</string>

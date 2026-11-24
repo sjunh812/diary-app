@@ -23,7 +23,6 @@ import org.koin.core.context.GlobalContext
 import org.sjhstudio.diary.app.navigation.SettingsKey
 import org.sjhstudio.diary.app.scaffold.AppScaffold
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
-import org.sjhstudio.diary.core.designsystem.catalog.DesignCatalogScreen
 import org.sjhstudio.diary.core.designsystem.component.DiaryEntryRow
 import org.sjhstudio.diary.core.designsystem.component.ProvideScreenGutter
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -76,7 +75,6 @@ import org.sjhstudio.diary.feature.welcome.OnboardingScreen
  *   adb shell am start -n org.sjhstudio.diary/.debug.ScreenCatalogActivity --es screen migration_report
  *   화면 이름: migration_report(M5), support_sheet(M5 · 복구 문의), photo_cell(일기 줄 사진 칸, 옮긴 사진으로),
  *   lock_forgot(L3 · 비밀번호를 잊어버렸을 때), lock_settings(L4 잠금 설정), settings(앱 틀의 설정 탭: S6과 G2·G3·L4·M5),
- *   design_catalog(디자인 시스템 견본), list_performance(목록 성능 견본, 일기 1만 편·사진 5천 장, 따로 둔 견본 DB),
  *   backup_connected(B1 연결됨), backup_rollback(B9 되돌리기), backup_no_space(B10), backup_options(B13), backup_lines(B11 홈 백업 줄)
  * lock_settings와 settings는 실제 설정을 바꿈
  * 에뮬레이터에서 잠금을 켜거나 설정을 바꿔 볼 때 씀
@@ -109,10 +107,6 @@ class ScreenCatalogActivity : ComponentActivity() {
                     LOCK_SETTINGS -> LockSettingsRoute(onBack = ::finish)
 
                     SETTINGS -> ProvideScreenGutter { AppScaffold(startTab = SettingsKey) }
-
-                    DESIGN_CATALOG -> DesignCatalogScreen(onBack = ::finish)
-
-                    LIST_PERFORMANCE -> ListPerformanceSample()
 
                     RESTORE_LOADING -> RestoreListScreen(RestoreListUi.Loading, {}, {}, { finish() })
 
@@ -187,7 +181,8 @@ class ScreenCatalogActivity : ComponentActivity() {
                             SAMPLE_STATUS.copy(lastFailure = BackupFailure.NO_SPACE, bytesShort = 1_200_000_000, photosNotBackedUp = 340)
                         )
 
-                    BACKUP_OPTIONS -> BackupOptionsScreen(SAMPLE_STATUS, onPhotosOnCellular = {}, onDisconnect = {}, onBack = ::finish)
+                    BACKUP_OPTIONS -> BackupOptionsScreen(SAMPLE_STATUS, onChangeAccount = {
+                    }, onPhotosOnCellular = {}, onDisconnect = {}, onBack = ::finish)
 
                     BACKUP_LINES -> BackupLines()
 
@@ -227,7 +222,7 @@ class ScreenCatalogActivity : ComponentActivity() {
             ),
             onOpen = {}
         )
-        BackupStatusLine(SAMPLE_STATUS.copy(connection = BackupConnection.NeedsReconnect), onOpen = {})
+        BackupStatusLine(SAMPLE_STATUS.copy(connection = BackupConnection.NeedsReconnect("diary@gmail.com")), onOpen = {})
         BackupStatusLine(BackupStatus(), onOpen = {})
     }
 
@@ -288,8 +283,6 @@ class ScreenCatalogActivity : ComponentActivity() {
         const val LOCK_FORGOT = "lock_forgot"
         const val LOCK_SETTINGS = "lock_settings"
         const val SETTINGS = "settings"
-        const val DESIGN_CATALOG = "design_catalog"
-        const val LIST_PERFORMANCE = "list_performance"
 
         // Figma M5 · 일부만과 같은 숫자
         val SAMPLE_REPORT =

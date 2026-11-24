@@ -20,13 +20,28 @@ enum class BackupFailure {
     }
 }
 
+/** 백업 계정 변경의 결과(스펙 011). 실패 까닭은 연결 실패 안내가 따로 알림 */
+enum class AccountChange {
+    /** 다른 계정으로 바뀜 */
+    CHANGED,
+
+    /** 같은 계정을 골랐거나 취소·실패해 앞 계정 그대로 */
+    KEPT,
+
+    /** 백업·복원이 도는 중이라 묻지 않음 */
+    BUSY
+}
+
 /** 지금 백업을 눌렀는데 올리지 않고 끝난 까닭 */
 enum class BackupSkip {
     /** 백업할 일기 없음 */
     NO_ENTRIES,
 
     /** 복원이나 기록 이전이 도는 중 */
-    BUSY
+    BUSY,
+
+    /** 드라이브의 백업을 까닭을 모르게 확인하지 못함. 아는 까닭은 상태 상자가 말함 */
+    NOT_CHECKED
 }
 
 /** 드라이브 연결 상태 */
@@ -35,7 +50,8 @@ sealed interface BackupConnection {
 
     data class Connected(val accountLabel: String) : BackupConnection
 
-    data object NeedsReconnect : BackupConnection
+    /** [accountLabel]은 끊기기 전 계정. 백업 설정이 그대로 보임 */
+    data class NeedsReconnect(val accountLabel: String) : BackupConnection
 }
 
 /** 백업 상태 기계의 단계(data-model.md). 이름이 `backup/state.json`에 그대로 저장됨 */
@@ -71,6 +87,8 @@ data class BackupStatus(
     val lastFailure: BackupFailure? = null,
     val autoEnabled: Boolean = false,
     val photosOnCellular: Boolean = false,
+    /** 마지막 백업이 Wi-Fi를 기다리느라 사진을 남김. 그 뒤 새로 넣은 사진은 다음 백업이 올림 */
+    val photosHeldForWifi: Boolean = false,
     /** 공간이 부족해 못 올린 사진의 양 */
     val bytesShort: Long = 0,
     /** 드라이브 백업을 복원했으면 그 백업을 만든 시각 */
@@ -171,15 +189,21 @@ enum class PhotoStop {
     ACCOUNT,
 
     /** 남은 사진이 든 파일을 다시 골라야 함 */
-    FILE;
+    FILE,
+
+    /** 사진이 온 구글 계정이 아닌 계정이 연결됨. 그 계정을 연결하면 받음 */
+    OTHER_ACCOUNT;
 
     companion object {
         fun fromName(name: String?): PhotoStop? = entries.firstOrNull { it.name == name }
     }
 }
 
-/** 아직 받지 못한 복원 사진. [stop]이 null이면 지금 받는 중 */
-data class WaitingPhotos(val count: Int, val stop: PhotoStop?)
+/**
+ * 아직 받지 못한 복원 사진. [stop]이 null이면 지금 받는 중
+ * [account]는 [PhotoStop.OTHER_ACCOUNT]일 때 사진이 온 계정 이메일
+ */
+data class WaitingPhotos(val count: Int, val stop: PhotoStop?, val account: String? = null)
 
 enum class RestoreFailure {
     MISMATCH,

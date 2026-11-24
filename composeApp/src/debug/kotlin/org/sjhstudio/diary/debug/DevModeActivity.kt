@@ -17,7 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -25,7 +25,6 @@ import androidx.lifecycle.lifecycleScope
 import java.io.File
 import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.get
@@ -33,16 +32,20 @@ import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.datastore.AdStore
+import org.sjhstudio.diary.core.datastore.SettingsStore
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySheetChoiceRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.Plan
+import org.sjhstudio.diary.core.model.ThemeChoice
 import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.platform.AppFiles
 import org.sjhstudio.diary.core.platform.BackupAlertPoster
+import org.sjhstudio.diary.core.ui.rememberThemeBrand
 import org.sjhstudio.diary.helper.AlarmReceiver
 
 /**
@@ -64,16 +67,17 @@ class DevModeActivity : ComponentActivity() {
         }
         val plans = get<PlanRepository>() as DevPlanRepository
         val updates = get<DevStoreUpdates>()
-        val themeMode = get<SettingsRepository>().settings.map { it.themeMode }
+        val appSettings = get<SettingsRepository>().settings
         setContent {
-            val mode by themeMode.collectAsStateWithLifecycle(ThemeMode.SYSTEM)
+            val settings by appSettings.collectAsStateWithLifecycle(AppSettings())
+            val plan by plans.plan.collectAsStateWithLifecycle()
             val dark =
-                when (mode) {
+                when (settings.themeMode) {
                     ThemeMode.SYSTEM -> isSystemInDarkTheme()
                     ThemeMode.LIGHT -> false
                     ThemeMode.DARK -> true
                 }
-            DiaryTheme(darkTheme = dark) {
+            DiaryTheme(darkTheme = dark, brand = rememberThemeBrand(settings.theme, customAllowed = plan.customTheme)) {
                 Column(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas).systemBarsPadding()) {
                     DiaryTopBar("개발자 모드", onBack = ::finish)
                     Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
@@ -93,17 +97,31 @@ class DevModeActivity : ComponentActivity() {
         val plan by plans.plan.collectAsStateWithLifecycle()
         val update by updates.mode.collectAsStateWithLifecycle()
         DiarySettingsHeader("상태")
-        ChoiceRow("요금제", Plan.entries, plan, Plan::label, Plan::summary, plans::choose)
+        ChoiceRow("요금제", Plan.entries, plan, Plan::label, summary = { null }, onSelect = plans::choose)
         ChoiceRow("새 버전", DevUpdate.entries, update, DevUpdate::label, DevUpdate::summary, updates::choose)
     }
 
-    /** 한 번만 뜨는 것을 다시 띄움 */
+    /** 한 번만 뜨는 것을 다시 띄우거나 처음 상태로 되돌림 */
     @Composable
     private fun ResetSection() {
         val ads = get<AdStore>()
+        val settings = get<SettingsStore>()
         DiarySettingsHeader("초기화", gapAbove = true)
-        DiarySettingsRow("전면 광고", onClick = { reset { ads.interstitialShown("") } }, description = "오늘 본 기록 지움")
-        DiarySettingsRow("보상 광고", onClick = { reset { ads.rewardUntil(Clock.System.now()) } }, description = "24시간 혜택 끝냄")
+        DiarySettingsRow(
+            "전면 광고",
+            onClick = { runAndTell("전면 광고를 다시 볼 수 있어요.") { ads.interstitialShown("") } },
+            description = "오늘 본 기록을 지워서 다시 볼 수 있어요."
+        )
+        DiarySettingsRow(
+            "보상 광고",
+            onClick = { runAndTell("광고 없는 시간을 끝냈어요.") { ads.rewardUntil(Clock.System.now()) } },
+            description = "광고 없는 24시간을 바로 끝내요."
+        )
+        DiarySettingsRow(
+            "테마 색",
+            onClick = { runAndTell("라벤더로 되돌렸어요.") { settings.update { it.copy(theme = ThemeChoice()) } } },
+            description = "라벤더로 되돌리고 직접 고른 색을 지워요."
+        )
     }
 
     @Composable
@@ -117,18 +135,27 @@ class DevModeActivity : ComponentActivity() {
         DiarySettingsHeader("시험", gapAbove = true)
         DiarySettingsRow(
             "일기 1만 편 넣기",
-            onClick = { reset { withContext(Dispatchers.IO) { writeSample(get<DiaryDatabase>(), File(get<AppFiles>().mediaDirectory)) } } },
-            description = "서식 20% · 긴 일기 5% · 사진 5천 장"
+            onClick = {
+                // 몇십 초 걸려 시작했다는 것부터 알림
+                toast("일기 1만 편을 넣고 있어요.")
+                lifecycleScope.launch {
+                    val added = withContext(Dispatchers.IO) { writeSample(get<DiaryDatabase>(), File(get<AppFiles>().mediaDirectory)) }
+                    toast(if (added) "일기 1만 편을 넣었어요." else "이미 넣어 둔 일기가 있어요.")
+                }
+            },
+            description = "서식 있는 일기와 긴 일기, 사진 5천 장을 섞어 넣어요."
         )
-        DiarySettingsRow("비정상 종료", onClick = ::crash, description = "Crashlytics 보고 시험")
+        DiarySettingsRow("비정상 종료", onClick = ::crash, description = "앱을 일부러 꺼서 Crashlytics 보고를 시험해요.")
     }
 
-    private fun reset(work: suspend () -> Unit) {
+    private fun runAndTell(done: String, work: suspend () -> Unit) {
         lifecycleScope.launch {
             work()
-            Toast.makeText(this@DevModeActivity, "됐어요", Toast.LENGTH_SHORT).show()
+            toast(done)
         }
     }
+
+    private fun toast(text: String) = Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
 
     private fun open(screen: String) {
         startActivity(Intent(this, ScreenCatalogActivity::class.java).putExtra(ScreenCatalogActivity.EXTRA_SCREEN, screen))
@@ -150,13 +177,11 @@ class DevModeActivity : ComponentActivity() {
         const val EXTRA_NOTIFY = "notify"
         val SCREENS =
             listOf(
-                "편지 · 봉투" to "letter",
-                "편지 · 다시 읽기" to "full_letter",
-                "온보딩 · 업데이트" to "onboarding_updated",
-                "온보딩 · 새 설치" to "onboarding_new",
-                "기록 이전 결과" to "migration_report",
-                "디자인 시스템" to "design_catalog",
-                "1만 편 목록" to "list_performance"
+                "편지 봉투" to "letter",
+                "편지 다시 읽기" to "full_letter",
+                "업데이트한 사람의 온보딩" to "onboarding_updated",
+                "새로 설치한 사람의 온보딩" to "onboarding_new",
+                "기록 이전 결과" to "migration_report"
             )
     }
 }
@@ -168,16 +193,6 @@ private val Plan.label: String
         Plan.PLUS -> "Plus"
     }
 
-/** 그 요금제에서 켜지는 것. 요금제 표에서 읽어 어긋나지 않음 */
-private val Plan.summary: String
-    get() = listOfNotNull(
-        if (showsAds) "광고 보임" else "광고 없음",
-        "사진 ${photoLimit}장",
-        "체크리스트".takeIf { checklist },
-        "고급 통계".takeIf { advancedStats },
-        "목록 서식".takeIf { listFormatting }
-    ).joinToString(" · ")
-
 /** 지금 값과 설명을 한 줄에 두고, 누르면 시트에서 고름 */
 @Composable
 private fun <T> ChoiceRow(
@@ -185,13 +200,13 @@ private fun <T> ChoiceRow(
     options: List<T>,
     selected: T,
     label: (T) -> String,
-    summary: (T) -> String,
+    summary: (T) -> String?,
     onSelect: (T) -> Unit
 ) {
-    var open by remember { mutableStateOf(false) }
+    var open by rememberSaveable { mutableStateOf(false) }
     DiarySettingsRow(title, onClick = { open = true }, value = label(selected), description = summary(selected))
     if (open) {
-        DiaryBottomSheet(onDismiss = { open = false }, title = title, description = "앱으로 돌아가면 적용") {
+        DiaryBottomSheet(onDismiss = { open = false }, title = title, description = "앱으로 돌아가면 바뀌어요.") {
             Column(Modifier.fillMaxWidth()) {
                 options.forEach { option ->
                     DiarySheetChoiceRow(label(option), option == selected, onClick = {

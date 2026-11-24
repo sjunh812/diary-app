@@ -1,10 +1,15 @@
 package org.sjhstudio.diary.core.ui
 
+import android.icu.text.DateIntervalFormat
+import android.icu.util.DateInterval
+import android.icu.util.TimeZone as IcuTimeZone
+import android.icu.util.ULocale
 import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import java.text.FieldPosition
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.GregorianCalendar
@@ -20,9 +25,14 @@ internal actual fun rememberPlatformDateFormat(language: String): DiaryDateForma
     val device = LocalConfiguration.current.locales[0].toLanguageTag()
     val is24Hour = DateFormat.is24HourFormat(context)
     return remember(language, device, is24Hour) {
-        AndroidDateFormat(Locale.forLanguageTag(formatLocaleTag(language, device)), is24Hour)
+        formats.getOrPut(Triple(language, device, is24Hour)) {
+            AndroidDateFormat(Locale.forLanguageTag(formatLocaleTag(language, device)), is24Hour)
+        }
     }
 }
+
+// 목록 줄마다 형식 열두 개를 새로 만들지 않게 같은 언어·지역·시각 표기면 하나를 같이 씀. 화면 스레드에서만 씀
+private val formats = mutableMapOf<Triple<String, String, Boolean>, AndroidDateFormat>()
 
 private class AndroidDateFormat(locale: Locale, override val is24Hour: Boolean) : DiaryDateFormat {
     private val monthFormat = formatter(locale, DateSkeleton.MONTH)
@@ -31,6 +41,8 @@ private class AndroidDateFormat(locale: Locale, override val is24Hour: Boolean) 
     private val monthDayFormat = formatter(locale, DateSkeleton.MONTH_DAY)
     private val yearMonthFormat = formatter(locale, DateSkeleton.YEAR_MONTH)
     private val fullDateFormat = formatter(locale, DateSkeleton.FULL_DATE)
+    private val rangeFormat = intervalFormatter(locale, DateSkeleton.FULL_DATE)
+    private val monthDayRangeFormat = intervalFormatter(locale, DateSkeleton.MONTH_DAY)
     private val dayWeekdayFormat = formatter(locale, DateSkeleton.DAY_WITH_WEEKDAY)
     private val weekdayFullFormat = formatter(locale, DateSkeleton.WEEKDAY)
     private val weekdayFormat = formatter(locale, DateSkeleton.WEEKDAY_SHORT)
@@ -50,6 +62,13 @@ private class AndroidDateFormat(locale: Locale, override val is24Hour: Boolean) 
 
     override fun fullDate(date: LocalDate): String = fullDateFormat.format(Date(date.utcMillis())).keepTogether()
 
+    override fun dateRange(start: LocalDate, end: LocalDate, withYear: Boolean): String =
+        (if (withYear) rangeFormat else monthDayRangeFormat).format(
+            DateInterval(start.utcMillis(), end.utcMillis()),
+            StringBuffer(),
+            FieldPosition(0)
+        ).toString().keepRangeTogether()
+
     override fun dayWithWeekday(date: LocalDate): String = dayWeekdayFormat.format(Date(date.utcMillis())).keepTogether()
 
     override fun weekdayShort(date: LocalDate): String = weekdayFormat.format(Date(date.utcMillis())).keepTogether()
@@ -64,3 +83,9 @@ private fun formatter(locale: Locale, skeleton: String): SimpleDateFormat {
         timeZone = utc
     }
 }
+
+// 기기 달력이 일본 연호·불기여도 양력으로
+private fun intervalFormatter(locale: Locale, skeleton: String): DateIntervalFormat =
+    DateIntervalFormat.getInstance(skeleton, ULocale.forLocale(locale).setKeywordValue("calendar", "gregorian")).apply {
+        timeZone = IcuTimeZone.getTimeZone("UTC")
+    }

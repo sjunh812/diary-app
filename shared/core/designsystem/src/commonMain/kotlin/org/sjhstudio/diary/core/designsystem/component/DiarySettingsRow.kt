@@ -172,10 +172,12 @@ fun DiarySettingsSwitchRow(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     description: String? = null,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    badge: String? = null
 ) {
     val interaction = remember { MutableInteractionSource() }
     RowFrame(
+        badge = badge,
         modifier =
             modifier.diaryPress(interaction, DiaryTheme.colors.textPrimary, DiaryShapes.r12).toggleable(
                 value = checked,
@@ -223,7 +225,7 @@ fun DiarySettingsChoiceRow(
 
 /**
  * 제목 자리를 직접 그리는 고르기 줄(글꼴 목록처럼 이름을 그 글꼴이나 그림으로 그릴 때)
- * [label]은 화면 읽기 프로그램이 읽는 이름
+ * [label]은 스크린 리더이 읽는 이름
  * 오른쪽은 [trailing]이 정하고, 없으면 고른 줄에 체크를 둠
  */
 @Composable
@@ -269,6 +271,7 @@ private fun RowFrame(
     title: String,
     description: String?,
     leadingIcon: ImageVector? = null,
+    badge: String? = null,
     trailing: @Composable RowScope.() -> Unit
 ) {
     val colors = DiaryTheme.colors
@@ -279,12 +282,17 @@ private fun RowFrame(
     ) {
         if (leadingIcon != null) DiaryIcon(leadingIcon, contentDescription = null, tint = colors.textPrimary)
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
-            BasicText(
-                text = title,
-                style = DiaryTheme.typography.reading.copy(color = colors.textPrimary),
-                maxLines = TITLE_MAX_LINES,
-                overflow = TextOverflow.Ellipsis
-            )
+            // 제목 옆 Plus 칩. 제목이 길어도 칩은 밀려나지 않음
+            Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2), verticalAlignment = Alignment.CenterVertically) {
+                BasicText(
+                    text = title,
+                    modifier = Modifier.weight(1f, fill = false),
+                    style = DiaryTheme.typography.reading.copy(color = colors.textPrimary),
+                    maxLines = TITLE_MAX_LINES,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (badge != null) DiaryPlusChip(badge)
+            }
             if (description != null) {
                 PhraseText(text = description, style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
             }

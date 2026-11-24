@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.sjhstudio.diary.core.designsystem.catalog.CatalogBoxes
@@ -23,17 +24,25 @@ import org.sjhstudio.diary.core.designsystem.catalog.DesignCatalogScreen
 import org.sjhstudio.diary.core.designsystem.component.DiaryBadgeTone
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
+import org.sjhstudio.diary.core.designsystem.component.DiaryColorPicker
 import org.sjhstudio.diary.core.designsystem.component.DiaryDateSlot
 import org.sjhstudio.diary.core.designsystem.component.DiaryDateSlots
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryInviteCard
 import org.sjhstudio.diary.core.designsystem.component.DiaryLoadingDots
+import org.sjhstudio.diary.core.designsystem.component.DiaryPlusChip
 import org.sjhstudio.diary.core.designsystem.component.DiaryResultHeader
+import org.sjhstudio.diary.core.designsystem.component.DiarySettingsSwitchRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySheetChoiceRow
+import org.sjhstudio.diary.core.designsystem.component.DiaryThemeModeOption
+import org.sjhstudio.diary.core.designsystem.component.DiaryThemeSwatch
+import org.sjhstudio.diary.core.designsystem.component.MiniHomeLayout
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.DarkDiaryColors
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.LightDiaryColors
 
 // 디자인 시스템 토큰과 컴포넌트 프리뷰
 // 묶음은 디자인 견본 화면(`catalog/DesignCatalogScreen.kt`)과 같음
@@ -245,3 +254,67 @@ private fun SheetChoiceRowsLight() = PreviewCanvas(dark = false) { SheetChoiceRo
 @Preview(name = "시트 고르기 줄 · 다크", locale = "ko", widthDp = 360)
 @Composable
 private fun SheetChoiceRowsDark() = PreviewCanvas(dark = true) { SheetChoiceRows() }
+
+@Composable
+private fun PlusChipRows() = Column {
+    DiarySettingsSwitchRow("서식 그대로 보기", checked = false, onCheckedChange = {
+    }, description = "굵은 글씨, 밑줄, 글자 색, 형광펜이 목록에도 보여요.", badge = "Plus")
+    DiarySettingsSwitchRow("아주 긴 설정 이름이 두 줄까지 넘어가도 칩은 밀려나지 않아요", checked = false, onCheckedChange = {}, badge = "Plus")
+    Row(Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        DiaryPlusChip("Plus")
+        DiaryPlusChip("Plus", separator = DiaryTheme.colors.accent)
+    }
+}
+
+@Preview(name = "Plus 칩 · 라이트", locale = "ko", widthDp = 360)
+@Composable
+private fun PlusChipLight() = PreviewCanvas(dark = false) { PlusChipRows() }
+
+@Preview(name = "Plus 칩 · 다크", locale = "ko", widthDp = 360)
+@Composable
+private fun PlusChipDark() = PreviewCanvas(dark = true) { PlusChipRows() }
+
+@Composable
+private fun ColorPickerSample() = Column(Modifier.padding(16.dp)) {
+    DiaryColorPicker(initial = 0x46A6FF, onChange = {}, padLabel = "채도와 밝기", hueLabel = "색상", hexLabel = "색 코드")
+}
+
+@Preview(name = "색 고르기 · 라이트", locale = "ko", widthDp = 360)
+@Composable
+private fun ColorPickerLight() = PreviewCanvas(dark = false) { ColorPickerSample() }
+
+@Preview(name = "색 고르기 · 다크", locale = "ko", widthDp = 360)
+@Composable
+private fun ColorPickerDark() = PreviewCanvas(dark = true) { ColorPickerSample() }
+
+@Composable
+private fun ThemeSwatchRow() = Row(Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    val colors = DiaryTheme.colors
+    DiaryThemeSwatch("라벤더", "라벤더", colors.accent, colors.onAccent, selected = true, onClick = {})
+    DiaryThemeSwatch("숲", "숲", Color(0xFF3F7A52), Color.White, selected = false, onClick = {})
+    DiaryThemeSwatch("직접 고르기", "직접 고르기, Plus", null, colors.onAccent, selected = false, onClick = {}, plusLabel = "Plus")
+    DiaryThemeSwatch("바다", "바다", Color(0xFF3E6E96), Color.White, selected = false, onClick = {}, enabled = false)
+}
+
+@Preview(name = "테마 견본 · 고름·안 고름·직접 고르기·꺼짐 · 라이트", locale = "ko", widthDp = 360)
+@Composable
+private fun ThemeSwatchLight() = PreviewCanvas(dark = false) { ThemeSwatchRow() }
+
+@Preview(name = "테마 견본 · 고름·안 고름·직접 고르기·꺼짐 · 다크", locale = "ko", widthDp = 360)
+@Composable
+private fun ThemeSwatchDark() = PreviewCanvas(dark = true) { ThemeSwatchRow() }
+
+@Composable
+private fun ThemeModeRow() = Row(Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+    DiaryThemeModeOption("라이트", LightDiaryColors, MiniHomeLayout.Feed, selected = true, onClick = {})
+    DiaryThemeModeOption("다크", DarkDiaryColors, MiniHomeLayout.Card, selected = false, onClick = {})
+    DiaryThemeModeOption("격자", LightDiaryColors, MiniHomeLayout.Grid, selected = false, onClick = {})
+}
+
+@Preview(name = "화면 모드 그림 · 피드·카드·격자 · 라이트", locale = "ko", widthDp = 400)
+@Composable
+private fun ThemeModeLight() = PreviewCanvas(dark = false) { ThemeModeRow() }
+
+@Preview(name = "화면 모드 그림 · 피드·카드·격자 · 다크", locale = "ko", widthDp = 400)
+@Composable
+private fun ThemeModeDark() = PreviewCanvas(dark = true) { ThemeModeRow() }

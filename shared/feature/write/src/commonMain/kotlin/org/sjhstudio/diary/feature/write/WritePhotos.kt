@@ -181,7 +181,9 @@ internal fun PhotoCell(
             }
             .size(DiaryWriteSize.photo)
     ) {
-        Box(Modifier.fillMaxSize().clip(DiaryShapes.r12)) { DiaryPhotoCell(listOf(mediaPath(photo.fileName))) }
+        // 같은 목록을 넘겨 끄는 동안 사진 칸이 다시 그리지 않게
+        val paths = remember(photo.fileName) { listOf(mediaPath(photo.fileName)) }
+        Box(Modifier.fillMaxSize().clip(DiaryShapes.r12)) { DiaryPhotoCell(paths) }
         val interaction = remember { MutableInteractionSource() }
         Box(
             Modifier
@@ -194,12 +196,12 @@ internal fun PhotoCell(
                 Modifier
                     .padding(DiarySpacing.x1)
                     .size(DiaryWriteSize.removeBadge)
-                    .diaryPress(interaction, colors.onAccent, DiaryShapes.full)
+                    .diaryPress(interaction, colors.onPhotoContent, DiaryShapes.full)
                     .clip(DiaryShapes.full)
                     .background(colors.onPhoto),
                 contentAlignment = Alignment.Center
             ) {
-                DiaryIcon(DiaryIcons.Close, stringResource(Res.string.write_photo_remove), colors.onAccent, size = DiaryIconSize.i12)
+                DiaryIcon(DiaryIcons.Close, stringResource(Res.string.write_photo_remove), colors.onPhotoContent, size = DiaryIconSize.i12)
             }
         }
     }

@@ -42,9 +42,11 @@
     <string name="plus_checklist_body">일기에 할 일을 적고 체크할 수 있어요.</string>
     <string name="plus_terms">이용약관</string>
     <string name="plus_privacy">개인정보처리방침</string>
-    <string name="plus_other_title">다른 혜택</string>
+    <string name="plus_others_in_all">다른 혜택은 모두 보기에서 확인할 수 있어요.</string>
     <string name="plus_see_all">모두 보기</string>
     <string name="plus_all_title">Plus 혜택</string>
     <string name="plus_format_title">목록에서도 서식 그대로 보기</string>
     <string name="plus_format_body">굵은 글씨, 밑줄, 글자 색, 형광펜까지 보여요.</string>
+    <string name="plus_theme_title">테마 색 직접 고르기</string>
+    <string name="plus_theme_body">원하는 색을 골라 테마로 쓸 수 있어요.</string>
 </resources>

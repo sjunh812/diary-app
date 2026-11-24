@@ -31,8 +31,10 @@ data class DiaryColors(
     val lineStrong: Color,
     /** 꾸밈(그림, 장식). 글자·버튼에는 쓰지 않음 */
     val lilac: Color,
-    /** 주요 버튼, 쓰기 버튼, 즐겨찾기 별 */
+    /** 주요 버튼, 쓰기 버튼 같은 면 */
     val accent: Color,
+    /** 바탕 위 브랜드색 아이콘과 선(즐겨찾기 별, 고름 고리·테두리, 켜진 스위치, 입력 커서). 바탕과 3:1 */
+    val accentIcon: Color,
     /** 링크, 고른 글자, 체크 */
     val accentText: Color,
     /** accent 위 글자 */
@@ -77,6 +79,8 @@ data class DiaryColors(
     val shadow: Color,
     /** 사진 크게 보기 바탕. 두 테마 모두 검정 */
     val photoBackdrop: Color = Color(0xFF000000),
+    /** [onPhoto]·[photoBackdrop] 위 글자와 아이콘. 테마 색과 상관없이 흰색 */
+    val onPhotoContent: Color = Color.White,
     /** 기분 9색. 면과 점으로만 쓰고 글자색으로 쓰지 않음 */
     val mood: DiaryMoodColors,
     /** 일기 본문 글자색(스펙 002 contracts/rich-text-html.md) */
@@ -126,6 +130,7 @@ internal val LightDiaryColors =
         lineStrong = Color(0xFFDCDEE3),
         lilac = Color(0xFFCAA6FE),
         accent = Color(0xFF6E56CF),
+        accentIcon = Color(0xFF6E56CF),
         accentText = Color(0xFF6550B9),
         toneGood = Color(0xFF6550B9),
         toneHard = Color(0xFF8F9BB3),
@@ -189,6 +194,7 @@ internal val DarkDiaryColors =
         lineStrong = Color(0xFF393D46),
         lilac = Color(0xFFCAA6FE),
         accent = Color(0xFF6E56CF),
+        accentIcon = Color(0xFF6E56CF),
         accentText = Color(0xFFBAA7FF),
         toneGood = Color(0xFFBAA7FF),
         toneHard = Color(0xFF7D879C),
@@ -238,3 +244,22 @@ internal val DarkDiaryColors =
                 pink = Color(0xFF641233)
             )
     )
+
+/** 브랜드색 자리만 [brand] 값으로 바꿈. `toneGood`은 브랜드 글자와 같은 값 */
+internal fun DiaryColors.withBrand(brand: BrandTokens): DiaryColors = copy(
+    accent = brand.accent,
+    accentIcon = brand.accentIcon,
+    onAccent = brand.onAccent,
+    accentText = brand.accentText,
+    toneGood = brand.accentText,
+    selected = brand.selected,
+    surfaceCard = brand.surfaceCard,
+    paper = brand.paper,
+    envelopeFlap = brand.envelopeFlap,
+    lilac = brand.lilac,
+    toastAction = brand.toastAction
+)
+
+/** 화면 모드와 테마 색으로 정한 색 토큰. 테마 화면의 작은 홈 그림처럼 지금 모드와 다른 색이 필요할 때 씀 */
+fun diaryColors(dark: Boolean, brand: DiaryBrand = DiaryBrand.Lavender): DiaryColors =
+    (if (dark) DarkDiaryColors else LightDiaryColors).withBrand(brand.tokens(dark))

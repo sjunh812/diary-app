@@ -7,6 +7,7 @@ import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.map
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.yearMonth
@@ -35,6 +37,12 @@ import org.sjhstudio.diary.core.ui.launchSafely
 
 /** 기간 칩의 고르는 값. [Custom]은 직접 고른 범위, 돌아보기에서 넘어온 기간도 여기 */
 enum class SearchPeriod { Week, Month, Year, Custom }
+
+/**
+ * 찾은 줄과 그 줄을 찾은 낱말
+ * 강조는 입력칸 글자가 아니라 이 낱말로 함. 멈춘 뒤 찾기 전에는 입력칸이 결과보다 앞서 있음
+ */
+data class SearchHit(val row: EntryRow, val query: String)
 
 /**
  * 찾기(FR-025~FR-027). 상세에 다녀와도 이 모델이 살아 있어 입력과 조건 유지
@@ -62,11 +70,17 @@ class SearchViewModel(
     val period: StateFlow<SearchPeriod?> = _period.asStateFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val results: Flow<PagingData<EntryRow>> =
+    val results: Flow<PagingData<SearchHit>> =
         _filter
             .debounce(DEBOUNCE_MILLIS)
-            .flatMapLatest { filter -> if (filter.isEmpty) flowOf(PagingData.empty(WAITING)) else entries.search(filter) }
-            .cachedIn(viewModelScope)
+            .flatMapLatest { filter ->
+                if (filter.isEmpty) {
+                    flowOf(PagingData.empty(WAITING))
+                } else {
+                    val query = filter.query.trim()
+                    entries.search(filter).map { page -> page.map { SearchHit(it, query) } }
+                }
+            }.cachedIn(viewModelScope)
 
     val look: StateFlow<BodyLook> =
         settings.bodyLookIn(viewModelScope, fonts)

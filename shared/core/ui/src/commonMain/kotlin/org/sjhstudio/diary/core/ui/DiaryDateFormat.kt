@@ -35,6 +35,12 @@ interface DiaryDateFormat {
     /** 2026년 11월 1일, November 1, 2026, 2026年11月1日 */
     fun fullDate(date: LocalDate): String
 
+    /**
+     * 2026년 11월 22일~28일, November 22 – 28, 2026, 2026年11月22日～28日. 겹치는 해·달은 한 번만
+     * [withYear]가 거짓이면 11월 22일~28일. 해가 바뀌는 기간은 그래도 양쪽에 연도
+     */
+    fun dateRange(start: LocalDate, end: LocalDate, withYear: Boolean = true): String
+
     /** 10월 31일 토요일, Saturday, October 31, 10月31日土曜日 */
     fun dayWithWeekday(date: LocalDate): String
 
@@ -101,6 +107,29 @@ internal fun formatLocaleTag(language: String, deviceTag: String): String {
  * 문장에 넣으면 "11월 / 12일"처럼 끊겼음
  */
 internal fun String.keepTogether(): String = replace(' ', ' ')
+
+/**
+ * 기간 줄바꿈. 뒤 날짜는 한 덩어리라 이음표 뒤에서 먼저 바꿈
+ * 앞 날짜는 성분 사이에서도 바꿀 수 있게 둠. 다 붙이면 큰 글자에서 앞 날짜가 한 줄을 넘어 날짜 한가운데가 끊기고 잘림
+ * 숫자와 단위("27일")는 어디서나 붙이고, 이음표는 줄 첫머리에 오지 않게 앞 공백을 붙임
+ */
+internal fun String.keepRangeTogether(): String {
+    val text = replace(NUMBER_THEN_UNIT, "$1\u2060").replace('\u2009', '\u202F')
+    val dash = text.indexOfFirst { it in RANGE_DASHES }
+    if (dash < 0) return text
+    val head = text.substring(0, dash).trimEnd(' ')
+    val glue = text.substring(head.length, dash).replace(' ', '\u00a0')
+    var after = dash + 1
+    while (after < text.length && (text[after] == ' ' || text[after] == '\u202F')) after++
+    val gap = text.substring(dash + 1, after).replace(' ', '\u00a0')
+    return head + glue + text[dash] + gap + '\u200B' + text.substring(after).keepTogether()
+}
+
+/** 숫자 바로 뒤의 글자 단위(년·월·일, 年·月·日) */
+private val NUMBER_THEN_UNIT = Regex("(\\d)(?=\\p{L})")
+
+/** 플랫폼 기간 형식이 쓰는 이음표: en dash, 물결표, 전각 물결표, 물결 대시, 하이픈 */
+private const val RANGE_DASHES = "\u2013~\uFF5E\u301C-"
 
 /** iOS 로캘 이름(ja_JP@calendar=japanese)을 언어 태그(ja-JP)로 바꿈 */
 internal fun languageTag(localeName: String): String = localeName.substringBefore('@').replace('_', '-')

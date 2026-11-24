@@ -54,7 +54,7 @@
     <string name="license_sejong">Sejong Geulggot License</string>
     <string name="license_ownglyph">Ownglyph Font License</string>
     <string name="settings_text_size">Diary text size</string>
-    <string name="settings_theme">Appearance</string>
+    <string name="settings_theme">Theme</string>
     <string name="settings_lock">Lock</string>
     <string name="lock_value_off">Off</string>
     <string name="lock_value_immediately">Immediately</string>
@@ -115,7 +115,7 @@
     <string name="theme_system">System default</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
-    <string name="theme_note">With System default, the app turns dark when your device is in dark mode.</string>
+    <string name="theme_note">When this is on, the app turns dark whenever your device is in dark mode.</string>
     <string name="migration_deferred_title">Your earlier entries haven't been transferred yet</string>
     <string name="migration_deferred_body">Try again to add them. Entries you've written since are kept.</string>
     <string name="migration_deferred_failed">Couldn't transfer them this time either. We'll try again after the next app update.</string>
@@ -140,7 +140,6 @@
     <string name="list_length_full">Full</string>
     <string name="list_formatting">Keep formatting</string>
     <string name="list_formatting_body">Bold, underline, text color, and highlights show in the list too.</string>
-    <string name="list_formatting_body_free">With Plus, bold, underline, text color, and highlights show in the list too.</string>
     <string name="list_formatting_plus_title">Keeping formatting is a Plus feature</string>
     <string name="list_formatting_plus_body">Formatting still shows as is when you open a diary.</string>
     <string name="list_plus_later">Not now</string>
@@ -152,8 +151,30 @@
     <string name="settings_plus_title">Easier, no ads</string>
     <string name="settings_plus_title_ad_free">Make it easier with Plus</string>
     <string name="settings_dev_mode">Developer mode</string>
-    <string name="settings_plus_body">Up to 30 photos per entry, checklists, and advanced stats.</string>
+    <string name="settings_plus_body">30 photos per entry, advanced stats, and custom theme colors.</string>
     <string name="settings_plus_action">See Plus</string>
     <string name="settings_terms">Terms of Use</string>
     <string name="settings_privacy">Privacy Policy</string>
+    <string name="theme_group_mode">Appearance</string>
+    <string name="theme_follow_system">Use system setting</string>
+    <string name="theme_group_color">Theme color</string>
+    <string name="theme_color_lavender">Lavender</string>
+    <string name="theme_color_plum">Plum</string>
+    <string name="theme_color_rose">Rose</string>
+    <string name="theme_color_maple">Maple</string>
+    <string name="theme_color_forest">Forest</string>
+    <string name="theme_color_sea">Ocean</string>
+    <string name="theme_color_black">Mono</string>
+    <string name="theme_custom">Custom</string>
+    <string name="theme_custom_value">Custom color</string>
+    <string name="theme_row_value">%1$s · %2$s</string>
+    <string name="theme_custom_apply">Use this color</string>
+    <string name="theme_custom_cancel">Cancel</string>
+    <string name="theme_custom_pad">Saturation and brightness</string>
+    <string name="theme_custom_hue">Hue</string>
+    <string name="theme_custom_hex">Color code</string>
+    <string name="plus_badge">Plus</string>
+    <string name="theme_swatch_plus">%1$s, Plus</string>
+    <string name="theme_plus_title">Custom theme colors are a Plus feature</string>
+    <string name="theme_plus_body">Pick any color you like for your theme.</string>
 </resources>

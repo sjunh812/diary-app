@@ -6,6 +6,7 @@ import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.core.model.RelockAfter
+import org.sjhstudio.diary.core.model.ThemeColor
 import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.list_length_five
@@ -24,6 +25,14 @@ import org.sjhstudio.diary.feature.settings.resources.text_size_medium
 import org.sjhstudio.diary.feature.settings.resources.text_size_small
 import org.sjhstudio.diary.feature.settings.resources.text_size_xlarge
 import org.sjhstudio.diary.feature.settings.resources.text_size_xxlarge
+import org.sjhstudio.diary.feature.settings.resources.theme_color_black
+import org.sjhstudio.diary.feature.settings.resources.theme_color_forest
+import org.sjhstudio.diary.feature.settings.resources.theme_color_lavender
+import org.sjhstudio.diary.feature.settings.resources.theme_color_maple
+import org.sjhstudio.diary.feature.settings.resources.theme_color_plum
+import org.sjhstudio.diary.feature.settings.resources.theme_color_rose
+import org.sjhstudio.diary.feature.settings.resources.theme_color_sea
+import org.sjhstudio.diary.feature.settings.resources.theme_custom_value
 import org.sjhstudio.diary.feature.settings.resources.theme_dark
 import org.sjhstudio.diary.feature.settings.resources.theme_light
 import org.sjhstudio.diary.feature.settings.resources.theme_system
@@ -52,6 +61,18 @@ internal fun ThemeMode.label(): StringResource = when (this) {
     ThemeMode.SYSTEM -> Res.string.theme_system
     ThemeMode.LIGHT -> Res.string.theme_light
     ThemeMode.DARK -> Res.string.theme_dark
+}
+
+/** 테마 색 이름. 설정 줄 값에서는 직접 고른 색을 "직접 고른 색"으로 */
+internal fun ThemeColor.label(): StringResource = when (this) {
+    ThemeColor.LAVENDER -> Res.string.theme_color_lavender
+    ThemeColor.PLUM -> Res.string.theme_color_plum
+    ThemeColor.ROSE -> Res.string.theme_color_rose
+    ThemeColor.MAPLE -> Res.string.theme_color_maple
+    ThemeColor.FOREST -> Res.string.theme_color_forest
+    ThemeColor.SEA -> Res.string.theme_color_sea
+    ThemeColor.BLACK -> Res.string.theme_color_black
+    ThemeColor.CUSTOM -> Res.string.theme_custom_value
 }
 
 /**

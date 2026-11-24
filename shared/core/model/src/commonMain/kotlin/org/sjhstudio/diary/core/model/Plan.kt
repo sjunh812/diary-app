@@ -7,11 +7,27 @@ enum class Plan(
     val advancedStats: Boolean,
     val checklist: Boolean,
     /** 홈 목록 미리보기에 서식까지 그림(스펙 008 FR-012) */
-    val listFormatting: Boolean
+    val listFormatting: Boolean,
+    /** 테마 색을 직접 고름(스펙 010) */
+    val customTheme: Boolean
 ) {
-    FREE(showsAds = true, photoLimit = PhotoLimit.FREE, advancedStats = false, checklist = false, listFormatting = false),
-    AD_FREE(showsAds = false, photoLimit = PhotoLimit.FREE, advancedStats = false, checklist = false, listFormatting = false),
-    PLUS(showsAds = false, photoLimit = PhotoLimit.PLUS, advancedStats = true, checklist = true, listFormatting = true);
+    FREE(
+        showsAds = true,
+        photoLimit = PhotoLimit.FREE,
+        advancedStats = false,
+        checklist = false,
+        listFormatting = false,
+        customTheme = false
+    ),
+    AD_FREE(
+        showsAds = false,
+        photoLimit = PhotoLimit.FREE,
+        advancedStats = false,
+        checklist = false,
+        listFormatting = false,
+        customTheme = false
+    ),
+    PLUS(showsAds = false, photoLimit = PhotoLimit.PLUS, advancedStats = true, checklist = true, listFormatting = true, customTheme = true);
 
     /** 이 요금제에 [product]의 혜택이 들어 있음. Plus는 광고 제거도 포함 */
     fun includes(product: ProductId): Boolean = when (product) {

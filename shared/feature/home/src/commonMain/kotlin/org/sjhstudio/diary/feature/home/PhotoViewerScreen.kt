@@ -88,7 +88,7 @@ fun PhotoViewerRoute(entryId: String, index: Int, onClose: () -> Unit, modifier:
                     Modifier
                         .size(DiarySpacing.x1_5)
                         .clip(DiaryShapes.full)
-                        .background(if (page == pager.currentPage) colors.onAccent else colors.textTertiary)
+                        .background(if (page == pager.currentPage) colors.onPhotoContent else colors.textTertiary)
                 )
             }
         }
@@ -107,14 +107,18 @@ private fun ViewerTop(onClose: () -> Unit, page: String? = null) {
         Box(
             Modifier
                 .size(DiarySpacing.minTouchTarget)
-                .diaryPress(interaction, colors.onAccent, DiaryShapes.full)
+                .diaryPress(interaction, colors.onPhotoContent, DiaryShapes.full)
                 .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClose),
             contentAlignment = Alignment.Center
         ) {
-            DiaryIcon(DiaryIcons.Close, stringResource(Res.string.detail_photo_close), colors.onAccent)
+            DiaryIcon(DiaryIcons.Close, stringResource(Res.string.detail_photo_close), colors.onPhotoContent)
         }
         if (page != null) {
-            BasicText(page, modifier = Modifier.align(Alignment.Center), style = DiaryTheme.typography.label.copy(color = colors.onAccent))
+            BasicText(
+                page,
+                modifier = Modifier.align(Alignment.Center),
+                style = DiaryTheme.typography.label.copy(color = colors.onPhotoContent)
+            )
         }
     }
 }
@@ -124,10 +128,10 @@ private fun ViewerTop(onClose: () -> Unit, page: String? = null) {
 private fun PhotoNotice(pending: Boolean, modifier: Modifier = Modifier) {
     val colors = DiaryTheme.colors
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-        DiaryIcon(if (pending) DiaryIcons.Image else DiaryIcons.ImageOff, contentDescription = null, tint = colors.onAccent)
+        DiaryIcon(if (pending) DiaryIcons.Image else DiaryIcons.ImageOff, contentDescription = null, tint = colors.onPhotoContent)
         PhraseText(
             stringResource(if (pending) Res.string.detail_elsewhere_photo else Res.string.detail_missing_photo),
-            style = DiaryTheme.typography.body.copy(color = colors.onAccent)
+            style = DiaryTheme.typography.body.copy(color = colors.onPhotoContent)
         )
     }
 }

@@ -31,6 +31,7 @@ import org.sjhstudio.diary.core.drive.NewFile
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.platform.DeviceName
+import org.sjhstudio.diary.core.platform.DriveAuthorizer
 import org.sjhstudio.diary.core.platform.ErrorReporter
 import org.sjhstudio.diary.core.platform.FreeSpace
 import org.sjhstudio.diary.core.testing.FakeBackupScheduler
@@ -39,6 +40,7 @@ import org.sjhstudio.diary.core.testing.FakeDriveAuthorizer
 import org.sjhstudio.diary.core.testing.FakeNetworkState
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 import org.sjhstudio.diary.core.testing.TestClock
+import org.sjhstudio.diary.core.testing.connectedBackupStore
 
 /**
  * 시험용 기기 하나
@@ -48,13 +50,14 @@ internal class TestPhone(
     val root: Path,
     val drive: FakeDrive,
     start: Instant = Instant.parse("2026-11-05T01:00:00Z"),
-    private val name: String = "Galaxy S24"
+    private val name: String = "Galaxy S24",
+    connected: Boolean = false
 ) {
     val fs: FileSystem = FileSystem.SYSTEM
     val media = root / "media"
     val work = root / "backup"
     val clock = TestClock(start)
-    val store = BackupStore(InMemoryDataStore(emptyPreferences()))
+    val store = if (connected) connectedBackupStore() else BackupStore(InMemoryDataStore(emptyPreferences()))
     val auth = FakeDriveAuthorizer()
     val network = FakeNetworkState()
     val gate = BackupGate()
@@ -80,11 +83,12 @@ internal class TestPhone(
 
     fun close() = db.close()
 
-    fun runner(api: DriveApi = drive, deviceName: String = name, alerts: BackupAlerts? = null) = BackupRunner(
-        db, api, auth, store, network, DeviceName { deviceName }, fs, media, work,
-        BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings(font = "pretendard") }, clock, { zone }, alerts, gate,
-        io = EmptyCoroutineContext
-    )
+    fun runner(api: DriveApi = drive, deviceName: String = name, alerts: BackupAlerts? = null, authorizer: DriveAuthorizer = auth) =
+        BackupRunner(
+            db, api, authorizer, store, network, DeviceName { deviceName }, fs, media, work,
+            BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings(font = "pretendard") }, clock, { zone }, alerts, gate,
+            io = EmptyCoroutineContext
+        )
 
     fun applier() = MergeApplier(db, { fs.exists(media / it) }, clock)
 

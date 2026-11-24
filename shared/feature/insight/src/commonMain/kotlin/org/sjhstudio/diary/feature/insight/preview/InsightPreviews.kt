@@ -14,6 +14,7 @@ import org.sjhstudio.diary.feature.insight.InsightPeriodSheet
 import org.sjhstudio.diary.feature.insight.InsightScreen
 
 private val Today = LocalDate(2026, 10, 31)
+private val First = LocalDate(2022, 1, 1)
 private val Counts = MoodCounts(Mood.entries.associateWith { 1 } + mapOf(Mood.GOOD to 6, Mood.TIRED to 3), 1)
 private val Days = listOf(DayMood(LocalDate(2026, 10, 1), Mood.COOL, 1), DayMood(Today, Mood.GOOD, 2))
 
@@ -26,7 +27,8 @@ private fun Insight(dark: Boolean, period: StatsPeriod, counts: MoodCounts?) = D
         onKind = {},
         onPrevious = {},
         onNext = {},
-        onMood = {}
+        onMood = {},
+        first = First
     )
 }
 
@@ -52,7 +54,7 @@ private fun EmptyLight() = Insight(dark = false, StatsPeriod.Month(YearMonth(202
 
 @Composable
 private fun PeriodSheet(dark: Boolean, period: StatsPeriod) = DiaryTheme(darkTheme = dark) {
-    InsightPeriodSheet(period, Today, firstYear = 2022, onPick = {}, onDismiss = {})
+    InsightPeriodSheet(period, Today, first = First, onPick = {}, onDismiss = {})
 }
 
 @Preview(name = "기간 고르기 · 주 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)

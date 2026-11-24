@@ -28,6 +28,7 @@ import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import org.sjhstudio.diary.core.data.ContextTips
+import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.data.diary.StatsRepository
 import org.sjhstudio.diary.core.model.AdvancedPeriod
 import org.sjhstudio.diary.core.model.ContextTip
@@ -56,7 +57,12 @@ class InsightViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun viewModel() = testInsightViewModel(NoStats, { today }, saved = SavedStateHandle())
+    /** 2025년 1월부터 일기가 있어 지난 기간으로 넘어감 */
+    private val written = entriesOn(LocalDate(2025, 1, 2))
+
+    private fun viewModel() = testInsightViewModel(NoStats, { today }, saved = SavedStateHandle(), entries = written)
+
+    private fun entriesOn(vararg dates: LocalDate) = FakeEntryRepository(dates.associateWith { DayMood(it, Mood.GOOD, 1) })
 
     /** 고급 통계는 Plus만. 기존 통계는 어느 요금제든 그대로(FR-012) */
     @Test
@@ -133,8 +139,9 @@ class InsightViewModelTest {
     }
 
     @Test
-    fun does_not_move_past_today() {
+    fun does_not_move_past_today() = runTest(dispatcher) {
         val model = viewModel()
+        runCurrent()
 
         model.next()
         assertEquals(StatsPeriod.Month(YearMonth(2026, 10)), model.period.value)
@@ -160,9 +167,10 @@ class InsightViewModelTest {
 
     /** 켜 둔 채 해가 바뀌면 올해를 보던 사람은 새해를 보고, 새해 첫 주는 지난해 마지막 주와 이어짐 */
     @Test
-    fun a_new_year_moves_this_year_and_this_week_along() {
+    fun a_new_year_moves_this_year_and_this_week_along() = runTest(dispatcher) {
         today = LocalDate(2026, 12, 31)
         val model = viewModel()
+        runCurrent()
         model.select(InsightKind.Year)
 
         today = LocalDate(2027, 1, 1)
@@ -180,8 +188,9 @@ class InsightViewModelTest {
     }
 
     @Test
-    fun a_new_day_leaves_a_past_period_alone() {
+    fun a_new_day_leaves_a_past_period_alone() = runTest(dispatcher) {
         val model = viewModel()
+        runCurrent()
         model.previous()
 
         today = LocalDate(2026, 11, 1)
@@ -195,7 +204,7 @@ class InsightViewModelTest {
     @Test
     fun a_new_period_hides_the_numbers_of_the_last_one() = runTest(dispatcher) {
         val counts = MutableStateFlow<Map<StatsPeriod, MoodCounts>>(mapOf(october to MoodCounts(mapOf(Mood.GOOD to 3), 0)))
-        val model = testInsightViewModel(SlowStats(counts), { today }, saved = SavedStateHandle())
+        val model = testInsightViewModel(SlowStats(counts), { today }, saved = SavedStateHandle(), entries = written)
         backgroundScope.launch { model.state.collect() }
         advanceUntilIdle()
         assertEquals(3, model.state.value.data?.counts?.total)
@@ -386,16 +395,92 @@ class InsightViewModelTest {
         assertEquals(StatsPeriod.Week(LocalDate(2026, 10, 25)), model.period.value)
     }
 
-    /** 기간 고르기는 첫 일기의 해부터 보임 */
+    /** 화살표와 기간 고르기는 첫 일기가 든 달의 1일부터 */
     @Test
-    fun the_first_year_comes_from_the_oldest_entry() = runTest(dispatcher) {
-        val days = listOf(DayMood(LocalDate(2023, 5, 2), Mood.GOOD, 1), DayMood(LocalDate(2021, 12, 31), null, 1))
-        val entries = FakeEntryRepository(days.associateBy { it.date })
-        val model = testInsightViewModel(NoStats, { today }, saved = SavedStateHandle(), entries = entries)
-        backgroundScope.launch { model.firstYear.collect() }
-        advanceUntilIdle()
+    fun the_first_day_comes_from_the_oldest_entry() = runTest(dispatcher) {
+        val model = testInsightViewModel(NoStats, { today }, entries = entriesOn(LocalDate(2023, 5, 2), LocalDate(2021, 12, 31)))
+        runCurrent()
 
-        assertEquals(2021, model.firstYear.value)
+        assertEquals(LocalDate(2021, 12, 1), model.first.value)
+    }
+
+    /** 달 목록을 읽기 전에는 첫날을 모름. 이번 달 1일로 두면 ‹ 화살표가 잠깐 꺼짐으로 보임 */
+    @Test
+    fun the_first_day_is_unknown_until_months_are_read() = runTest(dispatcher) {
+        val model = testInsightViewModel(NoStats, { today }, entries = entriesOn(LocalDate(2023, 5, 2)))
+
+        assertNull(model.first.value)
+        runCurrent()
+        assertEquals(LocalDate(2023, 5, 1), model.first.value)
+    }
+
+    /** 달 목록을 못 읽으면 첫날을 모름으로 두고, 다시 시도에서 다시 읽음 */
+    @Test
+    fun the_first_day_stays_unknown_when_months_fail_and_rereads_on_retry() = runTest(dispatcher) {
+        var reads = 0
+        val written = entriesOn(LocalDate(2023, 5, 2))
+        val flaky =
+            object : EntryRepository by written {
+                override fun months(): Flow<Set<YearMonth>> =
+                    if (reads++ == 0) flow { throw IllegalStateException("읽을 수 없음") } else written.months()
+            }
+        val model = testInsightViewModel(NoStats, { today }, entries = flaky)
+        runCurrent()
+        assertNull(model.first.value)
+
+        model.retry()
+        runCurrent()
+        assertEquals(LocalDate(2023, 5, 1), model.first.value)
+    }
+
+    /** 3월·7월에만 일기가 있으면 화살표는 사이 빈 달까지 넘기고 3월에서 멈춤 */
+    @Test
+    fun arrows_stop_at_the_period_of_the_first_entry() = runTest(dispatcher) {
+        today = LocalDate(2026, 11, 22)
+        val model = testInsightViewModel(NoStats, { today }, entries = entriesOn(LocalDate(2026, 3, 10), LocalDate(2026, 7, 5)))
+        runCurrent()
+
+        val months = mutableListOf(model.period.value)
+        repeat(10) {
+            model.previous()
+            months += model.period.value
+        }
+        assertEquals((11 downTo 3).map { StatsPeriod.Month(YearMonth(2026, it)) }, months.distinct())
+
+        model.select(InsightKind.Week)
+        repeat(60) { model.previous() }
+        // 2026-03-01은 일요일이라 첫 주가 3월 1일에 시작
+        assertEquals(StatsPeriod.Week(LocalDate(2026, 3, 1)), model.period.value)
+
+        model.select(InsightKind.Year)
+        model.previous()
+        assertEquals(StatsPeriod.Year(2026), model.period.value)
+    }
+
+    /** 일기가 없거나 오늘 뒤 날짜에만 있으면 이번 기간뿐 */
+    @Test
+    fun without_past_entries_only_this_period_is_open() = runTest(dispatcher) {
+        for (entries in listOf(FakeEntryRepository(), entriesOn(LocalDate(2027, 1, 5)))) {
+            val model = testInsightViewModel(NoStats, { today }, entries = entries)
+            runCurrent()
+
+            assertEquals(LocalDate(2026, 10, 1), model.first.value)
+            model.previous()
+            assertEquals(october, model.period.value)
+        }
+    }
+
+    /** 첫 일기보다 이른 기간을 보던 중이면 더 앞으로 가지 않고 뒤로는 감 */
+    @Test
+    fun a_period_before_the_first_entry_only_moves_forward() = runTest(dispatcher) {
+        val model = testInsightViewModel(NoStats, { today }, entries = entriesOn(LocalDate(2026, 3, 10)))
+        runCurrent()
+        model.jump(StatsPeriod.Month(YearMonth(2025, 6)))
+
+        model.previous()
+        assertEquals(StatsPeriod.Month(YearMonth(2025, 6)), model.period.value)
+        model.next()
+        assertEquals(StatsPeriod.Month(YearMonth(2025, 7)), model.period.value)
     }
 
     /** 앱이 꺼졌다 돌아와도 보던 기간 유지 */

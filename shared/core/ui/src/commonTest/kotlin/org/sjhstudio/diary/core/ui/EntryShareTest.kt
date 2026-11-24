@@ -19,6 +19,7 @@ class EntryShareTest {
             override fun year(date: LocalDate) = ""
             override fun monthDay(date: LocalDate) = ""
             override fun fullDate(date: LocalDate) = "2026년 11월 4일"
+            override fun dateRange(start: LocalDate, end: LocalDate, withYear: Boolean) = ""
             override fun dayWithWeekday(date: LocalDate) = ""
             override fun weekday(date: LocalDate) = "수요일"
             override fun weekdayShort(date: LocalDate) = ""

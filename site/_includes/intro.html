@@ -8,7 +8,7 @@
     </div>
     <div class="hero-visual">
       {% include faces-ring.html %}
-      <div class="phone hero-shot">{% include statusbar.html %}<img src="{{ t.screens }}list.jpg" srcset="{{ t.screens }}list-432.jpg 432w, {{ t.screens }}list.jpg 864w" sizes="(max-width:760px) 240px, 320px" alt="{{ t.alt_list }}" width="864" height="1920"></div>
+      <div class="phone hero-shot"><img src="{{ t.screens }}list.jpg" srcset="{{ t.screens }}list-432.jpg 432w, {{ t.screens }}list.jpg 864w" sizes="(max-width:760px) 240px, 320px" alt="{{ t.alt_list }}" width="864" height="1762"></div>
     </div>
   </div>
 </section>
@@ -21,7 +21,7 @@
         <h2>{{ t.write_title }}</h2>
         <p>{{ t.write_body }}</p>
       </div>
-      <div class="feature-visual"><div class="phone dim">{% include statusbar.html %}<img src="{{ t.screens }}write.jpg" srcset="{{ t.screens }}write-432.jpg 432w, {{ t.screens }}write.jpg 864w" sizes="(max-width:760px) 196px, (max-width:1024px) 240px, 280px" alt="{{ t.alt_write }}" width="864" height="1920" loading="lazy"></div></div>
+      <div class="feature-visual"><div class="phone"><img src="{{ t.screens }}write.jpg" srcset="{{ t.screens }}write-432.jpg 432w, {{ t.screens }}write.jpg 864w" sizes="(max-width:760px) 196px, (max-width:1024px) 240px, 280px" alt="{{ t.alt_write }}" width="864" height="1762" loading="lazy"></div></div>
     </section>
     <section class="feature reveal">
       <div class="feature-text">
@@ -29,7 +29,7 @@
         <h2>{{ t.insight_title }}</h2>
         <p>{{ t.insight_body }}</p>
       </div>
-      <div class="feature-visual"><div class="phone">{% include statusbar.html %}<img src="{{ t.screens }}insight.jpg" srcset="{{ t.screens }}insight-432.jpg 432w, {{ t.screens }}insight.jpg 864w" sizes="(max-width:760px) 196px, (max-width:1024px) 240px, 280px" alt="{{ t.alt_insight }}" width="864" height="1920" loading="lazy"></div></div>
+      <div class="feature-visual"><div class="phone"><img src="{{ t.screens }}insight.jpg" srcset="{{ t.screens }}insight-432.jpg 432w, {{ t.screens }}insight.jpg 864w" sizes="(max-width:760px) 196px, (max-width:1024px) 240px, 280px" alt="{{ t.alt_insight }}" width="864" height="1762" loading="lazy"></div></div>
     </section>
     <section class="feature reveal">
       <div class="feature-text">
@@ -37,7 +37,7 @@
         <h2>{{ t.backup_title }}</h2>
         <p>{{ t.backup_body }}</p>
       </div>
-      <div class="feature-visual"><div class="phone">{% include statusbar.html %}<img src="{{ t.screens }}backup.jpg" srcset="{{ t.screens }}backup-432.jpg 432w, {{ t.screens }}backup.jpg 864w" sizes="(max-width:760px) 196px, (max-width:1024px) 240px, 280px" alt="{{ t.alt_backup }}" width="864" height="1920" loading="lazy"></div></div>
+      <div class="feature-visual"><div class="phone"><img src="{{ t.screens }}backup.jpg" srcset="{{ t.screens }}backup-432.jpg 432w, {{ t.screens }}backup.jpg 864w" sizes="(max-width:760px) 196px, (max-width:1024px) 240px, 280px" alt="{{ t.alt_backup }}" width="864" height="1762" loading="lazy"></div></div>
     </section>
   </div>
 
@@ -45,19 +45,27 @@
     <p class="label">{{ t.tablet_label }}</p>
     <h2>{{ t.tablet_title }}</h2>
     <p>{{ t.tablet_body }}</p>
-    <div class="tablet"><img src="{{ t.screens }}tablet.jpg" alt="{{ t.alt_tablet }}" width="1400" height="799" loading="lazy"></div>
+    <div class="tablet"><img src="{{ t.screens }}tablet.jpg" alt="{{ t.alt_tablet }}" width="1600" height="1128" loading="lazy"></div>
+  </section>
+
+  <section class="more reveal">
+    <h2 class="section-title">{{ t.more_title }}</h2>
+    <ul class="more-list">
+      {% for m in t.more %}<li><h3>{{ m.t }}</h3><p>{{ m.d }}</p></li>
+      {% endfor %}
+    </ul>
   </section>
 
   <section class="trust reveal">
     <h2 class="section-title">{{ t.trust_title }}</h2>
     <ul class="trust-list">
       <li>
-        <!-- Lucide 아이콘(ISC) --><span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg></span>
+        <!-- Lucide 아이콘(ISC) --><span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg></span>
         <h3>{{ t.trust1_title }}</h3>
         <p>{{ t.trust1_body }}</p>
       </li>
       <li>
-        <span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg></span>
+        <span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" x2="22" y1="8" y2="13"/><line x1="22" x2="17" y1="8" y2="13"/></svg></span>
         <h3>{{ t.trust2_title }}</h3>
         <p>{{ t.trust2_body }}</p>
       </li>

@@ -253,10 +253,19 @@ fun EntryProviderScope<NavKey>.settingsEntries(
     }
     entry<ThemeSettingsKey>(metadata = SettingsDetailPane) {
         val viewModel = koinViewModel<SettingsViewModel>()
-        val state by viewModel.state.collectAsStateWithLifecycle()
-        // 읽기 전의 기본값을 고른 것으로 보이지 않게 기다림
-        if (!state.loaded) return@entry
-        ThemeSettingsScreen(state.settings.themeMode, onSelect = viewModel::setThemeMode, onBack = pop)
+        // 읽기 전의 기본값을 고른 것으로 보이지 않게 기다림. 설정과 요금제만 봐서 바로 옴
+        val state = viewModel.theme.collectAsStateWithLifecycle().value ?: return@entry
+        ThemeSettingsScreen(
+            mode = state.mode,
+            theme = state.theme,
+            listStyle = state.listStyle,
+            canCustom = state.canCustom,
+            onMode = viewModel::setThemeMode,
+            onColor = viewModel::setThemeColor,
+            onCustom = viewModel::setCustomThemeColor,
+            onPlus = { push(PlusKey(PlusBenefit.THEME)) },
+            onBack = pop
+        )
     }
     entry<FontSettingsKey>(metadata = SettingsDetailPane) { FontSettingsRoute(onBack = pop) }
     entry<ReminderSettingsKey>(metadata = SettingsDetailPane) { ReminderSettingsRoute(onBack = pop) }

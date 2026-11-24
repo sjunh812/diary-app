@@ -50,7 +50,6 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryResultHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsSwitchRow
-import org.sjhstudio.diary.core.designsystem.component.DiarySettingsValueRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryStatusBox
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
@@ -61,10 +60,10 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
+import org.sjhstudio.diary.core.model.AccountChange
 import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupFailure
-import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.ExpectedLeave
 import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
@@ -79,6 +78,7 @@ import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.core.ui.workContinuesInBackground
 import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.backup_account
+import org.sjhstudio.diary.feature.backup.resources.backup_account_busy
 import org.sjhstudio.diary.feature.backup.resources.backup_all_done
 import org.sjhstudio.diary.feature.backup.resources.backup_auto
 import org.sjhstudio.diary.feature.backup.resources.backup_auto_body
@@ -118,6 +118,7 @@ import org.sjhstudio.diary.feature.backup.resources.backup_last
 import org.sjhstudio.diary.feature.backup.resources.backup_no_space_title
 import org.sjhstudio.diary.feature.backup.resources.backup_now
 import org.sjhstudio.diary.feature.backup.resources.backup_options
+import org.sjhstudio.diary.feature.backup.resources.backup_photos_next
 import org.sjhstudio.diary.feature.backup.resources.backup_photos_unusable
 import org.sjhstudio.diary.feature.backup.resources.backup_photos_waiting
 import org.sjhstudio.diary.feature.backup.resources.backup_reconnect
@@ -130,8 +131,6 @@ import org.sjhstudio.diary.feature.backup.resources.backup_running_body
 import org.sjhstudio.diary.feature.backup.resources.backup_running_body_open
 import org.sjhstudio.diary.feature.backup.resources.backup_running_body_quiet
 import org.sjhstudio.diary.feature.backup.resources.backup_running_photos
-import org.sjhstudio.diary.feature.backup.resources.backup_skip_busy
-import org.sjhstudio.diary.feature.backup.resources.backup_skip_empty
 import org.sjhstudio.diary.feature.backup.resources.backup_space_manage
 import org.sjhstudio.diary.feature.backup.resources.backup_space_note
 import org.sjhstudio.diary.feature.backup.resources.backup_space_photos
@@ -198,17 +197,13 @@ fun BackupSettingsRoute(
     val statusFailed by viewModel.statusFailed.collectAsStateWithLifecycle()
     val status = loaded ?: BackupStatus()
     val connecting by viewModel.connecting.collectAsStateWithLifecycle()
+    val photoProgress by viewModel.photoProgress.collectAsStateWithLifecycle()
     val found by viewModel.found.collectAsStateWithLifecycle()
     val rollback by viewModel.rollback.collectAsStateWithLifecycle()
     val connectFailure by viewModel.connectFailure.collectAsStateWithLifecycle()
     val access = rememberNotificationAccess()
     val running = status.running != null
     val toast = remember { DiaryToastState() }
-    val nothingYet = stringResource(Res.string.backup_skip_empty)
-    val busy = stringResource(Res.string.backup_skip_busy)
-    LaunchedEffect(viewModel) {
-        viewModel.skipped.collect { skip -> toast.show(if (skip == BackupSkip.NO_ENTRIES) nothingYet else busy) }
-    }
     // 백업이 시작되면 끝날 때 알릴 수 있게 한 번 물음
     // 거절해도 백업은 그대로 실행
     LaunchedEffect(running) { if (running) access.askInContext() }
@@ -236,7 +231,8 @@ fun BackupSettingsRoute(
                     else -> BackupStatusRead.Loaded
                 },
                 onRetryStatus = viewModel::retryStatus,
-                onLink = rememberOpenWebLink(toast)
+                onLink = rememberOpenWebLink(toast),
+                receivingPhotos = photoProgress != null
             )
             statusBar(openPicker)
         }
@@ -340,7 +336,8 @@ fun BackupSettingsScreen(
     fileState: FileBackupUi = FileBackupUi.Idle,
     statusRead: BackupStatusRead = BackupStatusRead.Loaded,
     onRetryStatus: () -> Unit = {},
-    onLink: (String) -> Unit = {}
+    onLink: (String) -> Unit = {},
+    receivingPhotos: Boolean = false
 ) {
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -372,7 +369,7 @@ fun BackupSettingsScreen(
                 // 읽기 전에 기본값으로 그리면 켜 둔 백업이 잠깐 꺼짐으로 보임
                 // 읽는 데 한 순간이라 아무것도 그리지 않음
             } else if (status.connection == BackupConnection.NotConnected) {
-                NotConnected(connecting, onConnect)
+                NotConnected(connecting, receivingPhotos, onConnect)
                 FileRestoreNotice(fileState)
                 DiarySettingsRow(
                     stringResource(Res.string.file_top),
@@ -391,7 +388,7 @@ fun BackupSettingsScreen(
                         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
                     ) {
                         Status(status, onCellular)
-                        if (status.running == null && status.connection != BackupConnection.NeedsReconnect) {
+                        if (status.running == null && status.connection !is BackupConnection.NeedsReconnect) {
                             // 다른 기기의 백업을 고르기 전에 이 기기 것을 올리지 않게 찾는 동안 막음
                             DiaryButton(
                                 stringResource(Res.string.backup_now),
@@ -401,7 +398,7 @@ fun BackupSettingsScreen(
                                 enabled = !status.findingBackup
                             )
                         }
-                        if (status.connection == BackupConnection.NeedsReconnect) {
+                        if (status.connection is BackupConnection.NeedsReconnect) {
                             DiaryButton(
                                 stringResource(Res.string.backup_reconnect),
                                 onConnect,
@@ -537,7 +534,7 @@ private fun Rollback(info: RollbackInfo, onRollBack: () -> Unit) {
  * 드라이브·파일 백업·파일 복원 세 갈래로 가는 화면이라 버튼을 아래에 붙이지 않고 위에서부터 쌓음
  */
 @Composable
-private fun NotConnected(connecting: Boolean, onConnect: () -> Unit) {
+private fun NotConnected(connecting: Boolean, receivingPhotos: Boolean, onConnect: () -> Unit) {
     Column(Modifier.fillMaxWidth()) {
         DiaryResultHeader(
             DiaryIcons.CloudUpload,
@@ -567,12 +564,14 @@ private fun NotConnected(connecting: Boolean, onConnect: () -> Unit) {
                     )
                 )
             )
+            // 파일에서 사진을 꺼내는 동안은 연결이 끝날 때까지 기다려 '연결 중'만 몇 분씩 돎
+            // 받는 중임은 아래 사진 받기 상자가 알림
             DiaryButton(
                 stringResource(Res.string.backup_connect),
                 onConnect,
                 Modifier.fillMaxWidth(),
                 size = DiaryButtonSize.XLarge,
-                enabled = !connecting
+                enabled = !connecting && !receivingPhotos
             )
         }
         Spacer(Modifier.height(DiarySpacing.x4))
@@ -616,7 +615,7 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit) {
             )
         }
 
-        status.connection == BackupConnection.NeedsReconnect ->
+        status.connection is BackupConnection.NeedsReconnect ->
             DiaryStatusBox(
                 DiaryIcons.ShieldCheck,
                 stringResource(Res.string.backup_reconnect_title),
@@ -627,6 +626,14 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit) {
         // 첫 백업이 끊긴 때도 같음
         // 올린 사진은 남아 있음
         status.lastFailure != null -> FailedStatus(status.lastFailure, last)
+
+        // 마지막 백업이 Wi-Fi를 기다리느라 남긴 사진이 아니면 다음 백업이 올림(새로 넣은 사진, 모바일 데이터 허용)
+        status.photosNotBackedUp > 0 && last != null && !status.photosHeldForWifi ->
+            DiaryStatusBox(
+                DiaryIcons.ShieldCheck,
+                last,
+                pluralStringResource(Res.plurals.backup_photos_next, status.photosNotBackedUp, status.photosNotBackedUp.grouped())
+            )
 
         status.photosNotBackedUp > 0 && last != null ->
             DiaryStatusBox(
@@ -697,22 +704,45 @@ private fun lastBackupText(at: Instant): String = stringResource(Res.string.back
 fun BackupOptionsRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<BackupViewModel>()
     val status by viewModel.status.collectAsStateWithLifecycle()
-    BackupOptionsScreen(
-        status = status,
-        onPhotosOnCellular = viewModel::setPhotosOnCellular,
-        onDisconnect = {
-            viewModel.disconnect()
-            onBack()
-        },
-        onBack = onBack,
-        modifier = modifier
-    )
+    val connectFailure by viewModel.connectFailure.collectAsStateWithLifecycle()
+    val toast = remember { DiaryToastState() }
+    val busy = stringResource(Res.string.backup_account_busy)
+    val back by rememberUpdatedState(onBack)
+    // 바뀐 계정의 백업 찾기와 첫 백업은 백업 화면이 보여 줌
+    LaunchedEffect(viewModel) {
+        viewModel.accountChanges.collect { change ->
+            when (change) {
+                AccountChange.CHANGED -> back()
+                AccountChange.BUSY -> toast.show(busy)
+                AccountChange.KEPT -> Unit
+            }
+        }
+    }
+    Box(modifier.fillMaxSize()) {
+        BackupOptionsScreen(
+            status = status,
+            onChangeAccount = viewModel::changeAccount,
+            onPhotosOnCellular = viewModel::setPhotosOnCellular,
+            onDisconnect = {
+                viewModel.disconnect()
+                onBack()
+            },
+            onBack = onBack
+        )
+        DiaryToastHost(
+            toast,
+            Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x4),
+            reduceMotion = rememberReduceMotion()
+        )
+    }
+    connectFailure?.let { BackupConnectFailedSheet(it, viewModel::connectFailureShown) }
 }
 
 /** 상태만 받아 그림. 화면 견본에서도 씀 */
 @Composable
 fun BackupOptionsScreen(
     status: BackupStatus,
+    onChangeAccount: () -> Unit,
     onPhotosOnCellular: (Boolean) -> Unit,
     onDisconnect: () -> Unit,
     onBack: () -> Unit,
@@ -724,9 +754,16 @@ fun BackupOptionsScreen(
         DiaryTopBar(stringResource(Res.string.backup_options), onBack = onBack)
         Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
             DiarySettingsHeader(stringResource(Res.string.backup_group_account))
-            DiarySettingsValueRow(
+            // 누르면 다른 계정을 고름(스펙 011)
+            DiarySettingsRow(
                 stringResource(Res.string.backup_account),
-                (status.connection as? BackupConnection.Connected)?.accountLabel.orEmpty()
+                onClick = onChangeAccount,
+                value =
+                    when (val connection = status.connection) {
+                        is BackupConnection.Connected -> connection.accountLabel
+                        is BackupConnection.NeedsReconnect -> connection.accountLabel
+                        BackupConnection.NotConnected -> null
+                    }
             )
             DiarySettingsHeader(stringResource(Res.string.backup_group_upload), gapAbove = true)
             DiarySettingsSwitchRow(

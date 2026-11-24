@@ -153,7 +153,7 @@ fun EntryDetailRoute(
                     if (favorite) DiaryIcons.StarFilled else DiaryIcons.StarOutline,
                     stringResource(if (favorite) Res.string.detail_unfavorite else Res.string.detail_favorite),
                     viewModel::toggleFavorite,
-                    tint = if (favorite) colors.accent else colors.textPrimary
+                    tint = if (favorite) colors.accentIcon else colors.textPrimary
                 )
                 DiaryIconButton(DiaryIcons.EditText, stringResource(Res.string.detail_edit), onEdit)
                 DiaryIconButton(DiaryIcons.More, stringResource(Res.string.detail_more), { more = true })
@@ -407,7 +407,7 @@ private fun GalleryCells(photos: List<EntryPhoto>, onPhoto: (Int) -> Unit, modif
                             if (photos.size > 3) {
                                 BasicText(
                                     "+${photos.size - 3}",
-                                    style = DiaryTheme.typography.micro.copy(color = DiaryTheme.colors.onAccent),
+                                    style = DiaryTheme.typography.micro.copy(color = DiaryTheme.colors.onPhotoContent),
                                     modifier =
                                         Modifier
                                             .align(Alignment.BottomEnd)

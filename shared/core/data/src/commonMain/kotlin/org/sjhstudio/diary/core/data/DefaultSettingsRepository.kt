@@ -7,6 +7,7 @@ import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.PreviewLength
+import org.sjhstudio.diary.core.model.ThemeChoice
 import org.sjhstudio.diary.core.model.ThemeMode
 
 class DefaultSettingsRepository(private val store: SettingsStore) : SettingsRepository {
@@ -24,6 +25,8 @@ class DefaultSettingsRepository(private val store: SettingsStore) : SettingsRepo
     override suspend fun setBodyTextSize(size: BodyTextSize) = store.update { it.copy(bodyTextSize = size) }
 
     override suspend fun setThemeMode(mode: ThemeMode) = store.update { it.copy(themeMode = mode) }
+
+    override suspend fun updateTheme(transform: (ThemeChoice) -> ThemeChoice) = store.update { it.copy(theme = transform(it.theme)) }
 
     override suspend fun setAskLocationAgain(ask: Boolean) = store.update { it.copy(askLocationAgain = ask) }
 

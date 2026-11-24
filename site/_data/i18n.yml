@@ -6,7 +6,7 @@ ko:
   home: /1day1diary/
   screens: /assets/screens/
   description: 바쁜 사람을 위한 간편한 일기장, 1일 1일기
-  og: 하루 한 줄이면 충분해요. 기분 하나 고르고 몇 줄 쓰면 오늘 일기 끝.
+  og: 한 줄이면 오늘 일기 끝. 짧게 써도 매일 쌓이면 나만의 기록이 돼요.
   get: 앱 다운로드
   privacy: 개인정보처리방침
   terms: 이용약관
@@ -14,45 +14,59 @@ ko:
   copied: 주소를 복사했어요
   mail: "메일 주소:"
   language: 언어
-  hero: 하루 <em class="hl">한 줄</em>이면<br>충분해요
-  lead: 기분 하나 고르고 몇 줄 쓰면 오늘 일기 끝.
+  hero: <em class="hl">한 줄</em>이면<br>오늘 일기 끝
+  lead: 짧게 써도 매일 쌓이면 나만의 기록이 돼요.
   alt_list: 지난 일기 목록 화면
   features: 주요 기능
-  write_label: 쓰기
-  write_title: 기분 하나 고르면<br>시작이에요
-  write_body: 아홉 가지 기분 가운데 하나를 고르고 몇 줄만 남겨요. 날씨, 장소, 사진도 담아요.
+  write_label: 일기 쓰기
+  write_title: 사진과 기분도<br>같이 남겨요
+  write_body: 사진, 날씨, 장소를 함께 담아요. 아홉 가지 기분으로 그날을 표시할 수도 있어요.
   alt_write: 기분을 고르고 일기를 쓰는 화면
   insight_label: 돌아보기
-  insight_title: 내 기분 흐름을<br>한눈에 봐요
-  insight_body: 주·월·년마다 많았던 기분을 보여줘요. 달력과 검색으로 지난 일기도 바로 찾아요.
+  insight_title: 어떤 기분이 많았는지<br>한눈에 봐요
+  insight_body: 주, 월, 년 단위로 기분을 모아 보여줘요. 지난 일기는 달력과 검색으로 금방 찾을 수 있어요.
   alt_insight: 기분 흐름을 돌아보는 화면
   backup_label: 백업
-  backup_title: 사진까지<br>내 드라이브에 둬요
-  backup_body: 일기와 사진을 내 구글 드라이브에 올려둬요. 휴대폰을 바꿔도 그대로 복원해요.
+  backup_title: 휴대폰을 바꿔도<br>일기는 그대로예요
+  backup_body: 일기와 사진을 내 구글 드라이브에 백업할 수 있어요. 새 휴대폰에서 같은 계정으로 복원하면 돼요.
   alt_backup: 사진까지 드라이브에 백업하는 화면
   tablet_label: 태블릿
-  tablet_title: 넓은 화면에서는<br>두 칸으로 봐요
-  tablet_body: 목록과 일기를 나란히 띄워요. iPad, 안드로이드 태블릿, 폴더블에서도 편하게 써요.
+  tablet_title: 넓은 화면에서는<br>목록과 일기를 나란히
+  tablet_body: iPad, 안드로이드 태블릿, 폴더블에서도 화면에 맞게 보여요.
   alt_tablet: 태블릿에서 목록과 일기를 나란히 보는 화면
-  trust_title: 안심하고 써요
-  trust1_title: 기기와 내 드라이브에만
-  trust1_body: 일기와 사진은 이 기기와 내 구글 드라이브에만 저장돼요.
-  trust2_title: 개발자도 볼 수 없어요
-  trust2_body: 회원가입이 없고, 일기를 모아두는 서버도 없어요.
-  trust3_title: 잠금으로 지켜요
-  trust3_body: 비밀번호와 생체인증으로 일기를 잠글 수 있어요.
+  more_title: 이런 것도 돼요
+  more:
+    - t: 임시 저장
+      d: 쓰다가 앱을 닫아도 쓰던 글이 남아 있어요.
+    - t: 휴지통
+      d: 실수로 삭제한 일기도 30일 안에 복원할 수 있어요.
+    - t: 글꼴
+      d: 손글씨부터 바탕체까지 10가지 글꼴 중에서 골라요.
+    - t: 목록 모양
+      d: 피드, 카드, 사진 격자 중에서 골라봐요.
+    - t: 글 서식
+      d: 글자 색과 형광펜으로 중요한 부분을 표시해요.
+    - t: 다크 모드
+      d: 밤에도 눈부시지 않게 어두운 화면으로 써요.
+  trust_title: 일기는 나만 봐요
+  trust1_title: 개발자도 볼 수 없어요
+  trust1_body: 일기를 모아두는 서버가 없어요. 일기와 사진은 이 기기와 내 구글 드라이브에만 있어요.
+  trust2_title: 회원가입이 없어요
+  trust2_body: 설치하고 바로 쓰면 돼요. 백업할 때만 구글 계정을 연결해요.
+  trust3_title: 잠금을 걸 수 있어요
+  trust3_body: 비밀번호나 생체인증을 켜두면 나만 열 수 있어요.
   faq_title: 자주 묻는 질문
   faq:
     - q: 무료인가요?
-      a: 네, 일기 쓰기와 사진까지 담는 백업은 모두 무료예요. 광고 없이 쓰고 싶으면 광고 제거나 Plus를 고를 수 있어요.
+      a: 네. 일기 쓰기와 사진 백업은 모두 무료예요. 광고 없이 쓰고 싶다면 광고 제거(1회 구매)나 Plus(연 구독)를 고르면 돼요.
     - q: 휴대폰을 바꾸면 일기는 어떻게 되나요?
       a: 새 휴대폰에서 같은 구글 계정으로 복원하면 돼요. 아이폰과 안드로이드 사이에서도 옮길 수 있어요.
     - q: 예전 버전에서 쓴 일기도 남아 있나요?
-      a: 네, 안드로이드에서 쓰던 일기는 업데이트하면 사진까지 그대로 옮겨져요. 아이폰 앱은 이번에 처음 나와서 예전 버전이 없어요.
+      a: 네. 안드로이드에서 쓰던 일기는 앱을 업데이트하면 사진까지 그대로 옮겨져요. 아이폰 앱은 이번에 처음 나와서 예전 버전이 없어요.
     - q: 일기 내용을 다른 곳에 보내나요?
-      a: 아니요. 일기 내용과 사진은 내가 고른 저장소에만 둬요. 광고나 사용 통계에도 쓰지 않아요.
-  cta_title: 오늘부터 <em class="hl">1일 1일기</em><br>실천해 보세요
-  cta_body: iPhone · iPad · Android에서 쓸 수 있어요.
+      a: 아니요. 일기와 사진은 이 기기와 내가 연결한 구글 드라이브에만 있어요. 광고나 사용 통계에도 쓰지 않아요.
+  cta_title: 오늘부터 <em class="hl">1일 1일기</em><br>시작해 보세요
+  cta_body: iPhone, iPad, Android에서 무료로 쓸 수 있어요.
   badge_apple: App Store에서 다운로드
   badge_google: Google Play에서 다운로드
   apple_width: 130
@@ -63,8 +77,8 @@ en:
   name: 1 Day 1 Diary
   home: /en/1day1diary/
   screens: /assets/screens/en/
-  description: A simple diary for busy people. Pick a mood, jot a few lines, done.
-  og: One line a day is enough. Pick a mood, jot a few lines, and today's entry is done.
+  description: A simple diary for busy people. One line, and today's entry is done.
+  og: Today's entry, in one line. Short entries add up to a record of your own.
   get: Download
   privacy: Privacy Policy (Korean)
   terms: Terms (Korean)
@@ -72,43 +86,57 @@ en:
   copied: copied
   mail: "Email:"
   language: Language
-  hero: One <em class="hl">line</em> a day<br>is enough
-  lead: Pick a mood, jot a few lines, and today's entry is done.
+  hero: Today's entry,<br>in <em class="hl">one line</em>
+  lead: Short entries add up to a record of your own.
   alt_list: List of past entries
   features: Key features
-  write_label: Write
-  write_title: Pick a mood<br>and start
-  write_body: Choose one of nine moods and leave a few lines. Add weather, place, and photos too.
+  write_label: Writing
+  write_title: Add photos<br>and your mood
+  write_body: Add photos, the weather, and where you were. You can also mark the day with one of nine moods.
   alt_write: Picking a mood while writing an entry
   insight_label: Look back
-  insight_title: See your moods<br>at a glance
-  insight_body: See which moods came up most each week, month, and year. Find past entries fast with the calendar and search.
+  insight_title: See which moods<br>came up most
+  insight_body: Your moods are grouped by week, month, and year. Find past entries quickly with the calendar and search.
   alt_insight: Looking back on your moods
   backup_label: Backup
-  backup_title: Photos included,<br>in your own Drive
-  backup_body: Back up entries and photos to your own Google Drive. Switch phones and restore everything as it was.
+  backup_title: New phone,<br>same diary
+  backup_body: Back up your entries and photos to your own Google Drive. On a new phone, restore them with the same account.
   alt_backup: Backing up to Google Drive
   tablet_label: Tablet
-  tablet_title: Two panes<br>on big screens
-  tablet_body: See your list and entry side by side. Works great on iPad, Android tablets, and foldables.
+  tablet_title: On big screens,<br>list and entry side by side
+  tablet_body: Fits the screen on iPad, Android tablets, and foldables.
   alt_tablet: List and entry side by side on a tablet
-  trust_title: Private by design
-  trust1_title: Only on your device and Drive
-  trust1_body: Entries and photos are stored only on this device and in your Google Drive.
-  trust2_title: Not even the developer can see them
-  trust2_body: No sign-up, and no server that collects your entries.
+  more_title: And a few more things
+  more:
+    - t: Drafts
+      d: Close the app mid-sentence and your draft is still there.
+    - t: Trash
+      d: Deleted an entry by mistake? Restore it within 30 days.
+    - t: Fonts
+      d: Pick from 10 fonts, from handwriting to serif.
+    - t: List styles
+      d: Choose a feed, cards, or a photo grid.
+    - t: Formatting
+      d: Mark what matters with text color and highlights.
+    - t: Dark mode
+      d: Easy on the eyes at night.
+  trust_title: Your diary is yours alone
+  trust1_title: Not even the developer can see it
+  trust1_body: There's no server that collects entries. Your entries and photos stay on this device and in your Google Drive.
+  trust2_title: No sign-up
+  trust2_body: Install it and start writing. You only connect a Google account to back up.
   trust3_title: Lock it
-  trust3_body: Lock your diary with a passcode or biometrics.
+  trust3_body: Turn on a passcode or biometrics so only you can open it.
   faq_title: FAQ
   faq:
     - q: Is it free?
-      a: Yes. Writing and backups with photos are all free. To use it without ads, choose Remove Ads or Plus.
+      a: Yes. Writing and photo backups are free. To use it without ads, choose Remove Ads (one-time purchase) or Plus (yearly subscription).
     - q: What happens to my entries when I switch phones?
       a: Restore them on your new phone with the same Google account. You can move between iPhone and Android too.
     - q: Do you send my entries anywhere?
-      a: No. Your entries and photos stay only in the storage you choose. They're never used for ads or usage stats.
+      a: No. Your entries and photos stay on this device and in the Google Drive you connect. They're never used for ads or usage stats.
   cta_title: Start your <em class="hl">1 Day 1 Diary</em><br>today
-  cta_body: Available on iPhone, iPad, and Android.
+  cta_body: Free on iPhone, iPad, and Android.
   badge_apple: Download on the App Store
   badge_google: Get it on Google Play
   apple_width: 120
@@ -119,8 +147,8 @@ ja:
   name: 1日1日記
   home: /ja/1day1diary/
   screens: /assets/screens/ja/
-  description: 忙しい人のためのかんたん日記帳。気分を選んで数行書けば、今日の日記は完了。
-  og: 1日1行で十分です。気分を選んで数行書けば、今日の日記は完了。
+  description: 忙しい人のためのかんたん日記帳。1行書けば、今日の日記は完了。
+  og: 1行で今日の日記は完了。短くても、毎日つづければ自分だけの記録になります。
   get: ダウンロード
   privacy: プライバシーポリシー（韓国語）
   terms: 利用規約（韓国語）
@@ -128,43 +156,57 @@ ja:
   copied: をコピーしました
   mail: "メールアドレス:"
   language: 言語
-  hero: 1日<em class="hl">1行</em>で<br>十分です
-  lead: 気分を選んで数行書けば、今日の日記は完了。
+  hero: <em class="hl">1行</em>で<br>今日の日記は完了
+  lead: 短くても、毎日つづければ自分だけの記録になります。
   alt_list: 過去の日記の一覧画面
   features: 主な機能
-  write_label: 書く
-  write_title: 気分を選んだら<br>書きはじめ
-  write_body: 9種類の気分から1つ選んで、数行残すだけ。天気、場所、写真も一緒に残せます。
+  write_label: 日記を書く
+  write_title: 写真や気分も<br>一緒に残せます
+  write_body: 写真、天気、場所を一緒に残せます。9種類の気分で、その日を記録することもできます。
   alt_write: 気分を選んで日記を書く画面
   insight_label: ふりかえり
-  insight_title: 気分の流れを<br>ひと目で
-  insight_body: 週・月・年ごとに多かった気分がわかります。カレンダーと検索で過去の日記もすぐ見つかります。
+  insight_title: どんな気分が多かったか<br>ひと目でわかる
+  insight_body: 週・月・年ごとに気分をまとめて表示します。過去の日記はカレンダーと検索ですぐ見つかります。
   alt_insight: 気分の流れをふりかえる画面
   backup_label: バックアップ
-  backup_title: 写真まで<br>自分のドライブに
-  backup_body: 日記と写真を自分のGoogleドライブにバックアップできます。機種変更してもそのまま復元できます。
+  backup_title: 機種変更しても<br>日記はそのまま
+  backup_body: 日記と写真を自分のGoogleドライブにバックアップできます。新しいスマホで同じアカウントから復元するだけです。
   alt_backup: Googleドライブにバックアップする画面
   tablet_label: タブレット
-  tablet_title: 大きな画面では<br>2画面で
-  tablet_body: 一覧と日記を並べて表示します。iPad、Androidタブレット、折りたたみスマホでも快適です。
+  tablet_title: 大きな画面では<br>一覧と日記を並べて
+  tablet_body: iPad、Androidタブレット、折りたたみスマホでも画面に合わせて表示します。
   alt_tablet: タブレットで一覧と日記を並べて表示した画面
-  trust_title: 安心して使えます
-  trust1_title: 端末と自分のドライブだけに
-  trust1_body: 日記と写真は、この端末と自分のGoogleドライブにだけ保存されます。
-  trust2_title: 開発者も見られません
-  trust2_body: 会員登録はなく、日記を集めるサーバーもありません。
-  trust3_title: ロックで守れます
-  trust3_body: パスコードと生体認証で日記をロックできます。
+  more_title: ほかにもこんなことができます
+  more:
+    - t: 下書き保存
+      d: 書いている途中でアプリを閉じても、書きかけの文章は残ります。
+    - t: ゴミ箱
+      d: うっかり削除した日記も、30日以内なら復元できます。
+    - t: フォント
+      d: 手書き風から明朝体まで、10種類のフォントから選べます。
+    - t: 一覧表示
+      d: フィード、カード、写真グリッドから選べます。
+    - t: 文字の装飾
+      d: 文字色やマーカーで、大事なところを目立たせられます。
+    - t: ダークモード
+      d: 夜でもまぶしくない暗い画面で使えます。
+  trust_title: 日記は自分だけのもの
+  trust1_title: 開発者も見られません
+  trust1_body: 日記を集めるサーバーはありません。日記と写真は、この端末と自分のGoogleドライブにだけ保存されます。
+  trust2_title: 会員登録は不要
+  trust2_body: インストールしてすぐ使えます。Googleアカウントをつなぐのはバックアップのときだけです。
+  trust3_title: ロックをかけられます
+  trust3_body: パスコードや生体認証をオンにすれば、自分だけが開けます。
   faq_title: よくある質問
   faq:
     - q: 無料ですか？
-      a: はい。日記を書くことも、写真を含むバックアップもすべて無料です。広告なしで使いたい場合は、広告削除かPlusを選べます。
+      a: はい。日記を書くことも、写真のバックアップも無料です。広告なしで使いたい場合は、広告削除（買い切り）かPlus（年額）を選べます。
     - q: 機種変更したら日記はどうなりますか？
       a: 新しいスマホで同じGoogleアカウントから復元できます。iPhoneとAndroidの間でも移せます。
     - q: 日記の内容をどこかに送っていますか？
-      a: いいえ。日記と写真は自分で選んだ保存先にだけ置かれます。広告や利用統計にも使いません。
+      a: いいえ。日記と写真は、この端末とつないだGoogleドライブにだけ置かれます。広告や利用統計にも使いません。
   cta_title: 今日から<em class="hl">1日1日記</em><br>始めてみませんか
-  cta_body: iPhone・iPad・Androidで使えます。
+  cta_body: iPhone・iPad・Androidで無料で使えます。
   badge_apple: App Storeからダウンロード
   badge_google: Google Play で手に入れよう
   apple_width: 109

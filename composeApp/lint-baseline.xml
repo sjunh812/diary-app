@@ -125,16 +125,6 @@
             column="20"/>
     </issue>
 
-    <issue
-        id="UseKtx"
-        message="Use the KTX function `createBitmap` instead?"
-        errorLine1="    val bitmap = Bitmap.createBitmap(480, 360, Bitmap.Config.ARGB_8888)"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/debug/kotlin/org/sjhstudio/diary/debug/ListPerformanceSample.kt"
-            line="189"
-            column="18"/>
-    </issue>
 
     <issue
         id="UseKtx"

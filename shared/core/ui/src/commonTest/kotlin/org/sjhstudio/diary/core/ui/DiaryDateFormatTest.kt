@@ -27,6 +27,25 @@ class DiaryDateFormatTest {
         assertEquals("11월 12일 오후 7:48", "11월 12일 오후 7:48".keepTogether())
     }
 
+    /**
+     * 뒤 날짜는 한 덩어리라 이음표 뒤에서 먼저 줄을 바꿈
+     * 앞 날짜는 성분 사이에서도 바꿀 수 있어 큰 글자에서 셋째 줄로 밀려 잘리지 않음. 숫자와 단위("27일")는 붙임
+     */
+    @Test
+    fun rangeBreaksAfterTheDashAndKeepsNumbersWithUnits() {
+        assertEquals("2026\u2060년 9\u2060월 27\u2060일~\u200B10\u2060월\u00a03\u2060일", "2026년 9월 27일~10월 3일".keepRangeTogether())
+        assertEquals(
+            "2026\u2060년 11\u2060월 29\u2060일\u00a0~\u00a0\u200B12\u2060월\u00a05\u2060일",
+            "2026년 11월 29일 ~ 12월 5일".keepRangeTogether()
+        )
+        assertEquals(
+            "December 28, 2025\u202F\u2013\u202F\u200BJanuary\u00a03,\u00a02026",
+            "December 28, 2025\u2009\u2013\u2009January 3, 2026".keepRangeTogether()
+        )
+        assertEquals("2026\u2060年9\u2060月27\u2060日\uFF5E\u200B10\u2060月3\u2060日", "2026年9月27日\uFF5E10月3日".keepRangeTogether())
+        assertEquals("2026\u2060년 11\u2060월 1\u2060일", "2026년 11월 1일".keepRangeTogether())
+    }
+
     private object Labels : DiaryDateFormat {
         override fun month(date: LocalDate) = "${date.month.number}월"
 
@@ -39,6 +58,8 @@ class DiaryDateFormatTest {
         override fun monthDay(date: LocalDate) = month(date)
 
         override fun fullDate(date: LocalDate) = yearMonth(date)
+
+        override fun dateRange(start: LocalDate, end: LocalDate, withYear: Boolean) = ""
 
         override fun dayWithWeekday(date: LocalDate) = month(date)
 

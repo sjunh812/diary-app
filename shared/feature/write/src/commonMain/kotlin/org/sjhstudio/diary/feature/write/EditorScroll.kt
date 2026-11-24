@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.Dp
+import kotlin.math.abs
 
 /**
  * 본문 스크롤이 커서나 선택 끝을 보이게 할 때 가장자리에서 [margin]만큼 띄움
@@ -38,7 +39,9 @@ private class MarginSpec(private val margin: Float) : BringIntoViewSpec {
 /**
  * 보일 곳의 시작 [offset]과 크기 [size]를 화면 높이 [containerSize] 안에 [margin]을 두고 넣는 데 필요한 스크롤 거리
  * 이미 보이면 0, 위로 넘치면 음수, 아래로 넘치면 양수
- * 여백까지 다 넣을 수 없으면 기본 규칙(가장자리에 맞춤)
+ * 여백까지 다 넣을 수 없으면 여백 없이 맞춤
+ * 넘치는 쪽이 둘이면 덜 움직이는 쪽에 맞춤(Compose 기본 규칙과 같음)
+ * 키보드가 올라와 본문 칸 전체를 보이게 할 때 글 끝으로 내려가지 않음
  */
 internal fun scrollDistance(offset: Float, size: Float, containerSize: Float, margin: Float): Float {
     val room = if (size + margin * 2 <= containerSize) margin else 0f
@@ -47,7 +50,7 @@ internal fun scrollDistance(offset: Float, size: Float, containerSize: Float, ma
     return when {
         start >= 0f && end <= containerSize -> 0f
         start < 0f && end > containerSize -> 0f
-        start < 0f -> start
+        abs(start) < abs(end - containerSize) -> start
         else -> end - containerSize
     }
 }

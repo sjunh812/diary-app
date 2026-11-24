@@ -9,6 +9,7 @@ import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.MigrationFailureKind
 import org.sjhstudio.diary.core.model.MigrationStep
 import org.sjhstudio.diary.core.model.RelockAfter
+import org.sjhstudio.diary.core.model.ThemeColor
 import org.sjhstudio.diary.core.model.ThemeMode
 
 /**
@@ -92,6 +93,8 @@ object AnalyticsEvents {
             "font" to DiaryFont.entries.map { it.id }.toSet(),
             "text_size" to BodyTextSize.entries.map { it.id }.toSet(),
             "theme" to ThemeMode.entries.map { it.id }.toSet(),
+            // 직접 고른 색 값은 보내지 않고 "custom"만(스펙 010)
+            "theme_color" to ThemeColor.entries.map { it.id }.toSet(),
             "reminder" to BOOLEAN,
             "lock" to BOOLEAN,
             "biometric" to BOOLEAN,

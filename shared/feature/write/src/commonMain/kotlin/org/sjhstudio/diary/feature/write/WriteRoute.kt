@@ -63,12 +63,14 @@ fun WriteRoute(
     // 화면 모델이 이미 본문을 갖고 있으면(회전) 처음 그릴 때부터 글을 넣음
     // 뒤에 넣으면 커서를 다시 잡는 순간 글이 아직 배치되지 않아 커서 자리가 글 밖이 됨
     var applied by remember { mutableStateOf("") }
+    // 편집기에 넣은 본문 판. 색만 바뀌어 다시 넣을 때는 그대로라 화면이 비지 않음
+    var shownVersion by remember { mutableIntStateOf(0) }
     val rich = remember {
         RichTextState().also { editor ->
             if (state.bodyVersion > 0) {
-                editor.setHtml(colors.toEditor(viewModel.currentBody()))
-                if (caret >= 0) editor.selection = TextRange(caret.coerceAtMost(editor.annotatedString.text.length))
+                editor.loadBody(colors.toEditor(viewModel.currentBody()), caret, writing = !state.isEdit)
                 applied = wanted
+                shownVersion = state.bodyVersion
             }
         }
     }
@@ -98,12 +100,12 @@ fun WriteRoute(
     // 테마가 바뀌면 편집기 안의 색을 저장 값으로 되돌릴 수 없어 그때는 지금 본문을 다시 넣음
     LaunchedEffect(wanted) {
         if (state.bodyVersion > 0 && applied != wanted) {
-            rich.setHtml(colors.toEditor(viewModel.currentBody()))
+            // 앱이 종료됐다 돌아와도 쓰던 자리에서 이어 씀
+            rich.loadBody(colors.toEditor(viewModel.currentBody()), caret, writing = !state.isEdit)
             // 편집기가 다시 낸 모양이 기준
             viewModel.onBodyLoaded(colors.fromEditor(rich.toHtml()))
-            // 앱이 종료됐다 돌아와도 쓰던 자리에서 이어 씀
-            if (caret >= 0) rich.selection = TextRange(caret.coerceAtMost(rich.annotatedString.text.length))
             applied = wanted
+            shownVersion = state.bodyVersion
         }
     }
     // 본문을 넣기 전 빈 편집기의 커서가 저장한 자리를 덮지 않게 넣은 뒤부터 기록
@@ -120,6 +122,8 @@ fun WriteRoute(
     val family = rememberFileFontFamily(look.fontPath)
     WriteScreen(
         state = state,
+        // 읽지 못한 일기는 넣을 본문이 없어 실패 안내와 함께 바로 보임
+        ready = !state.loading && (state.openFailed || shownVersion == state.bodyVersion),
         actions = remember(viewModel, rich, colors) { WriteActions(viewModel, rich, colors, viewModel::mediaPath, onPlus) },
         bodyStyle = diaryBodyTextStyle(look.font, look.size) { family },
         modifier = modifier
@@ -133,4 +137,21 @@ fun WriteRoute(
 private fun WriteTarget.viewModelKey(): String = when (this) {
     is WriteTarget.Edit -> "write:edit:$entryId"
     is WriteTarget.New -> "write:new:$date"
+}
+
+/**
+ * 본문을 넣고 커서를 [caret]에 둠. 저장한 자리가 없으면(-1) [writing]으로 정함
+ * 바로 쓰는 새 글·이어 쓰기([writing])는 글 끝에서 이어 씀
+ * 먼저 읽는 수정은 글 맨 앞. 글 끝이면 처음 누를 때 입력칸이 누른 자리보다 옛 커서를 먼저 보이려고 맨 아래까지 스크롤함
+ */
+internal fun RichTextState.loadBody(html: String, caret: Int, writing: Boolean) {
+    setHtml(html)
+    val end = annotatedString.text.length
+    selection = TextRange(
+        when {
+            caret >= 0 -> caret.coerceAtMost(end)
+            writing -> end
+            else -> 0
+        }
+    )
 }

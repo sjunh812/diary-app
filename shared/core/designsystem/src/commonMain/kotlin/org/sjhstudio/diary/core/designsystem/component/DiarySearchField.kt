@@ -56,7 +56,7 @@ fun DiarySearchField(value: String, onValueChange: (String) -> Unit, hint: Strin
             modifier = Modifier.weight(1f),
             singleLine = true,
             textStyle = typography.body.copy(color = colors.textPrimary),
-            cursorBrush = SolidColor(colors.accent),
+            cursorBrush = SolidColor(colors.accentIcon),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = { focus.clearFocus() }),
             decorationBox = { inner ->

@@ -11,7 +11,10 @@ import kotlinx.coroutines.test.runTest
 import org.sjhstudio.diary.core.datastore.SettingsStore
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
+import org.sjhstudio.diary.core.model.ThemeColor
 import org.sjhstudio.diary.core.model.ThemeMode
+import org.sjhstudio.diary.core.model.withCustom
+import org.sjhstudio.diary.core.model.withPreset
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 
 class DefaultSettingsRepositoryTest {
@@ -31,6 +34,19 @@ class DefaultSettingsRepositoryTest {
         assertEquals(true, settings.reminderEnabled)
         assertEquals(420, settings.reminderMinuteOfDay)
         assertEquals(true, settings.askLocationAgain)
+    }
+
+    @Test
+    fun picking_a_preset_keeps_the_custom_color() = runTest {
+        repository.updateTheme { it.withCustom(0xC2185B) }
+        assertEquals(ThemeColor.CUSTOM, repository.settings.first().theme.color)
+        assertEquals(0xC2185B, repository.settings.first().theme.customRgb)
+
+        repository.updateTheme { it.withPreset(ThemeColor.SEA) }
+
+        val theme = repository.settings.first().theme
+        assertEquals(ThemeColor.SEA, theme.color)
+        assertEquals("#C2185B", theme.customHex)
     }
 
     @Test

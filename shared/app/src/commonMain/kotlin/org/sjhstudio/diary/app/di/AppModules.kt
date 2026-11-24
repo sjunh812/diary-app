@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import okio.SYSTEM
@@ -32,6 +33,7 @@ import org.sjhstudio.diary.core.backup.BackupFailureLog
 import org.sjhstudio.diary.core.backup.BackupGate
 import org.sjhstudio.diary.core.backup.BackupRunner
 import org.sjhstudio.diary.core.backup.BundleExporter
+import org.sjhstudio.diary.core.backup.ConnectedAccountAuthorizer
 import org.sjhstudio.diary.core.backup.LegacyBackupImporter
 import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
 import org.sjhstudio.diary.core.backup.LongWork
@@ -42,8 +44,7 @@ import org.sjhstudio.diary.core.backup.RestoreCatalog
 import org.sjhstudio.diary.core.backup.RestoreController
 import org.sjhstudio.diary.core.backup.RestorePlanner
 import org.sjhstudio.diary.core.backup.RollbackManager
-import org.sjhstudio.diary.core.backup.backupToOffer
-import org.sjhstudio.diary.core.backup.offerIfNew
+import org.sjhstudio.diary.core.backup.findBackupToOffer
 import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.data.AppUpdateRepository
 import org.sjhstudio.diary.core.data.BackupRepository
@@ -91,6 +92,7 @@ import org.sjhstudio.diary.core.migration.MigrationFollowUp
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.platform.AppFiles
 import org.sjhstudio.diary.core.platform.DeviceName
+import org.sjhstudio.diary.core.platform.DriveAuthorizer
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.FreeSpace
 import org.sjhstudio.diary.core.platform.ImageDecoder
@@ -226,7 +228,7 @@ private fun coreModule(isDebug: Boolean) = module {
         )
     }
     single { AppUpdateRepository(get(), get(), get(), get<BackupAppInfo>().versionName, get(APP_SCOPE)) }
-    single { HomeTopState(get(), get(), get(), get(APP_SCOPE)) }
+    single { HomeTopState(get(), get(), get(), get(APP_SCOPE), get<RestoreRepository>().photoProgress.map { it != null }) }
     single { HomeMonths(get(), get(APP_SCOPE)) }
     single { AdRemoval(get(APP_SCOPE), get<LockController>().appLocked, get<AdRepository>()::watchReward) }
 }
@@ -294,7 +296,9 @@ private val backupModule =
         // 백업(스펙 003)
         // 드라이브와 일기 DB는 처음 쓸 때 열기
         single { BackupStore(get<DataStoreFactory>().backup()) }
-        single<DriveApi> { createDriveApi(get(), FileSystem.SYSTEM) }
+        // 드라이브를 쓰는 곳은 모두 연결 계정 토큰만 받음
+        single { ConnectedAccountAuthorizer(get<DriveAuthorizer>(), get()) }
+        single<DriveApi> { createDriveApi(get<ConnectedAccountAuthorizer>(), FileSystem.SYSTEM) }
         single { LongWork() }
         single { BackupGate(get()) }
         single {
@@ -302,7 +306,7 @@ private val backupModule =
             BackupRunner(
                 db = get(),
                 drive = get(),
-                authorizer = get(),
+                authorizer = get<ConnectedAccountAuthorizer>(),
                 store = get(),
                 network = get(),
                 deviceName = get(),
@@ -324,19 +328,15 @@ private val backupModule =
                 store = get(),
                 db = lazy { get<DiaryDatabase>() },
                 runner = lazy { get<BackupRunner>() },
-                authorizer = get(),
+                authorizer = get<ConnectedAccountAuthorizer>(),
                 scheduler = get(),
                 notifier = get(),
                 scope = get(APP_SCOPE),
                 migrated = { get<LegacyMigration>().report() != null },
                 legacyAccount = { get<SettingsRepository>().settings.first().legacyBackup?.account },
-                findBackup = {
-                    val restore = get<RestoreRepository>()
-                    val latest = backupToOffer(restore.backups().entriesOrNull, get<LegacyMigration>().report() != null)
-                    // 권하지 않으면 확인하려고 받은 사본을 지움
-                    offerIfNew(latest) { restore.prepare(it) }.also { if (it == null && latest != null) restore.dismiss() }
-                },
-                alerts = get()
+                findBackup = { findBackupToOffer(get(), get<LegacyMigration>().report() != null) },
+                alerts = get(),
+                gate = get()
             )
         }
         single<RestoreRepository> {

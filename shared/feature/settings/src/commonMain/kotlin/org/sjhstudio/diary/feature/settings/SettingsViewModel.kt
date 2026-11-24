@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.onStart
@@ -23,8 +22,12 @@ import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.PreviewLength
+import org.sjhstudio.diary.core.model.ThemeChoice
+import org.sjhstudio.diary.core.model.ThemeColor
 import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.model.withCustom
+import org.sjhstudio.diary.core.model.withPreset
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
@@ -57,12 +60,17 @@ data class SettingsUiState(
      * 요금제를 아직 모르면 null. 끝내 모르면 잠시 뒤 지금 값으로 정함(사진 한도와 같음)
      */
     val canFormat: Boolean? = null,
+    /** 테마 색을 직접 고를 수 있음(스펙 010). 요금제를 아직 모르면 null */
+    val canCustomTheme: Boolean? = null,
     /**
      * 설정을 읽었음
      * 읽기 전 기본값(잠금 꺼짐 등)을 그리면 켜 둔 것이 잠깐 꺼진 것으로 보임
      */
     val loaded: Boolean = false
 )
+
+/** 테마 화면 상태. 설정과 요금제만 봐서 다른 읽기를 기다리지 않음 */
+data class ThemeUiState(val mode: ThemeMode, val theme: ThemeChoice, val listStyle: ListStyle, val canCustom: Boolean?)
 
 class SettingsViewModel(
     private val settings: SettingsRepository,
@@ -84,8 +92,17 @@ class SettingsViewModel(
      */
     private val migrationReport = flow { emit(orElseOnFailure(false) { showsMigrationReport() }) }
 
-    private val formatting: Flow<Boolean?> =
-        merge(plans.confirmed.filterNotNull().map { it.listFormatting }, flow { emit(plans.awaitConfirmed().listFormatting) })
+    /**
+     * 이미 아는 요금제부터, 모르면 기다리다 끝내 모르면 잠시 뒤 지금 값
+     * 들어올 때마다 모름으로 돌아가 Plus 표시가 깜빡이지 않게
+     */
+    private val settledPlan: Flow<Plan?> =
+        merge<Plan?>(plans.confirmed.filterNotNull(), flow { emit(plans.awaitConfirmed()) }).onStart { emit(plans.confirmedNow) }
+
+    val theme: StateFlow<ThemeUiState?> =
+        combine(settings.settings, settledPlan) { app, plan ->
+            ThemeUiState(app.themeMode, app.theme, app.list.listStyle, plan?.customTheme)
+        }.stateInSafely(viewModelScope, WhileUiSubscribed, null)
 
     val state: StateFlow<SettingsUiState> =
         combine(
@@ -103,7 +120,9 @@ class SettingsViewModel(
             .combine(notifications.allowed) { state, allowed ->
                 state.copy(reminderBlocked = if (state.settings.reminderEnabled) allowed?.not() else false)
             }
-            .combine(formatting.onStart { emit(null) }) { state, can -> state.copy(canFormat = can) }
+            .combine(settledPlan) { state, plan ->
+                state.copy(canFormat = plan?.listFormatting, canCustomTheme = plan?.customTheme)
+            }
             // 요금제는 기기에 남긴 값이라 바로 앎. 첫 화면부터 Plus 카드를 그려 늦게 끼어들지 않게
             .stateInSafely(viewModelScope, WhileUiSubscribed, SettingsUiState(plan = plans.confirmedNow))
 
@@ -132,6 +151,17 @@ class SettingsViewModel(
     fun setThemeMode(mode: ThemeMode) {
         viewModelScope.launchWrite { settings.setThemeMode(mode) }
         changed("theme", mode.id)
+    }
+
+    fun setThemeColor(color: ThemeColor) {
+        viewModelScope.launchWrite { settings.updateTheme { it.withPreset(color) } }
+        changed("theme_color", color.id)
+    }
+
+    // 고른 색 값은 통계에 보내지 않음
+    fun setCustomThemeColor(rgb: Int) {
+        viewModelScope.launchWrite { settings.updateTheme { it.withCustom(rgb) } }
+        changed("theme_color", ThemeColor.CUSTOM.id)
     }
 
     // 설정 이름과 고른 값의 ID만 보냄(contracts/app-shell.md 사용 통계 고정 표)

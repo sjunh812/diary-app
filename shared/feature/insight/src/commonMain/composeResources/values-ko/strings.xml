@@ -8,7 +8,6 @@
     <string name="insight_previous">이전 기간</string>
     <string name="insight_next">다음 기간</string>
     <string name="insight_period_sheet_title">기간 선택</string>
-    <string name="insight_week_range">%1$s ~ %2$s</string>
     <string name="insight_empty">이 기간에 쓴 일기가 없어요</string>
     <string name="insight_write">일기 쓰기</string>
     <string name="insight_no_moods">이 기간에 선택한 기분이 없어요</string>

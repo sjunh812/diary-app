@@ -59,7 +59,7 @@ private const val PULSE_LOW = 0.35f
  * 다시 읽기처럼 짧을 수 있는 곳은 0.3초 뒤부터 서서히 나타남
  * 끝없는 움직임을 줄이려 빛이 지나가는 대신 천천히 숨 쉼
  * 동작 줄이기를 켜면 멈춘 칸으로 보임
- * 그림일 뿐이라 화면 낭독기가 읽지 않음
+ * 그림일 뿐이라 스크린 리더가 읽지 않음
  */
 @Composable
 fun DiarySkeleton(modifier: Modifier = Modifier, delayed: Boolean = true, content: @Composable () -> Unit) {

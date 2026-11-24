@@ -17,7 +17,10 @@ class BackupAttentionTest {
 
     @Test
     fun reconnect_needs_attention() {
-        assertEquals(BackupAttention.Reconnect, attentionOf(BackupStatus(connection = BackupConnection.NeedsReconnect), false, now))
+        assertEquals(
+            BackupAttention.Reconnect,
+            attentionOf(BackupStatus(connection = BackupConnection.NeedsReconnect("diary@gmail.com")), false, now)
+        )
     }
 
     @Test

@@ -54,7 +54,8 @@ internal fun DiaryRichEditor(
     textStyle: TextStyle,
     cursorBrush: Brush,
     onTextLayout: (TextLayoutResult) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
@@ -84,7 +85,7 @@ internal fun DiaryRichEditor(
     var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
     CompositionLocalProvider(LocalClipboard provides richClipboard) {
         BasicTextField(
-            value = state.textFieldValue,
+            value = remember(state.textFieldValue) { input.shown(state.textFieldValue) },
             onValueChange = input::apply,
             modifier = modifier
                 .onFocusChanged { state.isFocused = it.isFocused }
@@ -113,6 +114,7 @@ internal fun DiaryRichEditor(
                 state.onTextLayout(textLayoutResult = it, density = density)
                 onTextLayout(it)
             },
+            enabled = enabled,
             interactionSource = interactionSource,
             cursorBrush = cursorBrush
         )

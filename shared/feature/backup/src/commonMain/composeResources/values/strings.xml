@@ -33,6 +33,7 @@
     <string name="backup_when_day_time">%1$s %2$s</string>
     <string name="backup_group_account">Account</string>
     <string name="backup_account">Google account</string>
+    <string name="backup_account_busy">You can switch accounts once the backup or restore is done.</string>
     <string name="backup_group_upload">Upload</string>
     <string name="backup_wifi_only">Photos on Wi-Fi only</string>
     <string name="backup_wifi_only_body">Turn off to upload photos on mobile data too.</string>
@@ -59,6 +60,7 @@
         <item quantity="other">%1$s photos couldn't be found, so they weren't backed up.</item>
     </plurals>
     <plurals name="backup_photos_waiting"><item quantity="one">%1$s photo uploads on Wi-Fi.</item><item quantity="other">%1$s photos upload on Wi-Fi.</item></plurals>
+    <plurals name="backup_photos_next"><item quantity="one">%1$s photo uploads at the next backup.</item><item quantity="other">%1$s photos upload at the next backup.</item></plurals>
     <!-- 복원(B2~B6) -->
     <string name="restore_row">Restore from Google Drive</string>
     <string name="restore_row_body">Merge a backup from another device or the previous version.</string>
@@ -116,6 +118,8 @@
     <string name="restore_wait_network">They'll finish downloading when you're back online.</string>
     <string name="restore_wait_wifi">They'll finish downloading on Wi-Fi. To use mobile data, tap Download now.</string>
     <string name="restore_wait_account">Google Drive was disconnected. Reconnect to finish downloading.</string>
+    <string name="restore_wait_other_account">These photos are in %1$s's Google Drive. Connect that account to download them.</string>
+    <string name="restore_wait_other_account_unnamed">These photos are in the Google Drive you restored from. Connect that account to download them.</string>
     <string name="restore_wait_file">Pick the file you restored from again to get the remaining photos.</string>
     <string name="restore_wait_now">Download now</string>
     <string name="restore_wait_pick">Pick file</string>
@@ -246,6 +250,7 @@
     <string name="backup_done_title">Backup finished</string>
     <string name="backup_done_body">Your entries and photos are all on Drive.</string>
     <string name="backup_done_left">Remaining photos will upload on Wi-Fi (%1$s).</string>
+    <plurals name="backup_done_left_space"><item quantity="one">%1$s photo wasn't uploaded because Drive is out of space.</item><item quantity="other">%1$s photos weren't uploaded because Drive is out of space.</item></plurals>
     <string name="backup_stopped_title">Backup didn't finish</string>
     <string name="restore_stopped_title">Couldn't finish the restore</string>
     <string name="restore_see_result">View</string>
@@ -261,6 +266,7 @@
     <string name="backup_status_failed">Couldn't load backup status</string>
     <string name="backup_skip_empty">No diary entries to back up yet</string>
     <string name="backup_skip_busy">Another task is running. Try again when it's done.</string>
+    <string name="backup_skip_not_checked">Couldn't check the backups on Google Drive. Tap Back up now in a moment.</string>
     <string name="backup_connect_failed_title">Couldn't connect to Google Drive</string>
     <string name="backup_connect_failed_offline">Check your internet connection and try again.</string>
     <string name="backup_connect_failed_auth">Couldn't verify your Google account. Try again in a moment.</string>

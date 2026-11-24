@@ -48,6 +48,7 @@ import org.sjhstudio.diary.core.model.UpdateNotice
 import org.sjhstudio.diary.core.ui.OnTabReselected
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
+import org.sjhstudio.diary.core.ui.shownColor
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.list_value
 import org.sjhstudio.diary.feature.settings.resources.migration_report_title
@@ -85,6 +86,7 @@ import org.sjhstudio.diary.feature.settings.resources.settings_version_downloadi
 import org.sjhstudio.diary.feature.settings.resources.settings_version_downloading_unknown
 import org.sjhstudio.diary.feature.settings.resources.settings_version_restart
 import org.sjhstudio.diary.feature.settings.resources.settings_version_update
+import org.sjhstudio.diary.feature.settings.resources.theme_row_value
 
 /**
  * 설정 목록(Figma "설정 (S6)")
@@ -219,7 +221,16 @@ fun SettingsScreen(
                 stringResource(Res.string.settings_theme),
                 onClick = onTheme,
                 selected = selected == SettingsPane.THEME,
-                value = if (state.loaded) stringResource(state.settings.themeMode.label()) else null
+                value =
+                    if (state.loaded) {
+                        stringResource(
+                            Res.string.theme_row_value,
+                            stringResource(state.settings.theme.shownColor(customAllowed = state.canCustomTheme == true).label()),
+                            stringResource(state.settings.themeMode.label())
+                        )
+                    } else {
+                        null
+                    }
             )
             DiarySettingsRow(
                 stringResource(Res.string.settings_list_style),

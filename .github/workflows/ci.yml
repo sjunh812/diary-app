@@ -1,4 +1,4 @@
-# 푸시와 PR마다 검사·시험·빌드를 돌린다(research R20).
+# 푸시와 PR마다 검사·시험·빌드를 돌린다(research R20). iOS는 PR과 손으로 돌릴 때만
 # 공개 저장소라 GitHub 표준 러너는 무료다.
 # 액션은 태그가 옮겨 가도 그대로이게 커밋 SHA로 고정한다. 판 올리기는 Dependabot이 맡는다.
 name: CI
@@ -136,7 +136,8 @@ jobs:
   ios:
     name: iOS 시험과 Xcode 빌드
     needs: changes
-    if: ${{ !cancelled() && (needs.changes.result == 'skipped' || needs.changes.outputs.ios == 'true') }}
+    # macOS 러너로 1시간 가까이 걸려 PR과 손으로 돌릴 때만. PR 없이 올린 커밋은 출시 전 로컬 전체 검사로 확인
+    if: ${{ !cancelled() && github.event_name != 'push' && (needs.changes.result == 'skipped' || needs.changes.outputs.ios == 'true') }}
     # macos-latest는 어느 날 이미지와 Xcode가 바뀐다. 올릴 때는 여기 두 줄을 같이 고친다.
     runs-on: macos-26
     # 캐시가 없으면 시험과 빌드에 약 1시간이 걸린다. 캐시를 저장하는 시간까지 넉넉히 둔다.

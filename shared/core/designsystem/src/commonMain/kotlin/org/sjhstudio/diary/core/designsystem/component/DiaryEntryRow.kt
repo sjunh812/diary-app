@@ -131,7 +131,7 @@ fun DiaryEntryRow(
                         DiaryIcon(
                             DiaryIcons.StarFilled,
                             contentDescription = null,
-                            tint = colors.accent,
+                            tint = colors.accentIcon,
                             size = DiaryIconSize.i16
                         )
                     }

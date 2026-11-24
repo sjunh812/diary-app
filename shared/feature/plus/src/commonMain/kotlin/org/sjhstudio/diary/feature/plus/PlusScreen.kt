@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -93,7 +92,7 @@ import org.sjhstudio.diary.feature.plus.resources.plus_manage_title
 import org.sjhstudio.diary.feature.plus.resources.plus_manage_top
 import org.sjhstudio.diary.feature.plus.resources.plus_no_store
 import org.sjhstudio.diary.feature.plus.resources.plus_notice
-import org.sjhstudio.diary.feature.plus.resources.plus_other_title
+import org.sjhstudio.diary.feature.plus.resources.plus_others_in_all
 import org.sjhstudio.diary.feature.plus.resources.plus_pending
 import org.sjhstudio.diary.feature.plus.resources.plus_photos_body
 import org.sjhstudio.diary.feature.plus.resources.plus_photos_title
@@ -110,9 +109,12 @@ import org.sjhstudio.diary.feature.plus.resources.plus_start_price
 import org.sjhstudio.diary.feature.plus.resources.plus_stats_body
 import org.sjhstudio.diary.feature.plus.resources.plus_stats_title
 import org.sjhstudio.diary.feature.plus.resources.plus_terms
+import org.sjhstudio.diary.feature.plus.resources.plus_theme_body
+import org.sjhstudio.diary.feature.plus.resources.plus_theme_title
 import org.sjhstudio.diary.feature.plus.resources.plus_title
 
-private const val ART_MILLIS = 2_800
+// 혜택 하나에 1.5초씩 넷과 끝 배지(210프레임)
+private const val ART_MILLIS = 7_000
 private const val ART_RATIO = 350f / 220f
 private const val ART_TINT = 0.4f
 
@@ -267,22 +269,27 @@ internal fun PaywallScreen(
 
 /**
  * 그림 칸
- * 폭을 채우고 그림은 가운데에 둠
+ * 그림은 칸에 맞춰 통째로 줄고 늘어 가운데에 놓임. 칸 높이(120~280, 폭 350:220까지)가 달라도 잘리거나 한쪽이 비지 않게(스펙 010)
  * 결제 화면과 구독 중 화면이 같이 씀
  */
 @Composable
 private fun PlusArt(height: Dp, modifier: Modifier = Modifier) {
     val colors = DiaryTheme.colors
-    Box(
-        modifier.fillMaxWidth().clip(DiaryShapes.r20).background(colors.selected.copy(alpha = ART_TINT)),
-        contentAlignment = Alignment.Center
-    ) {
-        DiaryLottie(
-            { Res.readBytes("files/plus_benefits.json") },
-            ART_MILLIS,
-            active = true,
-            Modifier.heightIn(max = height).aspectRatio(ART_RATIO)
-        )
+    BoxWithConstraints(modifier.fillMaxWidth()) {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(minOf(height, maxWidth / ART_RATIO))
+                .clip(DiaryShapes.r20)
+                .background(colors.selected.copy(alpha = ART_TINT))
+        ) {
+            DiaryLottie(
+                { Res.readBytes("files/plus_benefits.json") },
+                ART_MILLIS,
+                active = true,
+                Modifier.fillMaxSize()
+            )
+        }
     }
 }
 
@@ -316,7 +323,7 @@ private fun PaywallTop(adFreeOwned: Boolean, from: PlusBenefit?, onSeeAll: () ->
 
 /**
  * 제목과 혜택
- * 핵심은 설명까지, 다른 혜택은 이름만 3줄까지(스펙 008 FR-018)
+ * 핵심은 설명까지, 다른 혜택은 [모두 보기] 안내 한 줄(스펙 008 FR-018)
  * [모두 보기]는 모든 혜택을 설명과 함께 시트로 보임
  */
 @Composable
@@ -327,15 +334,13 @@ private fun PaywallBenefits(adFreeOwned: Boolean, from: PlusBenefit?, onSeeAll: 
         BenefitsHeader(stringResource(Res.string.plus_title), typography.title1.copy(color = colors.textPrimary), onSeeAll)
         Spacer(Modifier.height(DiarySpacing.x6))
         CoreBenefits()
-        Spacer(Modifier.height(DiarySpacing.x6))
-        PhraseText(stringResource(Res.string.plus_other_title), style = typography.caption.copy(color = colors.textSecondary))
-        Spacer(Modifier.height(DiarySpacing.x2))
-        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-            otherBenefits(from).forEach { OtherBenefit(it) }
+        enteredOther(from)?.let {
+            Spacer(Modifier.height(DiarySpacing.x6))
+            OtherBenefit(it)
         }
-        Spacer(Modifier.height(DiarySpacing.x3))
-        // 지금 혜택과 구분해 작은 글씨로. 사용자 결정 문구라 빼지 않음
-        PhraseText(stringResource(Res.string.plus_coming), style = typography.caption.copy(color = colors.textSecondary))
+        Spacer(Modifier.height(DiarySpacing.x6))
+        // 다른 혜택은 목록 대신 [모두 보기]로 이끔
+        PhraseText(stringResource(Res.string.plus_others_in_all), style = typography.caption.copy(color = colors.textSecondary))
         if (adFreeOwned) {
             Spacer(Modifier.height(DiarySpacing.x3))
             PhraseText(stringResource(Res.string.plus_ad_free_owned), style = typography.caption.copy(color = colors.textSecondary))
@@ -370,7 +375,7 @@ private fun BenefitsHeader(title: String, style: TextStyle, onSeeAll: () -> Unit
     }
 }
 
-/** 다른 혜택 한 줄. 핵심보다 가볍게 체크와 이름만 */
+/** 들어온 다른 혜택 한 줄. 핵심보다 가볍게 체크와 이름만 */
 @Composable
 private fun OtherBenefit(benefit: PlusBenefit) {
     val colors = DiaryTheme.colors
@@ -544,6 +549,7 @@ private val PlusBenefit.icon: ImageVector
     get() = when (this) {
         PlusBenefit.AD_FREE -> DiaryIcons.ShieldCheck
         PlusBenefit.PHOTOS -> DiaryIcons.Image
+        PlusBenefit.THEME -> DiaryIcons.Palette
         PlusBenefit.STATS -> DiaryIcons.TabInsight
         PlusBenefit.CHECKLIST -> DiaryIcons.Checklist
         PlusBenefit.LIST_FORMATTING -> DiaryIcons.TextColor
@@ -553,6 +559,7 @@ private val PlusBenefit.title: StringResource
     get() = when (this) {
         PlusBenefit.AD_FREE -> Res.string.plus_ads_title
         PlusBenefit.PHOTOS -> Res.string.plus_photos_title
+        PlusBenefit.THEME -> Res.string.plus_theme_title
         PlusBenefit.STATS -> Res.string.plus_stats_title
         PlusBenefit.CHECKLIST -> Res.string.plus_checklist_title
         PlusBenefit.LIST_FORMATTING -> Res.string.plus_format_title
@@ -562,6 +569,7 @@ private val PlusBenefit.body: StringResource
     get() = when (this) {
         PlusBenefit.AD_FREE -> Res.string.plus_ads_body
         PlusBenefit.PHOTOS -> Res.string.plus_photos_body
+        PlusBenefit.THEME -> Res.string.plus_theme_body
         PlusBenefit.STATS -> Res.string.plus_stats_body
         PlusBenefit.CHECKLIST -> Res.string.plus_checklist_body
         PlusBenefit.LIST_FORMATTING -> Res.string.plus_format_body
