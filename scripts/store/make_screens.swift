@@ -136,24 +136,24 @@ func save(_ rep: NSBitmapImageRep, _ name: String) {
 // 장식과 기울임 없이 강조는 낱말 하나만
 let phoneSlides: [String: [(String, String, String)]] = [
     "ko": [
-        ("write", "오늘 기분부터\n가볍게 골라 봐요", "기분"),
+        ("write", "그날 기분도\n같이 남겨요", "기분"),
         ("list", "지난 일기가\n한눈에 보여요", "한눈에"),
         ("calendar", "한 달 기분을\n달력으로 봐요", "달력"),
-        ("insight", "내 기분 흐름을\n돌아봐요", "돌아봐요"),
+        ("insight", "어떤 기분이 많았는지\n돌아봐요", "돌아봐요"),
         ("backup", "사진까지\n드라이브에 백업해요", "백업")
     ],
     // 영어·일본어 머리말은 원어민 검수 전
     "en": [
-        ("write", "Start with\ntoday's mood", "mood"),
+        ("write", "Add the day's\nmood too", "mood"),
         ("list", "Past entries\nat a glance", "at a glance"),
         ("calendar", "Your month's moods\non a calendar", "calendar"),
-        ("insight", "Look back on\nyour moods", "Look back")
+        ("insight", "See which moods\ncame up most", "most")
     ],
     "ja": [
-        ("write", "今日の気分から\n気軽に選べます", "気分"),
+        ("write", "その日の気分も\n一緒に残せる", "気分"),
         ("list", "過去の日記が\nひと目でわかる", "ひと目"),
         ("calendar", "1か月の気分を\nカレンダーで", "カレンダー"),
-        ("insight", "気分の流れを\nふりかえる", "ふりかえる")
+        ("insight", "どんな気分が多かったか\nふりかえる", "ふりかえる")
     ]
 ]
 for (index, (name, words, word)) in phoneSlides[language]!.enumerated() where play {
@@ -171,7 +171,7 @@ for (index, (name, words, word)) in phoneSlides[language]!.enumerated() where pl
 
 if language == "ko", play {
 let feature = canvas(1024, 500) {
-    text("바쁜 날에도\n일기를 남겨 봐요", 60, ink, NSRect(x: 76, y: 176, width: 500, height: 170), .left, accented: "일기")
+    text("한 줄이면\n오늘 일기 끝", 60, ink, NSRect(x: 76, y: 176, width: 500, height: 170), .left, accented: "한 줄")
     text("회원가입 없이, 사진까지 내 드라이브에", 25, weak, NSRect(x: 76, y: 118, width: 500, height: 44), .left)
     // 피처 그래픽에는 기기 틀을 넣지 않음(Play 안내)
     phone("list", NSRect(x: 640, y: -640, width: 300, height: 1040), 26, bezel: false)
@@ -179,31 +179,33 @@ let feature = canvas(1024, 500) {
 save(feature, "feature")
 }
 
+// 태블릿·iPad 머리말(가로 한 줄). 폰 머리말과 같은 말을 한 줄로
+let tabletSlides: [String: [(String, String, String)]] = [
+    "ko": [
+        ("write", "그날 기분도 같이 남겨요", "기분"),
+        ("list", "목록과 일기를 나란히 봐요", "나란히"),
+        ("calendar", "한 달 기분을 달력으로 봐요", "달력"),
+        ("insight", "어떤 기분이 많았는지 돌아봐요", "돌아봐요")
+    ],
+    "en": [
+        ("write", "Add the day's mood too", "mood"),
+        ("list", "Your list and entry, side by side", "side by side"),
+        ("calendar", "Your month's moods on a calendar", "calendar"),
+        ("insight", "See which moods came up most", "most")
+    ],
+    "ja": [
+        ("write", "その日の気分も一緒に残せる", "気分"),
+        ("list", "一覧と日記を並べて見られます", "並べて"),
+        ("calendar", "1か月の気分をカレンダーで", "カレンダー"),
+        ("insight", "どんな気分が多かったかふりかえる", "ふりかえる")
+    ]
+]
+
 // 태블릿: 가로 2560×1600, 머리말은 위에 한 줄, 화면은 아래쪽이 잘림
 // Play 7"·10" 태블릿 칸에 같은 이미지 사용. 백업 화면은 드라이브 연결이 필요해 제외
 if play, args.count > 4, args[4] != "-" {
     shotFolder = args[4]
     statusBar = 48
-    let tabletSlides: [String: [(String, String, String)]] = [
-        "ko": [
-            ("write", "오늘 기분부터 가볍게 골라 봐요", "기분"),
-            ("list", "목록과 일기를 나란히 봐요", "나란히"),
-            ("calendar", "한 달 기분을 달력으로 봐요", "달력"),
-            ("insight", "내 기분 흐름을 돌아봐요", "돌아봐요")
-        ],
-        "en": [
-            ("write", "Start with today's mood", "mood"),
-            ("list", "Your list and entry, side by side", "side by side"),
-            ("calendar", "Your month's moods on a calendar", "calendar"),
-            ("insight", "Look back on your moods", "Look back")
-        ],
-        "ja": [
-            ("write", "今日の気分から気軽に選べます", "気分"),
-            ("list", "一覧と日記を並べて見られます", "並べて"),
-            ("calendar", "1か月の気分をカレンダーで", "カレンダー"),
-            ("insight", "気分の流れをふりかえる", "ふりかえる")
-        ]
-    ]
     for (index, (name, words, word)) in tabletSlides[language]!.enumerated() {
         let rep = canvas(2560, 1600) {
             text(words, language == "ja" ? 88 : 96, ink, NSRect(x: 80, y: 1270, width: 2400, height: 160), .center, accented: word)
@@ -229,26 +231,6 @@ if ios {
     if args.count > 4, args[4] != "-" {
         shotFolder = args[4]
         statusBar = 48
-        let tabletSlides: [String: [(String, String, String)]] = [
-            "ko": [
-                ("write", "오늘 기분부터 가볍게 골라 봐요", "기분"),
-                ("list", "목록과 일기를 나란히 봐요", "나란히"),
-                ("calendar", "한 달 기분을 달력으로 봐요", "달력"),
-                ("insight", "내 기분 흐름을 돌아봐요", "돌아봐요")
-            ],
-            "en": [
-                ("write", "Start with today's mood", "mood"),
-                ("list", "Your list and entry, side by side", "side by side"),
-                ("calendar", "Your month's moods on a calendar", "calendar"),
-                ("insight", "Look back on your moods", "Look back")
-            ],
-            "ja": [
-                ("write", "今日の気分から気軽に選べます", "気分"),
-                ("list", "一覧と日記を並べて見られます", "並べて"),
-                ("calendar", "1か月の気分をカレンダーで", "カレンダー"),
-                ("insight", "気分の流れをふりかえる", "ふりかえる")
-            ]
-        ]
         for (index, (name, words, word)) in tabletSlides[language]!.enumerated() {
             let rep = canvas(2752, 2064) {
                 text(words, language == "ja" ? 96 : 104, ink, NSRect(x: 80, y: 1700, width: 2592, height: 180), .center, accented: word)
@@ -334,9 +316,9 @@ if let page {
 if search {
     statusBar = 150
     let lines: [String: (String, String)] = [
-        "ko": ("하루 한 줄이면\n충분해요", "한 줄"),
-        "en": ("One line a day\nis enough", "One line"),
-        "ja": ("1日1行で\n十分です", "1行")
+        "ko": ("한 줄이면\n오늘 일기 끝", "한 줄"),
+        "en": ("Today's entry,\nin one line", "one line"),
+        "ja": ("1行で\n今日の日記は完了", "1行")
     ]
     let (words, word) = lines[language]!
     // 검색 카드는 작게 보여 문구를 크게

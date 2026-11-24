@@ -13,11 +13,11 @@ Google Play 2.0.0 기준이다. 스크린샷은 `docs/store/screens/`(폰 `phone
 
 ## 간단한 설명
 
-- 한국어: 기분을 고르고 몇 줄만 쓰면 오늘 일기 끝. 사진까지 내 구글 드라이브에 백업할 수 있어요.
-- 영어: Pick a mood, jot a few lines, done. Back up photos to your own Google Drive.
-- 일본어: 気分を選んで数行書けば今日の日記は完了。写真も自分のGoogleドライブにバックアップできます。
+- 한국어: 한 줄이면 오늘 일기 끝. 사진까지 내 구글 드라이브에 백업할 수 있어요.
+- 영어: Today's entry in one line. Back up photos to your own Google Drive.
+- 일본어: 1行で今日の日記は完了。写真も自分のGoogleドライブにバックアップできます。
 
-백업은 사용자가 켜야 하므로 "백업해요"가 아니라 "백업할 수 있어요"로 쓴다.
+백업은 사용자가 켜야 하므로 "백업해요"가 아니라 "백업할 수 있어요"로 쓴다. 기분은 고르지 않아도 되므로 첫머리에 기분을 앞세우지 않는다(2026-11-24, 소개 사이트와 같은 말).
 
 ## 자세한 설명
 
@@ -26,19 +26,19 @@ Play는 목록 태그를 받지 않아 줄머리표(•)로 쓰고 묶음 제목
 ### 한국어
 
 ```text
-바쁜 날에도 몇 줄이면 오늘 일기를 남길 수 있어요.
+바쁜 날에도 쓰기 쉽게 꼭 필요한 것만 담은 일기장이에요.
 회원가입은 필요 없어요.
 
 <b>일기 쓰기</b>
-• 오늘 기분을 9가지 중에서 골라 남겨요.
-• 사진, 날씨, 장소도 함께 담아요. 사진은 한 편에 10장까지예요.
+• 사진, 날씨, 장소를 함께 담아요. 사진은 한 편에 10장까지예요.
+• 9가지 기분으로 그날을 표시할 수 있어요.
 • 굵게, 글자 색, 형광펜, 목록으로 글을 정리해요.
 • 쓰는 동안 자동으로 임시 저장돼요.
 
 <b>지난 일기 보기</b>
 • 목록과 달력으로 지난 일기를 한눈에 봐요.
 • 검색과 즐겨찾기로 원하는 일기를 바로 찾아요.
-• 주·월·년 통계로 내 기분 흐름을 살펴봐요.
+• 주·월·년마다 어떤 기분이 많았는지 볼 수 있어요.
 • 실수로 삭제한 일기도 30일 동안 휴지통에서 복원할 수 있어요.
 
 <b>백업과 잠금</b>
@@ -62,19 +62,19 @@ Play는 목록 태그를 받지 않아 줄머리표(•)로 쓰고 묶음 제목
 ### 영어
 
 ```text
-Leave today's entry in just a few lines, even on busy days.
+A diary with just what you need, so it's easy to write even on busy days.
 No sign-up needed.
 
 <b>Write</b>
-• Pick today's mood from nine options.
-• Add photos, weather, and place too. Up to 10 photos per entry.
+• Add photos, weather, and place. Up to 10 photos per entry.
+• Mark the day with one of nine moods.
 • Organize your writing with bold, text color, highlights, and lists.
 • Your draft is saved automatically as you write.
 
 <b>Look back</b>
 • See past entries at a glance in a list or on a calendar.
 • Find any entry quickly with search and favorites.
-• Follow how your mood changes with weekly, monthly, and yearly stats.
+• See which moods came up most each week, month, and year.
 • Deleted an entry by mistake? Restore it from Trash within 30 days.
 
 <b>Backup and lock</b>
@@ -98,19 +98,19 @@ Contact: sjunh812@naver.com
 ### 일본어
 
 ```text
-忙しい日でも、数行で今日の日記を残せます。
+忙しい日でも書きやすいように、必要なものだけを入れた日記帳です。
 会員登録は不要です。
 
 <b>日記を書く</b>
-• 今日の気分を9種類の中から選んで残せます。
-• 写真、天気、場所も一緒に残せます。写真は1件に10枚までです。
+• 写真、天気、場所を一緒に残せます。写真は1件に10枚までです。
+• 9種類の気分で、その日を記録できます。
 • 太字、文字色、マーカー、リストで文章を整えられます。
 • 書いている間は自動で下書き保存されます。
 
 <b>過去の日記を見る</b>
 • 一覧とカレンダーで過去の日記をひと目で見られます。
 • 検索とお気に入りで、読みたい日記をすぐに探せます。
-• 週・月・年の統計で、気分の流れをふりかえれます。
+• 週・月・年ごとに、どんな気分が多かったかをふりかえれます。
 • 間違えて削除した日記も、30日間はゴミ箱から復元できます。
 
 <b>バックアップとロック</b>
@@ -139,19 +139,19 @@ App Store는 `<b>`를 그리지 않아 묶음 제목을 그대로 두고, "태�
 ### 한국어
 
 ```text
-바쁜 날에도 몇 줄이면 오늘 일기를 남길 수 있어요.
+바쁜 날에도 쓰기 쉽게 꼭 필요한 것만 담은 일기장이에요.
 회원가입은 필요 없어요.
 
 일기 쓰기
-• 오늘 기분을 9가지 중에서 골라 남겨요.
-• 사진, 날씨, 장소도 함께 담아요. 사진은 한 편에 10장까지예요.
+• 사진, 날씨, 장소를 함께 담아요. 사진은 한 편에 10장까지예요.
+• 9가지 기분으로 그날을 표시할 수 있어요.
 • 굵게, 글자 색, 형광펜, 목록으로 글을 정리해요.
 • 쓰는 동안 자동으로 임시 저장돼요.
 
 지난 일기 보기
 • 목록과 달력으로 지난 일기를 한눈에 봐요.
 • 검색과 즐겨찾기로 원하는 일기를 바로 찾아요.
-• 주·월·년 통계로 내 기분 흐름을 살펴봐요.
+• 주·월·년마다 어떤 기분이 많았는지 볼 수 있어요.
 • 실수로 삭제한 일기도 30일 동안 휴지통에서 복원할 수 있어요.
 
 백업과 잠금
@@ -175,26 +175,26 @@ Plus 구독 안내
 • 1년마다 자동으로 갱신돼요. 갱신 24시간 전까지 해지하지 않으면 다음 1년 요금이 결제돼요.
 • 구독 관리와 해지는 설정 > Apple 계정 > 구독에서 할 수 있어요.
 
-이용약관: https://sjunh812.notion.site/411ec02c164a80d3b1f5f1b5bbe1c7c4
-개인정보처리방침: https://sjunh812.notion.site/411ec02c164a805b9bfec5bb88d766a9
+이용약관: https://sjunh812.pages.dev/1day1diary/terms/
+개인정보처리방침: https://sjunh812.pages.dev/1day1diary/privacy/
 ```
 
 ### 영어
 
 ```text
-Leave today's entry in just a few lines, even on busy days.
+A diary with just what you need, so it's easy to write even on busy days.
 No sign-up needed.
 
 Write
-• Pick today's mood from nine options.
-• Add photos, weather, and place too. Up to 10 photos per entry.
+• Add photos, weather, and place. Up to 10 photos per entry.
+• Mark the day with one of nine moods.
 • Organize your writing with bold, text color, highlights, and lists.
 • Your draft is saved automatically as you write.
 
 Look back
 • See past entries at a glance in a list or on a calendar.
 • Find any entry quickly with search and favorites.
-• Follow how your mood changes with weekly, monthly, and yearly stats.
+• See which moods came up most each week, month, and year.
 • Deleted an entry by mistake? Restore it from Trash within 30 days.
 
 Backup and lock
@@ -218,26 +218,26 @@ About Plus
 • Renews automatically every year unless canceled at least 24 hours before the renewal date.
 • Manage or cancel in Settings > Apple Account > Subscriptions.
 
-Terms of Use: https://sjunh812.notion.site/411ec02c164a80d3b1f5f1b5bbe1c7c4
-Privacy Policy: https://sjunh812.notion.site/411ec02c164a805b9bfec5bb88d766a9
+Terms of Use: https://sjunh812.pages.dev/1day1diary/terms/
+Privacy Policy: https://sjunh812.pages.dev/1day1diary/privacy/
 ```
 
 ### 일본어
 
 ```text
-忙しい日でも、数行で今日の日記を残せます。
+忙しい日でも書きやすいように、必要なものだけを入れた日記帳です。
 会員登録は不要です。
 
 日記を書く
-• 今日の気分を9種類の中から選んで残せます。
-• 写真、天気、場所も一緒に残せます。写真は1件に10枚までです。
+• 写真、天気、場所を一緒に残せます。写真は1件に10枚までです。
+• 9種類の気分で、その日を記録できます。
 • 太字、文字色、マーカー、リストで文章を整えられます。
 • 書いている間は自動で下書き保存されます。
 
 過去の日記を見る
 • 一覧とカレンダーで過去の日記をひと目で見られます。
 • 検索とお気に入りで、読みたい日記をすぐに探せます。
-• 週・月・年の統計で、気分の流れをふりかえれます。
+• 週・月・年ごとに、どんな気分が多かったかをふりかえれます。
 • 間違えて削除した日記も、30日間はゴミ箱から復元できます。
 
 バックアップとロック
@@ -261,8 +261,8 @@ Plusについて
 • 更新日の24時間前までに解約しない限り、1年ごとに自動更新されます。
 • 管理と解約は「設定」>「Apple アカウント」>「サブスクリプション」から行えます。
 
-利用規約: https://sjunh812.notion.site/411ec02c164a80d3b1f5f1b5bbe1c7c4
-プライバシーポリシー: https://sjunh812.notion.site/411ec02c164a805b9bfec5bb88d766a9
+利用規約: https://sjunh812.pages.dev/1day1diary/terms/
+プライバシーポリシー: https://sjunh812.pages.dev/1day1diary/privacy/
 ```
 
 ## App Store 이름·부제·홍보 문구·키워드
@@ -279,20 +279,20 @@ App Store 이름은 Play와 다르다. 한국어 부제는 1.7.4부터 쓰던 �
 홍보 문구(170자)
 
 ```text
-하루 한 줄이면 충분해요.
-기분 하나 고르고 몇 줄 쓰면 오늘 일기 끝.
+한 줄이면 오늘 일기 끝.
+짧게 써도 매일 쌓이면 나만의 기록이 돼요.
 일기와 사진은 내 기기와 내 구글 드라이브에만 남아요.
 ```
 
 ```text
-One line a day is enough.
-Pick a mood, write a few lines, and you're done.
+Today's entry, in one line.
+Short entries add up to a record of your own.
 Your entries and photos stay on your device and your own Google Drive.
 ```
 
 ```text
-1日1行で十分です。
-気分を選んで数行書けば、今日の日記は完了。
+1行で今日の日記は完了。
+短くても、毎日つづければ自分だけの記録になります。
 日記と写真は、自分の端末と自分のGoogleドライブだけに残ります。
 ```
 
@@ -332,22 +332,22 @@ App Store 상품 페이지 맨 위 헤더(21:9, 3840×1646)와 검색 결과 카
 "기분 일기" 머리말: 한 해 기분이 한눈에 보여요 / 그날 기분이 달력에 남아요 / 자주 고른 기분을 돌아봐요 / 아홉 가지 기분 중 하나를 골라요(iPhone만). 영어 A year of moods at a glance / Every day's mood on your calendar / See which moods came up most / Pick one of nine moods, 일본어 1年の気分がひと目でわかる / その日の気分がカレンダーに残る / よく選んだ気分をふりかえる / 9つの気分からひとつ選ぶ(원어민 검수 전).
 
 ```text
-기분 하나 고르고 몇 줄 쓰면 오늘 일기 끝.
+기분을 고르고 한 줄만 써도 오늘 일기 끝.
 한 달 기분을 달력으로 봐요.
-내 기분 흐름을 돌아봐요.
+어떤 기분이 많았는지 돌아봐요.
 일기와 사진은 내 기기와 내 구글 드라이브에만 남아요.
 ```
 
 ```text
-Pick a mood, write a few lines, done.
-See your moods on a calendar and look back on how they change.
+Pick a mood, write one line, done.
+See your moods on a calendar and which ones came up most.
 Your entries and photos stay on your device and Google Drive.
 ```
 
 ```text
-気分を選んで数行書けば、今日の日記は完了。
+気分を選んで1行書けば、今日の日記は完了。
 1か月の気分をカレンダーで見られます。
-気分の流れをふりかえれます。
+どんな気分が多かったかをふりかえれます。
 日記と写真は、自分の端末と自分のGoogleドライブだけに残ります。
 ```
 
@@ -553,13 +553,13 @@ Plusが登場しました
 
 시그니처 기능 다섯 가지만 보인다. 글꼴은 창원단감둥근체, 목록은 기본 피드형으로 찍는다.
 
-1. 쓰기: 오늘 기분부터 / 가볍게 골라 봐요(기분 시트를 연 화면)
+1. 쓰기: 그날 기분도 / 같이 남겨요(기분 시트를 연 화면)
 2. 목록: 지난 일기가 / 한눈에 보여요
 3. 달력: 한 달 기분을 / 달력으로 봐요
-4. 돌아보기: 내 기분 흐름을 / 돌아봐요
+4. 돌아보기: 어떤 기분이 많았는지 / 돌아봐요
 5. 백업: 사진까지 / 드라이브에 백업해요
 
-태블릿(가로 한 줄): 오늘 기분부터 가볍게 골라 봐요 / 목록과 일기를 나란히 봐요 / 한 달 기분을 달력으로 봐요 / 내 기분 흐름을 돌아봐요
+태블릿(가로 한 줄): 그날 기분도 같이 남겨요 / 목록과 일기를 나란히 봐요 / 한 달 기분을 달력으로 봐요 / 어떤 기분이 많았는지 돌아봐요
 
-영어(원어민 검수 전): Start with today's mood / Past entries at a glance / Your month's moods on a calendar / Look back on your moods. 태블릿 2번은 Your list and entry, side by side.
-일본어(원어민 검수 전): 今日の気分から気軽に選べます / 過去の日記がひと目でわかる / 1か月の気分をカレンダーで / 気分の流れをふりかえる. 태블릿 2번은 一覧と日記を並べて見られます.
+영어(원어민 검수 전): Add the day's mood too / Past entries at a glance / Your month's moods on a calendar / See which moods came up most. 태블릿 2번은 Your list and entry, side by side.
+일본어(원어민 검수 전): その日の気分も一緒に残せる / 過去の日記がひと目でわかる / 1か月の気分をカレンダーで / どんな気分が多かったかふりかえる. 태블릿 2번은 一覧と日記を並べて見られます.
