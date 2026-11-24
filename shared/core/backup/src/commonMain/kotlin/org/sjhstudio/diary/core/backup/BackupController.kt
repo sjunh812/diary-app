@@ -222,7 +222,8 @@ class BackupController(
             picked == null -> AccountChange.KEPT
 
             picked == before.accountKey -> {
-                // 다시 연결이 필요하던 계정을 고르면 [다시 연결]과 같게 이어 감. 알림을 다시 걸고 멈춘 백업을 이어 함
+                // 다시 연결이 필요하던 계정을 고르면 [다시 연결]과 같게 이어 감
+                // 알림을 다시 걸고 멈춘 백업을 이어 함
                 if (before.lastFailure == BackupFailure.AUTH) scope.launch { settle() }
                 AccountChange.KEPT
             }

@@ -724,6 +724,10 @@ class RestoreController(
                 // 사진이 온 계정을 다시 연결함. 앱을 다시 열거나 지금 받기로 이어 받음
                 prefs.photoStop == PhotoStop.OTHER_ACCOUNT -> PhotoStop.INTERRUPTED
 
+                // 끊긴 연결을 다시 이음. "다시 연결하면"이 남으면 누를 것이 없음
+                prefs.photoStop == PhotoStop.ACCOUNT && prefs.accountKey != null && prefs.lastFailure != BackupFailure.AUTH ->
+                    PhotoStop.INTERRUPTED
+
                 // 드라이브를 쓰지 않으면 남은 사진은 파일에서만 옴
                 else -> prefs.photoStop ?: if (prefs.accountKey == null) PhotoStop.FILE else PhotoStop.INTERRUPTED
             }

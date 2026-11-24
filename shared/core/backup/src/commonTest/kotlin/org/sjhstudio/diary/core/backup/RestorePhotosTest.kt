@@ -416,6 +416,17 @@ class RestorePhotosTest {
         assertEquals(WaitingPhotos(2, PhotoStop.ACCOUNT), controller.waiting())
     }
 
+    /** 다시 연결하면 끊겨 멈춘 사진은 이어 받을 수 있다고 보임. "다시 연결하면"이 남으면 누를 것이 없음 */
+    @Test
+    fun reconnecting_after_a_lost_account_offers_to_resume() = runTest {
+        cutDriveRestore(backgroundScope)
+        b.controller(backgroundScope, photos = DeniedDrive(drive)).resumePhotos()
+
+        b.store.update { it.copy(lastFailure = null) }
+
+        assertEquals(WaitingPhotos(2, PhotoStop.INTERRUPTED), b.controller(backgroundScope).waiting())
+    }
+
     @Test
     fun a_lost_account_asks_to_reconnect_on_the_backup_screen() = runTest {
         cutDriveRestore(backgroundScope)
