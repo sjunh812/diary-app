@@ -714,6 +714,18 @@ private fun Editor(state: RichTextState, style: TextStyle, focus: FocusRequester
                 reveal.bringIntoView(text.getCursorRect(moving))
             }
         }
+        // 키보드가 올라와 본문 칸이 줄면 커서가 키보드 밑에 남을 수 있음
+        // 바깥 스크롤은 초점이 간 본문 칸 전체만 맞추고 그 안의 커서는 보지 않아 커서 자리를 따로 보이게 함
+        val ime = WindowInsets.ime
+        val density = LocalDensity.current
+        var focused by remember { mutableStateOf(false) }
+        LaunchedEffect(state, ime, density) {
+            snapshotFlow { ime.getBottom(density) }.collectLatest { bottom ->
+                val text = layout
+                if (bottom == 0 || !focused || text == null) return@collectLatest
+                reveal.bringIntoView(text.getCursorRect(state.selection.max.coerceAtMost(text.layoutInput.text.length)))
+            }
+        }
         val actions =
             checklistActions(plain.value) { item, _ ->
                 state.applyEdit(Checklist.toggle(state.toText(), item.start))
@@ -727,6 +739,7 @@ private fun Editor(state: RichTextState, style: TextStyle, focus: FocusRequester
                     .fillMaxWidth()
                     .onGloballyPositioned { geometry.field = it }
                     .bringIntoViewRequester(reveal)
+                    .onFocusChanged { focused = it.isFocused }
                     .focusRequester(focus)
                     .semantics { customActions = actions }
                     .checklistMarks({ plain.value }, { layout })

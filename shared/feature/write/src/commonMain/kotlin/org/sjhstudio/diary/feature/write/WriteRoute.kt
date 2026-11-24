@@ -66,8 +66,7 @@ fun WriteRoute(
     val rich = remember {
         RichTextState().also { editor ->
             if (state.bodyVersion > 0) {
-                editor.setHtml(colors.toEditor(viewModel.currentBody()))
-                if (caret >= 0) editor.selection = TextRange(caret.coerceAtMost(editor.annotatedString.text.length))
+                editor.loadBody(colors.toEditor(viewModel.currentBody()), caret)
                 applied = wanted
             }
         }
@@ -98,11 +97,10 @@ fun WriteRoute(
     // 테마가 바뀌면 편집기 안의 색을 저장 값으로 되돌릴 수 없어 그때는 지금 본문을 다시 넣음
     LaunchedEffect(wanted) {
         if (state.bodyVersion > 0 && applied != wanted) {
-            rich.setHtml(colors.toEditor(viewModel.currentBody()))
+            // 앱이 종료됐다 돌아와도 쓰던 자리에서 이어 씀
+            rich.loadBody(colors.toEditor(viewModel.currentBody()), caret)
             // 편집기가 다시 낸 모양이 기준
             viewModel.onBodyLoaded(colors.fromEditor(rich.toHtml()))
-            // 앱이 종료됐다 돌아와도 쓰던 자리에서 이어 씀
-            if (caret >= 0) rich.selection = TextRange(caret.coerceAtMost(rich.annotatedString.text.length))
             applied = wanted
         }
     }
@@ -133,4 +131,13 @@ fun WriteRoute(
 private fun WriteTarget.viewModelKey(): String = when (this) {
     is WriteTarget.Edit -> "write:edit:$entryId"
     is WriteTarget.New -> "write:new:$date"
+}
+
+/**
+ * 본문을 넣고 커서를 [caret]에 둠. 저장한 자리가 없으면(-1) 글 맨 앞
+ * 라이브러리는 글 끝에 두는데, 그대로면 처음 누를 때 입력칸이 누른 자리보다 먼저 옛 커서(글 끝)를 보이려고 맨 아래까지 스크롤함
+ */
+internal fun RichTextState.loadBody(html: String, caret: Int) {
+    setHtml(html)
+    selection = TextRange(if (caret >= 0) caret.coerceAtMost(annotatedString.text.length) else 0)
 }

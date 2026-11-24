@@ -25,6 +25,10 @@ class EditorScrollTest {
         assertEquals(100f, scrollDistance(150f, 550f, height, margin))
 
     @Test
+    fun a_body_taller_than_the_screen_moves_the_shorter_way() = // 키보드가 화면을 줄이면 본문 칸 전체가 대상이 됨. 위 80만 맞추고 글 끝(1480)으로 가지 않음
+        assertEquals(80f, scrollDistance(80f, 2000f, height, margin))
+
+    @Test
     fun dragging_the_end_handle_follows_the_end() = assertEquals(12, movingEdge(TextRange(3, 8), TextRange(3, 12)))
 
     @Test
