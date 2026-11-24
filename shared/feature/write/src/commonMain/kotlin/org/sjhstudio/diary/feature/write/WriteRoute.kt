@@ -63,11 +63,14 @@ fun WriteRoute(
     // 화면 모델이 이미 본문을 갖고 있으면(회전) 처음 그릴 때부터 글을 넣음
     // 뒤에 넣으면 커서를 다시 잡는 순간 글이 아직 배치되지 않아 커서 자리가 글 밖이 됨
     var applied by remember { mutableStateOf("") }
+    // 편집기에 넣은 본문 판. 색만 바뀌어 다시 넣을 때는 그대로라 화면이 비지 않음
+    var shownVersion by remember { mutableIntStateOf(0) }
     val rich = remember {
         RichTextState().also { editor ->
             if (state.bodyVersion > 0) {
                 editor.loadBody(colors.toEditor(viewModel.currentBody()), caret, writing = !state.isEdit)
                 applied = wanted
+                shownVersion = state.bodyVersion
             }
         }
     }
@@ -102,6 +105,7 @@ fun WriteRoute(
             // 편집기가 다시 낸 모양이 기준
             viewModel.onBodyLoaded(colors.fromEditor(rich.toHtml()))
             applied = wanted
+            shownVersion = state.bodyVersion
         }
     }
     // 본문을 넣기 전 빈 편집기의 커서가 저장한 자리를 덮지 않게 넣은 뒤부터 기록
@@ -118,7 +122,8 @@ fun WriteRoute(
     val family = rememberFileFontFamily(look.fontPath)
     WriteScreen(
         state = state,
-        ready = !state.loading && applied == wanted,
+        // 읽지 못한 일기는 넣을 본문이 없어 실패 안내와 함께 바로 보임
+        ready = !state.loading && (state.openFailed || shownVersion == state.bodyVersion),
         actions = remember(viewModel, rich, colors) { WriteActions(viewModel, rich, colors, viewModel::mediaPath, onPlus) },
         bodyStyle = diaryBodyTextStyle(look.font, look.size) { family },
         modifier = modifier

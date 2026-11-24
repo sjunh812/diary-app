@@ -199,7 +199,7 @@ internal fun WriteScreen(state: WriteUiState, ready: Boolean, actions: WriteActi
     // 새 글은 바로 쓸 수 있게 처음 한 번만 커서를 줌
     // 수정은 먼저 읽어 보는 때가 많아 키보드를 띄우지 않음
     var autoFocused by rememberSaveable { mutableStateOf(false) }
-    val readyToWrite = !state.loading && state.resume == null && !state.isEdit
+    val readyToWrite = ready && state.resume == null && !state.isEdit
     LaunchedEffect(readyToWrite) {
         if (readyToWrite && !autoFocused) {
             autoFocused = true
@@ -213,7 +213,9 @@ internal fun WriteScreen(state: WriteUiState, ready: Boolean, actions: WriteActi
     val tapToWrite =
         Modifier
             .onGloballyPositioned { geometry.viewport = it }
-            .pointerInput(actions.rich) {
+            // 본문을 넣기 전에는 누르지 않음. 그 사이 친 글은 넣는 본문이 덮어씀
+            .pointerInput(actions.rich, ready) {
+                if (!ready) return@pointerInput
                 detectTapGestures { tap ->
                     actions.rich.selection = TextRange(geometry.offsetAt(tap) ?: actions.rich.annotatedString.length)
                     editorFocus.requestFocus()
@@ -371,6 +373,7 @@ internal fun WriteScreen(state: WriteUiState, ready: Boolean, actions: WriteActi
                                         bodyStyle,
                                         editorFocus,
                                         geometry,
+                                        ready,
                                         Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth().onFocusChanged {
                                             onEditorFocus(it.hasFocus)
                                         }
@@ -411,6 +414,7 @@ internal fun WriteScreen(state: WriteUiState, ready: Boolean, actions: WriteActi
                                     bodyStyle,
                                     editorFocus,
                                     geometry,
+                                    ready,
                                     Modifier.fillMaxWidth().onFocusChanged { onEditorFocus(it.hasFocus) }
                                 )
                             }
@@ -697,6 +701,7 @@ private fun Editor(
     style: TextStyle,
     focus: FocusRequester,
     geometry: EditorGeometry,
+    enabled: Boolean,
     modifier: Modifier
 ) {
     val colors = DiaryTheme.colors
@@ -751,6 +756,7 @@ private fun Editor(
             }
         DiaryRichEditor(
             state = state,
+            enabled = enabled,
             modifier =
                 Modifier
                     // 최소 높이를 두지 않음. 키보드가 화면을 줄일 때 스크롤 칸이 초점 칸 전체를 보이려고 화면을 밀어 올림
