@@ -60,7 +60,7 @@ disable-model-invocation: false
 adb -s emulator-5554 shell am start -n org.sjhstudio.diary/.debug.ScreenCatalogActivity --es screen migration_report
 ```
 
-`design_catalog`는 디자인 시스템 견본, `list_performance`는 1만 편 목록 견본이다. 개발 빌드에서만 된다.
+화면 이름은 `ScreenCatalogActivity` 머리 주석에 있다. 개발 빌드에서만 된다. 1만 편 견본은 개발자 모드 [일기 1만 편 넣기]로 실제 일기 DB에 넣는다.
 요금제 바꾸기, 전면 광고 초기화, 화면 견본은 개발 빌드의 설정 맨 아래 개발자 모드(`DevModeActivity`)에 있다.
 비정상 종료 시험은 `adb shell am start -n org.sjhstudio.diary/.debug.DevModeActivity --ez crash true` 뒤 앱을 다시 연다.
 

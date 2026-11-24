@@ -22,11 +22,11 @@ import org.sjhstudio.diary.core.model.StoreCheck
 
 /** 개발자 모드 "새 버전". 앱을 다시 켜도 남음 */
 enum class DevUpdate(val label: String, val summary: String) {
-    REAL("실제", "Play 응답 그대로"),
-    AVAILABLE("있음", "기본 문구"),
-    NOTE("요약 있음", "업데이트 요약 표시"),
-    REQUIRED("강제 업데이트", "닫을 수 없는 카드"),
-    FAIL("받기 실패", "40%에서 실패")
+    REAL("Play 그대로", "Play가 알려 준 대로 보여줘요."),
+    AVAILABLE("새 버전 있음", "기본 안내로 업데이트 카드를 보여줘요."),
+    NOTE("업데이트 요약", "바뀐 점 한 줄을 카드에 함께 보여줘요."),
+    REQUIRED("강제 업데이트", "닫을 수 없는 업데이트 카드를 보여줘요."),
+    FAIL("받기 실패", "업데이트를 받다가 40%에서 실패해요.")
 }
 
 /**
