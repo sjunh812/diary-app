@@ -42,7 +42,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -91,7 +90,6 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryChip
 import org.sjhstudio.diary.core.designsystem.component.DiaryDialog
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
-import org.sjhstudio.diary.core.designsystem.component.DiaryLoadingDots
 import org.sjhstudio.diary.core.designsystem.component.DiaryNotice
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastResult
@@ -150,15 +148,15 @@ import org.sjhstudio.diary.feature.write.resources.write_weather
 internal class WriteActions(
     val viewModel: WriteViewModel,
     val rich: RichTextState,
-    val colors: EditorColors,
+    val colors: () -> EditorColors,
     val mediaPath: (String) -> String,
     val onPlus: () -> Unit = {}
 )
 
 private enum class Sheet { Mood, Weather, Place, DateTime }
 
-/** [enabled]는 입력을 받는지, [wantsFocus]는 받을 수 있게 되면 커서와 키보드를 줄지 */
-private class EditorInputState(val enabled: Boolean, val wantsFocus: Boolean, val onFocusGiven: () -> Unit)
+/** [wantsFocus]는 편집기가 그려진 뒤 커서와 키보드를 줄지 */
+private class EditorInputState(val wantsFocus: Boolean, val onFocusGiven: () -> Unit)
 
 /**
  * 쓰기 화면(Figma "쓰기 (S2)")
@@ -184,10 +182,6 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     // 회전처럼 화면을 다시 만들면 초점이 사라짐. 쓰던 중이었으면 돌려줌
     var refocus by remember { mutableStateOf(editorFocused) }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    // 화면을 다시 만들려고 내려가며 잃는 초점은 기억하지 않음
-    val onEditorFocus = { focused: Boolean ->
-        if (focused || lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) editorFocused = focused
-    }
     val openSheet = { target: Sheet ->
         refocus = editorFocused
         sheet = target
@@ -201,9 +195,6 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     // 새 글은 바로 쓸 수 있게 처음 한 번만 커서를 줌
     // 수정은 먼저 읽어 보는 때가 많아 키보드를 띄우지 않음
     var autoFocused by rememberSaveable { mutableStateOf(false) }
-    // 읽기 전에는 편집기를 건드릴 길을 두지 않음. 빈 편집기에서 바뀐 것이 읽은 본문을 덮지 않게
-    // 읽지 못한 일기는 보이기만 하고 입력은 받지 않음. 쳐도 저장할 수 없음
-    val editable = !state.loading && !state.openFailed
     // 글 아래 빈 곳을 누르면 글 끝에서 이어 씀
     // 글 옆 여백이나 위를 누르면 그 줄에서 가장 가까운 자리에 커서를 둠
     // 어디든 글 끝으로 보내면 줄 앞을 누르려다 맨 아래로 끌려감
@@ -229,6 +220,13 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     val plusPrompt = plusPromptOf(state)
     // 사용자가 연 창이 먼저. 권유는 다른 창이 없을 때 한 장씩
     val othersOpen = sheet != null || state.resume != null || askDiscard || askDiscardHere || cameraOff
+    // 화면을 다시 만들려고 내려가며 잃는 초점과, 시트·권유·창이 거둔 초점은 그만 쓴 것이 아님
+    // 기억하면 그 사이 화면을 돌렸을 때 닫아도 커서와 키보드가 돌아오지 않음
+    val modalOpen = othersOpen || plusPrompt != null
+    val onEditorFocus = { focused: Boolean ->
+        val leftWriting = lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED) && !modalOpen
+        if (focused || leftWriting) editorFocused = focused
+    }
     // Plus 화면으로 가면 남아 있던 되돌리기까지 지움. 되돌리면 Plus 화면 위에 키보드가 떠 첫 뒤로 가기가 키보드 내리기에 쓰임
     // 닫으면 누른 순간 쓰던 중이었을 때 커서와 키보드를 돌려줌
     when (val prompt = plusPrompt.takeUnless { othersOpen }) {
@@ -327,8 +325,8 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     // 편집기가 입력을 받을 수 있게 된 뒤에 편집기 쪽에서 줌
     val wantsFocus = (refocus && sheet == null && plusPrompt == null) || (!autoFocused && state.resume == null && !state.isEdit)
     val editorInput =
-        remember(editable, wantsFocus) {
-            EditorInputState(editable, wantsFocus) {
+        remember(wantsFocus) {
+            EditorInputState(wantsFocus) {
                 refocus = false
                 autoFocused = true
             }
@@ -356,20 +354,20 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
             Column(Modifier.fillMaxSize()) {
                 TopRow(state, onClose = vm::close, onDate = { openSheet(Sheet.DateTime) }, onSave = vm::save)
                 // 읽기 전에는 위 줄만 그림. 빈 내용이 비치지 않고, 버려질 빈 편집기를 건드릴 길도 없음
-                if (!state.loading) {
-                    val writeArea = Modifier.fillMaxSize().then(if (editable) tapToWrite else Modifier).verticalScroll(bodyScroll)
+                // 읽지 못한 일기는 쓸 것이 없어 실패 안내만 둠. 빈 일기처럼 보이지 않고 고른 것이 저장되지 않는 일도 없음
+                if (state.openFailed) {
+                    FailureNotice(state)
+                } else if (!state.loading) {
+                    val writeArea = Modifier.fillMaxSize().then(tapToWrite).verticalScroll(bodyScroll)
                     val bottom: @Composable () -> Unit = {
-                        SaveFailedNotice(state)
+                        FailureNotice(state)
                         discardRow()
-                        // 읽지 못한 일기는 쓸 수 없어 도구 줄을 두지 않음
-                        if (editable) {
-                            tools.Toolbar(
-                                onPhoto = openPicker,
-                                onCamera = openCamera,
-                                photoWaiting = state.photoPick is PhotoPick.Waiting,
-                                checklistWaiting = state.checklistPick is ChecklistPick.Waiting
-                            )
-                        }
+                        tools.Toolbar(
+                            onPhoto = openPicker,
+                            onCamera = openCamera,
+                            photoWaiting = state.photoPick is PhotoPick.Waiting,
+                            checklistWaiting = state.checklistPick is ChecklistPick.Waiting
+                        )
                     }
                     if (wide) {
                         Row(Modifier.weight(1f).fillMaxWidth()) {
@@ -515,7 +513,10 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                 cameraOff = false
                 cameraAccess.openSettings()
             },
-            onDismiss = { cameraOff = false }
+            onDismiss = {
+                cameraOff = false
+                refocus = editorFocused
+            }
         )
     }
     if (askDiscard) {
@@ -596,15 +597,13 @@ private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit,
                     slowSave = true
                 }
             }
-            Box(Modifier.padding(end = LocalScreenGutter.current - DiarySpacing.x3), contentAlignment = Alignment.Center) {
-                DiaryTopBarTextButton(
-                    stringResource(Res.string.write_save),
-                    onSave,
-                    Modifier.alpha(if (slowSave) 0f else 1f),
-                    enabled = state.canSave && !state.saving
-                )
-                if (slowSave) DiaryLoadingDots(colors.accentIcon)
-            }
+            DiaryTopBarTextButton(
+                stringResource(Res.string.write_save),
+                onSave,
+                Modifier.padding(end = LocalScreenGutter.current - DiarySpacing.x3),
+                enabled = state.canSave && !state.saving,
+                loading = slowSave
+            )
         },
         modifier = Modifier.fillMaxWidth().height(DiarySpacing.x14)
     ) { (close, title, save), constraints ->
@@ -680,7 +679,7 @@ private fun Notices(state: WriteUiState, modifier: Modifier = Modifier) {
  * 안내가 맨 위에 있으면 닫기를 눌러도 아무 일이 없는 것처럼 보임
  */
 @Composable
-private fun SaveFailedNotice(state: WriteUiState) {
+private fun FailureNotice(state: WriteUiState) {
     val message =
         when {
             state.openFailed -> Res.string.write_open_failed
@@ -705,10 +704,10 @@ private fun Editor(
     modifier: Modifier
 ) {
     val colors = DiaryTheme.colors
-    // 편집기는 화면 배치 단계에 만들어져 바깥에서 초점을 주면 켜지기 전일 수 있음. 켜진 뒤 여기서 줌
+    // 편집기는 화면 배치 단계에 만들어져 바깥에서 초점을 주면 붙기 전일 수 있음. 그려진 뒤 여기서 줌
     val keyboard = LocalSoftwareKeyboardController.current
-    LaunchedEffect(input.enabled, input.wantsFocus) {
-        if (input.enabled && input.wantsFocus) {
+    LaunchedEffect(input.wantsFocus) {
+        if (input.wantsFocus) {
             focus.requestFocus()
             keyboard?.show()
             input.onFocusGiven()
@@ -765,7 +764,6 @@ private fun Editor(
             }
         DiaryRichEditor(
             state = state,
-            enabled = input.enabled,
             modifier =
                 Modifier
                     // 최소 높이를 두지 않음. 키보드가 화면을 줄일 때 스크롤 칸이 초점 칸 전체를 보이려고 화면을 밀어 올림

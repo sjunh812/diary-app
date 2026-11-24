@@ -54,6 +54,8 @@ fun WriteRoute(
     val look by viewModel.look.collectAsStateWithLifecycle()
     val theme = DiaryTheme.colors
     val colors = remember(theme) { EditorColors(theme) }
+    // 도구 줄은 누를 때의 색을 읽음. 색이 바뀌어도 도구를 다시 만들지 않아 열어 둔 팔레트가 닫히지 않게
+    val currentColors by rememberUpdatedState(colors)
     // 본문의 주인은 화면 모델(임시 저장본) 하나. 편집기는 화면 저장 상태에 글을 넣지 않음
     // 넣으면 앱이 종료됐다 돌아올 때 임시 저장본과 다른 글이 보이고, 아주 긴 글은 저장 상태 크기 한도를 넘음
     // 커서 자리만 저장해 회전 뒤에도 쓰던 자리에서 이어 씀
@@ -100,7 +102,11 @@ fun WriteRoute(
     // 테마가 바뀌면 편집기 안의 글자색을 새 색으로 바꿔 다시 넣음. 친 글은 그대로
     LaunchedEffect(editor, colors) {
         if (editor.version == 0 || editor.colors == colors) return@LaunchedEffect
-        rich.loadBody(colors.toEditor(editor.colors.fromEditor(rich.toHtml())), rich.selection.max, writing = true)
+        // 고르던 범위까지 그대로 돌려줌
+        val selection = rich.selection
+        rich.loadBody(colors.toEditor(editor.colors.fromEditor(rich.toHtml())), selection.max, writing = true)
+        val end = rich.annotatedString.text.length
+        rich.selection = TextRange(selection.start.coerceAtMost(end), selection.end.coerceAtMost(end))
         editor.colors = colors
     }
     // HTML 변환은 쓰기 직전으로 미루고 여기서는 바뀜 표시만
@@ -113,7 +119,7 @@ fun WriteRoute(
     val family = rememberFileFontFamily(look.fontPath)
     WriteScreen(
         state = state,
-        actions = remember(viewModel, rich, colors) { WriteActions(viewModel, rich, colors, viewModel::mediaPath, onPlus) },
+        actions = remember(viewModel, rich) { WriteActions(viewModel, rich, { currentColors }, viewModel::mediaPath, onPlus) },
         bodyStyle = diaryBodyTextStyle(look.font, look.size) { family },
         modifier = modifier
     )

@@ -28,6 +28,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.stringResource
+import org.sjhstudio.diary.core.designsystem.resources.Res
+import org.sjhstudio.diary.core.designsystem.resources.ds_in_progress
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -116,7 +119,7 @@ fun DiaryButton(
                 enabled = enabled && !loading,
                 role = Role.Button,
                 onClick = onClick
-            )
+            ).loadingSemantics(loading, stringResource(Res.string.ds_in_progress))
             .padding(vertical = touch),
         propagateMinConstraints = true
     ) {

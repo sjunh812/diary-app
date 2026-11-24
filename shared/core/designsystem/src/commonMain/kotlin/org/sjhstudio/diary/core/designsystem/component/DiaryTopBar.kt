@@ -26,6 +26,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.resources.Res
 import org.sjhstudio.diary.core.designsystem.resources.ds_back
+import org.sjhstudio.diary.core.designsystem.resources.ds_in_progress
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryStateAlpha
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -120,20 +121,28 @@ fun DiaryTopBarTextButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    danger: Boolean = false
+    danger: Boolean = false,
+    loading: Boolean = false
 ) {
     val colors = DiaryTheme.colors
     val press = remember { MutableInteractionSource() }
-    BasicText(
-        text = label,
-        style = DiaryTheme.typography.headline.copy(color = if (danger) colors.danger else colors.accentText),
-        maxLines = 1,
-        modifier =
-            modifier
-                .alpha(if (enabled) 1f else DiaryStateAlpha.DISABLED_CONTENT)
-                .diaryPress(press, colors.textPrimary, CircleShape)
-                .clip(CircleShape)
-                .clickable(interactionSource = press, indication = null, enabled = enabled, role = Role.Button, onClick = onClick)
-                .padding(DiarySpacing.x3)
-    )
+    Box(
+        modifier
+            .alpha(if (enabled || loading) 1f else DiaryStateAlpha.DISABLED_CONTENT)
+            .diaryPress(press, colors.textPrimary, CircleShape)
+            .clip(CircleShape)
+            .clickable(interactionSource = press, indication = null, enabled = enabled && !loading, role = Role.Button, onClick = onClick)
+            .loadingSemantics(loading, stringResource(Res.string.ds_in_progress))
+            .padding(DiarySpacing.x3),
+        contentAlignment = Alignment.Center
+    ) {
+        // 기다리는 동안 글 자리는 그대로 두고 점만 보임. 버튼 너비가 바뀌지 않게
+        BasicText(
+            text = label,
+            style = DiaryTheme.typography.headline.copy(color = if (danger) colors.danger else colors.accentText),
+            maxLines = 1,
+            modifier = Modifier.alpha(if (loading) 0f else 1f)
+        )
+        if (loading) DiaryLoadingDots(colors.accentIcon)
+    }
 }

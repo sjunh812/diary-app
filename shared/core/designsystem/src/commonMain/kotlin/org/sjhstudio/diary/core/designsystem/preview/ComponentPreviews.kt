@@ -37,6 +37,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiarySettingsSwitchRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySheetChoiceRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryThemeModeOption
 import org.sjhstudio.diary.core.designsystem.component.DiaryThemeSwatch
+import org.sjhstudio.diary.core.designsystem.component.DiaryTopBarTextButton
 import org.sjhstudio.diary.core.designsystem.component.MiniHomeLayout
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DarkDiaryColors
@@ -210,6 +211,21 @@ private fun LoadingDotsLight() = PreviewCanvas(dark = false) { DiaryLoadingDots(
 @Preview(name = "기다림 점 · 다크", locale = "ko")
 @Composable
 private fun LoadingDotsDark() = PreviewCanvas(dark = true) { DiaryLoadingDots(DiaryTheme.colors.textSecondary, animated = false) }
+
+@Preview(name = "위 줄 글자 버튼 · 기다리는 중 · 라이트", locale = "ko")
+@Composable
+private fun TopBarTextButtonLoadingLight() = PreviewCanvas(dark = false) { TopBarTextButtons() }
+
+@Preview(name = "위 줄 글자 버튼 · 기다리는 중 · 다크", locale = "ko")
+@Composable
+private fun TopBarTextButtonLoadingDark() = PreviewCanvas(dark = true) { TopBarTextButtons() }
+
+@Composable
+private fun TopBarTextButtons() = Row {
+    DiaryTopBarTextButton("저장", onClick = {})
+    DiaryTopBarTextButton("저장", onClick = {}, enabled = false)
+    DiaryTopBarTextButton("저장", onClick = {}, enabled = false, loading = true)
+}
 
 @Preview(name = "초대 카드 · 라이트", locale = "ko")
 @Composable

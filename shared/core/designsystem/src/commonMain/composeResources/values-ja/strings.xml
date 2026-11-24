@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="ds_language">ja</string>
+    <string name="ds_in_progress">処理中</string>
     <string name="ds_close">閉じる</string>
     <string name="ds_back">戻る</string>
     <string name="ds_delete">削除</string>
