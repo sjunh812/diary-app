@@ -33,7 +33,7 @@
     <string name="backup_when_day_time">%1$s %2$s</string>
     <string name="backup_group_account">계정</string>
     <string name="backup_account">구글 계정</string>
-    <string name="backup_account_busy">백업이나 복원이 끝나면 바꿀 수 있어요.</string>
+    <string name="backup_account_busy">백업이나 복원이 끝나면 계정을 바꿀 수 있어요.</string>
     <string name="backup_group_upload">올리기</string>
     <string name="backup_wifi_only">사진은 Wi-Fi에서만</string>
     <string name="backup_wifi_only_body">끄면 모바일 데이터로도 사진을 올려요.</string>
@@ -116,6 +116,7 @@
     <string name="restore_wait_wifi">Wi-Fi에 연결되면 이어서 받아요. 모바일 데이터로 받으려면 [지금 받기]를 눌러주세요.</string>
     <string name="restore_wait_account">드라이브 연결이 끊겨서 멈췄어요. 다시 연결하면 이어서 받아요.</string>
     <string name="restore_wait_other_account">%1$s 계정 드라이브에 있는 사진이에요. 그 계정으로 연결하면 받을 수 있어요.</string>
+    <string name="restore_wait_other_account_unnamed">처음 복원한 계정의 드라이브에 있는 사진이에요. 그 계정으로 연결하면 받을 수 있어요.</string>
     <string name="restore_wait_file">복원한 파일을 다시 선택하면 남은 사진을 받아요.</string>
     <string name="restore_wait_now">지금 받기</string>
     <string name="restore_wait_pick">파일 선택</string>

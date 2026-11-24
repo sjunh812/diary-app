@@ -33,7 +33,7 @@
     <string name="backup_when_day_time">%1$s %2$s</string>
     <string name="backup_group_account">アカウント</string>
     <string name="backup_account">Google アカウント</string>
-    <string name="backup_account_busy">バックアップや復元が終わると切り替えられます。</string>
+    <string name="backup_account_busy">バックアップや復元が終わるとアカウントを切り替えられます。</string>
     <string name="backup_group_upload">アップロード</string>
     <string name="backup_wifi_only">写真はWi-Fiのみ</string>
     <string name="backup_wifi_only_body">オフにするとモバイルデータでも写真をアップロードします。</string>
@@ -115,7 +115,8 @@
     <string name="restore_wait_network">インターネットに接続すると続きからダウンロードします。</string>
     <string name="restore_wait_wifi">Wi-Fiに接続すると続きからダウンロードします。モバイルデータを使うには「今すぐダウンロード」を押してください。</string>
     <string name="restore_wait_account">ドライブの接続が切れたため止まりました。接続し直すと続きからダウンロードします。</string>
-    <string name="restore_wait_other_account">%1$sのドライブにある写真です。このアカウントで接続するとダウンロードできます。</string>
+    <string name="restore_wait_other_account">%1$sのドライブにある写真です。そのアカウントで接続するとダウンロードできます。</string>
+    <string name="restore_wait_other_account_unnamed">復元したアカウントのドライブにある写真です。そのアカウントで接続するとダウンロードできます。</string>
     <string name="restore_wait_file">復元したファイルをもう一度選ぶと残りの写真をダウンロードします。</string>
     <string name="restore_wait_now">今すぐダウンロード</string>
     <string name="restore_wait_pick">ファイルを選ぶ</string>

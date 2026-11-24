@@ -58,6 +58,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_wait_file
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_network
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_now
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_other_account
+import org.sjhstudio.diary.feature.backup.resources.restore_wait_other_account_unnamed
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_pick
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_running
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_wifi
@@ -239,7 +240,9 @@ private fun waitingBody(waiting: WaitingPhotos): String = when (waiting.stop) {
 
     PhotoStop.ACCOUNT -> stringResource(Res.string.restore_wait_account)
 
-    PhotoStop.OTHER_ACCOUNT -> stringResource(Res.string.restore_wait_other_account, waiting.account.orEmpty())
+    // 이메일을 모르는 계정이면 이름 없이
+    PhotoStop.OTHER_ACCOUNT -> waiting.account?.let { stringResource(Res.string.restore_wait_other_account, it) }
+        ?: stringResource(Res.string.restore_wait_other_account_unnamed)
 
     PhotoStop.FILE -> stringResource(Res.string.restore_wait_file)
 
