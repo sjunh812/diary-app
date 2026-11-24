@@ -17,6 +17,7 @@ import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.model.Weather
+import org.sjhstudio.diary.feature.search.SearchHit
 import org.sjhstudio.diary.feature.search.SearchScreen
 
 private val Done = LoadState.NotLoading(endOfPaginationReached = true)
@@ -46,7 +47,7 @@ private val Rows =
 
 @Composable
 private fun Search(dark: Boolean, rows: List<EntryRow>?, query: String, failed: Boolean = false) = DiaryTheme(darkTheme = dark) {
-    val data = if (failed) PagingData.empty(Failed) else PagingData.from(rows.orEmpty())
+    val data = if (failed) PagingData.empty(Failed) else PagingData.from(rows.orEmpty().map { SearchHit(it, query) })
     SearchScreen(
         filter = SearchFilter(query = query),
         period = null,

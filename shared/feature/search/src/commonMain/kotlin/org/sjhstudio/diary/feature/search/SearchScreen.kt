@@ -74,7 +74,6 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
-import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.model.Weather
@@ -136,7 +135,7 @@ fun SearchRoute(initial: SearchFilter, selectedId: String?, onBack: () -> Unit, 
         // 찾기는 잠깐 멈춘 뒤 돌아 결과가 늦게 옴
         // 목록이 보던 줄을 따라가려 해 새 결과가 와도 맨 위로 되돌림
         withTimeoutOrNull(RESULTS_SETTLE_MILLIS) {
-            snapshotFlow { results.itemCount to results.itemCount.takeIf { it > 0 }?.let { results.peek(0)?.id } }
+            snapshotFlow { results.itemCount to results.itemCount.takeIf { it > 0 }?.let { results.peek(0)?.row?.id } }
                 .collect { list.scrollToItem(0) }
         }
     }
@@ -198,7 +197,7 @@ fun SearchRoute(initial: SearchFilter, selectedId: String?, onBack: () -> Unit, 
 internal fun SearchScreen(
     filter: SearchFilter,
     period: SearchPeriod?,
-    results: LazyPagingItems<EntryRow>,
+    results: LazyPagingItems<SearchHit>,
     selectedId: String?,
     previewStyle: TextStyle,
     list: LazyListState,
@@ -247,7 +246,7 @@ internal fun SearchScreen(
                         icon = DiaryIcons.Search
                     )
 
-                results.itemCount > 0 -> Results(results, filter.query, selectedId, previewStyle, list, onOpen)
+                results.itemCount > 0 -> Results(results, selectedId, previewStyle, list, onOpen)
 
                 refresh is LoadState.Error -> LoadFailed(results::retry)
 
@@ -358,8 +357,7 @@ private fun Empty() {
 /** 달이 바뀌면 달 머리를 넣음. 결과는 최신순 */
 @Composable
 private fun Results(
-    rows: LazyPagingItems<EntryRow>,
-    query: String,
+    rows: LazyPagingItems<SearchHit>,
     selectedId: String?,
     previewStyle: TextStyle,
     list: LazyListState,
@@ -378,14 +376,15 @@ private fun Results(
                 style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary)
             )
         }
-        items(count = rows.itemCount, key = rows.itemKey { it.id }, contentType = { "entry" }) { index ->
+        items(count = rows.itemCount, key = rows.itemKey { it.row.id }, contentType = { "entry" }) { index ->
             // 아직 읽지 않은 줄은 자리만 잡음. 앞 줄은 읽기를 부르지 않게 엿보기만
-            val row = rows[index]
-            if (row == null) {
+            val hit = rows[index]
+            if (hit == null) {
                 Spacer(Modifier.fillMaxWidth().height(DiarySpacing.x14 + DiarySpacing.x14))
                 return@items
             }
-            val previous = if (index > 0) rows.peek(index - 1) else null
+            val row = hit.row
+            val previous = if (index > 0) rows.peek(index - 1)?.row else null
             val (newMonth, newDay) = entryMarks(index, row, previous)
             Column {
                 if (newMonth) DiaryMonthHeader(dates.monthHeader(row.date, today.year, previous?.date))
@@ -395,7 +394,7 @@ private fun Results(
                     showDate = newDay,
                     dividerAbove = index > 0 && !newMonth,
                     previewStyle = previewStyle,
-                    highlight = query.trim(),
+                    highlight = hit.query,
                     modifier =
                         Modifier
                             .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
