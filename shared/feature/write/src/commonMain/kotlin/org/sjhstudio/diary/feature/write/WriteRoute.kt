@@ -66,7 +66,7 @@ fun WriteRoute(
     val rich = remember {
         RichTextState().also { editor ->
             if (state.bodyVersion > 0) {
-                editor.loadBody(colors.toEditor(viewModel.currentBody()), caret)
+                editor.loadBody(colors.toEditor(viewModel.currentBody()), caret, writing = !state.isEdit)
                 applied = wanted
             }
         }
@@ -98,7 +98,7 @@ fun WriteRoute(
     LaunchedEffect(wanted) {
         if (state.bodyVersion > 0 && applied != wanted) {
             // 앱이 종료됐다 돌아와도 쓰던 자리에서 이어 씀
-            rich.loadBody(colors.toEditor(viewModel.currentBody()), caret)
+            rich.loadBody(colors.toEditor(viewModel.currentBody()), caret, writing = !state.isEdit)
             // 편집기가 다시 낸 모양이 기준
             viewModel.onBodyLoaded(colors.fromEditor(rich.toHtml()))
             applied = wanted
@@ -134,10 +134,18 @@ private fun WriteTarget.viewModelKey(): String = when (this) {
 }
 
 /**
- * 본문을 넣고 커서를 [caret]에 둠. 저장한 자리가 없으면(-1) 글 맨 앞
- * 라이브러리는 글 끝에 두는데, 그대로면 처음 누를 때 입력칸이 누른 자리보다 먼저 옛 커서(글 끝)를 보이려고 맨 아래까지 스크롤함
+ * 본문을 넣고 커서를 [caret]에 둠. 저장한 자리가 없으면(-1) [writing]으로 정함
+ * 바로 쓰는 새 글·이어 쓰기([writing])는 글 끝에서 이어 씀
+ * 먼저 읽는 수정은 글 맨 앞. 글 끝이면 처음 누를 때 입력칸이 누른 자리보다 옛 커서를 먼저 보이려고 맨 아래까지 스크롤함
  */
-internal fun RichTextState.loadBody(html: String, caret: Int) {
+internal fun RichTextState.loadBody(html: String, caret: Int, writing: Boolean) {
     setHtml(html)
-    selection = TextRange(if (caret >= 0) caret.coerceAtMost(annotatedString.text.length) else 0)
+    val end = annotatedString.text.length
+    selection = TextRange(
+        when {
+            caret >= 0 -> caret.coerceAtMost(end)
+            writing -> end
+            else -> 0
+        }
+    )
 }
