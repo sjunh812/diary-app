@@ -175,6 +175,6 @@
     <string name="theme_custom_hex">Color code</string>
     <string name="plus_badge">Plus</string>
     <string name="theme_swatch_plus">%1$s, Plus</string>
-    <string name="theme_plus_title">Custom theme colors are part of Plus</string>
+    <string name="theme_plus_title">Custom theme colors are a Plus feature</string>
     <string name="theme_plus_body">Pick any color you like for your theme.</string>
 </resources>
