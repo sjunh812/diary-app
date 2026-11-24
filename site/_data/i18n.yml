@@ -39,13 +39,13 @@ ko:
     - t: 임시 저장
       d: 쓰다가 앱을 닫아도 쓰던 글이 남아 있어요.
     - t: 휴지통
-      d: 실수로 삭제한 일기도 30일 안에는 복원할 수 있어요.
+      d: 실수로 삭제한 일기도 30일 안에 복원할 수 있어요.
     - t: 글꼴
       d: 손글씨부터 바탕체까지 10가지 글꼴 중에서 골라요.
     - t: 목록 모양
       d: 피드, 카드, 사진 격자 중에서 골라봐요.
     - t: 글 서식
-      d: 굵게, 글자 색, 형광펜, 목록을 쓸 수 있어요.
+      d: 글자 색과 형광펜으로 중요한 부분을 표시해요.
     - t: 다크 모드
       d: 밤에도 눈부시지 않게 어두운 화면으로 써요.
   trust_title: 일기는 나만 봐요
@@ -117,7 +117,7 @@ en:
     - t: List styles
       d: Choose a feed, cards, or a photo grid.
     - t: Formatting
-      d: Use bold, text color, highlights, and lists.
+      d: Mark what matters with text color and highlights.
     - t: Dark mode
       d: Easy on the eyes at night.
   trust_title: Your diary is yours alone
@@ -187,7 +187,7 @@ ja:
     - t: 一覧表示
       d: フィード、カード、写真グリッドから選べます。
     - t: 文字の装飾
-      d: 太字、文字色、マーカー、リストが使えます。
+      d: 文字色やマーカーで、大事なところを目立たせられます。
     - t: ダークモード
       d: 夜でもまぶしくない暗い画面で使えます。
   trust_title: 日記は自分だけのもの

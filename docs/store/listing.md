@@ -34,7 +34,7 @@ Play는 목록 태그를 받지 않아 줄머리표(•)로 쓰고 묶음 제목
 <b>일기 쓰기</b>
 • 사진, 날씨, 장소를 함께 담아요. 사진은 한 편에 10장까지예요.
 • 9가지 기분으로 그날의 감정을 기록할 수 있어요.
-• 굵게, 글자 색, 형광펜, 목록으로 글을 정리해요.
+• 글자 색과 형광펜으로 중요한 부분을 표시해요.
 • 쓰는 동안 자동으로 임시 저장돼요.
 
 <b>지난 일기 보기</b>
@@ -70,7 +70,7 @@ Build a habit of writing one entry a day.
 <b>Write</b>
 • Add photos, weather, and place. Up to 10 photos per entry.
 • Mark the day with one of nine moods.
-• Organize your writing with bold, text color, highlights, and lists.
+• Mark what matters with text color and highlights.
 • Your draft is saved automatically as you write.
 
 <b>Look back</b>
@@ -106,7 +106,7 @@ Contact: sjunh812@naver.com
 <b>日記を書く</b>
 • 写真、天気、場所を一緒に残せます。写真は1件に10枚までです。
 • 9種類の気分で、その日を記録できます。
-• 太字、文字色、マーカー、リストで文章を整えられます。
+• 文字色やマーカーで、大事なところを目立たせられます。
 • 書いている間は自動で下書き保存されます。
 
 <b>過去の日記を見る</b>
@@ -147,7 +147,7 @@ App Store는 `<b>`를 그리지 않아 묶음 제목을 그대로 두고, "태�
 일기 쓰기
 • 사진, 날씨, 장소를 함께 담아요. 사진은 한 편에 10장까지예요.
 • 9가지 기분으로 그날의 감정을 기록할 수 있어요.
-• 굵게, 글자 색, 형광펜, 목록으로 글을 정리해요.
+• 글자 색과 형광펜으로 중요한 부분을 표시해요.
 • 쓰는 동안 자동으로 임시 저장돼요.
 
 지난 일기 보기
@@ -190,7 +190,7 @@ Build a habit of writing one entry a day.
 Write
 • Add photos, weather, and place. Up to 10 photos per entry.
 • Mark the day with one of nine moods.
-• Organize your writing with bold, text color, highlights, and lists.
+• Mark what matters with text color and highlights.
 • Your draft is saved automatically as you write.
 
 Look back
@@ -233,7 +233,7 @@ Privacy Policy: https://sjunh812.pages.dev/1day1diary/privacy/
 日記を書く
 • 写真、天気、場所を一緒に残せます。写真は1件に10枚までです。
 • 9種類の気分で、その日を記録できます。
-• 太字、文字色、マーカー、リストで文章を整えられます。
+• 文字色やマーカーで、大事なところを目立たせられます。
 • 書いている間は自動で下書き保存されます。
 
 過去の日記を見る
