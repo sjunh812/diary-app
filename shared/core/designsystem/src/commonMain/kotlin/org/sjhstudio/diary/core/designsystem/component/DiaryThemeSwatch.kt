@@ -36,7 +36,7 @@ import org.sjhstudio.diary.core.designsystem.theme.limitFontScale
  * 테마 색 견본 칸(`docs/design.md` 테마 화면)
  * 칸 70, 원 44, 고르면 2 띄운 고리 54와 체크. [color]가 null이면 아직 고르지 않은 "직접 고르기"(색상 고리와 +)
  * [plusLabel]이 있으면 원 오른쪽 위에 Plus 칩. 무료 사용자의 직접 고르기 칸에만
- * [label]은 화면 읽기 프로그램이 읽는 이름(색 이름, Plus 여부)
+ * [label]은 스크린 리더이 읽는 이름(색 이름, Plus 여부)
  */
 @Composable
 fun DiaryThemeSwatch(

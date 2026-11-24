@@ -225,7 +225,7 @@ fun DiarySettingsChoiceRow(
 
 /**
  * 제목 자리를 직접 그리는 고르기 줄(글꼴 목록처럼 이름을 그 글꼴이나 그림으로 그릴 때)
- * [label]은 화면 읽기 프로그램이 읽는 이름
+ * [label]은 스크린 리더이 읽는 이름
  * 오른쪽은 [trailing]이 정하고, 없으면 고른 줄에 체크를 둠
  */
 @Composable

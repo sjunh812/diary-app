@@ -318,7 +318,7 @@ internal fun InsightScreen(
             val reduceMotion = rememberReduceMotion()
             val shade by animateFloatAsState(if (data == null) 0f else 1f, tween(if (reduceMotion) 0 else DiaryMotion.QUICK_MILLIS))
             // 옅어지는 값은 그리기 단계에서만 읽음. 화면을 짤 때 읽으면 옅어지는 동안 화면 전체를 프레임마다 다시 짬
-            // 숨긴 앞 기간은 화면 낭독기도 읽지 않고 누르거나 초점이 가지 않음. 누르면 보이지 않는 칸의 기간으로 찾기가 열림
+            // 숨긴 앞 기간은 스크린 리더도 읽지 않고 누르거나 초점이 가지 않음. 누르면 보이지 않는 칸의 기간으로 찾기가 열림
             val inert = if (data == null) Modifier.clearAndSetSemantics {}.blockTouches() else Modifier
             val hidden = Modifier.fillMaxWidth().graphicsLayer { alpha = shade }.then(inert)
             if (shown?.counts?.total != 0) Spacer(Modifier.height(DiarySpacing.x3))

@@ -267,7 +267,7 @@ private fun WheelColumn(
                 .width(width)
                 .height(WheelRow * rows)
                 .nestedScroll(ConsumeRemaining)
-                // 화면 읽기 프로그램은 열 하나를 "시, 10"처럼 읽고 이전·다음 동작으로 한 칸씩 옮김
+                // 스크린 리더은 열 하나를 "시, 10"처럼 읽고 이전·다음 동작으로 한 칸씩 옮김
                 .clearAndSetSemantics {
                     contentDescription = description
                     stateDescription = labels[center % size]

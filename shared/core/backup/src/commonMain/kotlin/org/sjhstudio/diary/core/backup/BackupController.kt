@@ -67,7 +67,7 @@ fun backupToOffer(backups: List<BackupEntry>?, migrated: Boolean): BackupEntry? 
 
 /**
  * 연결한 드라이브에서 권할 백업
- * 목록을 못 읽으면 던짐. 없음으로 보면 다른 기기 백업을 묻기 전에 올림(스펙 003 US2 시나리오 7)
+ * 목록을 못 읽으면 던짐. 없음으로 넘기면 다른 기기 백업을 묻기 전에 올라감(스펙 003 US2 시나리오 7)
  * 권하지 않으면 확인하려고 받은 사본을 지움
  */
 suspend fun findBackupToOffer(restore: RestoreRepository, migrated: Boolean): BackupEntry? {
@@ -116,7 +116,7 @@ class BackupController(
     private val legacyAccount: suspend () -> String? = { null },
     /**
      * 드라이브에 있는 가장 최근 백업. 권할 것이 없으면 null
-     * 드라이브를 못 읽으면 던짐. null로 보면 다른 기기 백업을 묻기 전에 올림
+     * 드라이브를 못 읽으면 던짐. null로 넘기면 다른 기기 백업을 묻기 전에 올라감
      */
     private val findBackup: suspend () -> BackupEntry? = { null },
     /** 7일 실패 알림을 다시 걸 때 씀 */
@@ -259,7 +259,7 @@ class BackupController(
 
     /**
      * 잠금을 쥔 채 불러 권한 받기와 계정 적기를 하고 잠금을 놓음
-     * 둘 사이에 백업이 끼면 앞 계정 폴더에 새 계정 토큰으로 올림
+     * 둘 사이에 백업이 끼면 앞 계정 폴더에 새 계정 토큰으로 올라감
      */
     private suspend fun authorizeHolding(hint: String?): ConnectResult = try {
         val result =

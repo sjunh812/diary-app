@@ -106,7 +106,7 @@ private fun DrawScope.drawCheck(topLeft: Offset, side: Float, color: Color) {
 }
 
 /**
- * 화면 낭독기로 체크를 바꾸는 동작
+ * 스크린 리더로 체크를 바꾸는 동작
  * 칸은 글자 위에 그린 그림이라 낭독기가 누를 수 없음
  * [onToggle]은 항목 번호를 받음
  */
