@@ -22,7 +22,6 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohamedrejeb.richeditor.model.RichTextState
 import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.filterNotNull
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -59,21 +58,16 @@ fun WriteRoute(
     // 넣으면 앱이 종료됐다 돌아올 때 임시 저장본과 다른 글이 보이고, 아주 긴 글은 저장 상태 크기 한도를 넘음
     // 커서 자리만 저장해 회전 뒤에도 쓰던 자리에서 이어 씀
     var caret by rememberSaveable { mutableIntStateOf(-1) }
-    val wanted = "${state.bodyVersion}/${colors.signature}"
-    // 화면 모델이 이미 본문을 갖고 있으면(회전) 처음 그릴 때부터 글을 넣음
-    // 뒤에 넣으면 커서를 다시 잡는 순간 글이 아직 배치되지 않아 커서 자리가 글 밖이 됨
-    var applied by remember { mutableStateOf("") }
-    // 편집기에 넣은 본문 판. 색만 바뀌어 다시 넣을 때는 그대로라 화면이 비지 않음
-    var shownVersion by remember { mutableIntStateOf(0) }
-    val rich = remember {
-        RichTextState().also { editor ->
-            if (state.bodyVersion > 0) {
-                editor.loadBody(colors.toEditor(viewModel.currentBody()), caret, writing = !state.isEdit)
-                applied = wanted
-                shownVersion = state.bodyVersion
-            }
+    // 편집기는 화면 모델이 읽은 본문 판마다 새로 만들고, 만들 때 본문을 넣음
+    // 처음 그리는 순간부터 글이 들어 있어 빈 편집기가 비치지 않고, 커서도 배치된 글 안에 놓임
+    // 0판은 아직 읽는 중이라 빈 편집기
+    val editor =
+        remember(state.bodyVersion) {
+            val rich = RichTextState()
+            if (state.bodyVersion > 0) rich.loadBody(colors.toEditor(viewModel.currentBody()), caret, writing = !state.isEdit)
+            LoadedEditor(rich, state.bodyVersion, colors)
         }
-    }
+    val rich = editor.rich
     val saved by rememberUpdatedState(onSaved)
     val haptic = LocalHapticFeedback.current
     val closed by rememberUpdatedState(onClosed)
@@ -96,21 +90,18 @@ fun WriteRoute(
         viewModel.attachEditor { keepingEditorText(colors.fromEditor(rich.toHtml()), rich.annotatedString.text) }
         onDispose(viewModel::detachEditor)
     }
-    // 새로 읽은 본문만 넣음. 같은 판을 다시 넣으면 그 뒤에 친 글이 사라짐
-    // 테마가 바뀌면 편집기 안의 색을 저장 값으로 되돌릴 수 없어 그때는 지금 본문을 다시 넣음
-    LaunchedEffect(wanted) {
-        if (state.bodyVersion > 0 && applied != wanted) {
-            // 앱이 종료됐다 돌아와도 쓰던 자리에서 이어 씀
-            rich.loadBody(colors.toEditor(viewModel.currentBody()), caret, writing = !state.isEdit)
-            // 편집기가 다시 낸 모양이 기준
-            viewModel.onBodyLoaded(colors.fromEditor(rich.toHtml()))
-            applied = wanted
-            shownVersion = state.bodyVersion
-        }
+    LaunchedEffect(editor) {
+        if (editor.version == 0) return@LaunchedEffect
+        // 편집기가 다시 낸 모양이 기준. 태그 모양만 다른 레거시 글을 고친 것으로 치지 않음
+        viewModel.onBodyLoaded(colors.fromEditor(rich.toHtml()))
+        // 본문을 넣은 편집기의 커서만 기록. 읽는 중의 빈 편집기는 저장한 자리를 덮음
+        snapshotFlow { rich.selection.max }.collect { caret = it }
     }
-    // 본문을 넣기 전 빈 편집기의 커서가 저장한 자리를 덮지 않게 넣은 뒤부터 기록
-    LaunchedEffect(rich) {
-        snapshotFlow { if (applied.isEmpty()) null else rich.selection.max }.filterNotNull().collect { caret = it }
+    // 테마가 바뀌면 편집기 안의 글자색을 새 색으로 바꿔 다시 넣음. 친 글은 그대로
+    LaunchedEffect(editor, colors) {
+        if (editor.version == 0 || editor.colors == colors) return@LaunchedEffect
+        rich.loadBody(colors.toEditor(editor.colors.fromEditor(rich.toHtml())), rich.selection.max, writing = true)
+        editor.colors = colors
     }
     // HTML 변환은 쓰기 직전으로 미루고 여기서는 바뀜 표시만
     LaunchedEffect(rich) {
@@ -122,7 +113,6 @@ fun WriteRoute(
     val family = rememberFileFontFamily(look.fontPath)
     WriteScreen(
         state = state,
-        ready = !state.loading && shownVersion == state.bodyVersion,
         actions = remember(viewModel, rich, colors) { WriteActions(viewModel, rich, colors, viewModel::mediaPath, onPlus) },
         bodyStyle = diaryBodyTextStyle(look.font, look.size) { family },
         modifier = modifier
@@ -154,3 +144,6 @@ internal fun RichTextState.loadBody(html: String, caret: Int, writing: Boolean) 
         }
     )
 }
+
+/** 화면 모델의 [version]판 본문을 넣은 편집기. [colors]는 편집기 안 글자색을 만든 테마 */
+private class LoadedEditor(val rich: RichTextState, val version: Int, var colors: EditorColors)
