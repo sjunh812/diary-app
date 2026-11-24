@@ -82,6 +82,7 @@ import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.source
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.io.buffered
@@ -719,11 +720,14 @@ private fun Editor(state: RichTextState, style: TextStyle, focus: FocusRequester
         val ime = WindowInsets.ime
         val density = LocalDensity.current
         var focused by remember { mutableStateOf(false) }
+        // 키보드가 올라오는 프레임마다 요청하되 앞 요청을 취소하지 않음
+        // 스크롤 칸이 겹친 요청을 한 애니메이션으로 합쳐 한 번에 올라옴. 취소하면 매번 다시 시작해 끊겨 올라옴
         LaunchedEffect(state, ime, density) {
-            snapshotFlow { ime.getBottom(density) }.collectLatest { bottom ->
+            snapshotFlow { ime.getBottom(density) }.collect { bottom ->
                 val text = layout
-                if (bottom == 0 || !focused || text == null) return@collectLatest
-                reveal.bringIntoView(text.getCursorRect(state.selection.max.coerceAtMost(text.layoutInput.text.length)))
+                if (bottom == 0 || !focused || text == null) return@collect
+                val caret = text.getCursorRect(state.selection.max.coerceAtMost(text.layoutInput.text.length))
+                launch { reveal.bringIntoView(caret) }
             }
         }
         val actions =
