@@ -4,6 +4,7 @@ package org.sjhstudio.diary.feature.write
 
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import com.mohamedrejeb.richeditor.model.RichSpan
 import com.mohamedrejeb.richeditor.model.RichTextState
@@ -14,6 +15,7 @@ import com.mohamedrejeb.richeditor.platform.currentPlatform
 
 private const val HANGUL_START = 'ㄱ'
 private const val HANGUL_END = '힣'
+private const val SHOWN_TAG = "shown"
 
 /**
  * 키보드 입력을 편집기에 넘김
@@ -30,8 +32,28 @@ internal class EditorInput(private val state: RichTextState, private val fixKeyb
     private var echoed: Int? = null
 
     fun apply(new: TextFieldValue) {
+        // [shown]으로 입력칸의 거르기를 끄면 그대로인 값도 들어옴
+        if (new == state.textFieldValue) return
         applyInput(new)
         state.flattenOrderedLists()
+    }
+
+    /**
+     * 입력칸에 넘길 값
+     * BasicTextField는 마지막으로 그린 값과 같은 변경을 넘기지 않음
+     * 맥·iPad 하드웨어 키보드 한글은 키 한 번에 음절 선택, 같은 음절로 확정, 다음 자모를 그리기 없이 이어 보냄
+     * 가운데 확정이 걸러지면 선택이 남아 다음 자모가 앞 음절을 덮음("안ㄴ"이 "ㄴ")
+     * 입력칸이 내는 값에는 표시가 없어, 표시를 단 그린 값과 같다고 보지 않음
+     */
+    fun shown(value: TextFieldValue): TextFieldValue = if (!fixKeyboard) {
+        value
+    } else {
+        value.copy(
+            annotatedString = buildAnnotatedString {
+                append(value.text)
+                addStringAnnotation(SHOWN_TAG, "", 0, value.text.length)
+            }
+        )
     }
 
     /** 하드웨어 키 입력(되돌리기·다시 하기 포함)을 편집기에 넘김. 기록이 되살린 번호 목록도 풂 */
@@ -92,8 +114,6 @@ internal class EditorInput(private val state: RichTextState, private val fixKeyb
         return sameText && picked.length == 2 && picked.max == old.selection.max && pickedText(old.text, picked)
     }
 
-    private fun pickedText(text: String, picked: TextRange) = text[picked.min] == ' ' && text[picked.max - 1] in HANGUL_START..HANGUL_END
-
     /** 키보드가 다시 넣은 공백을 뺌. 빼고 나서 달라진 것이 없으면 null */
     private fun withoutEcho(old: TextFieldValue, new: TextFieldValue): TextFieldValue? {
         val at = echoed
@@ -114,6 +134,9 @@ internal class EditorInput(private val state: RichTextState, private val fixKeyb
         !new.selection.collapsed &&
         new.selection != old.selection
 }
+
+/** 키보드가 고른 범위가 공백과 한글 한 자인지 */
+private fun pickedText(text: String, picked: TextRange) = text[picked.min] == ' ' && text[picked.max - 1] in HANGUL_START..HANGUL_END
 
 /**
  * 키보드가 조합 중인 글자를 확정

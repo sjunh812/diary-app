@@ -84,7 +84,7 @@ internal fun DiaryRichEditor(
     var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
     CompositionLocalProvider(LocalClipboard provides richClipboard) {
         BasicTextField(
-            value = state.textFieldValue,
+            value = remember(state.textFieldValue) { input.shown(state.textFieldValue) },
             onValueChange = input::apply,
             modifier = modifier
                 .onFocusChanged { state.isFocused = it.isFocused }
