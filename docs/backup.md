@@ -44,7 +44,7 @@ Gmail·Photos와 공유)을 쓴다.
 - 같은 Google Cloud 프로젝트를 쓴다. 다른 프로젝트의 클라이언트가 레거시 `drive.file` 파일을 볼 수 있는지는 공식 문서에서 확인하지 못했다. 같은 프로젝트를 쓰면 이 위험이 없다.
 - 같은 프로젝트 안에서도 Android 클라이언트가 만든 파일을 iOS 클라이언트가 보는지는 문서에 없다(같은 프로젝트의 클라이언트를 하나의 앱으로 본다는 문서만 있음,
   [cross-client](https://developers.google.com/identity/protocols/oauth2/cross-client-identity)). 2026-11-01 실제로 확인했다: Play 1.7.4가 올린 `note.db`가
-  같은 프로젝트(`diary-app`, 2026-11-01 GoogleMapProject에서 이름만 바꿈)의 iOS 클라이언트에서 보였다(`scripts/drive-probe/README.md`).
+  같은 프로젝트(`diary-app`, 2026-11-01 GoogleMapProject에서 이름만 바꿈)의 iOS 클라이언트에서 보였다(스펙 003 확인용 빌드, 확인 뒤 지움).
 - 연결 실패: 구글 동의 화면에서 드라이브 항목을 체크하지 않고 연결하면 받은 권한에 `drive.file`이 없다. 연결로 치지 않고 따로 `NO_DRIVE_ACCESS`로 알린다. 안내는 Android와 iOS 모두 "구글 화면에서 드라이브 항목을 체크해야 연결돼요."다.
 - 실패 기록: 드라이브 연결·토큰 받기·복원 목록 읽기가 실패하면 Crashlytics에 정한 종류 이름과 숫자 코드만 남긴다. 오류 메시지, 이메일, 토큰, 파일 이름은 보내지 않는다(헌법 II). 사용자가 취소한 것과 인터넷 끊김은 남기지 않는다.
 

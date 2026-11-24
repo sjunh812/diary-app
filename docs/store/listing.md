@@ -318,8 +318,7 @@ mood,daily,log,feelings,journal,photo,private,lock,backup,calendar,gratitude,not
 
 App Store 상품 페이지 맨 위 헤더(21:9, 3840×1646)와 검색 결과 카드(3:2, 3840×2560)다. 2026-11-16 App Store Connect 2.0.1에 세 언어로 넣었다.
 
-- 헤더: 앱 아이콘의 연필과 앱 이름을 한 덩어리로 가운데에 두고, 사이는 100px(글자 높이의 절반쯤. 기울어진 연필의 지우개 끝이 글자에 가장 가까워 70px은 붙어 보였다, 2026-11-16)이고, 바탕은 가운데가 밝은 라벤더 그라데이션이다. 유명 앱(Structured, Goodnotes, Apple 예시)이 쓰는 "심볼 + 이름" 꼴이다. 기분 얼굴을 무늬나 줄로 넣은 안은 어수선해 뺐다. 눈에 보이는 연필과 글자 테두리로 가로세로 가운데를 맞춘다. `docs/store/screens/ios/{ko,en,ja}/header.png`, `swift scripts/store/make_header.swift <결과> <연필 SVG> - wordmark-<언어> <창원단감둥근체 파일>`.
-- 검색 결과: 홍보 문구 첫 줄과 실제 목록 화면이다. 화면이 문구보다 무거워 테두리 기준 가운데는 오른쪽으로 쏠려 보여, 그림을 한 번 그려 무게 중심을 재고 그만큼 왼쪽으로 옮긴다(2026-11-16). Apple 안전 영역(가로 836~3004)은 넘지 않아, 문구가 긴 영어는 왼쪽 끝까지만 옮긴다. 넘치는 언어만 글자를 줄인다. `docs/store/screens/ios/{ko,en,ja}/search.png`, `make_screens.swift`의 `search` 모드.
+- 헤더·검색 결과: 2026-11-24부터 스크린샷과 같은 틀(첫 장 문구와 목록 화면)이다. 아래 "스크린샷 머리말"과 `scripts/store/make_banner.swift`.
 - iPhone은 헤더를 화면 폭에 맞춰 줄여 보여 준다. 작은 그림은 쌀알처럼 보여 크게 둔다. 바꾼 뒤에는 App Store Connect [미리보기]로 iPhone·iPad를 본다.
 
 ## App Store 맞춤형 제품 페이지

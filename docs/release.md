@@ -61,7 +61,6 @@ Android 값은 `sh scripts/release/set-secrets.sh <업로드 키 .jks> [Play 서
 | `docs/store/screens/ios/<언어>/header.png`, `search.png` | 3840×1646, 3840×2560 | App Store 헤더, 검색 결과 |
 
 견본 일기는 `scripts/store/seed_ios.py`(30편, 언어마다 새로 씀)와 `make_photos.swift`(직접 그린 풍경 그림)로 넣는다. 한국어·영어는 창원단감둥근체, 일본어는 시스템 글꼴, 구글 드라이브 백업을 켠 상태로 찍었다. 사이트(`site/assets/screens/`)도 같은 캡처를 상태바만 잘라 쓴다.
-원본 캡처는 `docs/store/source/tablet/`에 있다. Pixel Tablet 에뮬레이터에 견본 일기 48편과 직접 그린 풍경 사진 6장을 넣고 창원단감둥근체로 찍었다.
 영어·일본어는 `docs/store/screens/en/`, `ja/`에 폰 4장과 태블릿 4장씩 있다. 일기 내용도 그 언어 견본으로 바꿔 찍었고, 백업 화면과 피처 그래픽은 없다. 일본어는 D13 추천안대로 시스템 글꼴로 찍었다. 머리말은 원어민 검수 전이다(2026-11-11).
 기준은 심플, 미감, 가독성이다. 앱 전용 색(`selected`) 바탕 하나, 큰 제목, 곧게 놓은 실제 화면만 둔다. 강조는 낱말 하나다. 도형, 스티커, 기울인 카드는 넣지 않는다(2026-11-07 사용자 지적).
 
