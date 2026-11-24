@@ -122,8 +122,7 @@ fun WriteRoute(
     val family = rememberFileFontFamily(look.fontPath)
     WriteScreen(
         state = state,
-        // 읽지 못한 일기는 넣을 본문이 없어 실패 안내와 함께 바로 보임
-        ready = !state.loading && (state.openFailed || shownVersion == state.bodyVersion),
+        ready = !state.loading && shownVersion == state.bodyVersion,
         actions = remember(viewModel, rich, colors) { WriteActions(viewModel, rich, colors, viewModel::mediaPath, onPlus) },
         bodyStyle = diaryBodyTextStyle(look.font, look.size) { family },
         modifier = modifier

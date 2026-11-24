@@ -40,7 +40,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -199,7 +198,9 @@ internal fun WriteScreen(state: WriteUiState, ready: Boolean, actions: WriteActi
     // 새 글은 바로 쓸 수 있게 처음 한 번만 커서를 줌
     // 수정은 먼저 읽어 보는 때가 많아 키보드를 띄우지 않음
     var autoFocused by rememberSaveable { mutableStateOf(false) }
-    val readyToWrite = ready && state.resume == null && !state.isEdit
+    // 읽지 못한 일기는 보이기만 하고 입력은 받지 않음. 쳐도 저장할 수 없음
+    val editable = ready && !state.openFailed
+    val readyToWrite = editable && state.resume == null && !state.isEdit
     LaunchedEffect(readyToWrite) {
         if (readyToWrite && !autoFocused) {
             autoFocused = true
@@ -214,8 +215,8 @@ internal fun WriteScreen(state: WriteUiState, ready: Boolean, actions: WriteActi
         Modifier
             .onGloballyPositioned { geometry.viewport = it }
             // 본문을 넣기 전에는 누르지 않음. 그 사이 친 글은 넣는 본문이 덮어씀
-            .pointerInput(actions.rich, ready) {
-                if (!ready) return@pointerInput
+            .pointerInput(actions.rich, editable) {
+                if (!editable) return@pointerInput
                 detectTapGestures { tap ->
                     actions.rich.selection = TextRange(geometry.offsetAt(tap) ?: actions.rich.annotatedString.length)
                     editorFocus.requestFocus()
@@ -327,11 +328,11 @@ internal fun WriteScreen(state: WriteUiState, ready: Boolean, actions: WriteActi
             is ChecklistPick.Waiting, is ChecklistPick.Locked, null -> Unit
         }
     }
-    LaunchedEffect(sheet, plusPrompt) {
-        if (sheet == null && plusPrompt == null && refocus) {
+    // 다시 만든 화면은 본문을 넣은 뒤에야 편집기가 초점을 받음
+    val unblocked = editable && sheet == null && plusPrompt == null
+    LaunchedEffect(unblocked) {
+        if (unblocked && refocus) {
             refocus = false
-            // 다시 만든 화면은 한 프레임 뒤에 편집기가 붙음
-            withFrameNanos {}
             editorFocus.requestFocus()
             softKeyboard?.show()
         }
@@ -373,7 +374,7 @@ internal fun WriteScreen(state: WriteUiState, ready: Boolean, actions: WriteActi
                                         bodyStyle,
                                         editorFocus,
                                         geometry,
-                                        ready,
+                                        editable,
                                         Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth().onFocusChanged {
                                             onEditorFocus(it.hasFocus)
                                         }
@@ -414,7 +415,7 @@ internal fun WriteScreen(state: WriteUiState, ready: Boolean, actions: WriteActi
                                     bodyStyle,
                                     editorFocus,
                                     geometry,
-                                    ready,
+                                    editable,
                                     Modifier.fillMaxWidth().onFocusChanged { onEditorFocus(it.hasFocus) }
                                 )
                             }
