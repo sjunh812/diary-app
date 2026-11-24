@@ -91,10 +91,7 @@ sealed interface PhotoPick {
     data class Open(val source: PhotoSource, val limit: Int) : PhotoPick
 }
 
-/**
- * 체크리스트 도구를 누른 순간의 글과 고른 자리. 기다리는 사이 글이 바뀌면 엉뚱한 줄에 걸지 않게 견줌
- * [writing]은 그때 본문에 커서가 있었는지. Plus 시트를 닫으면 커서와 키보드를 돌려줌
- */
+/** 체크리스트 도구를 누른 순간의 글과 고른 자리. 기다리는 사이 글이 바뀌면 엉뚱한 줄에 걸지 않게 견줌 */
 data class ChecklistTarget(val text: String, val start: Int, val end: Int)
 
 /**
@@ -105,7 +102,7 @@ data class ChecklistTarget(val text: String, val start: Int, val end: Int)
 sealed interface ChecklistPick {
     data class Waiting(val target: ChecklistTarget) : ChecklistPick
 
-    /** 잠김 시트가 떠 있는 동안 Plus가 되면 시트를 닫고 바로 넣음 */
+    /** 바로 넣음. 이미 Plus였거나, 잠김 시트가 떠 있는 동안 Plus가 되면 시트를 닫고 넣음 */
     data class Allowed(val target: ChecklistTarget) : ChecklistPick
 
     data class Locked(val target: ChecklistTarget) : ChecklistPick
@@ -273,7 +270,6 @@ class WriteViewModel(
         }
     private var photoWait: Job? = null
 
-    /** 마지막으로 연 고르기 화면을 쓰던 중에 눌렀는지 */
     private var checklistWait: Job? = null
     private var lastRemoved: Instant? = null
 

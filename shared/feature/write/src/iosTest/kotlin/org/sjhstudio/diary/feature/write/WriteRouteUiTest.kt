@@ -10,14 +10,19 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.uikit.LocalUIViewController
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -44,6 +49,11 @@ import platform.UIKit.UIViewController
 // 화면 모델은 돌리기에서 살아남으니 밖에 둠
 @OptIn(ExperimentalTestApi::class)
 class WriteRouteUiTest {
+    private class Owner : LifecycleOwner {
+        val registry = LifecycleRegistry.createUnsafe(this).apply { currentState = Lifecycle.State.RESUMED }
+        override val lifecycle: Lifecycle get() = registry
+    }
+
     private fun draft(key: DraftKey, body: String) =
         Draft(key, LocalDate(2026, 11, 1), LocalTime(9, 0), body, null, null, null, false, false, Clock.System.now())
 
@@ -57,10 +67,11 @@ class WriteRouteUiTest {
         viewModel: WriteViewModel,
         target: WriteTarget = WriteTarget.Edit("e1"),
         dark: () -> Boolean = { false },
+        lifecycle: Owner = Owner(),
         shown: () -> Boolean
     ) {
         setContent {
-            CompositionLocalProvider(LocalUIViewController provides UIViewController()) {
+            CompositionLocalProvider(LocalUIViewController provides UIViewController(), LocalLifecycleOwner provides lifecycle) {
                 DiaryTheme(darkTheme = dark()) {
                     val holder = rememberSaveableStateHolder()
                     if (shown()) {
@@ -177,6 +188,40 @@ class WriteRouteUiTest {
     fun a_new_entry_gets_the_cursor() = runComposeUiTest {
         val viewModel = testWriteViewModel(WriteTarget.New(LocalDate(2026, 11, 1)), FakeDraftRepository(), timeZone = TimeZone.UTC)
         showWrite(viewModel, target = WriteTarget.New(LocalDate(2026, 11, 1))) { true }
+
+        onAllNodes(hasSetTextAction())[0].assertIsFocused()
+    }
+
+    /** 쓰던 일기를 열면 커서를 주지 않음. 읽다가 고칠 자리를 직접 누름 */
+    @Test
+    fun an_entry_being_edited_opens_without_the_cursor() = runComposeUiTest {
+        val key = DraftKey.Edit("e1")
+        val repository = FakeDraftRepository(editable = mapOf("e1" to draft(key, "<p>옛 글</p>")))
+        val viewModel = testWriteViewModel(WriteTarget.Edit("e1"), repository, timeZone = TimeZone.UTC)
+        showWrite(viewModel) { true }
+
+        onAllNodes(hasSetTextAction())[0].assertIsNotFocused()
+    }
+
+    /** 쓰던 중 시스템이 화면을 다시 만들면(회전) 커서를 돌려줌. 화면이 멈춘 뒤 내려가며 잃는 초점은 기억하지 않음 */
+    @Test
+    fun rotating_while_writing_keeps_the_cursor() = runComposeUiTest {
+        val key = DraftKey.Edit("e1")
+        val repository = FakeDraftRepository(editable = mapOf("e1" to draft(key, "<p>옛 글</p>")))
+        val viewModel = testWriteViewModel(WriteTarget.Edit("e1"), repository, timeZone = TimeZone.UTC)
+        val owner = Owner()
+        var shown by mutableStateOf(true)
+        showWrite(viewModel, lifecycle = owner) { shown }
+        onAllNodes(hasSetTextAction())[0].performTextInput("새 ")
+        waitForIdle()
+        onAllNodes(hasSetTextAction())[0].assertIsFocused()
+
+        owner.registry.currentState = Lifecycle.State.CREATED
+        shown = false
+        waitForIdle()
+        shown = true
+        owner.registry.currentState = Lifecycle.State.RESUMED
+        waitForIdle()
 
         onAllNodes(hasSetTextAction())[0].assertIsFocused()
     }

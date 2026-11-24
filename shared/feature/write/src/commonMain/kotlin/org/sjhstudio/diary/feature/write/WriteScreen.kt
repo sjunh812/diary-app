@@ -84,7 +84,6 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.io.buffered
 import org.jetbrains.compose.resources.stringResource
-import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryChip
@@ -174,10 +173,8 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     val locationAccess = rememberLocationAccess()
     val cameraAccess = rememberCameraAccess()
     var cameraOff by remember { mutableStateOf(false) }
-    // 시트가 뜰 때 키보드는 시트 부품이 내림(DiaryBottomSheet)
+    // 시트·대화상자가 뜰 때 키보드는 그 부품이 내림(DismissBehindKeyboard)
     // 키보드가 다 내려가길 기다리지 않고 바로 띄움
-    // 쓰던 중에 시트를 열면 닫은 뒤 커서와 키보드를 돌려줌
-    // 시트가 뜰 때 초점을 거둬, 돌려주지 않으면 본문을 다시 눌러야 하고 커서도 누른 자리로 옮겨짐
     var editorFocused by rememberSaveable { mutableStateOf(false) }
     // 회전이나 앱 종료처럼 시스템이 화면을 다시 만들면 초점이 사라짐. 쓰던 중이었으면 다시 만든 화면에서 돌려줌
     // 시트·권유·창을 닫은 뒤에는 돌려주지 않음. 닫으면 키보드는 내려간 채이고 본문을 누르면 이어 씀
@@ -286,11 +283,9 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
             }
         }
     }
-    // 누르는 순간 쓰던 중이었는지 함께 보냄. 한도 시트를 닫으면 커서와 키보드를 돌려줌
     val openPicker: () -> Unit = remember(vm) { { vm.requestPhotos(PhotoSource.LIBRARY) } }
     val openCamera: () -> Unit = remember(vm) { { vm.requestPhotos(PhotoSource.CAMERA) } }
     val tools = remember(actions) {
-        // 누르는 순간 쓰던 중이었는지 함께 보냄. Plus 시트가 뜨며 초점을 거둔 뒤에는 알 수 없음
         WriteTools(actions.rich, actions.colors) { text, start, end ->
             vm.requestChecklist(ChecklistTarget(text, start, end))
         }
@@ -305,7 +300,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
             is ChecklistPick.Waiting, is ChecklistPick.Locked, null -> Unit
         }
     }
-    // 새 글을 열 때, 시트를 닫거나 화면을 다시 만든 뒤 쓰던 중이었을 때 커서와 키보드를 줌
+    // 새 글을 열 때, 화면을 다시 만든 뒤 쓰던 중이었을 때 커서와 키보드를 줌
     // 편집기가 입력을 받을 수 있게 된 뒤에 편집기 쪽에서 줌
     // 시트·권유·창이 덮고 있는 동안에는 주지 않고 닫힌 뒤에 줌
     val covered = othersOpen || plusPrompt != null

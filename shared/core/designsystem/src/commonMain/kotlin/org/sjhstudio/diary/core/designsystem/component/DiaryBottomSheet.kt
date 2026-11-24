@@ -24,7 +24,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,8 +37,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -76,14 +73,7 @@ fun DiaryBottomSheet(
 ) {
     val colors = DiaryTheme.colors
     val maxHeight = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() } * MAX_HEIGHT_RATIO
-    // 시트가 뜨면 뒤 화면 키보드를 내림(작성·검색 어디서 열어도 같음)
-    // 시트 안은 따로 그려지는 창이라 뒤 화면의 초점과 키보드는 시트 밖에서 잡음
-    val behindFocus = LocalFocusManager.current
-    val behindKeyboard = LocalSoftwareKeyboardController.current
-    LaunchedEffect(Unit) {
-        behindFocus.clearFocus()
-        behindKeyboard?.hide()
-    }
+    DismissBehindKeyboard()
     var typingInside by remember { mutableStateOf(false) }
     ModalBottomSheet(
         onDismissRequest = onDismiss,
