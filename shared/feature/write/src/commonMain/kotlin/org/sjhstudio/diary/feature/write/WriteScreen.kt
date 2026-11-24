@@ -204,8 +204,9 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     // 새 글은 바로 쓸 수 있게 처음 한 번만 커서를 줌
     // 수정은 먼저 읽어 보는 때가 많아 키보드를 띄우지 않음
     var autoFocused by rememberSaveable { mutableStateOf(false) }
+    // 읽기 전에는 편집기를 건드릴 길을 두지 않음. 빈 편집기에서 바뀐 것이 읽은 본문을 덮지 않게
     // 읽지 못한 일기는 보이기만 하고 입력은 받지 않음. 쳐도 저장할 수 없음
-    val editable = !state.openFailed
+    val editable = !state.loading && !state.openFailed
     // 글 아래 빈 곳을 누르면 글 끝에서 이어 씀
     // 글 옆 여백이나 위를 누르면 그 줄에서 가장 가까운 자리에 커서를 둠
     // 어디든 글 끝으로 보내면 줄 앞을 누르려다 맨 아래로 끌려감
@@ -385,14 +386,16 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                                     }
                                 }
                             }
-                            SaveFailedNotice(state)
-                            discardRow()
-                            tools.Toolbar(
-                                onPhoto = openPicker,
-                                onCamera = openCamera,
-                                photoWaiting = state.photoPick is PhotoPick.Waiting,
-                                checklistWaiting = state.checklistPick is ChecklistPick.Waiting
-                            )
+                            if (!state.loading) {
+                                SaveFailedNotice(state)
+                                discardRow()
+                                tools.Toolbar(
+                                    onPhoto = openPicker,
+                                    onCamera = openCamera,
+                                    photoWaiting = state.photoPick is PhotoPick.Waiting,
+                                    checklistWaiting = state.checklistPick is ChecklistPick.Waiting
+                                )
+                            }
                         }
                         Box(Modifier.width(DiarySpacing.hairline).fillMaxHeight().background(colors.line))
                         if (!state.loading) SidePanel(state, actions, onPick = openPicker, onPlace = { openSheet(Sheet.Place) })
@@ -429,14 +432,16 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                             }
                         }
                     }
-                    SaveFailedNotice(state)
-                    discardRow()
-                    tools.Toolbar(
-                        onPhoto = openPicker,
-                        onCamera = openCamera,
-                        photoWaiting = state.photoPick is PhotoPick.Waiting,
-                        checklistWaiting = state.checklistPick is ChecklistPick.Waiting
-                    )
+                    if (!state.loading) {
+                        SaveFailedNotice(state)
+                        discardRow()
+                        tools.Toolbar(
+                            onPhoto = openPicker,
+                            onCamera = openCamera,
+                            photoWaiting = state.photoPick is PhotoPick.Waiting,
+                            checklistWaiting = state.checklistPick is ChecklistPick.Waiting
+                        )
+                    }
                 }
             }
             // 서식 도구 줄 위에 띄움
@@ -560,6 +565,7 @@ private fun DiscardButton(isEdit: Boolean, modifier: Modifier = Modifier, onClic
 @Composable
 private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit, onSave: () -> Unit) {
     val colors = DiaryTheme.colors
+    val dateKnown = !state.loading && !state.openFailed
     val dates = rememberDiaryDateFormat()
     val today = rememberToday()
     val interaction = remember { MutableInteractionSource() }
@@ -581,15 +587,15 @@ private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit,
                         interactionSource = interaction,
                         indication = null,
                         role = Role.Button,
-                        enabled = !state.loading,
+                        enabled = dateKnown,
                         onClick = onDate
                     )
                     .padding(horizontal = DiarySpacing.x2),
                 horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 읽기 전에는 날짜를 모름. 기본값인 오늘이 비치지 않게
-                if (!state.loading) {
+                // 읽기 전이나 읽지 못하면 날짜를 모름. 기본값이 비치지 않게
+                if (dateKnown) {
                     // 올해가 아니면 연도까지. 요일만 보면 지난해 일기인지 알 수 없음
                     BasicText(
                         if (state.date.year == today.year) dates.dayWithWeekday(state.date) else dates.fullDate(state.date),
