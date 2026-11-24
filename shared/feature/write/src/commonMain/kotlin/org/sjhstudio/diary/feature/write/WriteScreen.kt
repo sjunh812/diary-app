@@ -81,7 +81,6 @@ import io.github.vinceglb.filekit.dialogs.compose.rememberCameraPickerLauncher
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.source
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -164,9 +163,10 @@ private enum class Sheet { Mood, Weather, Place, DateTime }
  * 위 줄, 첨부 칩, 사진 줄, 본문, 서식 도구 줄 순
  * 폭 840부터는 본문을 가운데 두고 기분·날씨·사진·장소를 옆 칸으로 옮김
  * 사진 고르기는 iOS 때문에 시트가 아닌 이 화면에서 기억함(research R4)
+ * [ready]는 저장본을 읽고 본문까지 편집기에 넣었는지. 그전에는 내용 칸을 비워 빈 안내 문구와 칩이 먼저 비치지 않게 함
  */
 @Composable
-internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: TextStyle, modifier: Modifier = Modifier) {
+internal fun WriteScreen(state: WriteUiState, ready: Boolean, actions: WriteActions, bodyStyle: TextStyle, modifier: Modifier = Modifier) {
     val vm = actions.viewModel
     val colors = DiaryTheme.colors
     // 화면을 돌리거나 폴더블을 펴도 고르던 시트가 닫히지 않게
@@ -224,7 +224,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     // 키보드가 움직이는 프레임마다 다시 그리지 않게 보임 여부가 바뀔 때만 읽음
     val imeHidden by remember(imeInsets, density) { derivedStateOf { imeInsets.getBottom(density) == 0 } }
     val discardRow: @Composable () -> Unit = {
-        if (state.canDiscard && imeHidden) DiscardButton(state.isEdit) { askDiscardHere = true }
+        if (ready && state.canDiscard && imeHidden) DiscardButton(state.isEdit) { askDiscardHere = true }
     }
     val photoLimit by vm.photoLimit.collectAsStateWithLifecycle()
     // 화면 모델이 띄우는 Plus 권유. 닫을 때까지 화면 모델이 가져 화면을 돌려도 닫히지 않음
@@ -348,82 +348,91 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     LaunchedEffect(vm) {
         vm.photoRemovals.collect { if (toast.show(removedMessage, undoLabel) == DiaryToastResult.ActionPerformed) vm.undoRemovePhoto() }
     }
-    BoxWithConstraints(modifier.then(keyboard).fillMaxSize().background(colors.canvas).systemBarsPadding().imePadding()) {
+    // 키보드 여백은 안쪽에 둠. 바깥에 두면 키보드가 움직이는 프레임마다 제약이 바뀌어 화면 전체를 다시 구성
+    BoxWithConstraints(modifier.then(keyboard).fillMaxSize().background(colors.canvas).systemBarsPadding()) {
         val wide = maxWidth >= DiaryWriteSize.twoPaneMin
-        Column(Modifier.fillMaxSize()) {
-            TopRow(state, onClose = vm::close, onDate = { openSheet(Sheet.DateTime) }, onSave = vm::save)
-            if (wide) {
-                Row(Modifier.weight(1f).fillMaxWidth()) {
-                    Column(Modifier.weight(1f).fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally) {
-                        // 에디터가 스스로 스크롤하면 체크 칸 자리가 글과 어긋나 바깥에서 스크롤
-                        EditorScrollMargin(DiaryWriteSize.editorScrollMargin, Modifier.weight(1f).fillMaxWidth()) {
-                            Column(
-                                Modifier.fillMaxSize().then(tapToWrite).verticalScroll(rememberScrollState()),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
+        // 폴더블을 펴거나 태블릿을 돌려 배치가 바뀌어도 읽던 자리 유지
+        val bodyScroll = rememberScrollState()
+        Box(Modifier.fillMaxSize().imePadding()) {
+            Column(Modifier.fillMaxSize()) {
+                TopRow(state, ready, onClose = vm::close, onDate = { openSheet(Sheet.DateTime) }, onSave = vm::save)
+                if (wide) {
+                    Row(Modifier.weight(1f).fillMaxWidth()) {
+                        Column(Modifier.weight(1f).fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally) {
+                            // 에디터가 스스로 스크롤하면 체크 칸 자리가 글과 어긋나 바깥에서 스크롤
+                            EditorScrollMargin(DiaryWriteSize.editorScrollMargin, Modifier.weight(1f).fillMaxWidth()) {
+                                Column(
+                                    Modifier.fillMaxSize().alpha(if (ready) 1f else 0f).then(tapToWrite).verticalScroll(bodyScroll),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Editor(
+                                        actions.rich,
+                                        tools::plainText,
+                                        bodyStyle,
+                                        editorFocus,
+                                        geometry,
+                                        Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth().onFocusChanged {
+                                            onEditorFocus(it.hasFocus)
+                                        }
+                                    )
+                                }
+                            }
+                            SaveFailedNotice(state)
+                            discardRow()
+                            tools.Toolbar(
+                                onPhoto = openPicker,
+                                onCamera = openCamera,
+                                photoWaiting = state.photoPick is PhotoPick.Waiting,
+                                checklistWaiting = state.checklistPick is ChecklistPick.Waiting
+                            )
+                        }
+                        Box(Modifier.width(DiarySpacing.hairline).fillMaxHeight().background(colors.line))
+                        Box(Modifier.alpha(if (ready) 1f else 0f)) {
+                            SidePanel(state, actions, onPick = openPicker, onPlace = { openSheet(Sheet.Place) })
+                        }
+                    }
+                } else {
+                    EditorScrollMargin(DiaryWriteSize.editorScrollMargin, Modifier.weight(1f).fillMaxWidth()) {
+                        Column(
+                            Modifier.fillMaxSize().then(tapToWrite).verticalScroll(bodyScroll),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            // 태블릿 세로 폭에서도 줄이 너무 길어지지 않게
+                            Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth().alpha(if (ready) 1f else 0f)) {
+                                Chips(state, onMood = {
+                                    openSheet(Sheet.Mood)
+                                }, onWeather = { openSheet(Sheet.Weather) }, onPlace = { openSheet(Sheet.Place) })
+                                if (state.photos.isNotEmpty()) PhotoRow(state, actions, onPick = openPicker)
+                                PhotoReorderTip(state, Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2))
+                                Notices(state, Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2))
                                 Editor(
                                     actions.rich,
+                                    tools::plainText,
                                     bodyStyle,
                                     editorFocus,
                                     geometry,
-                                    Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth().onFocusChanged {
-                                        onEditorFocus(it.hasFocus)
-                                    }
+                                    Modifier.fillMaxWidth().onFocusChanged { onEditorFocus(it.hasFocus) }
                                 )
                             }
                         }
-                        SaveFailedNotice(state)
-                        discardRow()
-                        tools.Toolbar(
-                            onPhoto = openPicker,
-                            onCamera = openCamera,
-                            photoWaiting = state.photoPick is PhotoPick.Waiting,
-                            checklistWaiting = state.checklistPick is ChecklistPick.Waiting
-                        )
                     }
-                    Box(Modifier.width(DiarySpacing.hairline).fillMaxHeight().background(colors.line))
-                    SidePanel(state, actions, onPick = openPicker, onPlace = { openSheet(Sheet.Place) })
+                    SaveFailedNotice(state)
+                    discardRow()
+                    tools.Toolbar(
+                        onPhoto = openPicker,
+                        onCamera = openCamera,
+                        photoWaiting = state.photoPick is PhotoPick.Waiting,
+                        checklistWaiting = state.checklistPick is ChecklistPick.Waiting
+                    )
                 }
-            } else {
-                EditorScrollMargin(DiaryWriteSize.editorScrollMargin, Modifier.weight(1f).fillMaxWidth()) {
-                    Column(
-                        Modifier.fillMaxSize().then(tapToWrite).verticalScroll(rememberScrollState()),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        // 태블릿 세로 폭에서도 줄이 너무 길어지지 않게
-                        Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth()) {
-                            Chips(state, onMood = {
-                                openSheet(Sheet.Mood)
-                            }, onWeather = { openSheet(Sheet.Weather) }, onPlace = { openSheet(Sheet.Place) })
-                            if (state.photos.isNotEmpty()) PhotoRow(state, actions, onPick = openPicker)
-                            PhotoReorderTip(state, Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2))
-                            Notices(state, Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2))
-                            Editor(
-                                actions.rich,
-                                bodyStyle,
-                                editorFocus,
-                                geometry,
-                                Modifier.fillMaxWidth().onFocusChanged { onEditorFocus(it.hasFocus) }
-                            )
-                        }
-                    }
-                }
-                SaveFailedNotice(state)
-                discardRow()
-                tools.Toolbar(
-                    onPhoto = openPicker,
-                    onCamera = openCamera,
-                    photoWaiting = state.photoPick is PhotoPick.Waiting,
-                    checklistWaiting = state.checklistPick is ChecklistPick.Waiting
-                )
             }
+            // 서식 도구 줄 위에 띄움
+            DiaryToastHost(
+                toast,
+                Modifier.align(Alignment.BottomCenter).padding(bottom = DiaryWriteSize.toolbar + DiarySpacing.x3),
+                reduceMotion = rememberReduceMotion()
+            )
         }
-        // 서식 도구 줄 위에 띄움
-        DiaryToastHost(
-            toast,
-            Modifier.align(Alignment.BottomCenter).padding(bottom = DiaryWriteSize.toolbar + DiarySpacing.x3),
-            reduceMotion = rememberReduceMotion()
-        )
     }
     when (sheet) {
         Sheet.Mood ->
@@ -536,7 +545,7 @@ private fun DiscardButton(isEdit: Boolean, modifier: Modifier = Modifier, onClic
 }
 
 @Composable
-private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit, onSave: () -> Unit) {
+private fun TopRow(state: WriteUiState, ready: Boolean, onClose: () -> Unit, onDate: () -> Unit, onSave: () -> Unit) {
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
     val today = rememberToday()
@@ -552,8 +561,8 @@ private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit,
             )
             Row(
                 Modifier
-                    // 수정하는 일기는 날짜를 읽기 전에 오늘이 비치지 않게
-                    .alpha(if (state.loading && state.isEdit) 0f else 1f)
+                    // 읽기 전의 빈 날짜가 비치지 않게
+                    .alpha(if (ready) 1f else 0f)
                     .heightIn(min = DiarySpacing.minTouchTarget)
                     .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
                     .clip(DiaryShapes.r12)
@@ -682,20 +691,24 @@ private fun SaveFailedNotice(state: WriteUiState) {
 }
 
 @Composable
-private fun Editor(state: RichTextState, style: TextStyle, focus: FocusRequester, geometry: EditorGeometry, modifier: Modifier) {
+private fun Editor(
+    state: RichTextState,
+    plain: () -> String,
+    style: TextStyle,
+    focus: FocusRequester,
+    geometry: EditorGeometry,
+    modifier: Modifier
+) {
     val colors = DiaryTheme.colors
     Box(modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x3)) {
         if (state.annotatedString.isEmpty()) {
             BasicText(stringResource(Res.string.write_hint), style = style.copy(color = colors.placeholder))
         }
         var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
-        // 서식 없는 본문은 글이 바뀔 때 한 번만 만듦
-        // 체크 칸 그리기, 접근성 동작, 변화 감시가 각자 만들면 한 글자마다 문단 트리를 4번 넘게 순회
-        val plain = remember(state) { derivedStateOf { state.annotatedString.let { state.toText() } } }
         val touch = with(LocalDensity.current) { DiarySpacing.minTouchTarget.toPx() }
-        LaunchedEffect(state) {
-            var before = plain.value
-            snapshotFlow { plain.value }.collect { after ->
+        LaunchedEffect(state, plain) {
+            var before = plain()
+            snapshotFlow { plain() }.collect { after ->
                 val edit = Checklist.afterEdit(before, after, state.selection.min)
                 edit?.let(state::applyEdit)
                 before = if (edit == null) after else state.toText()
@@ -704,15 +717,17 @@ private fun Editor(state: RichTextState, style: TextStyle, focus: FocusRequester
         // 선택 핸들을 끄는 동안 움직이는 끝을 가장자리에서 띄워 보이게
         // 편집기는 스스로 스크롤하지 않아 핸들을 화면 끝으로 끌면 도구 줄·키보드 밑으로 숨어 더 끌 수 없음
         // 바깥 스크롤이 [EditorScrollMargin]의 여백만큼 따라 올라와 이어서 끌 수 있음
+        // 끄는 프레임마다 요청하되 앞 요청을 취소하지 않아 한 애니메이션으로 따라옴
         val reveal = remember { BringIntoViewRequester() }
         LaunchedEffect(state) {
             var before = state.selection
-            snapshotFlow { state.selection }.collectLatest { selection ->
+            snapshotFlow { state.selection }.collect { selection ->
                 val moving = movingEdge(before, selection)
                 before = selection
-                val text = layout ?: return@collectLatest
-                if (moving == null || moving > text.layoutInput.text.length) return@collectLatest
-                reveal.bringIntoView(text.getCursorRect(moving))
+                val text = layout ?: return@collect
+                if (moving == null || moving > text.layoutInput.text.length) return@collect
+                val edge = text.getCursorRect(moving)
+                launch { reveal.bringIntoView(edge) }
             }
         }
         // 키보드가 올라와 본문 칸이 줄면 커서가 키보드 밑에 남을 수 있음
@@ -731,7 +746,7 @@ private fun Editor(state: RichTextState, style: TextStyle, focus: FocusRequester
             }
         }
         val actions =
-            checklistActions(plain.value) { item, _ ->
+            checklistActions(plain()) { item, _ ->
                 state.applyEdit(Checklist.toggle(state.toText(), item.start))
             }
         DiaryRichEditor(
@@ -746,7 +761,7 @@ private fun Editor(state: RichTextState, style: TextStyle, focus: FocusRequester
                     .onFocusChanged { focused = it.isFocused }
                     .focusRequester(focus)
                     .semantics { customActions = actions }
-                    .checklistMarks({ plain.value }, { layout })
+                    .checklistMarks(plain, { layout })
                     .pointerInput(state) {
                         // 표시를 누르면 커서를 옮기지 않고 체크만 바꿈
                         // 글자를 누르면 평소처럼 커서가 감

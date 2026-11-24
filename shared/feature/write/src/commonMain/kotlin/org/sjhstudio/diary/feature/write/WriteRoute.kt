@@ -118,6 +118,7 @@ fun WriteRoute(
     val family = rememberFileFontFamily(look.fontPath)
     WriteScreen(
         state = state,
+        ready = !state.loading && applied == wanted,
         actions = remember(viewModel, rich, colors) { WriteActions(viewModel, rich, colors, viewModel::mediaPath, onPlus) },
         bodyStyle = diaryBodyTextStyle(look.font, look.size) { family },
         modifier = modifier

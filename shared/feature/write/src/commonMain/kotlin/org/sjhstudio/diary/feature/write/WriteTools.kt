@@ -91,8 +91,13 @@ internal class WriteTools(
     val colors: EditorColors,
     val requestChecklist: (text: String, start: Int, end: Int) -> Unit
 ) {
-    /** 서식 없는 본문. 글이 바뀔 때만 다시 만듦 */
+    /**
+     * 서식 없는 본문. 글이 바뀔 때만 다시 만듦
+     * 도구 줄과 본문 칸이 함께 씀. 각자 만들면 한 글자마다 문단 트리를 여러 번 순회
+     */
     private val plain = derivedStateOf { rich.annotatedString.let { rich.toText() } }
+
+    fun plainText(): String = plain.value
 
     @Composable
     fun Toolbar(
