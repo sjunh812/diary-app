@@ -136,7 +136,7 @@ func save(_ rep: NSBitmapImageRep, _ name: String) {
 // 장식과 기울임 없이 강조는 낱말 하나만
 let phoneSlides: [String: [(String, String, String)]] = [
     "ko": [
-        ("write", "그날 기분도\n같이 남겨요", "기분"),
+        ("write", "그날의 기분도\n같이 남겨요", "기분"),
         ("list", "지난 일기가\n한눈에 보여요", "한눈에"),
         ("calendar", "한 달 기분을\n달력으로 봐요", "달력"),
         ("insight", "어떤 기분이 많았는지\n돌아봐요", "돌아봐요"),
@@ -182,7 +182,7 @@ save(feature, "feature")
 // 태블릿·iPad 머리말(가로 한 줄). 폰 머리말과 같은 말을 한 줄로
 let tabletSlides: [String: [(String, String, String)]] = [
     "ko": [
-        ("write", "그날 기분도 같이 남겨요", "기분"),
+        ("write", "그날의 기분도 같이 남겨요", "기분"),
         ("list", "목록과 일기를 나란히 봐요", "나란히"),
         ("calendar", "한 달 기분을 달력으로 봐요", "달력"),
         ("insight", "어떤 기분이 많았는지 돌아봐요", "돌아봐요")
