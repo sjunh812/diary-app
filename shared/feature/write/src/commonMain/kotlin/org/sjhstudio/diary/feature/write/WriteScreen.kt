@@ -33,12 +33,10 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -157,10 +155,6 @@ internal class WriteActions(
 
 private enum class Sheet { Mood, Weather, Place, DateTime }
 
-/** 저장한 값과, 다시 만들 때 쓰던 중이었는지를 함께 보아 돌려줄 초점을 되살림 */
-private fun refocusSaver(writing: () -> Boolean) =
-    Saver<MutableState<Boolean>, Boolean>(save = { it.value }, restore = { mutableStateOf(it || writing()) })
-
 /** [wantsFocus]는 편집기가 그려진 뒤 커서와 키보드를 줄지 */
 private class EditorInputState(val wantsFocus: Boolean, val onFocusGiven: () -> Unit)
 
@@ -185,18 +179,15 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     // 쓰던 중에 시트를 열면 닫은 뒤 커서와 키보드를 돌려줌
     // 시트가 뜰 때 초점을 거둬, 돌려주지 않으면 본문을 다시 눌러야 하고 커서도 누른 자리로 옮겨짐
     var editorFocused by rememberSaveable { mutableStateOf(false) }
-    // 돌려줄 초점. 시트를 연 채 화면을 돌려도 닫으면 돌려주게 저장함
-    // 회전처럼 화면을 다시 만들면 초점이 사라짐. 쓰던 중이었으면 다시 만든 화면에서도 돌려줌
-    var refocus by rememberSaveable(saver = refocusSaver { editorFocused }) { mutableStateOf(false) }
+    // 회전이나 앱 종료처럼 시스템이 화면을 다시 만들면 초점이 사라짐. 쓰던 중이었으면 다시 만든 화면에서 돌려줌
+    // 시트·권유·창을 닫은 뒤에는 돌려주지 않음. 닫으면 키보드는 내려간 채이고 본문을 누르면 이어 씀
+    var refocus by remember { mutableStateOf(editorFocused) }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     // 화면을 다시 만들려고 내려가며 잃는 초점은 기억하지 않음
     val onEditorFocus = { focused: Boolean ->
         if (focused || lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) editorFocused = focused
     }
-    val openSheet = { target: Sheet ->
-        refocus = editorFocused
-        sheet = target
-    }
+    val openSheet = { target: Sheet -> sheet = target }
     val softKeyboard = LocalSoftwareKeyboardController.current
     val density = LocalDensity.current
     val imeInsets = WindowInsets.ime
@@ -231,32 +222,22 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     val plusPrompt = plusPromptOf(state)
     // 사용자가 연 창이 먼저. 권유는 다른 창이 없을 때 한 장씩
     val othersOpen = sheet != null || state.resume != null || askDiscard || askDiscardHere || cameraOff
-    // Plus 화면으로 가면 남아 있던 되돌리기까지 지움. 되돌리면 Plus 화면 위에 키보드가 떠 첫 뒤로 가기가 키보드 내리기에 쓰임
-    // 닫으면 누른 순간 쓰던 중이었을 때 커서와 키보드를 돌려줌
     when (val prompt = plusPrompt.takeUnless { othersOpen }) {
         is PlusPrompt.PhotoLimit -> PhotoLimitSheet(
             prompt.limit,
             onPlus = {
-                refocus = false
                 vm.photoNoticeShown()
                 actions.onPlus()
             },
-            onDismiss = {
-                refocus = refocus || prompt.writing
-                vm.photoNoticeShown()
-            }
+            onDismiss = vm::photoNoticeShown
         )
 
         is PlusPrompt.Checklist -> ChecklistPlusSheet(
             onPlus = {
-                refocus = false
                 vm.checklistPickHandled()
                 actions.onPlus()
             },
-            onDismiss = {
-                refocus = refocus || prompt.writing
-                vm.checklistPickHandled()
-            }
+            onDismiss = vm::checklistPickHandled
         )
 
         null -> Unit
@@ -292,11 +273,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
         val open = pickToOpen ?: return@LaunchedEffect
         vm.photoPickOpened()
         when {
-            open.source == PhotoSource.CAMERA && cameraAccess.blocked() -> {
-                // 창을 닫으면 누른 순간 쓰던 중이었을 때 커서와 키보드를 돌려줌
-                refocus = refocus || open.writing
-                cameraOff = true
-            }
+            open.source == PhotoSource.CAMERA && cameraAccess.blocked() -> cameraOff = true
 
             open.source == PhotoSource.CAMERA -> {
                 ExpectedLeave.mark()
@@ -310,19 +287,18 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
         }
     }
     // 누르는 순간 쓰던 중이었는지 함께 보냄. 한도 시트를 닫으면 커서와 키보드를 돌려줌
-    val openPicker: () -> Unit = remember(vm) { { vm.requestPhotos(PhotoSource.LIBRARY, writing = editorFocused) } }
-    val openCamera: () -> Unit = remember(vm) { { vm.requestPhotos(PhotoSource.CAMERA, writing = editorFocused) } }
+    val openPicker: () -> Unit = remember(vm) { { vm.requestPhotos(PhotoSource.LIBRARY) } }
+    val openCamera: () -> Unit = remember(vm) { { vm.requestPhotos(PhotoSource.CAMERA) } }
     val tools = remember(actions) {
         // 누르는 순간 쓰던 중이었는지 함께 보냄. Plus 시트가 뜨며 초점을 거둔 뒤에는 알 수 없음
         WriteTools(actions.rich, actions.colors) { text, start, end ->
-            vm.requestChecklist(ChecklistTarget(text, start, end, writing = editorFocused))
+            vm.requestChecklist(ChecklistTarget(text, start, end))
         }
     }
     LaunchedEffect(state.checklistPick) {
         when (val pick = state.checklistPick) {
             is ChecklistPick.Allowed -> {
                 tools.applyChecklist(pick.target)
-                if (pick.unlocked) refocus = refocus || pick.target.writing
                 vm.checklistPickHandled()
             }
 
@@ -867,17 +843,17 @@ private fun PlatformFile.picked() = PickedImage { write ->
 
 /** 화면 모델이 띄우는 Plus 권유. 한 번에 한 장이고 사진 한도가 먼저 */
 private sealed interface PlusPrompt {
-    data class PhotoLimit(val limit: Int, val writing: Boolean) : PlusPrompt
+    data class PhotoLimit(val limit: Int) : PlusPrompt
 
-    data class Checklist(val writing: Boolean) : PlusPrompt
+    data object Checklist : PlusPrompt
 }
 
 private fun plusPromptOf(state: WriteUiState): PlusPrompt? {
     val photo = (state.photoNotice as? PhotoNotice.Limit)?.takeIf { it.canUpgrade }
     val pick = state.checklistPick
     return when {
-        photo != null -> PlusPrompt.PhotoLimit(photo.limit, photo.writing)
-        pick is ChecklistPick.Locked -> PlusPrompt.Checklist(pick.target.writing)
+        photo != null -> PlusPrompt.PhotoLimit(photo.limit)
+        pick is ChecklistPick.Locked -> PlusPrompt.Checklist
         else -> null
     }
 }

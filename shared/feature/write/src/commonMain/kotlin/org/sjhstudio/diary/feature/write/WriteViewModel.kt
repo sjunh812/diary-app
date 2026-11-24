@@ -71,8 +71,7 @@ data class ResumeOffer(val date: LocalDate, val time: LocalTime, val preview: St
 
 /** 사진을 추가한 뒤 한 번 알릴 일 */
 sealed interface PhotoNotice {
-    /** [writing]은 사진 추가를 누른 순간 쓰던 중이었는지. 시트를 닫으면 커서와 키보드를 돌려줌 */
-    data class Limit(val limit: Int, val canUpgrade: Boolean, val writing: Boolean = false) : PhotoNotice
+    data class Limit(val limit: Int, val canUpgrade: Boolean) : PhotoNotice
 
     data object NoSpace : PhotoNotice
 
@@ -89,14 +88,14 @@ enum class PhotoSource { LIBRARY, CAMERA }
 sealed interface PhotoPick {
     data class Waiting(val source: PhotoSource) : PhotoPick
 
-    data class Open(val source: PhotoSource, val limit: Int, val writing: Boolean = false) : PhotoPick
+    data class Open(val source: PhotoSource, val limit: Int) : PhotoPick
 }
 
 /**
  * 체크리스트 도구를 누른 순간의 글과 고른 자리. 기다리는 사이 글이 바뀌면 엉뚱한 줄에 걸지 않게 견줌
  * [writing]은 그때 본문에 커서가 있었는지. Plus 시트를 닫으면 커서와 키보드를 돌려줌
  */
-data class ChecklistTarget(val text: String, val start: Int, val end: Int, val writing: Boolean = false)
+data class ChecklistTarget(val text: String, val start: Int, val end: Int)
 
 /**
  * 체크리스트 도구로 새 표시를 넣는 단계
@@ -106,8 +105,8 @@ data class ChecklistTarget(val text: String, val start: Int, val end: Int, val w
 sealed interface ChecklistPick {
     data class Waiting(val target: ChecklistTarget) : ChecklistPick
 
-    /** [unlocked]는 잠김 시트가 떠 있는 동안 Plus가 되어 시트 없이 넣는 경우. 시트가 거둔 커서를 돌려줌 */
-    data class Allowed(val target: ChecklistTarget, val unlocked: Boolean = false) : ChecklistPick
+    /** 잠김 시트가 떠 있는 동안 Plus가 되면 시트를 닫고 바로 넣음 */
+    data class Allowed(val target: ChecklistTarget) : ChecklistPick
 
     data class Locked(val target: ChecklistTarget) : ChecklistPick
 }
@@ -275,7 +274,6 @@ class WriteViewModel(
     private var photoWait: Job? = null
 
     /** 마지막으로 연 고르기 화면을 쓰던 중에 눌렀는지 */
-    private var pickedWhileWriting = false
     private var checklistWait: Job? = null
     private var lastRemoved: Instant? = null
 
@@ -297,7 +295,7 @@ class WriteViewModel(
             checklistOpen.filter { it }.collect {
                 _state.update { state ->
                     val locked = state.checklistPick as? ChecklistPick.Locked ?: return@update state
-                    state.copy(checklistPick = ChecklistPick.Allowed(locked.target, unlocked = true))
+                    state.copy(checklistPick = ChecklistPick.Allowed(locked.target))
                 }
             }
         }
@@ -540,8 +538,6 @@ class WriteViewModel(
 
     fun addPhotos(picked: List<PickedImage>) {
         if (picked.isEmpty() || _state.value.saving || _state.value.openFailed) return
-        // 넣는 사이 사진 추가를 또 눌러도 이 사진을 고를 때의 값으로
-        val writing = pickedWhileWriting
         _state.update { it.copy(addingPhotos = true) }
         val work = viewModelScope.launchSafely {
             ready.await()
@@ -552,7 +548,7 @@ class WriteViewModel(
                     watchPhotos()
                     when (val result = drafts.addPhotos(key, picked)) {
                         is AddPhotosResult.Added -> if (result.failed > 0) PhotoNotice.Unreadable else null
-                        is AddPhotosResult.LimitReached -> PhotoNotice.Limit(result.limit, result.canUpgrade, writing)
+                        is AddPhotosResult.LimitReached -> PhotoNotice.Limit(result.limit, result.canUpgrade)
                         is AddPhotosResult.NoSpace -> PhotoNotice.NoSpace
                     }
                 } catch (e: CancellationException) {
@@ -609,7 +605,7 @@ class WriteViewModel(
      * 재설치 직후 요금제를 모르면 확정될 때까지 잠깐 기다림. Plus 사용자에게 Plus 권유가 스치지 않게
      * 기다리는 동안 다시 눌러도 한 번만 엶
      */
-    fun requestPhotos(source: PhotoSource, writing: Boolean = false) {
+    fun requestPhotos(source: PhotoSource) {
         if (_state.value.photoPick != null || leaving) return
         _state.update { it.copy(photoPick = PhotoPick.Waiting(source)) }
         photoWait = viewModelScope.launchSafely(onFailure = { _state.update { it.copy(photoPick = null) } }) {
@@ -618,18 +614,17 @@ class WriteViewModel(
                 if (it.photos.size >= limit) {
                     it.copy(
                         photoPick = null,
-                        photoNotice = PhotoNotice.Limit(limit, canUpgrade = limit < PhotoLimit.PLUS, writing = writing)
+                        photoNotice = PhotoNotice.Limit(limit, canUpgrade = limit < PhotoLimit.PLUS)
                     )
                 } else {
-                    it.copy(photoPick = PhotoPick.Open(source, limit, writing))
+                    it.copy(photoPick = PhotoPick.Open(source, limit))
                 }
             }
         }
     }
 
-    /** 고르기 화면을 열었음. 고른 사진이 한도를 넘으면 그때 쓰던 중이었는지로 커서를 돌려줌 */
+    /** 고르기 화면을 열었음 */
     fun photoPickOpened() {
-        pickedWhileWriting = (_state.value.photoPick as? PhotoPick.Open)?.writing == true
         _state.update { it.copy(photoPick = null) }
     }
 
