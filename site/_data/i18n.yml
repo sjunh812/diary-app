@@ -36,19 +36,19 @@ ko:
   alt_tablet: 태블릿에서 목록과 일기를 나란히 보는 화면
   more_title: 이런 것도 돼요
   more:
-    - t: 자동 임시 저장
+    - t: 임시 저장
       d: 쓰다가 앱을 닫아도 쓰던 글이 남아 있어요.
-    - t: 휴지통 30일
+    - t: 휴지통
       d: 실수로 삭제한 일기도 30일 안에는 복원할 수 있어요.
-    - t: 글꼴 10종
-      d: 손 글씨부터 바탕체까지 마음에 드는 글꼴로 써요.
-    - t: 목록 모양 세 가지
+    - t: 글꼴
+      d: 손글씨부터 바탕체까지 10가지 글꼴 중에서 골라요.
+    - t: 목록 모양
       d: 피드, 카드, 사진 격자 중에서 골라봐요.
     - t: 글 서식
-      d: 굵게, 글자 색, 형광펜, 목록으로 글을 정리해요.
+      d: 굵게, 글자 색, 형광펜, 목록을 쓸 수 있어요.
     - t: 다크 모드
       d: 밤에도 눈부시지 않게 어두운 화면으로 써요.
-  trust_title: 내 일기는 나만 봐요
+  trust_title: 일기는 나만 봐요
   trust1_title: 개발자도 볼 수 없어요
   trust1_body: 일기를 모아두는 서버가 없어요. 일기와 사진은 이 기기와 내 구글 드라이브에만 있어요.
   trust2_title: 회원가입이 없어요
@@ -108,16 +108,16 @@ en:
   alt_tablet: List and entry side by side on a tablet
   more_title: And a few more things
   more:
-    - t: Auto-saved drafts
+    - t: Drafts
       d: Close the app mid-sentence and your draft is still there.
-    - t: 30-day Trash
+    - t: Trash
       d: Deleted an entry by mistake? Restore it within 30 days.
-    - t: 10 fonts
-      d: Write in a font you like, from handwriting to serif.
-    - t: Three list styles
+    - t: Fonts
+      d: Pick from 10 fonts, from handwriting to serif.
+    - t: List styles
       d: Choose a feed, cards, or a photo grid.
     - t: Formatting
-      d: Organize your writing with bold, text color, highlights, and lists.
+      d: Use bold, text color, highlights, and lists.
     - t: Dark mode
       d: Easy on the eyes at night.
   trust_title: Your diary is yours alone
@@ -178,16 +178,16 @@ ja:
   alt_tablet: タブレットで一覧と日記を並べて表示した画面
   more_title: ほかにもこんなことができます
   more:
-    - t: 自動で下書き保存
+    - t: 下書き保存
       d: 書いている途中でアプリを閉じても、書きかけの文章は残ります。
-    - t: ゴミ箱は30日間
+    - t: ゴミ箱
       d: うっかり削除した日記も、30日以内なら復元できます。
-    - t: フォント10種類
-      d: 手書き風から明朝体まで、好きなフォントで書けます。
-    - t: 3つの一覧表示
+    - t: フォント
+      d: 手書き風から明朝体まで、10種類のフォントから選べます。
+    - t: 一覧表示
       d: フィード、カード、写真グリッドから選べます。
     - t: 文字の装飾
-      d: 太字、文字色、マーカー、リストで文章を整えられます。
+      d: 太字、文字色、マーカー、リストが使えます。
     - t: ダークモード
       d: 夜でもまぶしくない暗い画面で使えます。
   trust_title: 日記は自分だけのもの
