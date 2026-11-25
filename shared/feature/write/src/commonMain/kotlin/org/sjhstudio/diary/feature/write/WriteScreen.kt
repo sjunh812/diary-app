@@ -174,15 +174,14 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     val cameraAccess = rememberCameraAccess()
     var cameraOff by remember { mutableStateOf(false) }
     // 시트·대화상자가 뜰 때 키보드는 그 부품이 내림(DismissBehindKeyboard)
-    // 키보드가 다 내려가길 기다리지 않고 바로 띄움
     var editorFocused by rememberSaveable { mutableStateOf(false) }
-    // 회전이나 앱 종료처럼 시스템이 화면을 다시 만들면 초점이 사라짐. 쓰던 중이었으면 다시 만든 화면에서 돌려줌
-    // 시트·권유·창을 닫은 뒤에는 돌려주지 않음. 닫으면 키보드는 내려간 채이고 본문을 누르면 이어 씀
+    // 시스템이 다시 만든 화면(회전, 앱 종료 뒤 복귀)에서만 쓰던 커서 돌려줌
+    // 시트·권유·창·잠금을 거친 뒤에는 안 돌려줌. 본문을 누르면 이어 씀
     var refocus by remember { mutableStateOf(editorFocused) }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    // 화면을 다시 만들려고 내려가며 잃는 초점은 기억하지 않음
+    // 화면이 없어지며 잃는 초점은 기억 안 함
     val onEditorFocus = { focused: Boolean ->
-        if (focused || lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) editorFocused = focused
+        if (lifecycle.currentState != Lifecycle.State.DESTROYED) editorFocused = focused
     }
     val openSheet = { target: Sheet -> sheet = target }
     val softKeyboard = LocalSoftwareKeyboardController.current
@@ -302,9 +301,10 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     }
     // 새 글을 열 때, 화면을 다시 만든 뒤 쓰던 중이었을 때 커서와 키보드를 줌
     // 편집기가 입력을 받을 수 있게 된 뒤에 편집기 쪽에서 줌
-    // 시트·권유·창이 덮고 있는 동안에는 주지 않고 닫힌 뒤에 줌
     val covered = othersOpen || plusPrompt != null
-    val wantsFocus = (refocus && !covered) || (!autoFocused && state.resume == null && !state.isEdit)
+    // 돌려줄 커서는 시트·권유·창이 덮으면 버림. 새 글 첫 커서만 닫힌 뒤에 줌
+    LaunchedEffect(covered) { if (covered) refocus = false }
+    val wantsFocus = !covered && (refocus || (!autoFocused && state.resume == null && !state.isEdit))
     val editorInput =
         remember(wantsFocus) {
             EditorInputState(wantsFocus) {

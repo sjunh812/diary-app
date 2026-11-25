@@ -67,11 +67,11 @@ class WriteRouteUiTest {
         viewModel: WriteViewModel,
         target: WriteTarget = WriteTarget.Edit("e1"),
         dark: () -> Boolean = { false },
-        lifecycle: Owner = Owner(),
+        lifecycle: () -> Owner = { Owner() },
         shown: () -> Boolean
     ) {
         setContent {
-            CompositionLocalProvider(LocalUIViewController provides UIViewController(), LocalLifecycleOwner provides lifecycle) {
+            CompositionLocalProvider(LocalUIViewController provides UIViewController(), LocalLifecycleOwner provides lifecycle()) {
                 DiaryTheme(darkTheme = dark()) {
                     val holder = rememberSaveableStateHolder()
                     if (shown()) {
@@ -203,27 +203,91 @@ class WriteRouteUiTest {
         onAllNodes(hasSetTextAction())[0].assertIsNotFocused()
     }
 
-    /** 쓰던 중 시스템이 화면을 다시 만들면(회전) 커서를 돌려줌. 화면이 멈춘 뒤 내려가며 잃는 초점은 기억하지 않음 */
-    @Test
-    fun rotating_while_writing_keeps_the_cursor() = runComposeUiTest {
-        val key = DraftKey.Edit("e1")
-        val repository = FakeDraftRepository(editable = mapOf("e1" to draft(key, "<p>옛 글</p>")))
-        val viewModel = testWriteViewModel(WriteTarget.Edit("e1"), repository, timeZone = TimeZone.UTC)
-        val owner = Owner()
-        var shown by mutableStateOf(true)
-        showWrite(viewModel, lifecycle = owner) { shown }
+    private fun ComposeUiTest.typeIntoEdit(viewModel: WriteViewModel, owner: () -> Owner, shown: () -> Boolean) {
+        showWrite(viewModel, lifecycle = owner, shown = shown)
         onAllNodes(hasSetTextAction())[0].performTextInput("새 ")
         waitForIdle()
         onAllNodes(hasSetTextAction())[0].assertIsFocused()
+    }
 
-        owner.registry.currentState = Lifecycle.State.CREATED
+    private fun editViewModel(): WriteViewModel {
+        val key = DraftKey.Edit("e1")
+        val repository = FakeDraftRepository(editable = mapOf("e1" to draft(key, "<p>옛 글</p>")))
+        return testWriteViewModel(WriteTarget.Edit("e1"), repository, timeZone = TimeZone.UTC)
+    }
+
+    /** 쓰던 중 시스템이 화면을 다시 만들면(회전) 커서를 돌려줌. 없어지는 화면이 잃는 초점은 기억 안 함 */
+    @Test
+    fun rotating_while_writing_keeps_the_cursor() = runComposeUiTest {
+        val viewModel = editViewModel()
+        var owner by mutableStateOf(Owner())
+        var shown by mutableStateOf(true)
+        typeIntoEdit(viewModel, { owner }) { shown }
+
+        owner.registry.currentState = Lifecycle.State.DESTROYED
+        shown = false
+        waitForIdle()
+        owner = Owner()
+        shown = true
+        waitForIdle()
+
+        onAllNodes(hasSetTextAction())[0].assertIsFocused()
+    }
+
+    /** 잠금처럼 화면이 살아 있는 채 치웠다 다시 그리면 커서를 돌려주지 않음 */
+    @Test
+    fun coming_back_from_the_lock_screen_does_not_raise_the_keyboard() = runComposeUiTest {
+        val viewModel = editViewModel()
+        val owner = Owner()
+        var shown by mutableStateOf(true)
+        typeIntoEdit(viewModel, { owner }) { shown }
+
+        owner.registry.currentState = Lifecycle.State.STARTED
         shown = false
         waitForIdle()
         shown = true
         owner.registry.currentState = Lifecycle.State.RESUMED
         waitForIdle()
 
-        onAllNodes(hasSetTextAction())[0].assertIsFocused()
+        onAllNodes(hasSetTextAction())[0].assertIsNotFocused()
+    }
+
+    /** 쓰던 중 Plus 권유가 뜨면 커서를 거두고, 닫아도 돌려주지 않음 */
+    @Test
+    fun closing_a_plus_prompt_does_not_raise_the_keyboard() = runComposeUiTest {
+        val viewModel = editViewModel()
+        val owner = Owner()
+        typeIntoEdit(viewModel, { owner }) { true }
+
+        viewModel.requestChecklist(ChecklistTarget(editorText(), 0, 0))
+        waitForIdle()
+        onAllNodes(hasSetTextAction())[0].assertIsNotFocused()
+
+        viewModel.checklistPickHandled()
+        waitForIdle()
+        onAllNodes(hasSetTextAction())[0].assertIsNotFocused()
+    }
+
+    /** 다시 만든 화면을 권유가 덮고 있으면 돌려줄 커서를 버림. 닫아도 키보드가 올라오지 않음 */
+    @Test
+    fun a_prompt_over_the_recreated_screen_drops_the_cursor() = runComposeUiTest {
+        val viewModel = editViewModel()
+        var owner by mutableStateOf(Owner())
+        var shown by mutableStateOf(true)
+        typeIntoEdit(viewModel, { owner }) { shown }
+
+        owner.registry.currentState = Lifecycle.State.DESTROYED
+        shown = false
+        waitForIdle()
+        viewModel.requestChecklist(ChecklistTarget("", 0, 0))
+        waitUntil { viewModel.state.value.checklistPick is ChecklistPick.Locked }
+        owner = Owner()
+        shown = true
+        waitForIdle()
+        viewModel.checklistPickHandled()
+        waitForIdle()
+
+        onAllNodes(hasSetTextAction())[0].assertIsNotFocused()
     }
 
     /** 쓰는 중 테마가 바뀌어도 고르던 범위가 그대로 남음 */
