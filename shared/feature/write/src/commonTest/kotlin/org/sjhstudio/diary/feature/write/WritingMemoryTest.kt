@@ -99,4 +99,13 @@ class WritingMemoryTest {
         assertFalse(memory.writing)
         assertFalse(memory.restore())
     }
+
+    /** 대기 중이 아니면 덮개가 떠도 쓰던 기록을 지우지 않음. 초점이 풀리며 기록이 바뀜 */
+    @Test
+    fun dropping_without_waiting_keeps_the_record() {
+        val memory = WritingMemory()
+        memory.update(focused = true, imeVisible = true)
+        memory.drop()
+        assertTrue(memory.writing)
+    }
 }

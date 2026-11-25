@@ -1,5 +1,9 @@
 package org.sjhstudio.diary.feature.write
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+
 /**
  * 재생성된 쓰기 화면에 커서와 키보드를 돌려줄지
  * 본문에 커서가 있는 동안 화면 키보드가 보이다 사라지면 사용자가 내린 것으로 봄
@@ -10,7 +14,10 @@ internal class WritingMemory {
         private set
     private var imeWasVisible = false
     private var dismissed = false
-    private var waiting = false
+
+    /** 돌려줄 커서가 대기 중인지. 화면이 읽어 대기가 끝나면 다시 그림 */
+    var waiting by mutableStateOf(false)
+        private set
 
     /**
      * 화면을 새로 만들 때 한 번 부름. 쓰던 중이었으면 돌려줄 커서를 대기로 둠
@@ -31,6 +38,7 @@ internal class WritingMemory {
 
     /** 시트·권유·창이 덮어 돌려줄 커서를 버릴 때. 닫은 뒤 다시 돌려도 안 돌려줌 */
     fun drop() {
+        if (!waiting) return
         waiting = false
         writing = false
     }
