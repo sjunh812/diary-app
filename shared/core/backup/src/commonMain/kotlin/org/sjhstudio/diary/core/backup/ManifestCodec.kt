@@ -26,7 +26,12 @@ data class Manifest(
 ) {
     companion object {
         const val FORMAT = "org.sjhstudio.diary.backup"
-        const val FORMAT_VERSION = 2
+
+        /** 이 앱이 읽을 수 있는 가장 새 형식이자 드라이브 백업의 형식. 3부터 스냅샷을 gzip으로 올림 */
+        const val FORMAT_VERSION = 3
+
+        /** 묶음 파일 형식. 스냅샷을 그대로 담아 옛 앱도 읽게 2로 둠 */
+        const val BUNDLE_FORMAT_VERSION = 2
 
         /** 이 앱이 읽을 수 있는 스냅샷 DB 버전 */
         // 스냅샷에 든 표의 판
@@ -41,8 +46,22 @@ data class ManifestApp(val versionName: String = "", val versionCode: Int = 0, v
 @Serializable
 data class ManifestDevice(val id: String = "", val name: String = "")
 
+/**
+ * [byteSize]와 [sha256]은 올린 파일 그대로의 값이라 드라이브 확인값과 견줌
+ * [encoding]이 gzip이면 풀어서 열고, 없으면 그대로 연 SQLite 파일
+ */
 @Serializable
-data class ManifestSnapshot(val fileName: String = "", val byteSize: Long = 0, val sha256: String = "", val dbVersion: Int = 0)
+data class ManifestSnapshot(
+    val fileName: String = "",
+    val byteSize: Long = 0,
+    val sha256: String = "",
+    val dbVersion: Int = 0,
+    val encoding: String? = null
+) {
+    companion object {
+        const val GZIP = "gzip"
+    }
+}
 
 @Serializable
 data class ManifestCounts(
@@ -109,8 +128,16 @@ object ManifestCodec {
     }
 }
 
+/**
+ * 밖으로 내보내는 스냅샷 파일
+ * 드라이브는 줄인 파일, 묶음 파일은 원래 파일
+ */
+data class UploadedSnapshot(val fileName: String, val hashes: FileHashes, val encoding: String?)
+
 /** 드라이브 목록 파일과 묶음 파일의 `manifest.json`을 같은 모양으로 만듦 */
 internal fun manifestOf(
+    formatVersion: Int,
+    uploaded: UploadedSnapshot,
     now: Instant,
     timeZone: TimeZone,
     app: BackupAppInfo,
@@ -122,11 +149,13 @@ internal fun manifestOf(
     inBackup: Set<String>,
     settings: ManifestSettings
 ) = Manifest(
+    formatVersion = formatVersion,
     createdAt = now.toEpochMilliseconds(),
     timeZone = timeZone.id,
     app = ManifestApp(app.versionName, app.versionCode, app.platform),
     device = ManifestDevice(deviceId, deviceName),
-    snapshot = ManifestSnapshot(snapshot.path.name, snapshot.hashes.byteSize, snapshot.hashes.sha256, Manifest.MAX_DB_VERSION),
+    snapshot =
+        ManifestSnapshot(uploaded.fileName, uploaded.hashes.byteSize, uploaded.hashes.sha256, Manifest.MAX_DB_VERSION, uploaded.encoding),
     counts = ManifestCounts(snapshot.entries, snapshot.entriesInTrash, snapshot.mediaRows, snapshot.mediaMissing, snapshot.mediaPending),
     media =
         (local + pending).distinctBy { it.sha256 }.map {

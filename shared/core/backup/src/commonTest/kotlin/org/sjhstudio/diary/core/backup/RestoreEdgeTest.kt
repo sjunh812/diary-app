@@ -472,7 +472,7 @@ class RestoreEdgeTest {
         b.write("mine")
         val full = object : DriveApi by drive {
             override suspend fun download(fileId: String, to: Path, fromByte: Long): Long {
-                if (to.name.endsWith(".db")) throw IOException("저장 공간이 없다")
+                if (to.name.isSnapshotFile()) throw IOException("저장 공간이 없다")
                 return drive.download(fileId, to, fromByte)
             }
         }
@@ -887,10 +887,13 @@ private class CountingDrive(private val real: DriveApi) : DriveApi by real {
     }
 }
 
+/** 형식 2는 `.db`, 형식 3은 `.db.gz`로 받음 */
+private fun String.isSnapshotFile() = endsWith(".db") || endsWith(".db.gz")
+
 /** 스냅샷을 받을 때만 끊김 */
 private class CutOnlySnapshot(private val real: DriveApi) : DriveApi by real {
     override suspend fun download(fileId: String, to: Path, fromByte: Long): Long {
-        if (to.name.endsWith(".db")) throw DriveNotFound()
+        if (to.name.isSnapshotFile()) throw DriveNotFound()
         return real.download(fileId, to, fromByte)
     }
 }

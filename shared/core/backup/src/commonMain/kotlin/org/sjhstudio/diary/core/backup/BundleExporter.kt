@@ -68,6 +68,8 @@ class BundleExporter(
             val inBundle = local.mapTo(HashSet()) { it.sha256 }
             val manifest =
                 manifestOf(
+                    formatVersion = Manifest.BUNDLE_FORMAT_VERSION,
+                    uploaded = UploadedSnapshot(SNAPSHOT, snapshot.hashes, encoding = null),
                     now = clock.now(),
                     timeZone = timeZone(),
                     app = app,

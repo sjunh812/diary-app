@@ -261,8 +261,9 @@ class BackupRunner(
         val local = now.toLocalDateTime(timeZone())
         val base = snapshotBaseName(stamp(local), deviceName.current(), deviceId)
         val snapshot = SnapshotWriter(db, fileSystem).write(workDir / OUTGOING / "$base.db")
+        val packed = pack(snapshot, base)
 
-        val photos = sendPhotos(snapshot, folders, account, now, cellularOnce)
+        val photos = sendPhotos(packed, folders, account, now, cellularOnce)
         // 사진을 더 올리지 못했고 글도 그대로면 같은 내용 백업
         if (automatic && photos.uploaded.isEmpty() && sameAsLastBackup(store.current(), fingerprint)) {
             store.update {
@@ -272,8 +273,8 @@ class BackupRunner(
             return BackupOutcome.Unchanged
         }
 
-        val snapshotFile = sendSnapshot(snapshot, folders, deviceId)
-        sendManifest(base, snapshot, photos, folders, deviceId, now)
+        val snapshotFile = sendSnapshot(packed, folders, deviceId)
+        sendManifest(base, snapshot, packed, photos, folders, deviceId, now)
 
         step(BackupStep.Verifying)
         check(snapshotFile.id.isNotEmpty())
@@ -336,7 +337,7 @@ class BackupRunner(
     )
 
     private suspend fun sendPhotos(
-        snapshot: Snapshot,
+        packed: UploadedSnapshot,
         folders: DriveFolders,
         account: DriveAccount,
         now: Instant,
@@ -360,7 +361,7 @@ class BackupRunner(
         val missing = local.filter { it.sha256 !in driveHashes && it.fileName != null }
         val allowed = cellularOnce || mayUploadPhotos(store.current().photosOnCellular)
         val quotaLimit = drive.about().free
-        val reserve = snapshot.hashes.byteSize + MANIFEST_RESERVE
+        val reserve = packed.hashes.byteSize + MANIFEST_RESERVE
         if (quotaLimit != null && quotaLimit < reserve) {
             store.update { it.copy(bytesShort = reserve - quotaLimit) }
             throw DriveException(BackupFailure.NO_SPACE)
@@ -389,18 +390,26 @@ class BackupRunner(
         )
     }
 
-    private suspend fun sendSnapshot(snapshot: Snapshot, folders: DriveFolders, deviceId: String): DriveFile {
+    /** 뜬 스냅샷을 드라이브에 올릴 파일로 줄임 */
+    private fun pack(snapshot: Snapshot, base: String): UploadedSnapshot {
+        val path = workDir / OUTGOING / "$base$PACKED_SUFFIX"
+        fileSystem.gzip(snapshot.path, path)
+        return UploadedSnapshot(path.name, fileSystem.hashes(path), ManifestSnapshot.GZIP)
+    }
+
+    private suspend fun sendSnapshot(packed: UploadedSnapshot, folders: DriveFolders, deviceId: String): DriveFile {
         step(BackupStep.UploadingSnapshot)
         return upload(
-            snapshot.path,
-            NewFile(snapshot.path.name, folders.snapshots, "application/x-sqlite3", deviceProps(DriveLayout.KIND_SNAPSHOT, deviceId)),
-            snapshot.hashes
+            workDir / OUTGOING / packed.fileName,
+            NewFile(packed.fileName, folders.snapshots, "application/gzip", deviceProps(DriveLayout.KIND_SNAPSHOT, deviceId)),
+            packed.hashes
         )
     }
 
     private suspend fun sendManifest(
         base: String,
         snapshot: Snapshot,
+        packed: UploadedSnapshot,
         photos: PhotoRound,
         folders: DriveFolders,
         deviceId: String,
@@ -409,7 +418,20 @@ class BackupRunner(
         step(BackupStep.UploadingManifest)
         val pending = db.backupDao().pendingFiles()
         val manifest =
-            manifestOf(now, timeZone(), app, deviceId, deviceName.current(), snapshot, photos.local, pending, photos.inBackup, settings())
+            manifestOf(
+                Manifest.FORMAT_VERSION,
+                packed,
+                now,
+                timeZone(),
+                app,
+                deviceId,
+                deviceName.current(),
+                snapshot,
+                photos.local,
+                pending,
+                photos.inBackup,
+                settings()
+            )
         val manifestPath = workDir / OUTGOING / "$base.json"
         fileSystem.write(manifestPath) { writeUtf8(ManifestCodec.encode(manifest)) }
         upload(
@@ -595,15 +617,18 @@ class BackupRunner(
             }
         for (name in RetentionPolicy.toDelete(backups)) {
             manifests.firstOrNull { it.name == "$name.json" }?.let { drive.trash(it.id) }
-            snapshots.firstOrNull { it.name == "$name.db" }?.let { drive.trash(it.id) }
+            snapshots.filter { snapshotBase(it.name) == name }.forEach { drive.trash(it.id) }
         }
         // 목록 파일 없이 7일 넘게 남은 스냅샷은 끊긴 백업
         val named = manifests.map { it.name.removeSuffix(".json") }.toSet()
         val cutoff = (now - 7.days).toEpochMilliseconds()
-        snapshots.filter { it.name.removeSuffix(".db") !in named && it.createdAt < cutoff }.forEach { drive.trash(it.id) }
+        snapshots.filter { snapshotBase(it.name) !in named && it.createdAt < cutoff }.forEach { drive.trash(it.id) }
         // 가장 덜 급한 정리라 맨 끝. 실패해도 위의 보관 정리는 끝남
         damaged.forEach { drive.trash(it.id) }
     }
+
+    /** 형식 2(`.db`)와 3(`.db.gz`) 스냅샷이 같은 백업 이름을 가리키게 함 */
+    private fun snapshotBase(name: String): String = name.removeSuffix(PACKED_SUFFIX).removeSuffix(".db")
 
     private fun stamp(t: LocalDateTime): String {
         fun two(value: Int) = value.toString().padStart(2, '0')
@@ -621,6 +646,9 @@ class BackupRunner(
 
     internal companion object {
         const val OUTGOING = "outgoing"
+
+        /** 형식 3의 줄인 스냅샷. 형식 2는 `.db` 그대로 */
+        const val PACKED_SUFFIX = ".db.gz"
         const val MANIFEST_RESERVE = 1024L * 1024
 
         /** 이어 올리기 세션을 다시 여는 횟수 */

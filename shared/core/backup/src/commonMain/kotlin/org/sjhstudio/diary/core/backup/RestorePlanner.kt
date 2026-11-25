@@ -99,10 +99,47 @@ class RestorePlanner(
         fileSystem.createDirectories(incoming)
         // 다른 기기가 지은 이름에는 SQLite가 열지 못하는 글자가 있을 수 있어 받을 때는 이름을 정해 둠
         val path = incoming / BundleExporter.SNAPSHOT
+        val received = if (isPacked(manifest)) incoming / PACKED else path
         // 백업을 권할지 보려고 막 받아 둔 같은 스냅샷이면 다시 받지 않음
         // 확인값이 같아야만 쓰고, 합치기 계획은 지금 기기의 일기로 새로 짬
-        if (!alreadyHere(path, manifest.snapshot.sha256)) drive.download(file.id, path)
-        return checked(manifest, path)
+        if (!alreadyHere(received, manifest.snapshot.sha256)) drive.download(file.id, received)
+        verify(received, manifest.snapshot.sha256)
+        return opened(manifest, received, path)
+    }
+
+    /** 받지 않을 백업이면 받은 파일도 남기지 않음 */
+    private suspend fun opened(manifest: Manifest, received: Path, path: Path): PreparedRestore = try {
+        if (received != path) unpack(received, path)
+        checked(manifest, path)
+    } catch (e: RestoreMismatch) {
+        fileSystem.delete(received, mustExist = false)
+        throw e
+    }
+
+    /**
+     * 형식 3은 줄인 파일을 받아 확인값을 본 뒤 풂. 형식 2는 받은 파일을 그대로 엶
+     * 모르는 방식은 더 새 앱이 만든 것
+     */
+    private fun isPacked(manifest: Manifest): Boolean = when (manifest.snapshot.encoding) {
+        null -> false
+        ManifestSnapshot.GZIP -> true
+        else -> throw RestoreNeedsUpdate()
+    }
+
+    /** 확인값이 다르면 받은 파일을 지우고 멈춤 */
+    private fun verify(path: Path, sha256: String) {
+        if (fileSystem.hashes(path).sha256 == sha256) return
+        fileSystem.delete(path, mustExist = false)
+        throw RestoreMismatch()
+    }
+
+    /** 확인값은 맞는데 풀리지 않으면 깨진 백업으로 봄 */
+    private fun unpack(packed: Path, to: Path) {
+        try {
+            fileSystem.gunzip(packed, to)
+        } catch (_: IOException) {
+            throw RestoreMismatch()
+        }
     }
 
     private fun alreadyHere(path: Path, sha256: String): Boolean = fileSystem.exists(path) && fileSystem.hashes(path).sha256 == sha256
@@ -113,11 +150,14 @@ class RestorePlanner(
         val root = "/".toPath()
         val text = archive.read(root / BundleExporter.MANIFEST) { readUtf8() }
         val manifest = readable(ManifestCodec.decode(text))
+        // 묶음 파일은 스냅샷을 그대로 담음
+        if (manifest.snapshot.encoding != null) throw RestoreMismatch()
         val incoming = workDir / INCOMING
         fileSystem.createDirectories(incoming)
         val path = incoming / BundleExporter.SNAPSHOT
         fileSystem.delete(path, mustExist = false)
         archive.source(root / BundleExporter.SNAPSHOT).use { source -> fileSystem.write(path) { writeAll(source) } }
+        verify(path, manifest.snapshot.sha256)
         return checked(manifest, path).copy(bundle = zip)
     }
 
@@ -131,11 +171,8 @@ class RestorePlanner(
         ManifestCheck.BROKEN -> throw RestoreMismatch()
     }
 
+    /** 확인값을 본 뒤 연 스냅샷의 일기 수와 줄을 확인 */
     private suspend fun checked(manifest: Manifest, path: Path): PreparedRestore {
-        if (fileSystem.hashes(path).sha256 != manifest.snapshot.sha256) {
-            fileSystem.delete(path, mustExist = false)
-            throw RestoreMismatch()
-        }
         val entries = SnapshotReader.read(path)
         val namesOk = entries.all { entry -> entry.media.all { row -> row.fileName?.let { RestoreNames.isPhoto(it, row.sha256) } ?: true } }
         // 날짜나 시각을 읽을 수 없는 줄이 있으면 통째로 받지 않음. 넣고 나면 목록을 읽지 못함
@@ -179,6 +216,7 @@ class RestorePlanner(
 
     private companion object {
         const val INCOMING = "incoming"
+        const val PACKED = "snapshot.db.gz"
     }
 }
 
