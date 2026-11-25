@@ -73,6 +73,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.currentStateAsState
 import com.mohamedrejeb.richeditor.model.RichTextState
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.dialogs.FileKitMode
@@ -173,15 +174,13 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     val cameraAccess = rememberCameraAccess()
     var cameraOff by remember { mutableStateOf(false) }
     val openSheet = { target: Sheet -> sheet = target }
-    // 재생성으로 다시 만든 화면만 쓰던 커서 돌려줌
+    // 재생성된 화면은 키보드를 띄우고 쓰던 중이었을 때만 커서와 키보드 돌려줌
+    // 키보드를 내렸으면 다른 일로 넘어간 것이라 안 돌려줌
     // retain이라 잠금으로 치워지거나 앱이 종료되면 사라짐
-    var editorFocused by retain { mutableStateOf(false) }
-    var refocus by remember { mutableStateOf(editorFocused) }
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-    // 다시 만들려고 없어지는 화면이 잃는 초점은 기억 안 함
-    val onEditorFocus = { focused: Boolean ->
-        if (lifecycle.currentState != Lifecycle.State.DESTROYED) editorFocused = focused
-    }
+    var writing by retain { mutableStateOf(false) }
+    var refocus by remember { mutableStateOf(writing) }
+    var editorHasFocus by remember { mutableStateOf(false) }
+    val resumed = LocalLifecycleOwner.current.lifecycle.currentStateAsState().value.isAtLeast(Lifecycle.State.RESUMED)
     val softKeyboard = LocalSoftwareKeyboardController.current
     val density = LocalDensity.current
     val imeInsets = WindowInsets.ime
@@ -208,6 +207,11 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     // 쓰는 동안에는 자리를 차지하지 않게 키보드가 내려갔을 때만 보임
     // 키보드가 움직이는 프레임마다 다시 그리지 않게 보임 여부가 바뀔 때만 읽음
     val imeHidden by remember(imeInsets, density) { derivedStateOf { imeInsets.getBottom(density) == 0 } }
+    // 앱이 앞에 있을 때만 기록
+    // 재생성으로 내려가며 바뀌는 초점과 키보드는 기록 안 함
+    LaunchedEffect(editorHasFocus, imeHidden, resumed) {
+        if (resumed) writing = editorHasFocus && !imeHidden
+    }
     val discardRow: @Composable () -> Unit = {
         if (state.canDiscard && imeHidden) DiscardButton(state.isEdit) { askDiscardHere = true }
     }
@@ -363,7 +367,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                                             geometry,
                                             wantsFocus,
                                             onAutoFocus,
-                                            Modifier.fillMaxWidth().onFocusChanged { onEditorFocus(it.hasFocus) }
+                                            Modifier.fillMaxWidth().onFocusChanged { editorHasFocus = it.hasFocus }
                                         )
                                     }
                                 }
