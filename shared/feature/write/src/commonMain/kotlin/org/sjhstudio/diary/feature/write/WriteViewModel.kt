@@ -637,6 +637,18 @@ class WriteViewModel(
     /** 화면이 표시를 넣었거나 Plus 시트를 열었음 */
     fun checklistPickHandled() = _state.update { it.copy(checklistPick = null) }
 
+    /**
+     * 본문에 초점이 있었는지
+     * 화면 모델은 회전 같은 재생성에서 살아남고 앱 종료 뒤에는 남지 않아 여기 둠
+     * 다시 만든 화면만 이 값으로 쓰던 커서를 돌려줌
+     */
+    var editorFocused: Boolean = false
+        private set
+
+    fun onEditorFocus(focused: Boolean) {
+        editorFocused = focused
+    }
+
     private fun dropWaitingPicks() {
         photoWait?.cancel()
         checklistWait?.cancel()

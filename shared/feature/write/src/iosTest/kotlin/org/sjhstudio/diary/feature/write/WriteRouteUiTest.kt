@@ -23,8 +23,12 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.uikit.LocalUIViewController
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -51,6 +55,11 @@ import platform.UIKit.UIViewController
 // 화면 모델은 돌리기에서 살아남으니 밖에 둠
 @OptIn(ExperimentalTestApi::class)
 class WriteRouteUiTest {
+    private class Owner : LifecycleOwner {
+        val registry = LifecycleRegistry.createUnsafe(this).apply { currentState = Lifecycle.State.RESUMED }
+        override val lifecycle: Lifecycle get() = registry
+    }
+
     private fun draft(key: DraftKey, body: String) =
         Draft(key, LocalDate(2026, 11, 1), LocalTime(9, 0), body, null, null, null, false, false, Clock.System.now())
 
@@ -59,16 +68,17 @@ class WriteRouteUiTest {
         return node.config[SemanticsProperties.EditableText].text
     }
 
-    /** 화면을 돌리는 흉내. 컴포지션을 없앴다가 저장해 둔 상태로 다시 만듦 */
+    /** 화면을 다시 그리는 흉내(회전·잠금). 컴포지션을 없앴다가 저장해 둔 상태로 다시 만듦 */
     private fun ComposeUiTest.showWrite(
         viewModel: WriteViewModel,
         target: WriteTarget = WriteTarget.Edit("e1"),
         dark: () -> Boolean = { false },
         width: () -> Dp = { 390.dp },
+        lifecycle: () -> Owner = { Owner() },
         shown: () -> Boolean
     ) {
         setContent {
-            CompositionLocalProvider(LocalUIViewController provides UIViewController()) {
+            CompositionLocalProvider(LocalUIViewController provides UIViewController(), LocalLifecycleOwner provides lifecycle()) {
                 DiaryTheme(darkTheme = dark()) {
                     val holder = rememberSaveableStateHolder()
                     if (shown()) {
@@ -202,8 +212,14 @@ class WriteRouteUiTest {
         onAllNodes(hasSetTextAction())[0].assertIsNotFocused()
     }
 
-    private fun ComposeUiTest.typeIntoEdit(viewModel: WriteViewModel, width: () -> Dp = { 390.dp }, shown: () -> Boolean) {
-        showWrite(viewModel, width = width, shown = shown)
+    private fun ComposeUiTest.typeInto(
+        viewModel: WriteViewModel,
+        target: WriteTarget = WriteTarget.Edit("e1"),
+        width: () -> Dp = { 390.dp },
+        owner: () -> Owner = { Owner() },
+        shown: () -> Boolean
+    ) {
+        showWrite(viewModel, target = target, width = width, lifecycle = owner, shown = shown)
         onAllNodes(hasSetTextAction())[0].performTextInput("새 ")
         waitForIdle()
         onAllNodes(hasSetTextAction())[0].assertIsFocused()
@@ -215,12 +231,34 @@ class WriteRouteUiTest {
         return testWriteViewModel(WriteTarget.Edit("e1"), repository, timeZone = TimeZone.UTC)
     }
 
+    private val newTarget = WriteTarget.New(LocalDate(2026, 11, 1))
+
+    private fun newViewModel() = testWriteViewModel(newTarget, FakeDraftRepository(), timeZone = TimeZone.UTC)
+
+    /** 쓰던 중 회전으로 화면을 다시 만들면 커서를 돌려줌. 없어지는 화면이 잃는 초점은 기억 안 함 */
+    @Test
+    fun rotating_while_writing_keeps_the_cursor() = runComposeUiTest {
+        val viewModel = editViewModel()
+        var owner by mutableStateOf(Owner())
+        var shown by mutableStateOf(true)
+        typeInto(viewModel, owner = { owner }) { shown }
+
+        owner.registry.currentState = Lifecycle.State.DESTROYED
+        shown = false
+        waitForIdle()
+        owner = Owner()
+        shown = true
+        waitForIdle()
+
+        onAllNodes(hasSetTextAction())[0].assertIsFocused()
+    }
+
     /** 쓰다가 아이패드를 돌리거나 폴더블을 펴 두 칸으로 바뀌어도 커서가 남음 */
     @Test
     fun switching_to_two_panes_keeps_the_cursor() = runComposeUiTest {
         val viewModel = editViewModel()
         var width by mutableStateOf(390.dp)
-        typeIntoEdit(viewModel, { width }) { true }
+        typeInto(viewModel, width = { width }) { true }
 
         width = 1024.dp
         waitForIdle()
@@ -236,7 +274,22 @@ class WriteRouteUiTest {
     fun coming_back_from_the_lock_screen_does_not_raise_the_keyboard() = runComposeUiTest {
         val viewModel = editViewModel()
         var shown by mutableStateOf(true)
-        typeIntoEdit(viewModel) { shown }
+        typeInto(viewModel) { shown }
+
+        shown = false
+        waitForIdle()
+        shown = true
+        waitForIdle()
+
+        onAllNodes(hasSetTextAction())[0].assertIsNotFocused()
+    }
+
+    /** 새 일기도 잠금처럼 치웠다 다시 그리면 커서를 다시 주지 않음 */
+    @Test
+    fun a_new_entry_coming_back_from_the_lock_screen_does_not_raise_the_keyboard() = runComposeUiTest {
+        val viewModel = newViewModel()
+        var shown by mutableStateOf(true)
+        typeInto(viewModel, target = newTarget) { shown }
 
         shown = false
         waitForIdle()
@@ -250,7 +303,7 @@ class WriteRouteUiTest {
     @Test
     fun closing_a_plus_prompt_does_not_raise_the_keyboard() = runComposeUiTest {
         val viewModel = editViewModel()
-        typeIntoEdit(viewModel) { true }
+        typeInto(viewModel) { true }
 
         viewModel.requestChecklist(ChecklistTarget(editorText(), 0, 0))
         waitForIdle()

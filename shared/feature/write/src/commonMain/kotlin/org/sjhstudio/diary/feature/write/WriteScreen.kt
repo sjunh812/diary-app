@@ -69,6 +69,8 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohamedrejeb.richeditor.model.RichTextState
 import io.github.vinceglb.filekit.PlatformFile
@@ -169,10 +171,15 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     val locationAccess = rememberLocationAccess()
     val cameraAccess = rememberCameraAccess()
     var cameraOff by remember { mutableStateOf(false) }
-    // 시트·대화상자가 뜰 때 키보드는 그 부품이 내림(DismissBehindKeyboard)
-    // 닫은 뒤에는 안 올림
-    // 본문을 누르면 이어 씀
     val openSheet = { target: Sheet -> sheet = target }
+    // 회전으로 다시 만든 화면만 쓰던 커서를 돌려줌
+    // 시트·권유·창·잠금을 거친 뒤에는 초점이 이미 풀려 안 돌려줌
+    var refocus by remember { mutableStateOf(vm.editorFocused) }
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    // 다시 만들려고 없어지는 화면이 잃는 초점은 기억 안 함
+    val onEditorFocus = { focused: Boolean ->
+        if (lifecycle.currentState != Lifecycle.State.DESTROYED) vm.onEditorFocus(focused)
+    }
     val softKeyboard = LocalSoftwareKeyboardController.current
     val density = LocalDensity.current
     val imeInsets = WindowInsets.ime
@@ -292,9 +299,14 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
         }
     }
     // 새 글은 처음 한 번 커서와 키보드를 줌
+    // 시트·대화상자가 뜰 때 키보드는 그 부품이 내림(DismissBehindKeyboard)
     // 이어쓰기 시트·권유·창이 덮고 있으면 닫힌 뒤에 줌
-    val wantsFocus = !autoFocused && !state.isEdit && !othersOpen && plusPrompt == null
-    val onAutoFocus = { autoFocused = true }
+    val covered = othersOpen || plusPrompt != null
+    val wantsFocus = !covered && (refocus || (!autoFocused && !state.isEdit))
+    val onAutoFocus = {
+        refocus = false
+        autoFocused = true
+    }
     // 하드웨어 키보드의 Ctrl/⌘+S로 저장(FR-039)
     val keyboard =
         Modifier.onPreviewKeyEvent { event ->
@@ -347,7 +359,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                                             geometry,
                                             wantsFocus,
                                             onAutoFocus,
-                                            Modifier.fillMaxWidth()
+                                            Modifier.fillMaxWidth().onFocusChanged { onEditorFocus(it.hasFocus) }
                                         )
                                     }
                                 }
