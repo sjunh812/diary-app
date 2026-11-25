@@ -23,6 +23,7 @@ let bg = color(0xF5F2FF), ink = color(0x1A1C20), sub = color(0x6E6A80), line = c
 let accent = color(0x6550B9)
 let accentWord = ["ko": "한 줄", "en": "One line", "ja": "1行"]
 let statusCut: CGFloat = 162
+let lineHeightMultiple: CGFloat = 1.16
 
 let copy: [String: (String, String)] = [
     "ko": ("한 줄이면\n오늘 일기 끝", "바쁜 날에도 쓰기 쉬운 일기장"),
@@ -33,25 +34,40 @@ let copy: [String: (String, String)] = [
 func R(_ x: CGFloat, _ top: CGFloat, _ w: CGFloat, _ h: CGFloat) -> NSRect { NSRect(x: x, y: H - top - h, width: w, height: h) }
 
 func attributed(_ s: String, _ px: CGFloat, _ c: NSColor, bold: Bool, align: NSTextAlignment) -> NSAttributedString {
-    let style = NSMutableParagraphStyle(); style.alignment = align; style.lineHeightMultiple = 1.16
+    let style = NSMutableParagraphStyle(); style.alignment = align; style.lineHeightMultiple = lineHeightMultiple
     let japanese = lang == "ja"
     let f = japanese ? NSFont(name: bold ? "HiraginoSans-W6" : "HiraginoSans-W3", size: px * 0.92)! : NSFont(name: "ChangwonDangamRound-Regular", size: px)!
     let stroke: CGFloat = japanese ? 0 : (bold ? (lang == "en" ? -5.0 : -3.4) : -0.6)
     return NSAttributedString(string: s, attributes: [.font: f, .foregroundColor: c, .strokeColor: c, .strokeWidth: stroke, .paragraphStyle: style])
 }
 
-// 제목과 설명을 한 덩어리로 x, 가운데 y에 그림
-func block(x: CGFloat, centerY: CGFloat, width: CGFloat, title: CGFloat, align: NSTextAlignment) {
+func texts(_ title: CGFloat, _ align: NSTextAlignment) -> (NSAttributedString, NSAttributedString) {
     let t = NSMutableAttributedString(attributedString: attributed(copy[lang]!.0, title, ink, bold: true, align: align))
     if let r = copy[lang]!.0.range(of: accentWord[lang]!) {
         let range = NSRange(r, in: copy[lang]!.0)
         t.addAttributes([.foregroundColor: accent, .strokeColor: accent], range: range)
     }
-    let s = attributed(copy[lang]!.1, title * 0.46, sub, bold: false, align: align)
+    return (t, attributed(copy[lang]!.1, title * 0.46, sub, bold: false, align: align))
+}
+
+// 글 덩어리의 실제 폭. 언어마다 달라 글과 화면을 한 묶음으로 가운데 둘 때 씀
+func blockWidth(title: CGFloat) -> CGFloat {
+    let (t, s) = texts(title, .left)
+    let free = NSSize(width: 10000, height: 4000)
+    return ceil(max(t.boundingRect(with: free, options: [.usesLineFragmentOrigin]).width,
+                    s.boundingRect(with: free, options: [.usesLineFragmentOrigin]).width))
+}
+
+// 제목과 설명을 한 덩어리로 x, 가운데 y에 그림
+func block(x: CGFloat, centerY: CGFloat, width: CGFloat, title: CGFloat, align: NSTextAlignment) {
+    let (t, s) = texts(title, align)
     let th = t.boundingRect(with: NSSize(width: width, height: 4000), options: [.usesLineFragmentOrigin]).height
     let sh = s.boundingRect(with: NSSize(width: width, height: 4000), options: [.usesLineFragmentOrigin]).height
     let gap = title * 0.36
-    let top = centerY - (th + gap + sh) / 2
+    // 줄 높이 여유가 글자 위에 붙어 눈에 보이는 가운데가 내려감. 그 절반만큼 올림
+    let font = t.attribute(.font, at: 0, effectiveRange: nil) as! NSFont
+    let lift = (lineHeightMultiple - 1) * (font.ascender - font.descender + font.leading) / 2
+    let top = centerY - (th + gap + sh) / 2 - lift
     t.draw(with: R(x, top, width, th + 4), options: [.usesLineFragmentOrigin])
     s.draw(with: R(x, top + th + gap, width, sh + 4), options: [.usesLineFragmentOrigin])
 }
@@ -81,6 +97,23 @@ func phone(_ name: String, x: CGFloat, top: CGFloat, width: CGFloat) {
     NSGraphicsContext.restoreGraphicsState()
 }
 
+func phoneHeight(_ name: String, width: CGFloat) -> CGFloat {
+    let img = NSImage(contentsOfFile: "\(caps)/\(name).png")!
+    let k = width / 1010
+    let screenW = width - 32 * k
+    return (img.size.height - statusCut) * screenW / img.size.width + 32 * k + 40 * k
+}
+
+// 왼쪽 글, 오른쪽 화면을 한 묶음으로 가로 가운데. 사이는 maxGap, 넓은 언어는 room 안에 들도록 줄임
+// top이 없으면 화면도 세로 가운데. 글은 늘 세로 가운데
+func sideBySide(title: CGFloat, phoneWidth: CGFloat, maxGap: CGFloat, room: CGFloat, top: CGFloat? = nil) {
+    let tw = blockWidth(title: title)
+    let gap = min(maxGap, room - tw - phoneWidth)
+    let x = (W - (tw + gap + phoneWidth)) / 2
+    block(x: x, centerY: H / 2, width: tw + 4, title: title, align: .left)
+    phone("home", x: x + tw + gap, top: top ?? (H - phoneHeight("home", width: phoneWidth)) / 2, width: phoneWidth)
+}
+
 let ctx = CGContext(data: nil, width: Int(W), height: Int(H), bitsPerComponent: 8, bytesPerRow: 0,
                     space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue)!
 NSGraphicsContext.current = NSGraphicsContext(cgContext: ctx, flipped: false)
@@ -89,8 +122,7 @@ bg.setFill(); NSRect(x: 0, y: 0, width: W, height: H).fill()
 switch mode {
 case "feature":
     // 왼쪽 글, 오른쪽에 아래가 잘린 화면 한 장
-    block(x: 80, centerY: H / 2, width: 520, title: 50, align: .left)
-    phone("home", x: 640, top: 56, width: 320)
+    sideBySide(title: 50, phoneWidth: 320, maxGap: 260, room: W - 160, top: 56)
 case "header":
     // 안전 영역(1646×661, 가운데)에 글. 넓은 화면에서만 보이는 양옆에 화면
     block(x: 1097, centerY: 493 + 661 / 2, width: 1646, title: 124, align: .center)
@@ -99,8 +131,7 @@ case "header":
 case "search":
     // 왼쪽 글, 오른쪽 화면(안전 영역 836~3004 안)
     // 영어는 줄이 길어 두 줄에 들어가게 조금 줄임
-    block(x: 900, centerY: H / 2, width: 1160, title: lang == "en" ? 124 : 150, align: .left)
-    phone("home", x: 2170, top: 380, width: 830)
+    sideBySide(title: lang == "en" ? 124 : 150, phoneWidth: 830, maxGap: 420, room: 3004 - 836)
 default:
     fatalError(mode)
 }
