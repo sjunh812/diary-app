@@ -33,6 +33,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -176,7 +177,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     val memory = retain { WritingMemory() }
     var refocus by remember { mutableStateOf(memory.writing) }
     var editorHasFocus by remember { mutableStateOf(false) }
-    RememberWriting(memory) { editorHasFocus }
+    RememberWriting(memory, pending = { refocus }) { editorHasFocus }
     val softKeyboard = LocalSoftwareKeyboardController.current
     var askDiscard by remember { mutableStateOf(false) }
     var askDiscardHere by rememberSaveable { mutableStateOf(false) }
@@ -198,9 +199,13 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                     softKeyboard?.show()
                 }
             }
-    // 쓰는 동안에는 자리를 차지하지 않게 화면 키보드가 내려갔을 때만 보임
+    // 쓰는 동안에는 자리를 차지하지 않게 키보드가 아래 자리를 비웠을 때만 보임
+    // 키보드가 움직이는 프레임마다 다시 그리지 않게 보임 여부가 바뀔 때만 읽음
+    val density = LocalDensity.current
+    val imeInsets = WindowInsets.ime
+    val imeHidden by remember(imeInsets, density) { derivedStateOf { imeInsets.getBottom(density) == 0 } }
     val discardRow: @Composable () -> Unit = {
-        if (state.canDiscard && !imeVisible()) DiscardButton(state.isEdit) { askDiscardHere = true }
+        if (state.canDiscard && imeHidden) DiscardButton(state.isEdit) { askDiscardHere = true }
     }
     val photoLimit by vm.photoLimit.collectAsStateWithLifecycle()
     // 화면 모델이 띄우는 Plus 권유
@@ -649,10 +654,12 @@ private fun FailureNotice(state: WriteUiState) {
  * 효과 안에서만 기록해 없어지는 화면이 잃는 초점은 남지 않음
  */
 @Composable
-private fun RememberWriting(memory: WritingMemory, focused: () -> Boolean) {
+private fun RememberWriting(memory: WritingMemory, pending: () -> Boolean, focused: () -> Boolean) {
     val imeVisible = imeVisible()
     val hasFocus = focused()
-    LaunchedEffect(hasFocus, imeVisible) { memory.update(hasFocus, imeVisible) }
+    // 돌려줄 커서가 대기 중이면 덮지 않음. 재생성이 잇달아도 커서가 남음
+    val waiting = pending()
+    LaunchedEffect(hasFocus, imeVisible, waiting) { if (!waiting) memory.update(hasFocus, imeVisible) }
 }
 
 /** 좁은 화면에서 본문 위에 두는 첨부 칩·사진 줄·안내 */
