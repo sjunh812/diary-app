@@ -84,7 +84,7 @@ class MainActivity : FragmentActivity() {
             DiaryApp()
             InsetsProbe { insetsKnown = true }
         }
-        // 화면을 돌려 다시 만들어질 때는 쌓인 화면이 이미 복원됨
+        // 앱이 종료된 뒤 다시 만들어질 때는 쌓인 화면이 이미 복원됨
         if (savedInstanceState == null) handleIntent(intent)
     }
 

@@ -54,9 +54,11 @@ fun WriteRoute(
     val look by viewModel.look.collectAsStateWithLifecycle()
     val theme = DiaryTheme.colors
     val colors = remember(theme) { EditorColors(theme) }
-    // 도구 줄은 누를 때의 색을 읽음. 색이 바뀌어도 도구를 다시 만들지 않아 열어 둔 팔레트가 닫히지 않게
+    // 도구 줄은 누를 때의 색을 읽음
+    // 색이 바뀌어도 도구를 다시 만들지 않아 열어 둔 팔레트가 안 닫힘
     val currentColors by rememberUpdatedState(colors)
-    // 본문의 주인은 화면 모델(임시 저장본) 하나. 편집기는 화면 저장 상태에 글을 넣지 않음
+    // 본문의 주인은 화면 모델(임시 저장본) 하나
+    // 편집기는 화면 저장 상태에 글을 넣지 않음
     // 넣으면 앱이 종료됐다 돌아올 때 임시 저장본과 다른 글이 보이고, 아주 긴 글은 저장 상태 크기 한도를 넘음
     // 커서 자리만 저장해 회전 뒤에도 쓰던 자리에서 이어 씀
     var caret by rememberSaveable { mutableIntStateOf(-1) }
@@ -94,12 +96,15 @@ fun WriteRoute(
     }
     LaunchedEffect(editor) {
         if (editor.version == 0) return@LaunchedEffect
-        // 편집기가 다시 낸 모양이 기준. 태그 모양만 다른 레거시 글을 고친 것으로 치지 않음
+        // 편집기가 다시 낸 모양이 기준
+        // 태그 모양만 다른 레거시 글을 고친 것으로 치지 않음
         viewModel.onBodyLoaded(colors.fromEditor(rich.toHtml()))
-        // 본문을 넣은 편집기의 커서만 기록. 읽는 중의 빈 편집기는 저장한 자리를 덮음
+        // 본문을 넣은 편집기의 커서만 기록
+        // 읽는 중의 빈 편집기는 저장한 자리를 덮음
         snapshotFlow { rich.selection.max }.collect { caret = it }
     }
-    // 테마가 바뀌면 편집기 안의 글자색을 새 색으로 바꿔 다시 넣음. 친 글은 그대로
+    // 테마가 바뀌면 편집기 안의 글자색을 새 색으로 바꿔 다시 넣음
+    // 친 글은 그대로
     LaunchedEffect(editor, colors) {
         if (editor.version == 0 || editor.colors == colors) return@LaunchedEffect
         // 고르던 범위까지 그대로 돌려줌
