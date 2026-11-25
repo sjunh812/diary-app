@@ -19,6 +19,7 @@ import org.sjhstudio.diary.feature.home.resources.Res
 import org.sjhstudio.diary.feature.home.resources.update_card_default
 import org.sjhstudio.diary.feature.home.resources.update_card_downloading_title
 import org.sjhstudio.diary.feature.home.resources.update_card_failed
+import org.sjhstudio.diary.feature.home.resources.update_card_keep_required
 import org.sjhstudio.diary.feature.home.resources.update_card_later
 import org.sjhstudio.diary.feature.home.resources.update_card_restart
 import org.sjhstudio.diary.feature.home.resources.update_card_title_required
@@ -46,7 +47,8 @@ class UpdateCardUiTest {
                 }, onLater = { laters++ }, onRestart = {})
             }
         }
-        onNode(hasText(fallback, substring = true)).assertExists()
+        // 일반 카드는 요약 한 줄뿐. 덧붙는 줄이 없음
+        onNode(hasText(fallback)).assertExists()
         onNode(hasText(update)).performClick()
         onNode(hasText(later)).performClick()
         assertEquals(1, updates)
@@ -70,14 +72,17 @@ class UpdateCardUiTest {
     fun required_card_has_no_later() = runComposeUiTest {
         var title = ""
         var later = ""
+        var ask = ""
         setContent {
             title = stringResource(Res.string.update_card_title_required)
             later = stringResource(Res.string.update_card_later)
+            ask = stringResource(Res.string.update_card_keep_required)
             DiaryTheme(darkTheme = false) {
                 UpdateCard(UpdateNotice.Available(required = true, note = null), onUpdate = {}, onLater = {}, onRestart = {})
             }
         }
         onNode(hasText(title)).assertExists()
+        onNode(hasText(ask, substring = true)).assertExists()
         onNode(hasText(later)).assertDoesNotExist()
     }
 

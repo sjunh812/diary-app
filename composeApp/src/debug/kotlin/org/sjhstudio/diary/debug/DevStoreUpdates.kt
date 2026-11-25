@@ -36,6 +36,9 @@ enum class DevUpdate(val label: String, val summary: String) {
 class DevStoreUpdates(private val context: Context, private val real: StoreUpdates, private val scope: CoroutineScope) : StoreUpdates {
     private val prefs = context.getSharedPreferences("dev_mode", Context.MODE_PRIVATE)
     private val chosen = MutableStateFlow(prefs.getString(KEY, null)?.let(DevUpdate::valueOf) ?: DevUpdate.REAL)
+
+    // 고를 때마다 새 버전 번호. 하나로 두면 카드에서 [나중에]로 닫은 번호라 다시 골라도 안 뜸
+    private var fakeCode = prefs.getInt(KEY_CODE, FAKE_VERSION_CODE_START).toString()
     val mode: StateFlow<DevUpdate> = chosen.asStateFlow()
     private val steps = MutableSharedFlow<InstallStep>(extraBufferCapacity = 16)
 
@@ -44,7 +47,12 @@ class DevStoreUpdates(private val context: Context, private val real: StoreUpdat
 
     fun choose(mode: DevUpdate) {
         // 다시 시작하며 프로세스를 끝내도 남게 바로 씀
-        prefs.edit(commit = true) { putString(KEY, mode.name) }
+        val next = fakeCode.toInt() + 1
+        prefs.edit(commit = true) {
+            putString(KEY, mode.name)
+            putInt(KEY_CODE, next)
+        }
+        fakeCode = next.toString()
         chosen.value = mode
         faked = null
     }
@@ -55,7 +63,7 @@ class DevStoreUpdates(private val context: Context, private val real: StoreUpdat
 
     override suspend fun check(): StoreCheck = when {
         chosen.value == DevUpdate.REAL -> real.check()
-        else -> faked ?: StoreCheck.Available(FAKE_VERSION_CODE)
+        else -> faked ?: StoreCheck.Available(fakeCode)
     }
 
     override val installs: Flow<InstallStep> = merge(real.installs, steps)
@@ -83,11 +91,11 @@ class DevStoreUpdates(private val context: Context, private val real: StoreUpdat
                     steps.emit(InstallStep.Failed)
                     return@launch
                 }
-                faked = StoreCheck.Downloading(FAKE_VERSION_CODE, percent / 100f)
+                faked = StoreCheck.Downloading(fakeCode, percent / 100f)
                 steps.emit(InstallStep.Downloading(percent / 100f))
                 delay(STEP_MILLIS)
             }
-            faked = StoreCheck.Downloaded(FAKE_VERSION_CODE)
+            faked = StoreCheck.Downloaded(fakeCode)
             steps.emit(InstallStep.Downloaded)
         }
     }
@@ -124,7 +132,8 @@ class DevStoreUpdates(private val context: Context, private val real: StoreUpdat
 
     private companion object {
         const val KEY = "update"
-        const val FAKE_VERSION_CODE = "9999"
+        const val KEY_CODE = "update_code"
+        const val FAKE_VERSION_CODE_START = 9999
         const val FAKE_VERSION_NAME = "99.0"
         const val STEP_PERCENT = 10
         const val STEP_MILLIS = 300L
