@@ -2,16 +2,7 @@
  "assets": "docs/store/promo/assets",
  "font": "shared/core/designsystem/src/commonMain/composeResources/font/changwon_round_regular.otf",
  "icon": "iosApp/iosApp/Assets.xcassets/AppIcon.appiconset/app-icon-1024.png",
- "previewAt": [
-  1.6,
-  3.9,
-  6.5,
-  9.0,
-  10.8,
-  13.0,
-  15.5,
-  18.5
- ],
+ "previewAt": [],
  "out": "docs/store/promo/promo-ko.mp4",
  "home": "docs/store/promo/assets/home-dark-ko.jpg",
  "copy": {

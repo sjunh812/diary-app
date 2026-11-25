@@ -601,7 +601,7 @@ Plusが登場しました
 
 ## 소개 영상
 
-Threads·Reddit·릴스에 올릴 세로 영상이다(1080×1920, 60fps, 19초, 소리 없음). `docs/store/promo/promo-ko.mp4`, `promo-en.mp4`이고 2026-11-26에 확정했다.
+Threads·Reddit·릴스에 올릴 세로 영상이다(1080×1920, 60fps, 9Mbps, 19초, 소리 없음). `docs/store/promo/promo-ko.mp4`, `promo-en.mp4`이고 2026-11-26에 확정했다.
 
 휴대폰 화면 녹화를 틀에 넣지 않고 앱 부품을 꺼내 움직인다. 처음 만든 녹화판은 "스크린샷을 그냥 틀어 준 느낌"이라 버렸다(사용자 지적). 레퍼런스는 How We Feel(색 점과 화면 전체 색 덮기), Granola(떠 있는 입력 카드), Bevel(숫자 하나 크게), Superlist(낱말 하나씩 뜨는 자막)다. 쓰기 카드는 앱에 없는 한 줄 입력창이 아니라 실제 쓰기 화면을 잘라 쓴다(사용자 지적).
 
@@ -616,6 +616,6 @@ Threads·Reddit·릴스에 올릴 세로 영상이다(1080×1920, 60fps, 19초, 
 
 영어: Busy day? / One line is enough, Pick the mood / of your day, Every mood, / at a glance, Top mood this month: / Laughing, Add photos / to your day, Make it / your color, No sign-up · Lock it, keep it private · Photos back up to your Drive.
 
-장면마다 자막을 다 읽을 시간을 둔다(사용자 지적: 기분 고르기·웃음 고른 뒤·약속 칩이 빨랐다). 달력·통계 숫자는 시연용이다. 음악은 올리는 곳의 음원을 붙인다.
+장면마다 자막을 다 읽을 시간을 둔다(사용자 지적: 기분 고르기·웃음 고른 뒤·약속 칩이 빨랐다). 달력·통계 숫자는 시연용이다. 음악은 올리는 곳의 음원을 붙인다. 저장소는 파일 하나를 15MB까지만 받아(저장소 위생 검사) 9Mbps로 뽑는다.
 
 만드는 법: 문구와 시간은 `docs/store/promo/<언어>.json`, 재료는 `docs/store/promo/assets/`다. 저장소 맨 위에서 `swiftc -O scripts/store/promo/make_promo.swift -o /tmp/make_promo` 뒤 `/tmp/make_promo docs/store/promo/ko.json`. 기분 얼굴은 기분 시트 스크린샷에서 `crop_faces.swift`로, 쓰기 카드와 다크 홈은 시뮬레이터 녹화에서 `grab_frame.swift`로 뽑았다.
