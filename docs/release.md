@@ -284,6 +284,11 @@ REVENUECAT_IOS = appl_...
   - `update_note_ko`: 결제 뒤 광고 문제를 수정하고 목록을 더 보기 쉽게 바꿨어요.
   - `update_note_en`: Fixed ads after purchase and made the list easier to read.
   - `update_note_ja`: 購入後の広告を修正し、一覧を見やすくしました。
+- [ ] 2.2.0을 두 스토어에 낸 뒤 Remote Config 업데이트 요약을 아래 값으로 바꾼다. 카드에서는 제목 "새 버전이 나왔어요" 아래 줄이라 새 기능임이 드러나게 "이제"를 붙이고, 스토어 노트 첫 줄은 기능 안내 꼴로 둔다(사용자 결정 2026-11-25).
+  - `update_note_version`: 2.2.0
+  - `update_note_ko`: 이제 앱 테마 색을 고를 수 있어요.
+  - `update_note_en`: You can now choose a theme color for the app.
+  - `update_note_ja`: アプリのテーマカラーを選べるようになりました。
 - [ ] 새 버전 안내의 실제 Play 유연 업데이트는 내부 앱 공유 빌드로, iOS App Store 화면은 실기기로 확인한다(개발 빌드에서는 개발자 모드 "새 버전"으로만 봄).
 ## App Store 제출
 

@@ -419,21 +419,21 @@ App Store는 상품 설명 칸이 짧아(비소모품 45자, 구독 55자 안팎
 ```text
 <ko-KR>
 [버전 2.2.0]
-• 좋아하는 색으로 앱 테마를 바꿀 수 있어요.
+• 앱 테마 색을 고를 수 있어요.
 • 긴 일기를 쓰고 수정할 때 화면이 더 매끄러워졌어요.
-• 백업과 복원이 중간에 멈추던 문제를 수정했어요.
+• 앱 안정성을 개선했어요.
 </ko-KR>
 <en-US>
 [Version 2.2.0]
-• Pick a theme color for the whole app.
+• Choose a theme color for the app.
 • Writing and editing long entries is now smoother.
-• Fixed backups and restores stopping partway.
+• Improved app stability.
 </en-US>
 <ja-JP>
 [バージョン 2.2.0]
-• アプリ全体のテーマカラーを選べるようになりました。
+• アプリのテーマカラーを選べるようになりました。
 • 長い日記を書いたり編集したりするときの動きがなめらかになりました。
-• バックアップと復元が途中で止まる問題を修正しました。
+• アプリの安定性を改善しました。
 </ja-JP>
 ```
 
