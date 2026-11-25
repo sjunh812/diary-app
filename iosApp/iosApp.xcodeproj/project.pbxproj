@@ -146,19 +146,19 @@
 			path = assets;
 			sourceTree = "<group>";
 		};
-		35B96AD4BF675C9C37206448 /* app-theme */ = {
+		35B96AD4BF675C9C37206448 /* diary-project */ = {
 			isa = PBXGroup;
 			children = (
 				85D05FCA181AEE1E809FE065 /* fonts */,
 			);
-			name = "app-theme";
+			name = "diary-project";
 			path = ..;
 			sourceTree = "<group>";
 		};
 		38B69C3F79CD97858CF7B609 = {
 			isa = PBXGroup;
 			children = (
-				35B96AD4BF675C9C37206448 /* app-theme */,
+				35B96AD4BF675C9C37206448 /* diary-project */,
 				1DB4B685CAEE8BEFEBBAEF94 /* iosApp */,
 				94C98B8B3A2BFC1966447269 /* Products */,
 			);
