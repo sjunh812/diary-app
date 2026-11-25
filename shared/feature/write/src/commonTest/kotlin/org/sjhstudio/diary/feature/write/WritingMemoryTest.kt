@@ -1,0 +1,59 @@
+package org.sjhstudio.diary.feature.write
+
+import kotlin.test.Test
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
+
+// 재생성된 화면에 커서와 키보드를 돌려줄지 정하는 규칙
+class WritingMemoryTest {
+    @Test
+    fun typing_with_the_keyboard_up_is_writing() {
+        val memory = WritingMemory()
+        memory.update(focused = true, imeVisible = true)
+        assertTrue(memory.writing)
+    }
+
+    @Test
+    fun lowering_the_keyboard_is_not_writing() {
+        val memory = WritingMemory()
+        memory.update(focused = true, imeVisible = true)
+        memory.update(focused = true, imeVisible = false)
+        assertFalse(memory.writing)
+    }
+
+    @Test
+    fun raising_the_keyboard_again_is_writing() {
+        val memory = WritingMemory()
+        memory.update(focused = true, imeVisible = true)
+        memory.update(focused = true, imeVisible = false)
+        memory.update(focused = true, imeVisible = true)
+        assertTrue(memory.writing)
+    }
+
+    /** 하드웨어 키보드는 화면 키보드가 처음부터 없어 내린 것이 아님 */
+    @Test
+    fun a_hardware_keyboard_is_writing() {
+        val memory = WritingMemory()
+        memory.update(focused = true, imeVisible = false)
+        assertTrue(memory.writing)
+    }
+
+    @Test
+    fun losing_the_cursor_is_not_writing() {
+        val memory = WritingMemory()
+        memory.update(focused = true, imeVisible = true)
+        memory.update(focused = false, imeVisible = false)
+        assertFalse(memory.writing)
+    }
+
+    /** 내린 뒤 다른 곳에 갔다 본문을 다시 누르면 처음부터 다시 봄 */
+    @Test
+    fun focusing_again_after_lowering_starts_over() {
+        val memory = WritingMemory()
+        memory.update(focused = true, imeVisible = true)
+        memory.update(focused = true, imeVisible = false)
+        memory.update(focused = false, imeVisible = false)
+        memory.update(focused = true, imeVisible = false)
+        assertTrue(memory.writing)
+    }
+}

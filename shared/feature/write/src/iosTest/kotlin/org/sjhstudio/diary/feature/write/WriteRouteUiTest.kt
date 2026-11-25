@@ -84,7 +84,7 @@ class WriteRouteUiTest {
             CompositionLocalProvider(LocalUIViewController provides UIViewController(), LocalLifecycleOwner provides lifecycle()) {
                 DiaryTheme(darkTheme = dark()) {
                     val holder = rememberSaveableStateHolder()
-                    // 시험 저장소는 단 자리가 빠질 때만 값을 남겨 화면과 함께 빼서 흉내
+                    // 시험 저장소는 자기가 빠질 때만 값을 남겨 화면과 함께 뺌
                     if (shown()) {
                         holder.SaveableStateProvider("write") {
                             LocalRetainedValuesStoreProvider(retained) {
@@ -245,31 +245,34 @@ class WriteRouteUiTest {
     /** 잠금처럼 화면이 살아 있는 채 치울 때는 retain 값을 남기지 않음 */
     private fun forgetful() = ManagedRetainedValuesStore().apply { disableRetainingExitedValues() }
 
-    /** 재생성 흉내. 남기기 여부는 enable/disable로 흉내, 남긴 값은 첫 프레임 뒤 버림 */
+    /**
+     * 재생성 흉내
+     * 없어지는 동안만 retain 값을 남기고 다시 그린 첫 화면 뒤 버림
+     */
     private fun ComposeUiTest.recreate(
         owner: Owner,
         retained: ManagedRetainedValuesStore,
         setShown: (Boolean) -> Unit,
-        newOwner: () -> Unit
+        newOwner: () -> Unit,
+        firstFrame: () -> Unit = { setShown(true) }
     ) {
         owner.registry.currentState = Lifecycle.State.DESTROYED
         retained.enableRetainingExitedValues()
         setShown(false)
         waitForIdle()
         newOwner()
-        setShown(true)
+        firstFrame()
         waitForIdle()
         retained.disableRetainingExitedValues()
         waitForIdle()
     }
 
     /**
-     * 키보드를 내린 채 회전하면 커서를 돌려주지 않음
-     * 시험 환경에는 화면 키보드가 없어 늘 내려간 상태
-     * 키보드가 떠 있을 때 돌려주는 것은 /emulator-check로 확인
+     * 쓰던 중 회전으로 화면을 다시 만들면 커서를 돌려줌
+     * 시험 환경은 화면 키보드가 없어 하드웨어 키보드로 쓰는 것과 같음
      */
     @Test
-    fun rotating_with_the_keyboard_down_does_not_raise_it() = runComposeUiTest {
+    fun rotating_while_writing_keeps_the_cursor() = runComposeUiTest {
         val viewModel = editViewModel()
         val retained = forgetful()
         var owner by mutableStateOf(Owner())
@@ -277,6 +280,42 @@ class WriteRouteUiTest {
         typeInto(viewModel, owner = { owner }, retained = retained) { shown }
 
         recreate(owner, retained, { shown = it }, { owner = Owner() })
+
+        onAllNodes(hasSetTextAction())[0].assertIsFocused()
+    }
+
+    /** 다시 만든 첫 화면이 잠금이면 쓰던 커서를 버림. 열어도 키보드가 올라오지 않음 */
+    @Test
+    fun the_lock_screen_after_rotating_drops_the_cursor() = runComposeUiTest {
+        val viewModel = editViewModel()
+        val retained = forgetful()
+        var owner by mutableStateOf(Owner())
+        var shown by mutableStateOf(true)
+        typeInto(viewModel, owner = { owner }, retained = retained) { shown }
+
+        recreate(owner, retained, { shown = it }, { owner = Owner() }, firstFrame = {})
+        shown = true
+        waitForIdle()
+
+        onAllNodes(hasSetTextAction())[0].assertIsNotFocused()
+    }
+
+    /** 다시 만든 화면을 권유가 덮고 있으면 돌려줄 커서를 버림. 닫아도 키보드가 올라오지 않음 */
+    @Test
+    fun a_prompt_over_the_recreated_screen_drops_the_cursor() = runComposeUiTest {
+        val viewModel = editViewModel()
+        val retained = forgetful()
+        var owner by mutableStateOf(Owner())
+        var shown by mutableStateOf(true)
+        typeInto(viewModel, owner = { owner }, retained = retained) { shown }
+
+        recreate(owner, retained, { shown = it }, { owner = Owner() }) {
+            viewModel.requestChecklist(ChecklistTarget("", 0, 0))
+            waitUntil { viewModel.state.value.checklistPick is ChecklistPick.Locked }
+            shown = true
+        }
+        viewModel.checklistPickHandled()
+        waitForIdle()
 
         onAllNodes(hasSetTextAction())[0].assertIsNotFocused()
     }

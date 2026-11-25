@@ -33,7 +33,6 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,10 +69,7 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.compose.currentStateAsState
 import com.mohamedrejeb.richeditor.model.RichTextState
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.dialogs.FileKitMode
@@ -174,16 +170,14 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     val cameraAccess = rememberCameraAccess()
     var cameraOff by remember { mutableStateOf(false) }
     val openSheet = { target: Sheet -> sheet = target }
-    // 재생성된 화면은 키보드를 띄우고 쓰던 중이었을 때만 커서와 키보드 돌려줌
+    // 재생성된 화면은 쓰던 중이었을 때만 커서와 키보드 돌려줌
     // 키보드를 내렸으면 다른 일로 넘어간 것이라 안 돌려줌
     // retain이라 잠금으로 치워지거나 앱이 종료되면 사라짐
-    var writing by retain { mutableStateOf(false) }
-    var refocus by remember { mutableStateOf(writing) }
+    val memory = retain { WritingMemory() }
+    var refocus by remember { mutableStateOf(memory.writing) }
     var editorHasFocus by remember { mutableStateOf(false) }
-    val resumed = LocalLifecycleOwner.current.lifecycle.currentStateAsState().value.isAtLeast(Lifecycle.State.RESUMED)
+    RememberWriting(memory) { editorHasFocus }
     val softKeyboard = LocalSoftwareKeyboardController.current
-    val density = LocalDensity.current
-    val imeInsets = WindowInsets.ime
     var askDiscard by remember { mutableStateOf(false) }
     var askDiscardHere by rememberSaveable { mutableStateOf(false) }
     val editorFocus = remember { FocusRequester() }
@@ -204,16 +198,9 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                     softKeyboard?.show()
                 }
             }
-    // 쓰는 동안에는 자리를 차지하지 않게 키보드가 내려갔을 때만 보임
-    // 키보드가 움직이는 프레임마다 다시 그리지 않게 보임 여부가 바뀔 때만 읽음
-    val imeHidden by remember(imeInsets, density) { derivedStateOf { imeInsets.getBottom(density) == 0 } }
-    // 앱이 앞에 있을 때만 기록
-    // 재생성으로 내려가며 바뀌는 초점과 키보드는 기록 안 함
-    LaunchedEffect(editorHasFocus, imeHidden, resumed) {
-        if (resumed) writing = editorHasFocus && !imeHidden
-    }
+    // 쓰는 동안에는 자리를 차지하지 않게 화면 키보드가 내려갔을 때만 보임
     val discardRow: @Composable () -> Unit = {
-        if (state.canDiscard && imeHidden) DiscardButton(state.isEdit) { askDiscardHere = true }
+        if (state.canDiscard && !imeVisible()) DiscardButton(state.isEdit) { askDiscardHere = true }
     }
     val photoLimit by vm.photoLimit.collectAsStateWithLifecycle()
     // 화면 모델이 띄우는 Plus 권유
@@ -654,6 +641,18 @@ private fun FailureNotice(state: WriteUiState) {
         Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
         failure = true
     )
+}
+
+/**
+ * 본문 초점과 화면 키보드 보임을 [memory]에 기록
+ * 키보드 보임을 이 안에서만 읽어 쓰기 화면 전체를 다시 그리지 않음
+ * 효과 안에서만 기록해 없어지는 화면이 잃는 초점은 남지 않음
+ */
+@Composable
+private fun RememberWriting(memory: WritingMemory, focused: () -> Boolean) {
+    val imeVisible = imeVisible()
+    val hasFocus = focused()
+    LaunchedEffect(hasFocus, imeVisible) { memory.update(hasFocus, imeVisible) }
 }
 
 /** 좁은 화면에서 본문 위에 두는 첨부 칩·사진 줄·안내 */
