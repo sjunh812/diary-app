@@ -1,7 +1,7 @@
 // 스토어 폰 스크린샷: 연한 라벤더 바탕, 두 줄 제목과 설명 한 줄, 상태바를 자른 앱 화면
-// 쓰는 법: swift scripts/store/make_store_screens.swift <캡처 폴더> <결과 폴더> <ko|en|ja> <폭> <높이> <파일 앞이름> [tablet]
+// 쓰는 법: swift scripts/store/make_store_screens.swift <캡처 폴더> <결과 폴더> <ko|en|ja> <폭> <높이> <파일 앞이름> [tablet|landscape]
 // 캡처 폴더에는 home, detail, calendar, insight, theme-rose, backup.png가 있어야 함
-// 폰은 iPhone 17 Pro(1206×2622), tablet은 iPad 13" 세로(2064×2752) 캡처
+// 폰은 iPhone 17 Pro(1206×2622), tablet은 iPad 13" 세로(2064×2752), landscape는 iPad 13" 가로(2752×2064) 캡처
 import AppKit
 import CoreText
 
@@ -9,13 +9,15 @@ let args = CommandLine.arguments
 _ = NSApplication.shared
 let caps = args[1], out = args[2], lang = args[3]
 let W = CGFloat(Double(args[4])!), H = CGFloat(Double(args[5])!), prefix = args[6]
-let tablet = args.count > 7 && args[7] == "tablet"
+let landscape = args.count > 7 && args[7] == "landscape"
+let tablet = landscape || (args.count > 7 && args[7] == "tablet")
 let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
 let fontFile = root.appendingPathComponent("shared/core/designsystem/src/commonMain/composeResources/font/changwon_round_regular.otf")
 CTFontManagerRegisterFontsForURL(fontFile as CFURL, .process, nil)
 
 // 폭 1206 기준 값을 캔버스 폭에 맞춤. 태블릿은 제목을 폰보다 덜 키움
-let k = tablet ? W / 1650 : W / 1206
+// 가로 캔버스는 높이가 짧아 높이를 기준으로 맞춤
+let k = landscape ? H / 1500 : (tablet ? W / 1650 : W / 1206)
 
 func color(_ hex: UInt32, _ a: CGFloat = 1) -> NSColor {
     NSColor(srgbRed: CGFloat((hex >> 16) & 255) / 255, green: CGFloat((hex >> 8) & 255) / 255, blue: CGFloat(hex & 255) / 255, alpha: a)
@@ -69,7 +71,9 @@ func text(_ s: String, size: CGFloat, color c: NSColor, top: CGFloat, bold: Bool
 }
 
 func header(_ title: String, _ subline: String) -> CGFloat {
-    let t = text(title, size: 92 * k, color: ink, top: 190 * k, bold: true)
+    // 가로는 제목을 한 줄로 두어 화면 자리를 넓힘
+    // 가로는 한 줄. 일본어는 띄어 쓰지 않아 붙임
+    let t = text(landscape ? title.replacingOccurrences(of: "\n", with: lang == "ja" ? "" : " ") : title, size: 92 * k, color: ink, top: (landscape ? 110 : 190) * k, bold: true)
     return text(subline, size: 46 * k, color: sub, top: t + 34 * k, bold: false)
 }
 
@@ -81,7 +85,7 @@ func shadow(_ blur: CGFloat, _ alpha: CGFloat, _ dy: CGFloat) -> NSShadow {
 func phone(_ name: String, top: CGFloat) {
     let img = NSImage(contentsOfFile: "\(caps)/\(name).png")!
     // 세로가 긴 Play 태블릿 칸은 기기를 더 크게 두어 아래가 잘리게
-    let width = tablet ? W * (H / W > 1.6 ? 0.94 : 0.84) : 1010 * k, pad = 16 * k, lip = 40 * k
+    let width = landscape ? W * 0.74 : (tablet ? W * (H / W > 1.6 ? 0.94 : 0.84) : 1010 * k), pad = 16 * k, lip = 40 * k
     let screenW = width - pad * 2
     // iPad는 오른쪽 아래 창 크기 손잡이를 잘라 냄
     let srcH = img.size.height - statusCut - (tablet ? 60 : 0)
@@ -106,7 +110,7 @@ for (i, s) in copy[lang]!.enumerated() {
     NSGraphicsContext.current = NSGraphicsContext(cgContext: ctx, flipped: false)
     bg.setFill(); NSRect(x: 0, y: 0, width: W, height: H).fill()
     let bottom = header(s.1, s.2)
-    phone(s.0, top: bottom + 110 * k)
+    phone(s.0, top: bottom + (landscape ? 80 : 110) * k)
     NSGraphicsContext.current = nil
     let rep = NSBitmapImageRep(cgImage: ctx.makeImage()!)
     try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: "\(out)/\(prefix)-\(i + 1).png"))
