@@ -18,23 +18,23 @@ internal class WritingMemory : RetainObserver {
 
     /**
      * 돌려줄 커서가 대기 중인지
-     * Compose 상태라 대기가 끝나면 화면을 다시 그림
+     * 첫 화면은 앞 값을 읽고, 화면에 들어온 뒤 바뀜
+     * Compose 상태라 바뀌면 화면을 다시 그림
      */
     var waiting by mutableStateOf(false)
         private set
 
     /**
-     * 화면에 들어올 때마다 부름(처음, 재생성 뒤 돌아올 때). 쓰던 중이었으면 돌려줄 커서를 대기로 둠
+     * 화면에 들어올 때마다 불림(처음, 재생성 뒤 돌아올 때)
+     * 버려진 컴포지션에서는 불리지 않아 실제로 들어온 때만 대기로 둠
+     * 쓰던 중이었으면 돌려줄 커서를 대기로 둠
      * 앞 화면의 키보드 기록은 비워 새 화면에서 내린 것으로 이어지지 않게 함
      */
-    fun restore() {
+    override fun onEnteredComposition() {
         imeWasVisible = false
         dismissed = false
         waiting = writing
     }
-
-    // 버려진 컴포지션에서는 불리지 않아 화면에 실제로 들어온 때만 대기로 둠
-    override fun onEnteredComposition() = restore()
 
     override fun onRetained() = Unit
 

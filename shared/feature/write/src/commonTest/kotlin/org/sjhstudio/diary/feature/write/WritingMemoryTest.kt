@@ -62,11 +62,11 @@ class WritingMemoryTest {
     fun a_recreated_screen_keeps_writing_until_the_cursor_is_given() {
         val memory = WritingMemory()
         memory.update(focused = true, imeVisible = true)
-        memory.restore()
+        memory.onEnteredComposition()
         assertTrue(memory.waiting)
         memory.update(focused = false, imeVisible = false)
         assertTrue(memory.writing)
-        memory.restore()
+        memory.onEnteredComposition()
         assertTrue(memory.waiting)
     }
 
@@ -75,7 +75,7 @@ class WritingMemoryTest {
     fun the_keyboard_coming_up_on_a_recreated_screen_is_not_lowering() {
         val memory = WritingMemory()
         memory.update(focused = true, imeVisible = true)
-        memory.restore()
+        memory.onEnteredComposition()
         memory.settle()
         memory.update(focused = true, imeVisible = false)
         assertTrue(memory.writing)
@@ -86,7 +86,7 @@ class WritingMemoryTest {
     @Test
     fun not_writing_waits_for_nothing() {
         val memory = WritingMemory()
-        memory.restore()
+        memory.onEnteredComposition()
         assertFalse(memory.waiting)
         memory.update(focused = true, imeVisible = true)
         assertTrue(memory.writing)
@@ -97,10 +97,10 @@ class WritingMemoryTest {
     fun a_dropped_cursor_is_not_given_back_on_the_next_rotation() {
         val memory = WritingMemory()
         memory.update(focused = true, imeVisible = true)
-        memory.restore()
+        memory.onEnteredComposition()
         memory.drop()
         assertFalse(memory.writing)
-        memory.restore()
+        memory.onEnteredComposition()
         assertFalse(memory.waiting)
     }
 
