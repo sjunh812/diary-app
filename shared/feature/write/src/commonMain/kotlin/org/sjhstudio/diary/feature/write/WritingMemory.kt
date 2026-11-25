@@ -13,8 +13,9 @@ internal class WritingMemory {
     private var waiting = false
 
     /**
-     * 화면을 새로 그릴 때 부름. 쓰던 중이었으면 돌려줄 커서를 대기로 둠
+     * 화면을 새로 만들 때 한 번 부름. 쓰던 중이었으면 돌려줄 커서를 대기로 둠
      * 앞 화면의 키보드 기록은 비워 새 화면에서 내린 것으로 이어지지 않게 함
+     * [writing]을 바꾸지 않아 여러 번 불러도 같음
      */
     fun restore(): Boolean {
         imeWasVisible = false
@@ -23,9 +24,15 @@ internal class WritingMemory {
         return waiting
     }
 
-    /** 돌려줄 커서를 줬거나 시트·권유가 덮어 버렸을 때 */
+    /** 돌려줄 커서를 줬을 때 */
     fun settle() {
         waiting = false
+    }
+
+    /** 시트·권유·창이 덮어 돌려줄 커서를 버릴 때. 닫은 뒤 다시 돌려도 안 돌려줌 */
+    fun drop() {
+        waiting = false
+        writing = false
     }
 
     /** 대기 중에는 기록 안 함. 재생성이 잇달아도 커서가 남음 */

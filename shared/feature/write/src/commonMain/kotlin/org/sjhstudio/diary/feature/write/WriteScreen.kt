@@ -297,9 +297,9 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     val covered = othersOpen || plusPrompt != null
     // 돌려줄 커서는 시트·권유·창이 덮으면 버림
     LaunchedEffect(covered) {
-        if (covered) {
+        if (covered && refocus) {
             refocus = false
-            memory.settle()
+            memory.drop()
         }
     }
     val wantsFocus = !covered && (refocus || (!autoFocused && !state.isEdit))

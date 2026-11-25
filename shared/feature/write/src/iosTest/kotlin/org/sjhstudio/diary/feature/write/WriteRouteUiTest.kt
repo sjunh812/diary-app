@@ -300,7 +300,7 @@ class WriteRouteUiTest {
         onAllNodes(hasSetTextAction())[0].assertIsNotFocused()
     }
 
-    /** 다시 만든 화면을 권유가 덮고 있으면 돌려줄 커서를 버림. 닫아도 키보드가 올라오지 않음 */
+    /** 다시 만든 화면을 권유가 덮고 있으면 돌려줄 커서를 버림. 닫거나 다시 돌려도 키보드가 올라오지 않음 */
     @Test
     fun a_prompt_over_the_recreated_screen_drops_the_cursor() = runComposeUiTest {
         val viewModel = editViewModel()
@@ -317,6 +317,10 @@ class WriteRouteUiTest {
         viewModel.checklistPickHandled()
         waitForIdle()
 
+        onAllNodes(hasSetTextAction())[0].assertIsNotFocused()
+
+        // 본문을 건드리지 않고 한 번 더 돌려도 안 돌려줌
+        recreate(owner, retained, { shown = it }, { owner = Owner() })
         onAllNodes(hasSetTextAction())[0].assertIsNotFocused()
     }
 

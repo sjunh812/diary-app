@@ -88,4 +88,15 @@ class WritingMemoryTest {
         memory.update(focused = true, imeVisible = true)
         assertTrue(memory.writing)
     }
+
+    /** 다시 만든 화면을 덮개가 덮어 버린 커서는 닫은 뒤 다시 돌려도 안 돌려줌 */
+    @Test
+    fun a_dropped_cursor_is_not_given_back_on_the_next_rotation() {
+        val memory = WritingMemory()
+        memory.update(focused = true, imeVisible = true)
+        memory.restore()
+        memory.drop()
+        assertFalse(memory.writing)
+        assertFalse(memory.restore())
+    }
 }
