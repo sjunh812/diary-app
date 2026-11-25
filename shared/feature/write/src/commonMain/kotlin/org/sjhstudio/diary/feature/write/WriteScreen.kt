@@ -38,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -172,13 +173,14 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     val cameraAccess = rememberCameraAccess()
     var cameraOff by remember { mutableStateOf(false) }
     val openSheet = { target: Sheet -> sheet = target }
-    // 회전으로 다시 만든 화면만 쓰던 커서를 돌려줌
-    // 시트·권유·창·잠금을 거친 뒤에는 초점이 이미 풀려 안 돌려줌
-    var refocus by remember { mutableStateOf(vm.editorFocused) }
+    // 재생성으로 다시 만든 화면만 쓰던 커서 돌려줌
+    // retain이라 잠금으로 치워지거나 앱이 종료되면 사라짐
+    var editorFocused by retain { mutableStateOf(false) }
+    var refocus by remember { mutableStateOf(editorFocused) }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     // 다시 만들려고 없어지는 화면이 잃는 초점은 기억 안 함
     val onEditorFocus = { focused: Boolean ->
-        if (lifecycle.currentState != Lifecycle.State.DESTROYED) vm.onEditorFocus(focused)
+        if (lifecycle.currentState != Lifecycle.State.DESTROYED) editorFocused = focused
     }
     val softKeyboard = LocalSoftwareKeyboardController.current
     val density = LocalDensity.current
@@ -302,6 +304,8 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     // 시트·대화상자가 뜰 때 키보드는 그 부품이 내림(DismissBehindKeyboard)
     // 이어쓰기 시트·권유·창이 덮고 있으면 닫힌 뒤에 줌
     val covered = othersOpen || plusPrompt != null
+    // 돌려줄 커서는 시트·권유·창이 덮으면 버림
+    LaunchedEffect(covered) { if (covered) refocus = false }
     val wantsFocus = !covered && (refocus || (!autoFocused && !state.isEdit))
     val onAutoFocus = {
         refocus = false

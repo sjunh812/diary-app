@@ -7,6 +7,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.retain.LocalRetainedValuesStoreProvider
+import androidx.compose.runtime.retain.ManagedRetainedValuesStore
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -75,16 +77,20 @@ class WriteRouteUiTest {
         dark: () -> Boolean = { false },
         width: () -> Dp = { 390.dp },
         lifecycle: () -> Owner = { Owner() },
+        retained: ManagedRetainedValuesStore = forgetful(),
         shown: () -> Boolean
     ) {
         setContent {
             CompositionLocalProvider(LocalUIViewController provides UIViewController(), LocalLifecycleOwner provides lifecycle()) {
                 DiaryTheme(darkTheme = dark()) {
                     val holder = rememberSaveableStateHolder()
+                    // 재생성은 화면 전체가 빠지는 것이라 retain 저장소도 함께 빠짐
                     if (shown()) {
                         holder.SaveableStateProvider("write") {
-                            Box(Modifier.width(width()).height(800.dp)) {
-                                WriteRoute(target = target, onSaved = {}, onClosed = {}, injected = viewModel)
+                            LocalRetainedValuesStoreProvider(retained) {
+                                Box(Modifier.width(width()).height(800.dp)) {
+                                    WriteRoute(target = target, onSaved = {}, onClosed = {}, injected = viewModel)
+                                }
                             }
                         }
                     }
@@ -217,9 +223,10 @@ class WriteRouteUiTest {
         target: WriteTarget = WriteTarget.Edit("e1"),
         width: () -> Dp = { 390.dp },
         owner: () -> Owner = { Owner() },
+        retained: ManagedRetainedValuesStore = forgetful(),
         shown: () -> Boolean
     ) {
-        showWrite(viewModel, target = target, width = width, lifecycle = owner, shown = shown)
+        showWrite(viewModel, target = target, width = width, lifecycle = owner, retained = retained, shown = shown)
         onAllNodes(hasSetTextAction())[0].performTextInput("새 ")
         waitForIdle()
         onAllNodes(hasSetTextAction())[0].assertIsFocused()
@@ -235,22 +242,76 @@ class WriteRouteUiTest {
 
     private fun newViewModel() = testWriteViewModel(newTarget, FakeDraftRepository(), timeZone = TimeZone.UTC)
 
-    /** 쓰던 중 회전으로 화면을 다시 만들면 커서를 돌려줌. 없어지는 화면이 잃는 초점은 기억 안 함 */
+    /** 잠금처럼 화면이 살아 있는 채 치울 때는 retain 값을 남기지 않음 */
+    private fun forgetful() = ManagedRetainedValuesStore().apply { disableRetainingExitedValues() }
+
+    /** 재생성 흉내. 없어지는 화면은 DESTROYED, 그동안 retain 값을 남김 */
+    private fun ComposeUiTest.recreate(
+        owner: Owner,
+        retained: ManagedRetainedValuesStore,
+        setShown: (Boolean) -> Unit,
+        newOwner: () -> Unit,
+        firstFrame: () -> Unit = { setShown(true) }
+    ) {
+        owner.registry.currentState = Lifecycle.State.DESTROYED
+        retained.enableRetainingExitedValues()
+        setShown(false)
+        waitForIdle()
+        newOwner()
+        firstFrame()
+        waitForIdle()
+        retained.disableRetainingExitedValues()
+        waitForIdle()
+    }
+
+    /** 쓰던 중 회전으로 화면을 다시 만들면 커서를 돌려줌 */
     @Test
     fun rotating_while_writing_keeps_the_cursor() = runComposeUiTest {
         val viewModel = editViewModel()
+        val retained = forgetful()
         var owner by mutableStateOf(Owner())
         var shown by mutableStateOf(true)
-        typeInto(viewModel, owner = { owner }) { shown }
+        typeInto(viewModel, owner = { owner }, retained = retained) { shown }
 
-        owner.registry.currentState = Lifecycle.State.DESTROYED
-        shown = false
-        waitForIdle()
-        owner = Owner()
+        recreate(owner, retained, { shown = it }, { owner = Owner() })
+
+        onAllNodes(hasSetTextAction())[0].assertIsFocused()
+    }
+
+    /** 다시 만든 첫 화면이 잠금이면 쓰던 커서를 버림. 열어도 키보드가 올라오지 않음 */
+    @Test
+    fun the_lock_screen_after_rotating_drops_the_cursor() = runComposeUiTest {
+        val viewModel = editViewModel()
+        val retained = forgetful()
+        var owner by mutableStateOf(Owner())
+        var shown by mutableStateOf(true)
+        typeInto(viewModel, owner = { owner }, retained = retained) { shown }
+
+        recreate(owner, retained, { shown = it }, { owner = Owner() }, firstFrame = {})
         shown = true
         waitForIdle()
 
-        onAllNodes(hasSetTextAction())[0].assertIsFocused()
+        onAllNodes(hasSetTextAction())[0].assertIsNotFocused()
+    }
+
+    /** 다시 만든 화면을 권유가 덮고 있으면 돌려줄 커서를 버림. 닫아도 키보드가 올라오지 않음 */
+    @Test
+    fun a_prompt_over_the_recreated_screen_drops_the_cursor() = runComposeUiTest {
+        val viewModel = editViewModel()
+        val retained = forgetful()
+        var owner by mutableStateOf(Owner())
+        var shown by mutableStateOf(true)
+        typeInto(viewModel, owner = { owner }, retained = retained) { shown }
+
+        recreate(owner, retained, { shown = it }, { owner = Owner() }) {
+            viewModel.requestChecklist(ChecklistTarget("", 0, 0))
+            waitUntil { viewModel.state.value.checklistPick is ChecklistPick.Locked }
+            shown = true
+        }
+        viewModel.checklistPickHandled()
+        waitForIdle()
+
+        onAllNodes(hasSetTextAction())[0].assertIsNotFocused()
     }
 
     /** 쓰다가 아이패드를 돌리거나 폴더블을 펴 두 칸으로 바뀌어도 커서가 남음 */
