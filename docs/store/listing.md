@@ -598,3 +598,24 @@ Plusが登場しました
 
 그래픽 이미지·App Store 헤더·검색 결과 그림은 1번 제목과 설명에 목록 화면을 둔다. 가로 그림은 제목의 낱말 하나("한 줄", "One line", "1行")만 브랜드색 #6550B9로 강조하고, 글자는 화면보다 무겁지 않게 줄였다(사용자 요청 2026-11-24). 헤더는 Apple 안전 영역(가운데 1646×661)에 글만 두고, 넓은 화면에서만 보이는 양옆에 화면을 둔다. 그래픽 이미지와 검색 결과 그림은 글과 화면을 한 묶음으로 가로 가운데에 두고, 글과 화면 모두 세로 가운데에 맞춘다. 글 폭은 언어마다 재서 사이 간격만 바꾼다(2026-11-25 사용자 지적: 글과 폰 대칭).
 만드는 법: 폰·태블릿 `swift scripts/store/make_store_screens.swift <캡처> <결과> <언어> <폭> <높이> <앞이름> [tablet|landscape]`(Play 태블릿은 `3840 2160 tablet landscape`, Play 폰은 Pro Max 캡처로 `1620 2880 phone`), 가로 그림 `swift scripts/store/make_banner.swift <캡처> <결과> <언어> feature|header|search`. 캡처는 `docs/store/source/ios/<언어>/`(iPhone 17 Pro), `ipad/`(iPad Pro 13" 세로), `ipad-land/`(iPad Pro 13" 가로, Play 태블릿)다.
+
+## 소개 영상
+
+Threads·Reddit·릴스에 올릴 세로 영상이다(1080×1920, 60fps, 19초, 소리 없음). `docs/store/promo/promo-ko.mp4`, `promo-en.mp4`이고 2026-11-26에 확정했다.
+
+휴대폰 화면 녹화를 틀에 넣지 않고 앱 부품을 꺼내 움직인다. 처음 만든 녹화판은 "스크린샷을 그냥 틀어 준 느낌"이라 버렸다(사용자 지적). 레퍼런스는 How We Feel(색 점과 화면 전체 색 덮기), Granola(떠 있는 입력 카드), Bevel(숫자 하나 크게), Superlist(낱말 하나씩 뜨는 자막)다. 쓰기 카드는 앱에 없는 한 줄 입력창이 아니라 실제 쓰기 화면을 잘라 쓴다(사용자 지적).
+
+1. 바쁜 날엔 / 한 줄이면 충분해요: 실제 쓰기 화면 카드에 "퇴근길에 본 노을이 너무 예뻤다 🌇"가 쳐진다
+2. 그날의 기분을 / 골라봐요: 기분 시트처럼 5개·4개 두 줄로 얼굴이 뜨고, 웃음을 고르면 칩이 "웃음"으로 바뀐다
+3. 차곡차곡 쌓인 / 기분을 한눈에: 고른 얼굴이 달력 오늘 칸에 떨어지고 한 달이 물결처럼 찬다
+4. 이번 달엔 웃음이 / 가장 많았어요: 웃음 얼굴과 36%, 기분 막대
+5. 사진도 / 함께 남겨요: 사진 세 장이 일기 카드 위로 날아온다
+6. 좋아하는 색으로 / 바꿔봐요: 테마 색이 차례로 화면을 덮고 다크 검정으로 끝난다(흑백 차례가 검정)
+7. 회원가입 없이 · 잠금으로 나만 보기 · 사진까지 내 드라이브에 백업: 다크 홈 화면 위 칩
+8. 아이콘, 이름, App Store · Google Play
+
+영어: Busy day? / One line is enough, Pick the mood / of your day, Every mood, / at a glance, Top mood this month: / Laughing, Add photos / to your day, Make it / your color, No sign-up · Lock it, keep it private · Photos back up to your Drive.
+
+장면마다 자막을 다 읽을 시간을 둔다(사용자 지적: 기분 고르기·웃음 고른 뒤·약속 칩이 빨랐다). 달력·통계 숫자는 시연용이다. 음악은 올리는 곳의 음원을 붙인다.
+
+만드는 법: 문구와 시간은 `docs/store/promo/<언어>.json`, 재료는 `docs/store/promo/assets/`다. 저장소 맨 위에서 `swiftc -O scripts/store/promo/make_promo.swift -o /tmp/make_promo` 뒤 `/tmp/make_promo docs/store/promo/ko.json`. 기분 얼굴은 기분 시트 스크린샷에서 `crop_faces.swift`로, 쓰기 카드와 다크 홈은 시뮬레이터 녹화에서 `grab_frame.swift`로 뽑았다.

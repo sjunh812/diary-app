@@ -1,0 +1,57 @@
+{
+ "assets": "docs/store/promo/assets",
+ "font": "shared/core/designsystem/src/commonMain/composeResources/font/changwon_round_regular.otf",
+ "icon": "iosApp/iosApp/Assets.xcassets/AppIcon.appiconset/app-icon-1024.png",
+ "previewAt": [
+  1.6,
+  3.9,
+  6.5,
+  9.0,
+  10.8,
+  13.0,
+  15.5,
+  18.5
+ ],
+ "out": "docs/store/promo/promo-en.mp4",
+ "home": "docs/store/promo/assets/home-dark-en.jpg",
+ "capScale": 0.92,
+ "copy": {
+  "line": "Busy day?\nOne line is enough",
+  "lineHl": "One line",
+  "mood": "Pick the mood\nof your day",
+  "moodHl": "mood",
+  "grid": "Every mood,\nat a glance",
+  "gridHl": "at a glance",
+  "top": "Top mood this month:\nLaughing",
+  "topHl": "Laughing",
+  "photo": "Add photos\nto your day",
+  "photoHl": "photos",
+  "color": "Make it\nyour color",
+  "chips": [
+   "No sign-up",
+   "Lock it, keep it private",
+   "Photos back up to your Drive"
+  ],
+  "typed": "The sunset on my way home was so pretty 🌇",
+  "placeholder": "How was your day?",
+  "month": "November",
+  "weekdays": [
+   "Sun",
+   "Mon",
+   "Tue",
+   "Wed",
+   "Thu",
+   "Fri",
+   "Sat"
+  ],
+  "cardDate": "Sunday, November 8",
+  "cardText": [
+   "Drove out to the sea.",
+   "Walked for an hour by the waves."
+  ],
+  "name": "1 Day 1 Diary",
+  "stores": "App Store · Google Play"
+ },
+ "writeEmpty": "docs/store/promo/assets/ew-empty.jpg",
+ "writeDone": "docs/store/promo/assets/ew-done.jpg"
+}
