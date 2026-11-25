@@ -53,10 +53,11 @@ Android 값은 `sh scripts/release/set-secrets.sh <업로드 키 .jks> [Play 서
 
 | 파일 | 크기 | 쓰는 칸 |
 | --- | --- | --- |
-| `docs/store/screens/phone-1~6`, `{en,ja}/phone-1~6` | 1080×1920 | Play 휴대폰 |
-| `docs/store/screens/tablet-1~6`, `{en,ja}/tablet-1~6` | 1440×2560 세로 | Play 7"·10" 태블릿 |
+| `docs/store/screens/phone-1~6`, `{en,ja}/phone-1~6` | 1620×2880 | Play 휴대폰 |
+| `docs/store/screens/tablet-1~6`, `{en,ja}/tablet-1~6` | 3840×2160 가로 | Play 7"·10" 태블릿 |
 | `docs/store/screens/feature.png`, `{en,ja}/feature.png` | 1024×500 | Play 그래픽 이미지 |
 | `docs/store/screens/ios/<언어>/iphone-1~6` | 1206×2622 | App Store iPhone 6.3" |
+| `docs/store/screens/ios/<언어>/iphone-large-1~6` | 1320×2868 | App Store iPhone 6.9"(다음 iOS 제출 때 넣음) |
 | `docs/store/screens/ios/<언어>/ipad-1~6` | 2064×2752 세로 | App Store iPad 13" |
 | `docs/store/screens/ios/<언어>/header.png`, `search.png` | 3840×1646, 3840×2560 | App Store 헤더, 검색 결과 |
 
