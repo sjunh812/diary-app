@@ -11,13 +11,10 @@
   "lineHl": "One line",
   "mood": "Pick the mood\nof your day",
   "moodHl": "mood",
-  "grid": "Every mood,\nat a glance",
-  "gridHl": "at a glance",
   "top": "Top mood this month:\nLaughing",
   "topHl": "Laughing",
   "photo": "Add photos\nto your day",
   "photoHl": "photos",
-  "color": "Make it\nyour color",
   "chips": [
    "No sign-up",
    "Lock it, keep it private",
@@ -25,16 +22,6 @@
   ],
   "typed": "The sunset on my way home was so pretty 🌇",
   "placeholder": "How was your day?",
-  "month": "November",
-  "weekdays": [
-   "Sun",
-   "Mon",
-   "Tue",
-   "Wed",
-   "Thu",
-   "Fri",
-   "Sat"
-  ],
   "cardDate": "Sunday, November 8",
   "cardText": [
    "Drove out to the sea.",

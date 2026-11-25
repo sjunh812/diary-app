@@ -10,13 +10,10 @@ import CoreText
 struct Copy: Decodable {
   let line: String, lineHl: String
   let mood: String, moodHl: String
-  let grid: String, gridHl: String
   let top: String, topHl: String
   let photo: String, photoHl: String
-  let color: String
   let chips: [String]
   let typed: String, placeholder: String
-  let month: String, weekdays: [String]
   let cardDate: String, cardText: [String]
   let name: String, stores: String
   let hero: [String], heroHl: String
@@ -27,11 +24,10 @@ let C = cfg.copy
 let W = 1080, H = 1920, FPS = 60
 /// 첫 제목 카드 길이. 기능 장면은 그 뒤에 시작
 let INTRO = 2.3
-/// 끝 화면을 0.3초 더 보여 줌. 머무는 길이는 아래 holds와 같게
-let TOTAL = INTRO + 16.3 + [0.35, 0.8, 0.55, 0.4, 0.5, 1.1].reduce(0, +)
-/// 기분 고르기에서 읽을 시간을 더 주는 구간
 /// (장면 시각, 머무는 길이): 다 친 글, 기분을 다 띄운 뒤, 웃음을 고른 뒤, 통계, 사진, 약속 칩. 자막마다 1.5초 넘게 읽히게
-let holds: [(Double, Double)] = [(2.04, 0.35), (2.79, 0.8), (3.3, 0.55), (8.0, 0.4), (9.9, 0.5), (13.75, 1.1)]
+let holds: [(Double, Double)] = [(2.04, 0.35), (2.79, 0.8), (3.3, 0.55), (5.25, 0.4), (7.15, 0.5), (8.7, 1.1)]
+/// 끝 화면(장면 9.27)을 2초 보여 줌
+let TOTAL = INTRO + 11.3 + holds.map(\.1).reduce(0, +)
 
 // 글꼴과 색
 CTFontManagerRegisterFontsForURL(URL(fileURLWithPath: cfg.font) as CFURL, .process, nil)
@@ -41,8 +37,7 @@ let fontName: String = {
 }()
 func font(_ s: CGFloat) -> CTFont { CTFontCreateWithName(fontName as CFString, s, nil) }
 func rgb(_ h: UInt32, _ a: CGFloat = 1) -> CGColor { CGColor(srgbRed: CGFloat((h >> 16) & 255) / 255, green: CGFloat((h >> 8) & 255) / 255, blue: CGFloat(h & 255) / 255, alpha: a) }
-let ink: UInt32 = 0x1B1D22, sub: UInt32 = 0x6B7080, brand: UInt32 = 0x6550B9, dark: UInt32 = 0x16171B
-let themes: [UInt32] = [0x6E56CF, 0x88569D, 0xAA4A60, 0xA2552C, 0x407552, 0x406E96, 0x2B2D33]
+let ink: UInt32 = 0x1B1D22, sub: UInt32 = 0x6B7080, brand: UInt32 = 0x6550B9
 // 기분 색과 얼굴 경로는 앱과 같게(DiaryColors.mood, DiaryMoodFace, 44 칸 기준)
 let moodColor: [String: UInt32] = ["good": 0xFFD4A8, "laugh": 0xFDFA87, "cool": 0xAEE4FF, "okay": 0xDFD4E4, "tired": 0xFCC6F7, "sad": 0xC4F4FE, "sick": 0xBEE9B4, "angry": 0xFFAFB0, "bad": 0x808080]
 let dotEyes = "M 17.97 18.7 L 17.97 19.8 M 26.04 18.7 L 26.04 19.8"
@@ -176,11 +171,16 @@ func paper(_ t: Double) {
   }
 }
 
-// 한 달 기분(11월 1일은 일요일, 25일이 오늘)
+// 한 달 기분(통계 장면 숫자)
 let month: [String?] = ["okay", "laugh", "laugh", "cool", "sad", nil, "laugh", "laugh", "okay", "good", "tired", "cool", "good",
                         "good", nil, "laugh", "cool", "good", "sick", "laugh", nil, "okay", "laugh", "good", "laugh"]
-let cell = 136.0, gx = 64.0, gy = 820.0, rowStep = 172.0
-func cellCenter(_ day: Int) -> (Double, Double) { let i = day - 1; return (gx + Double(i % 7) * cell + cell / 2, gy + Double(i / 7) * rowStep + 100) }
+let counts = Dictionary(grouping: month.compactMap { $0 }, by: { $0 }).mapValues { $0.count }.sorted { $0.value > $1.value || ($0.value == $1.value && $0.key < $1.key) }
+let total = Double(month.compactMap { $0 }.count)
+/// 통계 머리: 가장 많은 기분 얼굴과 비율을 한 줄 가운데로
+let topPct = attr("\(counts[0].value * 100 / Int(total))%", 230, brand)
+let topFace = 190.0, topGap = 36.0
+let topLeft = 540 - (topFace + topGap + Double(width(topPct))) / 2
+let topFaceX = topLeft + topFace / 2, topFaceY = 745.0
 
 // 기분 고르기 원 위치
 let ring = ["good", "laugh", "cool", "okay", "tired", "sad", "sick", "angry", "bad"]
@@ -190,7 +190,7 @@ func ringPos(_ i: Int) -> (Double, Double) {
 }
 
 func scenes(_ real: Double) {
-  // 기분 고르기 뒤의 모든 장면을 holdLen만큼 미룸. 배경과 떠 있는 얼굴은 실제 시간으로 움직임
+  // 머무는 구간에서는 장면 시각을 멈춤. 배경과 떠 있는 얼굴은 실제 시간으로 움직임
   var t = real, drift = 0.0, pulse = 0.0, acc = 0.0
   for (at, len) in holds {
     if real < at + acc { t = real - acc; break }
@@ -206,7 +206,7 @@ func scenes(_ real: Double) {
   paper(real)
   ctx.saveGState(); ctx.translateBy(x: 0, y: 110)
 
-  // 1. 실제 쓰기 화면 윗부분을 카드로(0~4)
+  // 1. 실제 쓰기 화면 윗부분을 카드로(0~3.7)
   if t < 3.7 {
     let pin = back(span(t, 0.05, 0.45))
     let away = easeInOut(span(t, 3.4, 0.25))
@@ -239,25 +239,24 @@ func scenes(_ real: Double) {
   }
   caption(C.line, hl: C.lineHl, t: t, inAt: 0.35, outAt: 2.05)
 
-  // 2. 기분 고르기(2.1~4.4)
+  // 2. 기분 고르기(2.15~4.1)
   caption(C.mood, hl: C.moodHl, t: t, inAt: 2.25, outAt: 3.35)
-  if t > 2.15 && t < 4.3 {
+  if t > 2.15 && t < 4.1 {
     for (i, m) in ring.enumerated() {
       let (x, y) = ringPos(i)
       let pop = back(span(t, 2.2 + Double(i) * 0.03, 0.35))
       if m == "laugh" {
-        // 고른 얼굴: 커졌다가 오늘 칸으로 날아감
+        // 고른 얼굴: 커졌다가 통계 머리 자리로 날아감
         let pick = easeOut(span(t, 3.0, 0.28))
-        let fly = easeInOut(span(t, 3.5, 0.7))
-        let (tx, ty) = cellCenter(25)
+        let fly = easeInOut(span(t, 3.45, 0.65))
         let s0 = 136 * pop * (1 + 0.5 * pick) * (1 + 0.06 * drift + 0.07 * pulse)
-        let size = lerp(s0, 92, fly)
-        let cx = lerp(lerp(x, 540, pick), tx, fly), cy = lerp(lerp(y, 1180, pick), ty + 20, fly) - sin(fly * .pi) * 160
+        let size = lerp(s0, topFace, fly)
+        let cx = lerp(lerp(x, 540, pick), topFaceX, fly), cy = lerp(lerp(y, 1180, pick), topFaceY, fly) - sin(fly * .pi) * 70
         if pick > 0 && fly < 1 {
           ctx.saveGState(); groupAlpha = CGFloat(0.35 * pick * (1 - fly)); ctx.setAlpha(groupAlpha)
           ctx.setFillColor(rgb(moodColor[m]!)); ctx.fillEllipse(in: CGRect(x: cx - size * 0.7, y: cy - size * 0.7, width: size * 1.4, height: size * 1.4)); ctx.restoreGState(); groupAlpha = 1
         }
-        if t < 4.2 { face(m, cx: cx, cy: cy, size: size) }
+        face(m, cx: cx, cy: cy, size: size)
       } else {
         let gone = easeIn(span(t, 2.82 + Double(i) * 0.015, 0.18))
         face(m, cx: x, cy: y + sin(real * 2.6 + Double(i)) * 9 * drift, size: 136 * pop * (1 - gone), alpha: 1 - gone)
@@ -265,77 +264,33 @@ func scenes(_ real: Double) {
     }
   }
 
-  // 3. 달력(4.0~6.8)
-  caption(C.grid, hl: C.gridHl, t: t, inAt: 3.65, outAt: 6.35)
-  if t > 3.62 && t < 7.1 {
-    let gin = easeOut(span(t, 3.62, 0.4)), gout = easeInOut(span(t, 6.4, 0.35))
-    let zoom = 1 + 0.035 * easeInOut(span(t, 3.65, 3.0))
-    ctx.saveGState()
-    ctx.translateBy(x: 540, y: 1100); ctx.scaleBy(x: CGFloat(zoom * (1 - 0.1 * gout)), y: CGFloat(zoom * (1 - 0.1 * gout))); ctx.translateBy(x: -540, y: -1100)
-    groupAlpha = CGFloat(gin * (1 - gout)); ctx.setAlpha(groupAlpha)
-    text(attr(C.month, 64, ink), x: gx + 16, baseline: gy - 130)
-    for (i, w) in C.weekdays.enumerated() {
-      let c: UInt32 = i == 0 ? 0xE5484D : (i == 6 ? 0x3E63DD : sub)
-      centered(attr(w, 34, c, bold: false), cx: CGFloat(gx + Double(i) * cell + cell / 2), baseline: CGFloat(gy - 40))
-    }
-    for d in 1...30 {
-      let (cx, cy) = cellCenter(d)
-      let row = (d - 1) / 7, col = (d - 1) % 7
-      let appear = easeOut(span(t, 3.6 + Double(row + col) * 0.04, 0.3))
-      let isToday = d == 25
-      // 오늘 칸: 앱처럼 연한 칸 위에 채운 원 숫자
-      if isToday {
-        // 숫자 원 위와 얼굴 아래 여백을 14로 같게
-        rrect(CGRect(x: cx - cell / 2 + 6, y: cy - 96, width: cell - 12, height: 168), 30, fill: rgb(0xEBE4FF, CGFloat(appear)))
-        ctx.setFillColor(rgb(brand, CGFloat(appear))); ctx.fillEllipse(in: CGRect(x: cx - 27, y: cy - 82, width: 54, height: 54))
-      }
-      let numColor: UInt32 = isToday ? 0xFFFFFF : (col == 0 ? 0xE5484D : (col == 6 ? 0x3E63DD : (d > 25 ? 0xB8BBC4 : 0x3A3D45)))
-      centered(attr("\(d)", 34, numColor, bold: isToday), cx: CGFloat(cx), baseline: CGFloat(cy - 43), alpha: CGFloat(appear))
-      if d <= 24, let m = month[d - 1] {
-        let p = back(span(t, 3.8 + Double(row + col) * 0.055, 0.38))
-        face(m, cx: cx, cy: cy + 20, size: 76 * p)
-      }
-      if isToday && t >= 4.2 {
-        let land = back(span(t, 4.2, 0.32))
-        face("laugh", cx: cx, cy: cy + 20, size: 76 * (0.8 + 0.2 * land) + 16 * (1 - land))
-      }
-    }
-    ctx.restoreGState(); groupAlpha = 1
-  }
-
-  // 4. 가장 많은 기분(6.7~8.9)
-  caption(C.top, hl: C.topHl, t: t, inAt: 6.75, outAt: 8.45)
-  if t > 6.6 && t < 9.2 {
-    let counts = Dictionary(grouping: month.compactMap { $0 }, by: { $0 }).mapValues { $0.count }.sorted { $0.value > $1.value || ($0.value == $1.value && $0.key < $1.key) }
-    let total = Double(month.compactMap { $0 }.count)
-    let out = easeInOut(span(t, 8.5, 0.3))
-    let n = easeOut(span(t, 6.95, 0.9))
+  // 3. 가장 많은 기분(4.1~6.1). 날아온 얼굴이 그대로 머리가 됨
+  caption(C.top, hl: C.topHl, t: t, inAt: 3.75, outAt: 5.7)
+  if t >= 4.1 && t < 6.1 {
+    let out = easeInOut(span(t, 5.75, 0.3))
+    let n = easeOut(span(t, 4.2, 0.9))
     let pct = Int((Double(counts[0].value) / total * 100 * n).rounded())
     ctx.saveGState(); groupAlpha = CGFloat(1 - out); ctx.setAlpha(groupAlpha)
-    // 가장 많은 기분 얼굴과 비율을 한 줄로
-    let big = attr("\(counts[0].value * 100 / Int(total))%", 230, brand)
-    let shown = attr("\(pct)%", 230, brand)
-    let bw = width(big), fs = 190.0, gap = 36.0
-    let left = 540 - (fs + gap + Double(bw)) / 2
-    let rise = CGFloat(1 - easeOut(span(t, 6.85, 0.4))) * 40 + CGFloat(out) * 40
-    let fa = easeOut(span(t, 6.85, 0.3))
-    face(counts[0].key, cx: left + fs / 2, cy: 745 - Double(rise), size: fs * back(span(t, 6.85, 0.45)), alpha: fa)
-    text(shown, x: CGFloat(left + fs + gap), baseline: 820 - rise, alpha: CGFloat(fa))
+    let rise = CGFloat(1 - easeOut(span(t, 4.1, 0.4))) * 40 + CGFloat(out) * 40
+    let fa = easeOut(span(t, 4.1, 0.3))
+    let land = 1 + 0.08 * (1 - easeOut(span(t, 4.1, 0.35)))
+    face(counts[0].key, cx: topFaceX, cy: topFaceY - Double(out) * 40, size: topFace * land)
+    text(attr("\(pct)%", 230, brand), x: CGFloat(topLeft + topFace + topGap), baseline: 820 - rise, alpha: CGFloat(fa))
     for (i, kv) in counts.prefix(5).enumerated() {
       let y = 960 + Double(i) * 150 + out * 40
-      let p = easeOut(span(t, 7.0 + Double(i) * 0.08, 0.55))
-      face(kv.key, cx: 150, cy: y, size: 100 * back(span(t, 6.95 + Double(i) * 0.08, 0.4)))
+      let p = easeOut(span(t, 4.25 + Double(i) * 0.08, 0.55))
+      face(kv.key, cx: 150, cy: y, size: 100 * back(span(t, 4.2 + Double(i) * 0.08, 0.4)))
       let maxW = 700.0, w = maxW * Double(kv.value) / Double(counts[0].value) * p
       rrect(CGRect(x: 240, y: y - 22, width: max(44, w), height: 44), 22, fill: rgb(moodColor[kv.key]!, CGFloat(min(1, p * 2))))
     }
     ctx.restoreGState(); groupAlpha = 1
   }
 
-  // 5. 사진(8.8~10.7)
-  caption(C.photo, hl: C.photoHl, t: t, inAt: 8.9, outAt: 10.35)
-  if t > 8.75 && t < 10.9 {
-    let out = easeInOut(span(t, 10.4, 0.4))
-    let cin = easeOut(span(t, 8.95, 0.45))
+  // 4. 사진(6.0~8.15)
+  caption(C.photo, hl: C.photoHl, t: t, inAt: 6.15, outAt: 7.6)
+  if t > 6.0 && t < 8.15 {
+    let out = easeInOut(span(t, 7.65, 0.4))
+    let cin = easeOut(span(t, 6.2, 0.45))
     ctx.saveGState(); groupAlpha = CGFloat(cin * (1 - out)); ctx.setAlpha(groupAlpha)
     let card = CGRect(x: 110, y: 1180 + (1 - cin) * 80, width: 860, height: 380)
     rrect(card, 44, fill: rgb(0xFFFFFF), shadow: true, stroke: rgb(0xEEEAF8))
@@ -344,7 +299,7 @@ func scenes(_ real: Double) {
     ctx.restoreGState(); groupAlpha = 1
     let spots: [(Double, Double, Double)] = [(300, 880, -9), (540, 820, 2), (790, 890, 9)]
     for (i, img) in photos.enumerated() {
-      let p = back(span(t, 9.05 + Double(i) * 0.13, 0.5))
+      let p = back(span(t, 6.3 + Double(i) * 0.13, 0.5))
       let (x, y, rot) = spots[i]
       let sx = lerp([-300, 540, 1380][i], x, p), sy = lerp(1500, y, p)
       ctx.saveGState(); groupAlpha = CGFloat(clamp(p * 3) * (1 - out)); ctx.setAlpha(groupAlpha)
@@ -356,79 +311,49 @@ func scenes(_ real: Double) {
     }
   }
 
-  ctx.restoreGState(); groupAlpha = 1
-
-  // 6. 테마 색으로 덮기(10.6~12.7)
-  if t > 10.6 {
-    // 흑백 차례는 다크 검정으로 덮어 어두운 색이 두 번 바뀌지 않게
-    let steps = Array(themes.dropLast()) + [dark]
-    for (i, c) in steps.enumerated() {
-      let start = 10.6 + Double(i) * 0.28
-      let p = easeInOut(span(t, start, 0.34))
-      if p <= 0 { continue }
-      let r = p * 1250
-      ctx.setFillColor(rgb(c)); ctx.fillEllipse(in: CGRect(x: 540 - r, y: 1060 - r, width: r * 2, height: r * 2))
-    }
-  }
-  caption(C.color, hl: "", t: t, inAt: 10.75, outAt: 12.7, baseline: 880, color: 0xFFFFFF)
-  if t > 10.7 && t < 13.0 {
-    // 고른 색 점이 차례로 커짐
-    let out = easeIn(span(t, 12.65, 0.3))
-    for (i, c) in themes.enumerated() {
-      let x = 540 + (Double(i) - 3) * 118
-      let p = back(span(t, 10.8 + Double(i) * 0.03, 0.4))
-      // 지금 덮는 색 점만 부드럽게 커짐
-      let k = easeInOut(1 - min(1, abs((t - 10.6) / 0.28 - Double(i) - 0.6) / 0.8))
-      let s = 74 * p * (1 + 0.28 * k) * (1 - out)
-      ctx.setFillColor(rgb(c)); ctx.fillEllipse(in: CGRect(x: x - s / 2, y: 1060 - s / 2, width: s, height: s))
-      ctx.setStrokeColor(rgb(0xFFFFFF, CGFloat(0.55 + 0.45 * k))); ctx.setLineWidth(CGFloat(4 + 3 * k))
-      ctx.strokeEllipse(in: CGRect(x: x - s / 2, y: 1060 - s / 2, width: s, height: s))
-    }
-  }
-
-  // 7. 실제 앱과 약속(12.6~14.3)
-  if t > 12.8 && t < 14.6 {
-    let rise = easeOut(span(t, 12.85, 0.5)), out = easeInOut(span(t, 14.15, 0.35))
+  // 5. 실제 앱과 약속(7.75~9.55)
+  if t > 7.75 && t < 9.55 {
+    let rise = easeOut(span(t, 7.8, 0.5)), out = easeInOut(span(t, 9.1, 0.35))
     let pw = 720.0, ph = pw * 2868 / 1320
     let r = CGRect(x: 540 - pw / 2, y: 820 + (1 - rise) * 900 + out * 1300, width: pw, height: ph)
-    ctx.saveGState(); ctx.setShadow(offset: CGSize(width: 0, height: 30), blur: 80, color: rgb(0x000000, 0.5))
-    rrect(r, 100, fill: rgb(0x000000)); ctx.restoreGState(); groupAlpha = 1
+    ctx.saveGState(); ctx.setShadow(offset: CGSize(width: 0, height: 30), blur: 80, color: rgb(0x3A2A8A, 0.28))
+    rrect(r, 100, fill: rgb(0x000000)); ctx.restoreGState()
     image(home, r, radius: 100)
-    ctx.saveGState(); ctx.addPath(CGPath(roundedRect: r, cornerWidth: 100, cornerHeight: 100, transform: nil)); ctx.setStrokeColor(rgb(0x3A3C44)); ctx.setLineWidth(4); ctx.strokePath(); ctx.restoreGState(); groupAlpha = 1
+    ctx.saveGState(); ctx.addPath(CGPath(roundedRect: r, cornerWidth: 100, cornerHeight: 100, transform: nil)); ctx.setStrokeColor(rgb(0x3A3C44)); ctx.setLineWidth(4); ctx.strokePath(); ctx.restoreGState()
     for (i, chip) in C.chips.enumerated() {
-      let p = back(span(t, 12.95 + Double(i) * 0.16, 0.42))
-      let a = attr(chip, 50, 0xFFFFFF)
+      let p = back(span(t, 7.9 + Double(i) * 0.16, 0.42))
+      let a = attr(chip, 50, ink)
       let w = width(a) + 136, y = 400 + Double(i) * 126 - out * 40
       let x = 540 - w / 2
       ctx.saveGState(); groupAlpha = CGFloat(clamp(p * 2) * (1 - out)); ctx.setAlpha(groupAlpha)
       ctx.translateBy(x: 540, y: CGFloat(y)); ctx.scaleBy(x: CGFloat(p), y: CGFloat(p)); ctx.translateBy(x: -540, y: CGFloat(-y))
-      rrect(CGRect(x: x, y: y - 52, width: w, height: 104), 52, fill: rgb(0x2A2C35), stroke: rgb(0x3D3F4A))
+      rrect(CGRect(x: x, y: y - 52, width: w, height: 104), 52, fill: rgb(0xFFFFFF), shadow: true, stroke: rgb(0xE9E4F8))
       // 확인 표시
-      ctx.setStrokeColor(rgb(0xBAA7FF)); ctx.setLineWidth(7); ctx.setLineCap(.round); ctx.setLineJoin(.round)
+      ctx.setStrokeColor(rgb(brand)); ctx.setLineWidth(7); ctx.setLineCap(.round); ctx.setLineJoin(.round)
       ctx.move(to: CGPoint(x: x + 46, y: y)); ctx.addLine(to: CGPoint(x: x + 62, y: y + 16)); ctx.addLine(to: CGPoint(x: x + 92, y: y - 16)); ctx.strokePath()
       text(a, x: x + 110, baseline: CGFloat(y) + 18)
       ctx.restoreGState(); groupAlpha = 1
     }
   }
 
-  // 8. 끝 화면(14.2~16)
-  if t > 14.32 {
-    let e = t - 14.32
+  // 6. 끝 화면(9.27~)
+  if t > 9.27 {
+    let e = t - 9.27
     let p = back(e / 0.5), a = easeOut(e / 0.3)
     let size = 250 * (0.7 + 0.3 * p)
     let r = CGRect(x: 540 - size / 2, y: 820 - size / 2, width: size, height: size)
-    ctx.saveGState(); groupAlpha = CGFloat(a); ctx.setAlpha(groupAlpha); ctx.setShadow(offset: CGSize(width: 0, height: 20), blur: 60, color: rgb(0x000000, 0.45))
+    ctx.saveGState(); groupAlpha = CGFloat(a); ctx.setAlpha(groupAlpha); ctx.setShadow(offset: CGSize(width: 0, height: 20), blur: 60, color: rgb(0x3A2A8A, 0.22))
     rrect(r, size * 0.225, fill: rgb(0xFFFFFF)); ctx.restoreGState(); groupAlpha = 1
     image(icon, r, alpha: CGFloat(a), radius: size * 0.225)
     let n = easeOut((e - 0.12) / 0.4), s = easeOut((e - 0.3) / 0.4)
-    centered(attr(C.name, 100, 0xFFFFFF), cx: 540, baseline: 1090 + CGFloat(1 - n) * 30, alpha: CGFloat(n))
-    let st = attr(C.stores, 44, 0xBAA7FF)
+    centered(attr(C.name, 100, ink), cx: 540, baseline: 1090 + CGFloat(1 - n) * 30, alpha: CGFloat(n))
+    let st = attr(C.stores, 44, brand)
     let w = width(st) + 80
     let pill = CGRect(x: 540 - w / 2, y: 1170 + (1 - s) * 30, width: w, height: 96)
-    ctx.saveGState(); groupAlpha = CGFloat(s); ctx.setAlpha(groupAlpha); rrect(pill, 48, fill: rgb(0x2A2440)); ctx.restoreGState(); groupAlpha = 1
+    ctx.saveGState(); groupAlpha = CGFloat(s); ctx.setAlpha(groupAlpha); rrect(pill, 48, fill: rgb(0xEBE4FF)); ctx.restoreGState(); groupAlpha = 1
     centered(st, cx: 540, baseline: pill.minY + 63, alpha: CGFloat(s))
   }
-  ctx.restoreGState(); groupAlpha = 1
+  ctx.restoreGState(); ctx.restoreGState(); groupAlpha = 1
 }
 
 /// 첫 제목 카드: 앱 이름, 세 줄 제목(핵심 말에 형광펜), 아래에서 빼꼼 올라오는 기분 얼굴
@@ -477,30 +402,37 @@ func render(_ ft: Double) {
 
 
 // MARK: 효과음
-// 남의 음원 없이 직접 합성. 시각은 위 장면 코드의 상수와 같게 맞춤(장면 시각을 바꾸면 여기도 함께)
+// 남의 음원 없이 직접 합성. 시각은 장면 시간표에서 계산(장면 시각을 바꾸면 여기도 함께)
 let rate = 44_100.0
-var mixL = [Float](repeating: 0, count: Int((TOTAL + 1) * rate))
-var mixR = mixL
+/// 배경음과 효과음을 따로 모은 뒤, 효과음이 날 때만 배경음을 낮춰 섞음
+final class Bus { var l: [Float], r: [Float]; init() { l = [Float](repeating: 0, count: Int((TOTAL + 1) * rate)); r = l } }
+let music = Bus(), sfx = Bus()
+/// 배경음을 비켜 줄 효과음 시각
+var hits: [Double] = []
 /// 장면 시각(머무름 전)을 영상 시각으로
 func realTime(_ t: Double) -> Double { INTRO + t + holds.filter { t > $0.0 }.map(\.1).reduce(0, +) }
-func addSound(at time: Double, pan: Double = 0, _ gen: (Double) -> Double, length: Double) {
+func addSound(_ bus: Bus, at time: Double, pan: Double = 0, _ gen: (Double) -> Double, length: Double) {
   let start = Int(time * rate), n = Int(length * rate)
   let l = Float(sqrt(0.5 * (1 - pan))), r = Float(sqrt(0.5 * (1 + pan)))
-  for i in 0..<n where start + i >= 0 && start + i < mixL.count {
+  for i in 0..<n where start + i >= 0 && start + i < bus.l.count {
     let v = Float(gen(Double(i) / rate))
-    mixL[start + i] += v * l; mixR[start + i] += v * r
+    bus.l[start + i] += v * l; bus.r[start + i] += v * r
   }
 }
 /// 칼림바 음색 하나로 배경음과 효과음을 모두 만듦(따로 놀지 않게)
-func pluck(_ at: Double, freq: Double, gain: Double, decay: Double = 6, pan: Double = 0, length: Double = 0.9) {
-  addSound(at: at, pan: pan, { t in
+func pluck(_ bus: Bus, _ at: Double, freq: Double, gain: Double, decay: Double = 6, pan: Double = 0, length: Double = 0.9) {
+  addSound(bus, at: at, pan: pan, { t in
     (sin(2 * .pi * freq * t) + 0.3 * sin(2 * .pi * freq * 3 * t) * exp(-t * 22) + 0.08 * sin(2 * .pi * freq * 5.4 * t) * exp(-t * 40))
       * exp(-t * decay) * min(1, t * 600) * gain
   }, length: length)
 }
+/// 효과음. 배경음보다 한 옥타브 위에서 울리고 배경음을 잠깐 낮춤
+func hit(_ at: Double, freq: Double, gain: Double, decay: Double = 6, pan: Double = 0, length: Double = 0.9) {
+  hits.append(at); pluck(sfx, at, freq: freq, gain: gain, decay: decay, pan: pan, length: length)
+}
 /// 아주 짧은 탁(타이핑)
-func tick(_ at: Double, gain: Double = 0.03) {
-  addSound(at: at, { t in (sin(2 * .pi * 4_200 * t) * 0.6 + sin(2 * .pi * 1_700 * t) * 0.4) * exp(-t * 600) * min(1, t * 8_000) * gain }, length: 0.012)
+func tick(_ at: Double, gain: Double = 0.05) {
+  addSound(sfx, at: at, { t in (sin(2 * .pi * 4_200 * t) * 0.6 + sin(2 * .pi * 1_700 * t) * 0.4) * exp(-t * 600) * min(1, t * 8_000) * gain }, length: 0.012)
 }
 func hz(_ midi: Double) -> Double { 440 * pow(2, (midi - 69) / 12) }
 /// C장조 5음 음계(도레미솔라)에서 n번째 음. 0 = 가운데 도 위 옥타브의 도
@@ -509,9 +441,9 @@ func scale(_ n: Int) -> Double {
   return hz(72 + Double(12 * (n / 5) + steps[n % 5]))
 }
 /// 로고가 뜨는 시각. 배경음은 여기서 멈추고 도 화음으로 마무리
-var endAt: Double { realTime(14.32) + 0.05 }
+var endAt: Double { realTime(9.27) + 0.05 }
 
-/// 산뜻한 배경음: 장조 C-F-G-C, 반 박마다 칼림바, 얇은 패드, 박마다 짧은 베이스
+/// 산뜻한 배경음: 장조 C-F-G-C, 반 박마다 칼림바, 얇은 패드, 박마다 짧은 베이스. 효과음 자리를 비우려고 가운데 옥타브에 둠
 func addMusic() {
   let chords: [[Double]] = [[60, 64, 67, 74], [60, 65, 69, 72], [59, 62, 67, 74], [60, 64, 67, 72]]
   let roots: [Double] = [48, 53, 55, 48]
@@ -524,56 +456,64 @@ func addMusic() {
     for (i, idx) in arp.enumerated() {
       let at = start + Double(i) * eighth
       if at >= endAt - 0.05 { break }
-      pluck(at, freq: hz(chord[idx] + 12), gain: 0.03 * fade(at), pan: i % 2 == 0 ? -0.25 : 0.25, length: 0.7)
+      pluck(music, at, freq: hz(chord[idx]), gain: 0.03 * fade(at), decay: 7, pan: i % 2 == 0 ? -0.3 : 0.3, length: 0.6)
     }
     let padEnd = min(start + bar + 0.15, endAt + 0.2)
     for note in chord.prefix(3) {
-      let f = hz(note + 12), len = padEnd - start
-      addSound(at: start, { t in sin(2 * .pi * f * t) * min(1, t / 0.25) * min(1, max(0, (len - t) / 0.3)) * 0.007 * fade(start + t) }, length: len)
+      let f = hz(note), len = padEnd - start
+      addSound(music, at: start, { t in sin(2 * .pi * f * t) * min(1, t / 0.25) * min(1, max(0, (len - t) / 0.3)) * 0.006 * fade(start + t) }, length: len)
     }
     let root = hz(roots[bars % 4])
     for i in 0..<4 {
       let at = start + Double(i) * beat
       if at >= endAt - 0.05 { break }
-      addSound(at: at, { t in sin(2 * .pi * root * t) * exp(-t * 7) * min(1, t * 300) * 0.035 * fade(at + t) }, length: 0.45)
+      addSound(music, at: at, { t in sin(2 * .pi * root * t) * exp(-t * 7) * min(1, t * 300) * 0.03 * fade(at + t) }, length: 0.45)
     }
     bars += 1
   }
   // 마무리: 도 화음을 아래에서 위로 굴려 펼치고 길게 울림
   for (i, note) in [60.0, 64, 67, 72, 76].enumerated() {
-    pluck(endAt + Double(i) * 0.07, freq: hz(note + 12), gain: 0.05 - Double(i) * 0.004, decay: 1.6, pan: Double(i) / 2 - 1, length: TOTAL - endAt)
+    pluck(sfx, endAt + Double(i) * 0.07, freq: hz(note + 12), gain: 0.045 - Double(i) * 0.004, decay: 1.6, pan: Double(i) / 2 - 1, length: TOTAL - endAt)
   }
   let low = hz(48)
-  addSound(at: endAt, { t in sin(2 * .pi * low * t) * exp(-t * 1.4) * min(1, t * 200) * 0.05 }, length: TOTAL - endAt)
+  addSound(sfx, at: endAt, { t in sin(2 * .pi * low * t) * exp(-t * 1.4) * min(1, t * 200) * 0.05 }, length: TOTAL - endAt)
 }
 
 func buildSound() {
   addMusic()
-  // 첫 제목 카드: 얼굴 셋이 올라올 때(솔, 라, 도)
-  pluck(0.62, freq: scale(3), gain: 0.07, pan: 0.3)
-  pluck(0.78, freq: scale(4), gain: 0.06, pan: -0.4)
-  pluck(0.92, freq: scale(5), gain: 0.055, pan: 0.6)
+  // 첫 제목 카드는 배경음만
   // 타이핑은 아주 짧은 탁
   let perChar = min(0.075, 1.3 / Double(C.typed.count))
   for k in 0..<C.typed.count { tick(realTime(0.75 + Double(k) * perChar)) }
   // 기분 아홉 개는 음계를 따라 올라가는 작은 물결, 고르면 높은 미
-  for i in 0..<9 { pluck(realTime(2.2 + Double(i) * 0.03) + 0.08, freq: scale(i), gain: 0.025, pan: Double(i % 5) / 2.5 - 0.8, length: 0.5) }
-  pluck(realTime(3.0), freq: scale(7), gain: 0.06, decay: 3, length: 1.2)
-  // 오늘 칸에 착지
-  pluck(realTime(4.2) + 0.12, freq: scale(5), gain: 0.06, decay: 4)
+  for i in 0..<9 { hit(realTime(2.2 + Double(i) * 0.03) + 0.08, freq: scale(i + 2), gain: 0.028, pan: Double(i % 5) / 2.5 - 0.8, length: 0.5) }
+  hit(realTime(3.0), freq: scale(7), gain: 0.085, decay: 3, length: 1.2)
+  // 통계 머리 자리에 착지
+  hit(realTime(4.1) + 0.02, freq: scale(5), gain: 0.075, decay: 4)
   // 숫자가 다 세어지면
-  pluck(realTime(7.85), freq: scale(8), gain: 0.045, decay: 3, length: 1)
+  hit(realTime(5.1), freq: scale(8), gain: 0.065, decay: 3, length: 1)
   // 사진 세 장이 자리 잡을 때(레, 미, 솔)
-  for (i, n) in [1, 2, 3].enumerated() { pluck(realTime(9.05 + Double(i) * 0.13) + 0.22, freq: scale(n + 5), gain: 0.055, pan: Double(i - 1) * 0.6) }
-  // 테마 색이 덮일 때마다 음계가 한 칸씩 올라감
-  for i in 0..<7 { pluck(realTime(10.6 + Double(i) * 0.28) + 0.12, freq: scale(i + 2), gain: 0.05, pan: Double(i) / 3 - 1) }
+  for (i, n) in [1, 2, 3].enumerated() { hit(realTime(6.3 + Double(i) * 0.13) + 0.22, freq: scale(n + 5), gain: 0.075, pan: Double(i - 1) * 0.6) }
   // 약속 칩(도, 미, 솔)
-  for (i, n) in [5, 7, 8].enumerated() { pluck(realTime(12.95 + Double(i) * 0.16) + 0.1, freq: scale(n), gain: 0.05) }
-  // 부드럽게 눌러 넘치지 않게, 끝 0.4초는 서서히 닫아 뚝 끊기지 않게
+  for (i, n) in [5, 7, 8].enumerated() { hit(realTime(7.9 + Double(i) * 0.16) + 0.1, freq: scale(n), gain: 0.07) }
+  hits.append(endAt)
+  // 효과음 앞뒤로 배경음을 절반쯤 낮췄다가 0.4초에 걸쳐 되돌림
+  var duck = [Float](repeating: 1, count: music.l.count)
+  for h in hits {
+    let s = Int((h - 0.03) * rate)
+    for i in 0..<Int(0.45 * rate) where s + i >= 0 && s + i < duck.count {
+      let x = Double(i) / rate
+      let d = x < 0.03 ? x / 0.03 : max(0, 1 - (x - 0.05) / 0.4)
+      duck[s + i] = min(duck[s + i], Float(1 - 0.45 * d))
+    }
+  }
+  // 효과음이 배경음보다 확실히 위에 오게 비율을 두고 전체 크기를 맞춤. 끝 0.4초는 서서히 닫음
+  let bed: Float = 2.0, fx: Float = 4.8
   let end = Int(TOTAL * rate), tail = Int(0.4 * rate)
-  for i in 0..<mixL.count {
+  for i in 0..<music.l.count {
     let close = Float(min(1, max(0, Double(end - i) / Double(tail))))
-    mixL[i] = tanhf(mixL[i] * 3.2) * 0.85 * close; mixR[i] = tanhf(mixR[i] * 3.2) * 0.85 * close
+    music.l[i] = tanhf(music.l[i] * duck[i] * bed + sfx.l[i] * fx) * 0.95 * close
+    music.r[i] = tanhf(music.r[i] * duck[i] * bed + sfx.r[i] * fx) * 0.95 * close
   }
 }
 
@@ -609,7 +549,7 @@ func muxWithSound(video: URL, out: URL) {
       if pos >= total { aIn.markAsFinished(); group.leave(); return }
       let n = min(chunk, total - pos)
       var data = [Float](repeating: 0, count: n * 2)
-      for i in 0..<n { data[i * 2] = mixL[pos + i]; data[i * 2 + 1] = mixR[pos + i] }
+      for i in 0..<n { data[i * 2] = music.l[pos + i]; data[i * 2 + 1] = music.r[pos + i] }
       var block: CMBlockBuffer?
       let bytes = n * 8
       CMBlockBufferCreateWithMemoryBlock(allocator: nil, memoryBlock: nil, blockLength: bytes, blockAllocator: nil, customBlockSource: nil, offsetToData: 0, dataLength: bytes, flags: 0, blockBufferOut: &block)
