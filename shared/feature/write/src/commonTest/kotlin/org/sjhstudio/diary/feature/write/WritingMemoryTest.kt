@@ -56,4 +56,36 @@ class WritingMemoryTest {
         memory.update(focused = true, imeVisible = false)
         assertTrue(memory.writing)
     }
+
+    /** 다시 만든 화면이 커서를 주기 전 기록은 대기 중이라 덮지 않음 */
+    @Test
+    fun a_recreated_screen_keeps_writing_until_the_cursor_is_given() {
+        val memory = WritingMemory()
+        memory.update(focused = true, imeVisible = true)
+        assertTrue(memory.restore())
+        memory.update(focused = false, imeVisible = false)
+        assertTrue(memory.writing)
+        assertTrue(memory.restore())
+    }
+
+    /** 앞 화면에서 보이던 키보드가 새 화면에서 내린 것으로 이어지지 않음 */
+    @Test
+    fun the_keyboard_coming_up_on_a_recreated_screen_is_not_lowering() {
+        val memory = WritingMemory()
+        memory.update(focused = true, imeVisible = true)
+        memory.restore()
+        memory.settle()
+        memory.update(focused = true, imeVisible = false)
+        assertTrue(memory.writing)
+        memory.update(focused = true, imeVisible = true)
+        assertTrue(memory.writing)
+    }
+
+    @Test
+    fun not_writing_waits_for_nothing() {
+        val memory = WritingMemory()
+        assertFalse(memory.restore())
+        memory.update(focused = true, imeVisible = true)
+        assertTrue(memory.writing)
+    }
 }
