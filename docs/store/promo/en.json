@@ -41,7 +41,13 @@
    "Walked for an hour by the waves."
   ],
   "name": "1 Day 1 Diary",
-  "stores": "App Store · Google Play"
+  "stores": "App Store · Google Play",
+  "hero": [
+   "One line a day,",
+   "a diary you'll",
+   "actually keep."
+  ],
+  "heroHl": "actually keep"
  },
  "writeEmpty": "docs/store/promo/assets/ew-empty.jpg",
  "writeDone": "docs/store/promo/assets/ew-done.jpg"

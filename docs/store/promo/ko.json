@@ -40,7 +40,13 @@
    "파도 소리를 들으며 한참 걸었다."
   ],
   "name": "1일 1일기",
-  "stores": "App Store · Google Play"
+  "stores": "App Store · Google Play",
+  "hero": [
+   "하루 한 줄로",
+   "꾸준히 쓰는",
+   "일기장"
+  ],
+  "heroHl": "꾸준히"
  },
  "writeEmpty": "docs/store/promo/assets/kw-empty.jpg",
  "writeDone": "docs/store/promo/assets/kw-done.jpg"

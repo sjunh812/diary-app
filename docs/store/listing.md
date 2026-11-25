@@ -601,10 +601,11 @@ Plusが登場しました
 
 ## 소개 영상
 
-Threads·Reddit·릴스에 올릴 세로 영상이다(1080×1920, 60fps, 9Mbps, 19초, 소리 없음). `docs/store/promo/promo-ko.mp4`, `promo-en.mp4`이고 2026-11-26에 확정했다.
+Threads·Reddit·릴스에 올릴 세로 영상이다(1080×1920, 60fps, 7.5Mbps, 22.3초, 효과음과 배경음 포함). `docs/store/promo/promo-ko.mp4`, `promo-en.mp4`이고 2026-11-26에 확정했다.
 
 휴대폰 화면 녹화를 틀에 넣지 않고 앱 부품을 꺼내 움직인다. 처음 만든 녹화판은 "스크린샷을 그냥 틀어 준 느낌"이라 버렸다(사용자 지적). 레퍼런스는 How We Feel(색 점과 화면 전체 색 덮기), Granola(떠 있는 입력 카드), Bevel(숫자 하나 크게), Superlist(낱말 하나씩 뜨는 자막)다. 쓰기 카드는 앱에 없는 한 줄 입력창이 아니라 실제 쓰기 화면을 잘라 쓴다(사용자 지적).
 
+0. 첫 제목 카드(2.3초): 앱 이름, "하루 한 줄로 / 꾸준히 쓰는 / 일기장"(형광펜 "꾸준히"), 아래에서 올라오는 웃음·좋음 얼굴과 오른쪽 가장자리에서 빼꼼 내미는 쿨 얼굴. 요미네코 소개 영상처럼 기능 전에 앱부터 알린다(사용자 제안)
 1. 바쁜 날엔 / 한 줄이면 충분해요: 실제 쓰기 화면 카드에 "퇴근길에 본 노을이 너무 예뻤다 🌇"가 쳐진다
 2. 그날의 기분을 / 골라봐요: 기분 시트처럼 5개·4개 두 줄로 얼굴이 뜨고, 웃음을 고르면 칩이 "웃음"으로 바뀐다
 3. 차곡차곡 쌓인 / 기분을 한눈에: 고른 얼굴이 달력 오늘 칸에 떨어지고 한 달이 물결처럼 찬다
@@ -616,6 +617,6 @@ Threads·Reddit·릴스에 올릴 세로 영상이다(1080×1920, 60fps, 9Mbps, 
 
 영어: Busy day? / One line is enough, Pick the mood / of your day, Every mood, / at a glance, Top mood this month: / Laughing, Add photos / to your day, Make it / your color, No sign-up · Lock it, keep it private · Photos back up to your Drive.
 
-장면마다 자막을 다 읽을 시간을 둔다(사용자 지적: 기분 고르기·웃음 고른 뒤·약속 칩이 빨랐다). 달력·통계 숫자는 시연용이다. 음악은 올리는 곳의 음원을 붙인다. 저장소는 파일 하나를 15MB까지만 받아(저장소 위생 검사) 9Mbps로 뽑는다.
+장면마다 자막을 다 읽을 시간을 둔다(사용자 지적: 기분 고르기·웃음 고른 뒤·약속 칩이 빨랐다). 달력·통계 숫자는 시연용이다. 소리는 남의 음원 없이 스크립트에서 합성한다. 배경음은 장조 C-F-G-C 칼림바(한 마디 2초)이고, 효과음도 같은 칼림바 음색과 C장조 5음 음계로 맞춰 음악의 한 부분처럼 들리게 했다(사용자 지적: 처음 배경음은 단조가 섞여 무겁고 슬펐고, 끝의 "띠링"은 흔한 템플릿 소리 같았다). 끝은 효과음 대신 로고가 뜰 때 음악이 도 화음을 굴려 펼치며 맺는다. 효과음은 얼굴 등장, 타이핑, 기분 고르기·착지, 숫자 완성, 사진, 색 덮기, 약속 칩에만 넣고, 시각은 장면 시간표에서 계산해 장면을 바꾸면 함께 따라간다. 자막은 모두 1.5초 넘게 머문다. 저장소는 파일 하나를 15MB까지만 받아(저장소 위생 검사) 7.5Mbps로 뽑는다. 올릴 때는 비트레이트만 20Mbps로 바꿔 따로 뽑은 고화질판을 쓴다.
 
-만드는 법: 문구와 시간은 `docs/store/promo/<언어>.json`, 재료는 `docs/store/promo/assets/`다. 저장소 맨 위에서 `swiftc -O scripts/store/promo/make_promo.swift -o /tmp/make_promo` 뒤 `/tmp/make_promo docs/store/promo/ko.json`. 기분 얼굴은 기분 시트 스크린샷에서 `crop_faces.swift`로, 쓰기 카드와 다크 홈은 시뮬레이터 녹화에서 `grab_frame.swift`로 뽑았다.
+만드는 법: 문구와 시간은 `docs/store/promo/<언어>.json`, 재료는 `docs/store/promo/assets/`다. 저장소 맨 위에서 `swiftc -O scripts/store/promo/make_promo.swift -o /tmp/make_promo` 뒤 `/tmp/make_promo docs/store/promo/ko.json`. 기분 얼굴은 앱의 벡터 경로(`DiaryMoodFace`)와 기분 색을 그대로 옮겨 그려 크게 키워도 선명하다. 쓰기 카드와 다크 홈은 시뮬레이터 녹화에서 `grab_frame.swift`로 뽑았다.
