@@ -41,6 +41,7 @@ fun DiaryDialog(
     onSecondary: () -> Unit = onDismiss
 ) {
     val colors = DiaryTheme.colors
+    DismissBehindKeyboard()
     BasicAlertDialog(onDismissRequest = onDismiss, modifier = modifier) {
         Column(
             modifier =

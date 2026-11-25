@@ -16,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 
@@ -49,3 +51,7 @@ fun DiaryLoadingDots(color: Color, modifier: Modifier = Modifier, animated: Bool
         }
     }
 }
+
+/** 누른 일을 기다리는 버튼. 화면 읽기에서 "사용 안 함"만 들리지 않고 [progress]로 진행 중이라고 알림 */
+internal fun Modifier.loadingSemantics(loading: Boolean, progress: String): Modifier =
+    if (loading) semantics { stateDescription = progress } else this

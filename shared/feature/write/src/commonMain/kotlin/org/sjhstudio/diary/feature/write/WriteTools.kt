@@ -88,7 +88,7 @@ internal enum class PaletteKind { Ink, Mark }
  */
 internal class WriteTools(
     val rich: RichTextState,
-    val colors: EditorColors,
+    val colors: () -> EditorColors,
     val requestChecklist: (text: String, start: Int, end: Int) -> Unit
 ) {
     /**
@@ -248,11 +248,11 @@ internal class WriteTools(
         // 고르는 동안 조합 중인 글자는 먼저 확정해 고른 색이 되돌아가지 않게 함
         fun clearInk() {
             rich.commitComposition()
-            colors.ink.values.forEach { rich.removeSpanStyle(SpanStyle(color = it)) }
+            colors().ink.values.forEach { rich.removeSpanStyle(SpanStyle(color = it)) }
         }
         fun clearMark() {
             rich.commitComposition()
-            colors.mark.values.forEach { rich.removeSpanStyle(SpanStyle(background = it)) }
+            colors().mark.values.forEach { rich.removeSpanStyle(SpanStyle(background = it)) }
         }
         Row(Modifier.weight(1f).horizontalScroll(rememberScrollState()), verticalAlignment = Alignment.CenterVertically) {
             when (kind) {
@@ -261,7 +261,7 @@ internal class WriteTools(
                         ColorChip(theme.textPrimary, DiaryShapes.full)
                     }
                     for (ink in InkColor.entries) {
-                        val color = colors.ink.getValue(ink)
+                        val color = colors().ink.getValue(ink)
                         Swatch(stringResource(ink.label()), selected = style.color == color, onClick = {
                             clearInk()
                             rich.addSpanStyle(SpanStyle(color = color))
@@ -284,7 +284,7 @@ internal class WriteTools(
                         }
                     }
                     for (mark in MarkColor.entries) {
-                        val color = colors.mark.getValue(mark)
+                        val color = colors().mark.getValue(mark)
                         Swatch(stringResource(mark.label()), selected = style.background == color, ring = DiaryShapes.r12, onClick = {
                             clearMark()
                             rich.addSpanStyle(SpanStyle(background = color))

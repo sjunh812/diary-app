@@ -18,7 +18,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.TimeZone
 import org.sjhstudio.diary.core.data.PlanRepository
-import org.sjhstudio.diary.core.model.AddPhotosResult
 import org.sjhstudio.diary.core.model.PickedImage
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.testing.FakeDraftRepository
@@ -92,7 +91,7 @@ class WritePicksTest {
         // 권유를 띄운 사이 Plus가 되면 권하지 않고 누른 대로 넣음
         plans.plan.value = Plan.PLUS
         advanceUntilIdle()
-        assertEquals(ChecklistPick.Allowed(target, unlocked = true), viewModel.state.value.checklistPick)
+        assertEquals(ChecklistPick.Allowed(target), viewModel.state.value.checklistPick)
     }
 
     /** 닫거나 버리기 시작하면 기다리던 누름을 끝냄. 떠나는 화면에서 고르기를 열거나 표시를 넣지 않음 */
@@ -151,24 +150,5 @@ class WritePicksTest {
 
         assertEquals(PhotoNotice.Limit(10, canUpgrade = true), viewModel.state.value.photoNotice)
         assertNull(viewModel.state.value.photoPick)
-    }
-
-    /** 고른 사진이 한도를 넘어 시트가 떠도 누른 순간 쓰던 중이었는지를 이어 받음 */
-    @Test
-    fun a_limit_after_picking_remembers_writing() = runTest(dispatcher) {
-        val drafts = FakeDraftRepository()
-        val viewModel = testWriteViewModel(WriteTarget.New(), drafts, clock, TimeZone.UTC, plans = FakePlanRepository(Plan.FREE))
-        viewModel.addPhotos(List(9) { i -> PickedImage { byteArrayOf(i.toByte()) } })
-        advanceUntilIdle()
-
-        viewModel.requestPhotos(PhotoSource.LIBRARY, writing = true)
-        advanceUntilIdle()
-        assertEquals(PhotoPick.Open(PhotoSource.LIBRARY, 10, writing = true), viewModel.state.value.photoPick)
-        viewModel.photoPickOpened()
-        drafts.nextAddResult = AddPhotosResult.LimitReached(10, canUpgrade = true, added = 1)
-        viewModel.addPhotos(List(3) { i -> PickedImage { byteArrayOf((20 + i).toByte()) } })
-        advanceUntilIdle()
-
-        assertEquals(PhotoNotice.Limit(10, canUpgrade = true, writing = true), viewModel.state.value.photoNotice)
     }
 }

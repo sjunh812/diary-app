@@ -33,17 +33,16 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -70,8 +69,6 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohamedrejeb.richeditor.model.RichTextState
 import io.github.vinceglb.filekit.PlatformFile
@@ -86,13 +83,11 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.io.buffered
 import org.jetbrains.compose.resources.stringResource
-import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryChip
 import org.sjhstudio.diary.core.designsystem.component.DiaryDialog
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
-import org.sjhstudio.diary.core.designsystem.component.DiaryLoadingDots
 import org.sjhstudio.diary.core.designsystem.component.DiaryNotice
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastResult
@@ -151,7 +146,7 @@ import org.sjhstudio.diary.feature.write.resources.write_weather
 internal class WriteActions(
     val viewModel: WriteViewModel,
     val rich: RichTextState,
-    val colors: EditorColors,
+    val colors: () -> EditorColors,
     val mediaPath: (String) -> String,
     val onPlus: () -> Unit = {}
 )
@@ -163,10 +158,10 @@ private enum class Sheet { Mood, Weather, Place, DateTime }
  * 위 줄, 첨부 칩, 사진 줄, 본문, 서식 도구 줄 순
  * 폭 840부터는 본문을 가운데 두고 기분·날씨·사진·장소를 옆 칸으로 옮김
  * 사진 고르기는 iOS 때문에 시트가 아닌 이 화면에서 기억함(research R4)
- * [ready]는 저장본을 읽고 본문까지 편집기에 넣었는지. 그전에는 내용 칸을 비워 빈 안내 문구와 칩이 먼저 비치지 않게 함
+ * 저장본을 읽기 전에는 내용 칸을 그리지 않음. 빈 안내 문구와 칩이 먼저 보였다가 내용이 튀어나오지 않게
  */
 @Composable
-internal fun WriteScreen(state: WriteUiState, ready: Boolean, actions: WriteActions, bodyStyle: TextStyle, modifier: Modifier = Modifier) {
+internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: TextStyle, modifier: Modifier = Modifier) {
     val vm = actions.viewModel
     val colors = DiaryTheme.colors
     // 화면을 돌리거나 폴더블을 펴도 고르던 시트가 닫히지 않게
@@ -174,38 +169,20 @@ internal fun WriteScreen(state: WriteUiState, ready: Boolean, actions: WriteActi
     val locationAccess = rememberLocationAccess()
     val cameraAccess = rememberCameraAccess()
     var cameraOff by remember { mutableStateOf(false) }
-    // 시트가 뜰 때 키보드는 시트 부품이 내림(DiaryBottomSheet)
-    // 키보드가 다 내려가길 기다리지 않고 바로 띄움
-    // 쓰던 중에 시트를 열면 닫은 뒤 커서와 키보드를 돌려줌
-    // 시트가 뜰 때 초점을 거둬, 돌려주지 않으면 본문을 다시 눌러야 하고 커서도 누른 자리로 옮겨짐
-    var editorFocused by rememberSaveable { mutableStateOf(false) }
-    // 회전처럼 화면을 다시 만들면 초점이 사라짐. 쓰던 중이었으면 돌려줌
-    var refocus by remember { mutableStateOf(editorFocused) }
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-    // 화면을 다시 만들려고 내려가며 잃는 초점은 기억하지 않음
-    val onEditorFocus = { focused: Boolean ->
-        if (focused || lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) editorFocused = focused
-    }
-    val openSheet = { target: Sheet ->
-        refocus = editorFocused
-        sheet = target
-    }
+    val openSheet = { target: Sheet -> sheet = target }
+    // 재생성된 화면은 쓰던 중이었을 때만 커서와 키보드 돌려줌
+    // 키보드를 내렸으면 다른 일로 넘어간 것이라 안 돌려줌
+    // retain이라 잠금으로 치워지거나 앱이 종료되면 사라짐
+    val memory = retain { WritingMemory() }
+    var editorHasFocus by remember { mutableStateOf(false) }
+    RememberWriting(memory) { editorHasFocus }
     val softKeyboard = LocalSoftwareKeyboardController.current
-    val density = LocalDensity.current
-    val imeInsets = WindowInsets.ime
     var askDiscard by remember { mutableStateOf(false) }
     var askDiscardHere by rememberSaveable { mutableStateOf(false) }
     val editorFocus = remember { FocusRequester() }
     // 새 글은 바로 쓸 수 있게 처음 한 번만 커서를 줌
     // 수정은 먼저 읽어 보는 때가 많아 키보드를 띄우지 않음
     var autoFocused by rememberSaveable { mutableStateOf(false) }
-    val readyToWrite = ready && state.resume == null && !state.isEdit
-    LaunchedEffect(readyToWrite) {
-        if (readyToWrite && !autoFocused) {
-            autoFocused = true
-            editorFocus.requestFocus()
-        }
-    }
     // 글 아래 빈 곳을 누르면 글 끝에서 이어 씀
     // 글 옆 여백이나 위를 누르면 그 줄에서 가장 가까운 자리에 커서를 둠
     // 어디든 글 끝으로 보내면 줄 앞을 누르려다 맨 아래로 끌려감
@@ -213,52 +190,40 @@ internal fun WriteScreen(state: WriteUiState, ready: Boolean, actions: WriteActi
     val tapToWrite =
         Modifier
             .onGloballyPositioned { geometry.viewport = it }
-            // 본문을 넣기 전에는 누르지 않음. 그 사이 친 글은 넣는 본문이 덮어씀
-            .pointerInput(actions.rich, ready) {
-                if (!ready) return@pointerInput
+            .pointerInput(actions.rich) {
                 detectTapGestures { tap ->
                     actions.rich.selection = TextRange(geometry.offsetAt(tap) ?: actions.rich.annotatedString.length)
                     editorFocus.requestFocus()
                     softKeyboard?.show()
                 }
             }
-    // 쓰는 동안에는 자리를 차지하지 않게 키보드가 내려갔을 때만 보임
-    // 키보드가 움직이는 프레임마다 다시 그리지 않게 보임 여부가 바뀔 때만 읽음
-    val imeHidden by remember(imeInsets, density) { derivedStateOf { imeInsets.getBottom(density) == 0 } }
+    // 쓰는 동안에는 자리를 차지하지 않게 키보드가 아래 자리를 비웠을 때만 보임
     val discardRow: @Composable () -> Unit = {
-        if (ready && state.canDiscard && imeHidden) DiscardButton(state.isEdit) { askDiscardHere = true }
+        if (state.canDiscard && !imeTakesSpace()) DiscardButton(state.isEdit) { askDiscardHere = true }
     }
     val photoLimit by vm.photoLimit.collectAsStateWithLifecycle()
-    // 화면 모델이 띄우는 Plus 권유. 닫을 때까지 화면 모델이 가져 화면을 돌려도 닫히지 않음
+    // 화면 모델이 띄우는 Plus 권유
+    // 닫을 때까지 화면 모델이 가져 화면을 돌려도 닫히지 않음
     val plusPrompt = plusPromptOf(state)
-    // 사용자가 연 창이 먼저. 권유는 다른 창이 없을 때 한 장씩
+    // 사용자가 연 창이 먼저
+    // 권유는 다른 창이 없을 때 한 장씩
     val othersOpen = sheet != null || state.resume != null || askDiscard || askDiscardHere || cameraOff
-    // Plus 화면으로 가면 남아 있던 되돌리기까지 지움. 되돌리면 Plus 화면 위에 키보드가 떠 첫 뒤로 가기가 키보드 내리기에 쓰임
-    // 닫으면 누른 순간 쓰던 중이었을 때 커서와 키보드를 돌려줌
     when (val prompt = plusPrompt.takeUnless { othersOpen }) {
         is PlusPrompt.PhotoLimit -> PhotoLimitSheet(
             prompt.limit,
             onPlus = {
-                refocus = false
                 vm.photoNoticeShown()
                 actions.onPlus()
             },
-            onDismiss = {
-                refocus = refocus || prompt.writing
-                vm.photoNoticeShown()
-            }
+            onDismiss = vm::photoNoticeShown
         )
 
         is PlusPrompt.Checklist -> ChecklistPlusSheet(
             onPlus = {
-                refocus = false
                 vm.checklistPickHandled()
                 actions.onPlus()
             },
-            onDismiss = {
-                refocus = refocus || prompt.writing
-                vm.checklistPickHandled()
-            }
+            onDismiss = vm::checklistPickHandled
         )
 
         null -> Unit
@@ -267,7 +232,8 @@ internal fun WriteScreen(state: WriteUiState, ready: Boolean, actions: WriteActi
     val pick =
         rememberFilePickerLauncher(
             type = FileKitType.Image,
-            // 여는 순간의 장수. 요금제를 기다렸다 열면 확정된 한도로
+            // 여는 순간의 장수
+            // 요금제를 기다렸다 열면 확정된 한도로
             mode = FileKitMode.Multiple(
                 maxItems = pickMaxItems((state.photoPick as? PhotoPick.Open)?.limit ?: photoLimit, state.photos.size, pickerLimitsCount)
             ),
@@ -307,34 +273,35 @@ internal fun WriteScreen(state: WriteUiState, ready: Boolean, actions: WriteActi
             }
         }
     }
-    // 누르는 순간 쓰던 중이었는지 함께 보냄. 한도 시트를 닫으면 커서와 키보드를 돌려줌
-    val openPicker: () -> Unit = remember(vm) { { vm.requestPhotos(PhotoSource.LIBRARY, writing = editorFocused) } }
-    val openCamera: () -> Unit = remember(vm) { { vm.requestPhotos(PhotoSource.CAMERA, writing = editorFocused) } }
+    val openPicker: () -> Unit = remember(vm) { { vm.requestPhotos(PhotoSource.LIBRARY) } }
+    val openCamera: () -> Unit = remember(vm) { { vm.requestPhotos(PhotoSource.CAMERA) } }
     val tools = remember(actions) {
-        // 누르는 순간 쓰던 중이었는지 함께 보냄. Plus 시트가 뜨며 초점을 거둔 뒤에는 알 수 없음
         WriteTools(actions.rich, actions.colors) { text, start, end ->
-            vm.requestChecklist(ChecklistTarget(text, start, end, writing = editorFocused))
+            vm.requestChecklist(ChecklistTarget(text, start, end))
         }
     }
     LaunchedEffect(state.checklistPick) {
         when (val pick = state.checklistPick) {
             is ChecklistPick.Allowed -> {
                 tools.applyChecklist(pick.target)
-                if (pick.unlocked) refocus = refocus || pick.target.writing
                 vm.checklistPickHandled()
             }
 
             is ChecklistPick.Waiting, is ChecklistPick.Locked, null -> Unit
         }
     }
-    LaunchedEffect(sheet, plusPrompt) {
-        if (sheet == null && plusPrompt == null && refocus) {
-            refocus = false
-            // 다시 만든 화면은 한 프레임 뒤에 편집기가 붙음
-            withFrameNanos {}
-            editorFocus.requestFocus()
-            softKeyboard?.show()
-        }
+    // 새 글은 처음 한 번 커서와 키보드를 줌
+    // 시트·대화상자가 뜰 때 키보드는 그 부품이 내림(DismissBehindKeyboard)
+    // 이어쓰기 시트·권유·창이 덮고 있으면 닫힌 뒤에 줌
+    val covered = othersOpen || plusPrompt != null
+    // 돌려줄 커서는 시트·권유·창이 덮으면 버림
+    LaunchedEffect(covered) {
+        if (covered) memory.drop()
+    }
+    val wantsFocus = !covered && (memory.waiting || (!autoFocused && !state.isEdit))
+    val onAutoFocus = {
+        memory.settle()
+        autoFocused = true
     }
     // 하드웨어 키보드의 Ctrl/⌘+S로 저장(FR-039)
     val keyboard =
@@ -350,37 +317,50 @@ internal fun WriteScreen(state: WriteUiState, ready: Boolean, actions: WriteActi
     LaunchedEffect(vm) {
         vm.photoRemovals.collect { if (toast.show(removedMessage, undoLabel) == DiaryToastResult.ActionPerformed) vm.undoRemovePhoto() }
     }
-    // 키보드 여백은 안쪽에 둠. 바깥에 두면 키보드가 움직이는 프레임마다 제약이 바뀌어 화면 전체를 다시 구성
+    // 키보드 여백은 안쪽에 둠
+    // 바깥에 두면 키보드가 움직이는 프레임마다 제약이 바뀌어 화면 전체를 다시 구성
     BoxWithConstraints(modifier.then(keyboard).fillMaxSize().background(colors.canvas).systemBarsPadding()) {
         val wide = maxWidth >= DiaryWriteSize.twoPaneMin
         // 폴더블을 펴거나 태블릿을 돌려 배치가 바뀌어도 읽던 자리 유지
         val bodyScroll = rememberScrollState()
         Box(Modifier.fillMaxSize().imePadding()) {
             Column(Modifier.fillMaxSize()) {
-                TopRow(state, ready, onClose = vm::close, onDate = { openSheet(Sheet.DateTime) }, onSave = vm::save)
-                if (wide) {
+                TopRow(state, onClose = vm::close, onDate = { openSheet(Sheet.DateTime) }, onSave = vm::save)
+                // 읽기 전에는 위 줄만 그림
+                // 빈 내용이 비치지 않고, 버려질 빈 편집기를 건드릴 길도 없음
+                // 읽지 못한 일기는 실패 안내만 둠
+                // 빈 일기처럼 보이지 않고, 고른 것이 저장되는 일도 없음
+                if (state.openFailed) {
+                    FailureNotice(state)
+                } else if (!state.loading) {
+                    val writeArea = Modifier.fillMaxSize().then(tapToWrite).verticalScroll(bodyScroll)
+                    // 폴더블을 펴거나 태블릿을 돌려도 편집기 자리가 같아 커서와 키보드가 남음
+                    // 넓은 화면은 옆 칸만 붙임
                     Row(Modifier.weight(1f).fillMaxWidth()) {
-                        Column(Modifier.weight(1f).fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column(
+                            Modifier.weight(1f).fillMaxHeight(),
+                            horizontalAlignment = if (wide) Alignment.CenterHorizontally else Alignment.Start
+                        ) {
                             // 에디터가 스스로 스크롤하면 체크 칸 자리가 글과 어긋나 바깥에서 스크롤
                             EditorScrollMargin(DiaryWriteSize.editorScrollMargin, Modifier.weight(1f).fillMaxWidth()) {
-                                Column(
-                                    Modifier.fillMaxSize().alpha(if (ready) 1f else 0f).then(tapToWrite).verticalScroll(bodyScroll),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Editor(
-                                        actions.rich,
-                                        tools::plainText,
-                                        bodyStyle,
-                                        editorFocus,
-                                        geometry,
-                                        ready,
-                                        Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth().onFocusChanged {
-                                            onEditorFocus(it.hasFocus)
-                                        }
-                                    )
+                                Column(writeArea, horizontalAlignment = Alignment.CenterHorizontally) {
+                                    // 태블릿 세로 폭에서도 줄이 너무 길어지지 않게
+                                    Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth()) {
+                                        if (!wide) NarrowAttachments(state, actions, openPicker, openSheet)
+                                        Editor(
+                                            actions.rich,
+                                            tools::plainText,
+                                            bodyStyle,
+                                            editorFocus,
+                                            geometry,
+                                            wantsFocus,
+                                            onAutoFocus,
+                                            Modifier.fillMaxWidth().onFocusChanged { editorHasFocus = it.hasFocus }
+                                        )
+                                    }
                                 }
                             }
-                            SaveFailedNotice(state)
+                            FailureNotice(state)
                             discardRow()
                             tools.Toolbar(
                                 onPhoto = openPicker,
@@ -389,45 +369,11 @@ internal fun WriteScreen(state: WriteUiState, ready: Boolean, actions: WriteActi
                                 checklistWaiting = state.checklistPick is ChecklistPick.Waiting
                             )
                         }
-                        Box(Modifier.width(DiarySpacing.hairline).fillMaxHeight().background(colors.line))
-                        Box(Modifier.alpha(if (ready) 1f else 0f)) {
+                        if (wide) {
+                            Box(Modifier.width(DiarySpacing.hairline).fillMaxHeight().background(colors.line))
                             SidePanel(state, actions, onPick = openPicker, onPlace = { openSheet(Sheet.Place) })
                         }
                     }
-                } else {
-                    EditorScrollMargin(DiaryWriteSize.editorScrollMargin, Modifier.weight(1f).fillMaxWidth()) {
-                        Column(
-                            Modifier.fillMaxSize().then(tapToWrite).verticalScroll(bodyScroll),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            // 태블릿 세로 폭에서도 줄이 너무 길어지지 않게
-                            Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth().alpha(if (ready) 1f else 0f)) {
-                                Chips(state, onMood = {
-                                    openSheet(Sheet.Mood)
-                                }, onWeather = { openSheet(Sheet.Weather) }, onPlace = { openSheet(Sheet.Place) })
-                                if (state.photos.isNotEmpty()) PhotoRow(state, actions, onPick = openPicker)
-                                PhotoReorderTip(state, Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2))
-                                Notices(state, Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2))
-                                Editor(
-                                    actions.rich,
-                                    tools::plainText,
-                                    bodyStyle,
-                                    editorFocus,
-                                    geometry,
-                                    ready,
-                                    Modifier.fillMaxWidth().onFocusChanged { onEditorFocus(it.hasFocus) }
-                                )
-                            }
-                        }
-                    }
-                    SaveFailedNotice(state)
-                    discardRow()
-                    tools.Toolbar(
-                        onPhoto = openPicker,
-                        onCamera = openCamera,
-                        photoWaiting = state.photoPick is PhotoPick.Waiting,
-                        checklistWaiting = state.checklistPick is ChecklistPick.Waiting
-                    )
                 }
             }
             // 서식 도구 줄 위에 띄움
@@ -549,8 +495,9 @@ private fun DiscardButton(isEdit: Boolean, modifier: Modifier = Modifier, onClic
 }
 
 @Composable
-private fun TopRow(state: WriteUiState, ready: Boolean, onClose: () -> Unit, onDate: () -> Unit, onSave: () -> Unit) {
+private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit, onSave: () -> Unit) {
     val colors = DiaryTheme.colors
+    val dateKnown = !state.loading && !state.openFailed
     val dates = rememberDiaryDateFormat()
     val today = rememberToday()
     val interaction = remember { MutableInteractionSource() }
@@ -563,29 +510,34 @@ private fun TopRow(state: WriteUiState, ready: Boolean, onClose: () -> Unit, onD
                 onClick = onClose,
                 modifier = Modifier.padding(start = DiarySpacing.x1)
             )
-            Row(
-                Modifier
-                    // 읽기 전의 빈 날짜가 비치지 않게
-                    .alpha(if (ready) 1f else 0f)
-                    .heightIn(min = DiarySpacing.minTouchTarget)
-                    .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
-                    .clip(DiaryShapes.r12)
-                    .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onDate)
-                    .padding(horizontal = DiarySpacing.x2),
-                horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // 올해가 아니면 연도까지. 요일만 보면 지난해 일기인지 알 수 없음
-                BasicText(
-                    if (state.date.year == today.year) dates.dayWithWeekday(state.date) else dates.fullDate(state.date),
-                    modifier = Modifier.weight(1f, fill = false),
-                    style = DiaryTheme.typography.headline.copy(color = colors.textPrimary),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                DiaryIcon(DiaryIcons.ChevronDown, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i16)
+            // 읽기 전이나 읽지 못하면 날짜를 모름
+            // 기본값이 비치거나 이름 없는 버튼으로 읽히지 않게 빈 칸만 둠
+            if (dateKnown) {
+                Row(
+                    Modifier
+                        .heightIn(min = DiarySpacing.minTouchTarget)
+                        .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
+                        .clip(DiaryShapes.r12)
+                        .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onDate)
+                        .padding(horizontal = DiarySpacing.x2),
+                    horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // 올해가 아니면 연도까지
+                    // 요일만 보면 지난해 일기인지 알 수 없음
+                    BasicText(
+                        if (state.date.year == today.year) dates.dayWithWeekday(state.date) else dates.fullDate(state.date),
+                        modifier = Modifier.weight(1f, fill = false),
+                        style = DiaryTheme.typography.headline.copy(color = colors.textPrimary),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    DiaryIcon(DiaryIcons.ChevronDown, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i16)
+                }
+            } else {
+                Box(Modifier.heightIn(min = DiarySpacing.minTouchTarget))
             }
-            // 글자 끝을 상단 바와 같은 화면 여백에 맞춤. 글자 버튼 안쪽이 12.
+            // 글자 끝을 상단 바와 같은 화면 여백에 맞춤(글자 버튼 안쪽 12)
             // 저장이 0.3초를 넘기면 [저장] 자리에 점을 띄움(사진을 넣는 중이면 다 들어갈 때까지 기다림)
             // 글자만 회색이 되면 눌렸는지 알기 어려움(스켈레톤과 같은 0.3초 지연)
             var slowSave by remember { mutableStateOf(false) }
@@ -596,15 +548,13 @@ private fun TopRow(state: WriteUiState, ready: Boolean, onClose: () -> Unit, onD
                     slowSave = true
                 }
             }
-            Box(Modifier.padding(end = LocalScreenGutter.current - DiarySpacing.x3), contentAlignment = Alignment.Center) {
-                DiaryTopBarTextButton(
-                    stringResource(Res.string.write_save),
-                    onSave,
-                    Modifier.alpha(if (slowSave) 0f else 1f),
-                    enabled = state.canSave && !state.saving
-                )
-                if (slowSave) DiaryLoadingDots(colors.accentIcon)
-            }
+            DiaryTopBarTextButton(
+                stringResource(Res.string.write_save),
+                onSave,
+                Modifier.padding(end = LocalScreenGutter.current - DiarySpacing.x3),
+                enabled = state.canSave && !state.saving,
+                loading = slowSave
+            )
         },
         modifier = Modifier.fillMaxWidth().height(DiarySpacing.x14)
     ) { (close, title, save), constraints ->
@@ -676,11 +626,11 @@ private fun Notices(state: WriteUiState, modifier: Modifier = Modifier) {
 }
 
 /**
- * 저장 실패와 불러오기 실패는 글이 길어도 보이게 스크롤 밖에 둠
- * 안내가 맨 위에 있으면 닫기를 눌러도 아무 일이 없는 것처럼 보임
+ * 저장 실패는 글이 길어도 보이게 스크롤 밖 도구 줄 위에 둠
+ * 불러오기 실패는 쓸 내용이 없어 위 줄 바로 아래에 이것만 그림
  */
 @Composable
-private fun SaveFailedNotice(state: WriteUiState) {
+private fun FailureNotice(state: WriteUiState) {
     val message =
         when {
             state.openFailed -> Res.string.write_open_failed
@@ -694,6 +644,33 @@ private fun SaveFailedNotice(state: WriteUiState) {
     )
 }
 
+/**
+ * 본문 초점과 화면 키보드 보임을 [memory]에 기록
+ * 키보드 보임을 이 안에서만 읽어 쓰기 화면 전체를 다시 그리지 않음
+ * 효과 안에서만 기록해 없어지는 화면이 잃는 초점은 남지 않음
+ */
+@Composable
+private fun RememberWriting(memory: WritingMemory, focused: () -> Boolean) {
+    val imeVisible = imeVisible()
+    val hasFocus = focused()
+    LaunchedEffect(hasFocus, imeVisible) { memory.update(hasFocus, imeVisible) }
+}
+
+/** 좁은 화면에서 본문 위에 두는 첨부 칩·사진 줄·안내 */
+@Composable
+private fun NarrowAttachments(state: WriteUiState, actions: WriteActions, onPick: () -> Unit, openSheet: (Sheet) -> Unit) {
+    val gutter = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2)
+    Chips(
+        state,
+        onMood = { openSheet(Sheet.Mood) },
+        onWeather = { openSheet(Sheet.Weather) },
+        onPlace = { openSheet(Sheet.Place) }
+    )
+    if (state.photos.isNotEmpty()) PhotoRow(state, actions, onPick = onPick)
+    PhotoReorderTip(state, gutter)
+    Notices(state, gutter)
+}
+
 @Composable
 private fun Editor(
     state: RichTextState,
@@ -701,10 +678,22 @@ private fun Editor(
     style: TextStyle,
     focus: FocusRequester,
     geometry: EditorGeometry,
-    enabled: Boolean,
+    wantsFocus: Boolean,
+    onAutoFocus: () -> Unit,
     modifier: Modifier
 ) {
     val colors = DiaryTheme.colors
+    // 편집기는 화면 배치 단계에 만들어져 바깥에서 초점을 주면 붙기 전일 수 있음
+    // 그려진 뒤 여기서 줌
+    val keyboard = LocalSoftwareKeyboardController.current
+    val currentOnAutoFocus by rememberUpdatedState(onAutoFocus)
+    LaunchedEffect(wantsFocus) {
+        if (wantsFocus) {
+            focus.requestFocus()
+            keyboard?.show()
+            currentOnAutoFocus()
+        }
+    }
     Box(modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x3)) {
         if (state.annotatedString.isEmpty()) {
             BasicText(stringResource(Res.string.write_hint), style = style.copy(color = colors.placeholder))
@@ -741,7 +730,8 @@ private fun Editor(
         val density = LocalDensity.current
         var focused by remember { mutableStateOf(false) }
         // 키보드가 올라오는 프레임마다 요청하되 앞 요청을 취소하지 않음
-        // 스크롤 칸이 겹친 요청을 한 애니메이션으로 합쳐 한 번에 올라옴. 취소하면 매번 다시 시작해 끊겨 올라옴
+        // 스크롤 칸이 겹친 요청을 한 애니메이션으로 합쳐 한 번에 올라옴
+        // 취소하면 매번 다시 시작해 끊겨 올라옴
         LaunchedEffect(state, ime, density) {
             snapshotFlow { ime.getBottom(density) }.collect { bottom ->
                 val text = layout
@@ -756,10 +746,10 @@ private fun Editor(
             }
         DiaryRichEditor(
             state = state,
-            enabled = enabled,
             modifier =
                 Modifier
-                    // 최소 높이를 두지 않음. 키보드가 화면을 줄일 때 스크롤 칸이 초점 칸 전체를 보이려고 화면을 밀어 올림
+                    // 최소 높이를 두지 않음
+                    // 키보드가 화면을 줄일 때 스크롤 칸이 초점 칸 전체를 보이려고 화면을 밀어 올림
                     // 빈 곳 누르기는 바깥 스크롤 칸(tapToWrite)이 받음
                     .fillMaxWidth()
                     .onGloballyPositioned { geometry.field = it }
@@ -839,7 +829,8 @@ private fun Section(title: String, content: @Composable () -> Unit) {
 /** 한 번에 읽는 조각 크기 */
 private const val PHOTO_CHUNK = 64 * 1024
 
-// 원본을 통째로 메모리에 올리지 않고 조각으로 넘김. 수십 MB 사진 여러 장을 고르면 메모리가 모자람
+// 원본을 통째로 메모리에 올리지 않고 조각으로 넘김
+// 수십 MB 사진 여러 장을 고르면 메모리가 모자람
 private fun PlatformFile.picked() = PickedImage { write ->
     source().buffered().use { source ->
         val chunk = ByteArray(PHOTO_CHUNK)
@@ -853,17 +844,17 @@ private fun PlatformFile.picked() = PickedImage { write ->
 
 /** 화면 모델이 띄우는 Plus 권유. 한 번에 한 장이고 사진 한도가 먼저 */
 private sealed interface PlusPrompt {
-    data class PhotoLimit(val limit: Int, val writing: Boolean) : PlusPrompt
+    data class PhotoLimit(val limit: Int) : PlusPrompt
 
-    data class Checklist(val writing: Boolean) : PlusPrompt
+    data object Checklist : PlusPrompt
 }
 
 private fun plusPromptOf(state: WriteUiState): PlusPrompt? {
     val photo = (state.photoNotice as? PhotoNotice.Limit)?.takeIf { it.canUpgrade }
     val pick = state.checklistPick
     return when {
-        photo != null -> PlusPrompt.PhotoLimit(photo.limit, photo.writing)
-        pick is ChecklistPick.Locked -> PlusPrompt.Checklist(pick.target.writing)
+        photo != null -> PlusPrompt.PhotoLimit(photo.limit)
+        pick is ChecklistPick.Locked -> PlusPrompt.Checklist
         else -> null
     }
 }
