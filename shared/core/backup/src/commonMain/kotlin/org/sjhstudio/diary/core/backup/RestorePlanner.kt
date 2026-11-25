@@ -118,13 +118,9 @@ class RestorePlanner(
 
     /**
      * 형식 3은 줄인 파일을 받아 확인값을 본 뒤 풂. 형식 2는 받은 파일을 그대로 엶
-     * 모르는 방식은 더 새 앱이 만든 것
+     * 모르는 방식은 [readable]이 먼저 막음
      */
-    private fun isPacked(manifest: Manifest): Boolean = when (manifest.snapshot.encoding) {
-        null -> false
-        ManifestSnapshot.GZIP -> true
-        else -> throw RestoreNeedsUpdate()
-    }
+    private fun isPacked(manifest: Manifest): Boolean = manifest.snapshot.encoding == ManifestSnapshot.GZIP
 
     /** 확인값이 다르면 받은 파일을 지우고 멈춤 */
     private fun verify(path: Path, sha256: String) {

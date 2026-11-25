@@ -337,7 +337,7 @@ class BackupRunner(
     )
 
     private suspend fun sendPhotos(
-        packed: UploadedSnapshot,
+        packed: OutgoingSnapshot,
         folders: DriveFolders,
         account: DriveAccount,
         now: Instant,
@@ -391,13 +391,13 @@ class BackupRunner(
     }
 
     /** 뜬 스냅샷을 드라이브에 올릴 파일로 줄임 */
-    private fun pack(snapshot: Snapshot, base: String): UploadedSnapshot {
+    private fun pack(snapshot: Snapshot, base: String): OutgoingSnapshot {
         val path = workDir / OUTGOING / "$base$PACKED_SUFFIX"
         fileSystem.gzip(snapshot.path, path)
-        return UploadedSnapshot(path.name, fileSystem.hashes(path), ManifestSnapshot.GZIP)
+        return OutgoingSnapshot(path.name, fileSystem.hashes(path), ManifestSnapshot.GZIP)
     }
 
-    private suspend fun sendSnapshot(packed: UploadedSnapshot, folders: DriveFolders, deviceId: String): DriveFile {
+    private suspend fun sendSnapshot(packed: OutgoingSnapshot, folders: DriveFolders, deviceId: String): DriveFile {
         step(BackupStep.UploadingSnapshot)
         return upload(
             workDir / OUTGOING / packed.fileName,
@@ -409,7 +409,7 @@ class BackupRunner(
     private suspend fun sendManifest(
         base: String,
         snapshot: Snapshot,
-        packed: UploadedSnapshot,
+        packed: OutgoingSnapshot,
         photos: PhotoRound,
         folders: DriveFolders,
         deviceId: String,
@@ -611,7 +611,7 @@ class BackupRunner(
                     it.name.removeSuffix(".json"),
                     it.createdAt,
                     created.toLocalDateTime(timeZone()).let { t ->
-                        "${t.year}-${t.month.ordinal}"
+                        "${t.year}-${(t.month.ordinal + 1).toString().padStart(2, '0')}"
                     }
                 )
             }

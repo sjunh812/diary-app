@@ -101,6 +101,8 @@ data class ManifestSettings(
 enum class ManifestCheck { OK, BROKEN, NEEDS_NEWER_APP }
 
 object ManifestCodec {
+    private val READABLE_ENCODINGS = setOf(null, ManifestSnapshot.GZIP)
+
     private val json =
         Json {
             ignoreUnknownKeys = true
@@ -122,8 +124,14 @@ object ManifestCodec {
 
     fun check(manifest: Manifest?): ManifestCheck = when {
         manifest == null -> ManifestCheck.BROKEN
+
         manifest.formatVersion > Manifest.FORMAT_VERSION -> ManifestCheck.NEEDS_NEWER_APP
+
         manifest.snapshot.dbVersion > Manifest.MAX_DB_VERSION -> ManifestCheck.NEEDS_NEWER_APP
+
+        // 모르는 방식으로 줄인 스냅샷은 더 새 앱이 만든 것
+        manifest.snapshot.encoding !in READABLE_ENCODINGS -> ManifestCheck.NEEDS_NEWER_APP
+
         else -> ManifestCheck.OK
     }
 }
@@ -132,12 +140,12 @@ object ManifestCodec {
  * 밖으로 내보내는 스냅샷 파일
  * 드라이브는 줄인 파일, 묶음 파일은 원래 파일
  */
-data class UploadedSnapshot(val fileName: String, val hashes: FileHashes, val encoding: String?)
+internal data class OutgoingSnapshot(val fileName: String, val hashes: FileHashes, val encoding: String?)
 
 /** 드라이브 목록 파일과 묶음 파일의 `manifest.json`을 같은 모양으로 만듦 */
 internal fun manifestOf(
     formatVersion: Int,
-    uploaded: UploadedSnapshot,
+    uploaded: OutgoingSnapshot,
     now: Instant,
     timeZone: TimeZone,
     app: BackupAppInfo,

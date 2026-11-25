@@ -22,7 +22,7 @@ object RetentionPolicy {
     fun toDelete(backups: List<RetainedBackup>): Set<String> {
         val sorted = backups.sortedByDescending { it.createdAt }
         val keep = sorted.take(RECENT).map { it.name }.toMutableSet()
-        // 늦은 백업부터 묶여 앞의 달이 최근 달
+        // 최근 백업부터 묶여 앞쪽이 최근 달
         sorted.drop(RECENT).groupBy { it.month }.values.take(MONTHS).forEach { keep += it.first().name }
         return backups.map { it.name }.toSet() - keep
     }

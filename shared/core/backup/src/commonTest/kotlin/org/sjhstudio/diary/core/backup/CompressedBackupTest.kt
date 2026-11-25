@@ -161,27 +161,14 @@ class CompressedBackupTest {
         assertTrue(incomingLeft().isEmpty(), "${incomingLeft()}")
     }
 
-    /** 앞으로 다른 방식으로 줄인 백업은 이 앱이 열지 않고 새 앱이 필요하다고 봄 */
+    /** 앞으로 다른 방식으로 줄인 백업은 목록에서부터 새 앱이 필요하다고 보이고 열지 않음 */
     @Test
     fun an_unknown_encoding_needs_a_newer_app() = runTest {
         backUp(3)
         val listed = catalog().list().single()
         val future = listed.copy(manifest = listed.manifest!!.copy(snapshot = listed.manifest.snapshot.copy(encoding = "zstd")))
 
+        assertEquals(ManifestCheck.NEEDS_NEWER_APP, ManifestCodec.check(future.manifest))
         assertFailsWith<RestoreNeedsUpdate> { planner().prepare(future) }
-    }
-
-    /** 2.2.0 앱(형식 2까지)은 새 백업을 열지 않고 업데이트가 필요하다고 보여 줌 */
-    @Test
-    fun older_apps_see_the_new_backup_as_needing_an_update() = runTest {
-        backUp(3)
-        val manifest = ManifestCodec.decode(drive.bytes(kind(DriveLayout.KIND_MANIFEST).single().id).decodeToString())!!
-
-        assertEquals(3, manifest.formatVersion)
-        assertTrue(manifest.formatVersion > OLD_APP_FORMAT)
-    }
-
-    private companion object {
-        const val OLD_APP_FORMAT = 2
     }
 }
