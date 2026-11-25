@@ -324,6 +324,38 @@ class WriteRouteUiTest {
         onAllNodes(hasSetTextAction())[0].assertIsNotFocused()
     }
 
+    /** 새 일기도 쓰던 중 회전하면 커서를 돌려줌 */
+    @Test
+    fun rotating_a_new_entry_keeps_the_cursor() = runComposeUiTest {
+        val viewModel = newViewModel()
+        val retained = forgetful()
+        var owner by mutableStateOf(Owner())
+        var shown by mutableStateOf(true)
+        typeInto(viewModel, target = newTarget, owner = { owner }, retained = retained) { shown }
+
+        recreate(owner, retained, { shown = it }, { owner = Owner() })
+
+        onAllNodes(hasSetTextAction())[0].assertIsFocused()
+    }
+
+    /** 쓰던 중 권유를 열고 닫은 뒤 회전해도 키보드를 올리지 않음 */
+    @Test
+    fun rotating_after_closing_a_prompt_does_not_raise_the_keyboard() = runComposeUiTest {
+        val viewModel = editViewModel()
+        val retained = forgetful()
+        var owner by mutableStateOf(Owner())
+        var shown by mutableStateOf(true)
+        typeInto(viewModel, owner = { owner }, retained = retained) { shown }
+        viewModel.requestChecklist(ChecklistTarget(editorText(), 0, 0))
+        waitForIdle()
+        viewModel.checklistPickHandled()
+        waitForIdle()
+
+        recreate(owner, retained, { shown = it }, { owner = Owner() })
+
+        onAllNodes(hasSetTextAction())[0].assertIsNotFocused()
+    }
+
     /** 쓰다가 아이패드를 돌리거나 폴더블을 펴 두 칸으로 바뀌어도 커서가 남음 */
     @Test
     fun switching_to_two_panes_keeps_the_cursor() = runComposeUiTest {

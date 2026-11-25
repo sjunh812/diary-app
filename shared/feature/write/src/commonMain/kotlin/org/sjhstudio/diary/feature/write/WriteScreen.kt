@@ -174,7 +174,6 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     // 키보드를 내렸으면 다른 일로 넘어간 것이라 안 돌려줌
     // retain이라 잠금으로 치워지거나 앱이 종료되면 사라짐
     val memory = retain { WritingMemory() }
-    remember(memory) { memory.restore() }
     var editorHasFocus by remember { mutableStateOf(false) }
     RememberWriting(memory) { editorHasFocus }
     val softKeyboard = LocalSoftwareKeyboardController.current

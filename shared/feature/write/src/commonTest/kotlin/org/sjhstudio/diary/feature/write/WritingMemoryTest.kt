@@ -62,10 +62,12 @@ class WritingMemoryTest {
     fun a_recreated_screen_keeps_writing_until_the_cursor_is_given() {
         val memory = WritingMemory()
         memory.update(focused = true, imeVisible = true)
-        assertTrue(memory.restore())
+        memory.restore()
+        assertTrue(memory.waiting)
         memory.update(focused = false, imeVisible = false)
         assertTrue(memory.writing)
-        assertTrue(memory.restore())
+        memory.restore()
+        assertTrue(memory.waiting)
     }
 
     /** 앞 화면에서 보이던 키보드가 새 화면에서 내린 것으로 이어지지 않음 */
@@ -84,7 +86,8 @@ class WritingMemoryTest {
     @Test
     fun not_writing_waits_for_nothing() {
         val memory = WritingMemory()
-        assertFalse(memory.restore())
+        memory.restore()
+        assertFalse(memory.waiting)
         memory.update(focused = true, imeVisible = true)
         assertTrue(memory.writing)
     }
@@ -97,10 +100,14 @@ class WritingMemoryTest {
         memory.restore()
         memory.drop()
         assertFalse(memory.writing)
-        assertFalse(memory.restore())
+        memory.restore()
+        assertFalse(memory.waiting)
     }
 
-    /** 대기 중이 아니면 덮개가 떠도 쓰던 기록을 지우지 않음. 초점이 풀리며 기록이 바뀜 */
+    /**
+     * 대기 중이 아니면 덮개가 떠도 쓰던 기록을 지우지 않음
+     * 덮개가 초점을 풀면 그때 기록이 바뀜
+     */
     @Test
     fun dropping_without_waiting_keeps_the_record() {
         val memory = WritingMemory()

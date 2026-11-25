@@ -2,6 +2,7 @@ package org.sjhstudio.diary.feature.write
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.retain.RetainObserver
 import androidx.compose.runtime.setValue
 
 /**
@@ -9,27 +10,39 @@ import androidx.compose.runtime.setValue
  * 본문에 커서가 있는 동안 화면 키보드가 보이다 사라지면 사용자가 내린 것으로 봄
  * 처음부터 화면 키보드가 없던 하드웨어 키보드는 내린 것이 아님
  */
-internal class WritingMemory {
+internal class WritingMemory : RetainObserver {
     var writing: Boolean = false
         private set
     private var imeWasVisible = false
     private var dismissed = false
 
-    /** 돌려줄 커서가 대기 중인지. 화면이 읽어 대기가 끝나면 다시 그림 */
+    /**
+     * 돌려줄 커서가 대기 중인지
+     * Compose 상태라 대기가 끝나면 화면을 다시 그림
+     */
     var waiting by mutableStateOf(false)
         private set
 
     /**
-     * 화면을 새로 만들 때 한 번 부름. 쓰던 중이었으면 돌려줄 커서를 대기로 둠
+     * 화면에 들어올 때마다 부름(처음, 재생성 뒤 돌아올 때). 쓰던 중이었으면 돌려줄 커서를 대기로 둠
      * 앞 화면의 키보드 기록은 비워 새 화면에서 내린 것으로 이어지지 않게 함
-     * [writing]을 바꾸지 않아 여러 번 불러도 같음
      */
-    fun restore(): Boolean {
+    fun restore() {
         imeWasVisible = false
         dismissed = false
         waiting = writing
-        return waiting
     }
+
+    // 버려진 컴포지션에서는 불리지 않아 화면에 실제로 들어온 때만 대기로 둠
+    override fun onEnteredComposition() = restore()
+
+    override fun onRetained() = Unit
+
+    override fun onExitedComposition() = Unit
+
+    override fun onRetired() = Unit
+
+    override fun onUnused() = Unit
 
     /** 돌려줄 커서를 줬을 때 */
     fun settle() {
