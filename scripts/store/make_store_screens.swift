@@ -71,8 +71,7 @@ func text(_ s: String, size: CGFloat, color c: NSColor, top: CGFloat, bold: Bool
 }
 
 func header(_ title: String, _ subline: String) -> CGFloat {
-    // 가로는 제목을 한 줄로 두어 화면 자리를 넓힘
-    // 가로는 한 줄. 일본어는 띄어 쓰지 않아 붙임
+    // 가로는 제목을 한 줄로 두어 화면 자리를 넓힘. 일본어는 띄어 쓰지 않아 붙임
     let t = text(landscape ? title.replacingOccurrences(of: "\n", with: lang == "ja" ? "" : " ") : title, size: 92 * k, color: ink, top: (landscape ? 110 : 190) * k, bold: true)
     return text(subline, size: 46 * k, color: sub, top: t + 34 * k, bold: false)
 }

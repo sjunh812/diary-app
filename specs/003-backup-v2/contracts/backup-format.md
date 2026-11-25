@@ -1,6 +1,6 @@
 # 백업 형식 v3
 
-드라이브 폴더와 묶음 파일(zip)에 무엇을 어떤 이름으로 두는지 정한다. 설계 배경은 `docs/backup.md` "백업 형식 v2", 근거는 [research.md](../research.md) R5~R10이다.
+드라이브 폴더와 묶음 파일(zip)에 무엇을 어떤 이름으로 두는지 정한다. 설계 배경은 `docs/backup.md` "백업 형식 v3", 근거는 [research.md](../research.md) R5~R10이다.
 이 형식을 바꾸면 `formatVersion`을 올리고, 새 앱이 옛 버전을 읽는 시험을 같은 커밋에 더한다(FR-035).
 
 ## 드라이브 폴더
