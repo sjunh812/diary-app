@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="trash_title">Papierkorb</string>
+    <string name="trash_empty">Leeren</string>
+    <string name="trash_notice">Einträge werden nach 30 Tagen endgültig gelöscht.</string>
+    <string name="trash_empty_title">Der Papierkorb ist leer</string>
+    <string name="trash_empty_body">Gelöschte Einträge kannst du hier 30 Tage lang wiederherstellen.</string>
+    <string name="trash_restore">Wiederherstellen</string>
+    <string name="trash_delete_forever">Endgültig löschen</string>
+    <string name="trash_restored">Wiederhergestellt</string>
+    <string name="trash_confirm_title">Endgültig löschen?</string>
+    <string name="trash_confirm_delete">Löschen</string>
+    <string name="trash_confirm_body_one">Dieser Eintrag wird gelöscht und kann nicht wiederhergestellt werden.</string>
+    <string name="trash_row_when">%1$s %2$s</string>
+    <plurals name="trash_days_left">
+        <item quantity="one">Noch %1$d Tag</item>
+        <item quantity="other">Noch %1$d Tage</item>
+    </plurals>
+    <plurals name="trash_confirm_body_all">
+        <item quantity="one">%1$s Eintrag im Papierkorb wird gelöscht und kann nicht wiederhergestellt werden.</item>
+        <item quantity="other">%1$s Einträge im Papierkorb werden gelöscht und können nicht wiederhergestellt werden.</item>
+    </plurals>
+</resources>

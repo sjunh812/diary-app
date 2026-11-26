@@ -79,11 +79,16 @@ targets:
         NSLocationWhenInUseUsageDescription: Your location is used only when you tap Use my location, to find your neighborhood name.
         # 홈 목록의 첫 광고를 받기 직전에 한 번 묻는다(docs/DECISIONS.md 2026-11-12 ATT).
         NSUserTrackingUsageDescription: If you allow, you'll see ads that match your interests. Your diary entries are never used for ads.
-        # 설정 앱의 앱별 언어에 세 언어를 올린다(docs/design.md 여러 언어).
+        # 설정 앱의 앱별 언어에 화면 언어를 모두 올린다(docs/design.md 여러 언어).
         CFBundleLocalizations:
           - en
           - ko
           - ja
+          - zh-Hant
+          - es
+          - pt
+          - de
+          - fr
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         # 시작 화면: 앱 바탕색(라이트·다크)과 가운데 연필 하나, 움직임 없음(research R14). 그림은 Android 시작 화면과 같다.

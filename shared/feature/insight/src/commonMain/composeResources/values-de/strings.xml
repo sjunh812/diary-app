@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="insight_title">Rückblick</string>
+    <string name="insight_tab_week">Woche</string>
+    <string name="insight_tab_month">Monat</string>
+    <string name="insight_tab_year">Jahr</string>
+    <string name="insight_tab_all">Alle</string>
+    <string name="insight_previous">Vorheriger Zeitraum</string>
+    <string name="insight_next">Nächster Zeitraum</string>
+    <string name="insight_period_sheet_title">Zeitraum wählen</string>
+    <string name="insight_empty">Keine Einträge in diesem Zeitraum</string>
+    <string name="insight_write">Neuer Eintrag</string>
+    <string name="insight_no_moods">Keine Stimmungen in diesem Zeitraum</string>
+    <string name="insight_top_week">Top-Stimmung diese Woche: %1$s</string>
+    <string name="insight_top_month">Top-Stimmung diesen Monat: %1$s</string>
+    <string name="insight_top_year">Top-Stimmung dieses Jahr: %1$s</string>
+    <string name="insight_top_all">Top-Stimmung bisher: %1$s</string>
+    <string name="insight_top_past">Top-Stimmung im Zeitraum: %1$s</string>
+    <string name="insight_top_even">Deine Stimmungen waren gleich verteilt</string>
+    <string name="insight_mood_join">%1$s, %2$s</string>
+    <string name="insight_summary_counts">%1$s · %2$s</string>
+    <string name="insight_count_percent">%1$s · %2$d %</string>
+    <string name="insight_year_map">Stimmung pro Tag in %1$d</string>
+    <string name="insight_flow_week">Stimmung pro Tag</string>
+    <string name="insight_flow_month">Top-Stimmung pro Woche</string>
+    <string name="insight_flow_all">Top-Stimmung pro Jahr</string>
+    <string name="insight_flow_year">Top-Stimmung pro Monat</string>
+    <string name="insight_week_number">KW %1$d</string>
+    <plurals name="insight_entry_count">
+        <item quantity="one">%1$s Eintrag</item>
+        <item quantity="other">%1$s Einträge</item>
+    </plurals>
+    <plurals name="insight_no_mood_count">
+        <item quantity="one">%1$s ohne Stimmung</item>
+        <item quantity="other">%1$s ohne Stimmung</item>
+    </plurals>
+    <string name="insight_adv_title">Erweiterte Statistik</string>
+    <string name="insight_adv_wd_sun">Sonntag</string>
+    <string name="insight_adv_wd_mon">Montag</string>
+    <string name="insight_adv_wd_tue">Dienstag</string>
+    <string name="insight_adv_wd_wed">Mittwoch</string>
+    <string name="insight_adv_wd_thu">Donnerstag</string>
+    <string name="insight_adv_wd_fri">Freitag</string>
+    <string name="insight_adv_wd_sat">Samstag</string>
+    <string name="insight_adv_day_dawn">Nachts</string>
+    <string name="insight_adv_day_morning">Morgens</string>
+    <string name="insight_adv_day_afternoon">Nachmittags</string>
+    <string name="insight_adv_day_evening">Abends</string>
+    <string name="insight_adv_range_recent">Letzte 30 Tage</string>
+    <string name="insight_adv_range_year">Dieses Jahr</string>
+    <string name="insight_adv_range_all">Alle</string>
+    <plurals name="insight_adv_not_enough">
+        <item quantity="one">Erscheint nach %1$s weiteren Eintrag.</item>
+        <item quantity="other">Erscheint nach %1$s weiteren Einträgen.</item>
+    </plurals>
+    <string name="insight_adv_change_recent">Im Vergleich zu den 30 Tagen davor</string>
+    <string name="insight_adv_change_year">Im Vergleich zum Vorjahr</string>
+    <string name="insight_adv_change_good">Positive Stimmungen</string>
+    <string name="insight_adv_when">Stimmung nach Situation</string>
+    <string name="insight_adv_tab_weekday">Tag</string>
+    <string name="insight_adv_tab_part">Uhrzeit</string>
+    <string name="insight_adv_tab_weather">Wetter</string>
+    <string name="insight_adv_tab_place">Ort</string>
+    <string name="insight_adv_share">%1$d %</string>
+    <string name="insight_adv_when_empty">Noch nicht genug Einträge.</string>
+    <string name="insight_adv_when_good_time">Am positivsten: %1$s</string>
+    <string name="insight_adv_when_hard_time">Am negativsten: %1$s</string>
+    <string name="insight_adv_when_good_weather">Am positivsten: %1$s</string>
+    <string name="insight_adv_when_hard_weather">Am negativsten: %1$s</string>
+    <string name="insight_adv_when_good_place">Am positivsten: %1$s</string>
+    <string name="insight_adv_when_hard_place">Am negativsten: %1$s</string>
+    <string name="insight_adv_legend_neutral">%1$s·%2$s</string>
+    <string name="insight_adv_company">Wetter, Tage und Orte nach Stimmung</string>
+    <string name="insight_adv_habit">In Zahlen</string>
+    <string name="insight_adv_habit_entries">Einträge</string>
+    <string name="insight_adv_habit_days">Tage mit Eintrag</string>
+    <string name="insight_adv_habit_run">Längste Serie</string>
+    <string name="insight_adv_habit_characters">Zeichen</string>
+    <string name="insight_adv_habit_photos">Fotos</string>
+    <string name="insight_adv_habit_part">Liebste Tageszeit</string>
+    <plurals name="insight_adv_company_title">
+        <item quantity="one">%1$s · %2$s Eintrag</item>
+        <item quantity="other">%1$s · %2$s Einträge</item>
+    </plurals>
+    <plurals name="insight_adv_habit_entries_value">
+        <item quantity="one">%1$s Eintrag</item>
+        <item quantity="other">%1$s Einträge</item>
+    </plurals>
+    <plurals name="insight_adv_habit_days_value">
+        <item quantity="one">%1$s Tag</item>
+        <item quantity="other">%1$s Tage</item>
+    </plurals>
+    <plurals name="insight_adv_habit_characters_value">
+        <item quantity="one">%1$s Zeichen</item>
+        <item quantity="other">%1$s Zeichen</item>
+    </plurals>
+    <plurals name="insight_adv_habit_photos_value">
+        <item quantity="one">%1$s Foto</item>
+        <item quantity="other">%1$s Fotos</item>
+    </plurals>
+    <string name="insight_section_days">Stimmung pro Tag</string>
+    <string name="insight_map_hint">Jedes Kästchen ist ein Tag, gefärbt nach der Stimmung des Tages.</string>
+    <string name="tip_insight_open">Tippe auf eine Stimmung, um diese Einträge zusammen zu sehen.</string>
+    <string name="insight_section_moods">Top-Stimmungen</string>
+    <string name="insight_adv_no_moods">Nicht genug Einträge mit Stimmung</string>
+    <plurals name="insight_adv_no_moods_body">
+        <item quantity="one">Wähle bei %1$s weiteren Eintrag eine Stimmung, dann suchen wir nach Unterschieden.</item>
+        <item quantity="other">Wähle bei %1$s weiteren Einträgen eine Stimmung, dann suchen wir nach Unterschieden.</item>
+    </plurals>
+    <string name="insight_adv_recent_better">In letzter Zeit mehr gute Tage ☀️</string>
+    <string name="insight_adv_recent_harder">Die letzte Zeit war nicht leicht ☁️</string>
+    <string name="insight_adv_recent_steady">In letzter Zeit ungefähr gleich ⛅</string>
+    <string name="insight_adv_recent_steady_body">Kaum Unterschied zu den 30 Tagen davor.</string>
+    <string name="insight_adv_recent_good_up">Mehr positive Stimmungen als in den 30 Tagen davor. %1$d % → %2$d %</string>
+    <string name="insight_adv_recent_good_down">Weniger positive Stimmungen als in den 30 Tagen davor. %1$d % → %2$d %</string>
+    <string name="insight_adv_recent_hard_up">Mehr negative Stimmungen als in den 30 Tagen davor. %1$d % → %2$d %</string>
+    <string name="insight_adv_recent_hard_down">Weniger negative Stimmungen als in den 30 Tagen davor. %1$d % → %2$d %</string>
+    <string name="insight_adv_change_hard">Negative Stimmungen</string>
+    <string name="insight_adv_change_top">Top-Stimmung</string>
+    <string name="insight_adv_change_before">%1$s →</string>
+    <string name="insight_adv_unit_small">1000</string>
+    <string name="insight_adv_unit_big">1000000</string>
+    <string name="insight_adv_characters_small">%1$s Tsd. Zeichen</string>
+    <string name="insight_adv_characters_big">%1$s Mio. Zeichen</string>
+    <string name="insight_adv_tone_info">So werden Stimmungen eingeteilt</string>
+    <string name="insight_adv_tone_sheet_title">Positive und negative Stimmungen</string>
+    <string name="insight_adv_tone_sheet_body">Von den Einträgen mit Stimmung zeigt dies den Anteil mit positiver oder negativer Stimmung.</string>
+    <string name="insight_adv_tone_neutral">Nicht gezählt</string>
+    <string name="insight_adv_tone_ok">OK</string>
+</resources>

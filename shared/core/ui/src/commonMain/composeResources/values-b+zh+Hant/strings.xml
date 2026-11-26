@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mood_angry">生氣</string>
+    <string name="mood_cool">很酷</string>
+    <string name="mood_sad">難過</string>
+    <string name="mood_sick">不舒服</string>
+    <string name="mood_laugh">大笑</string>
+    <string name="mood_meh">普通</string>
+    <string name="mood_bad">很糟</string>
+    <string name="mood_good">很好</string>
+    <string name="mood_tired">疲倦</string>
+    <string name="weather_sunny">晴天</string>
+    <string name="weather_partly_cloudy">晴時多雲</string>
+    <string name="weather_mostly_cloudy">多雲</string>
+    <string name="weather_cloudy">陰天</string>
+    <string name="weather_rain">雨天</string>
+    <string name="weather_sleet">雨夾雪</string>
+    <string name="weather_snow">下雪</string>
+    <string name="entry_kept_both">兩個版本</string>
+    <string name="tip_close">關閉</string>
+    <string name="checklist_check">勾選「%1$s」</string>
+    <string name="checklist_uncheck">取消勾選「%1$s」</string>
+    <string name="entry_menu_edit">編輯</string>
+    <string name="entry_menu_favorite">加入收藏</string>
+    <string name="entry_menu_unfavorite">取消收藏</string>
+    <string name="entry_menu_share">分享</string>
+    <string name="entry_menu_trash">移至垃圾桶</string>
+    <string name="ui_previous_year">上一年</string>
+    <string name="ui_next_year">下一年</string>
+    <string name="ui_previous_month">上個月</string>
+    <string name="ui_next_month">下個月</string>
+    <string name="share_when">%1$s（%2$s）%3$s</string>
+    <string name="load_failed_title">無法載入日記</string>
+    <string name="load_failed_body">請稍後再試一次。</string>
+    <string name="load_failed_retry">再試一次</string>
+    <string name="link_no_browser">找不到瀏覽器 App。</string>
+</resources>

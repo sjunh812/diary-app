@@ -197,7 +197,7 @@ class AppUpdateRepository(
     private fun readExtras(): Extras {
         val minimum = remote.string(KEY_MIN_VERSION)
         val noteVersion = remote.string(KEY_NOTE_VERSION)
-        val texts = NOTE_LANGUAGES.associateWith { remote.string(KEY_NOTE_PREFIX + it).trim() }.filterValues(String::isNotEmpty)
+        val texts = NOTE_LANGUAGES.associateWith { remote.string(noteKey(it)).trim() }.filterValues(String::isNotEmpty)
         return Extras(
             required = minimum.isNotBlank() && AppVersion.isNewer(minimum, versionName),
             note = ReleaseNote(texts).takeIf {
@@ -262,7 +262,10 @@ class AppUpdateRepository(
         /** 업데이트 요약이 가리키는 버전. 지금 앱보다 높을 때만 씀 */
         const val KEY_NOTE_VERSION = "update_note_version"
         const val KEY_NOTE_PREFIX = "update_note_"
-        val NOTE_LANGUAGES = listOf("ko", "en", "ja")
+        val NOTE_LANGUAGES = listOf("ko", "en", "ja", "zh-Hant", "es", "pt", "de", "fr")
+
+        /** 화면 언어의 요약 키. 원격 설정 키에 하이픈을 쓸 수 없어 밑줄로(update_note_zh_Hant) */
+        fun noteKey(language: String): String = KEY_NOTE_PREFIX + language.replace('-', '_')
 
         private val CHECK_TIMEOUT = 10.seconds
     }

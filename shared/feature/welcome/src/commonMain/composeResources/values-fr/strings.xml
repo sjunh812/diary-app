@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="letter_arrived">Vous avez une lettre 💌</string>
+    <string name="letter_open">Ouvrir la lettre</string>
+    <string name="letter_title">Une lettre du développeur</string>
+    <string name="letter_hello">Bonjour, je suis le développeur\nde 1 Day 1 Diary 👋</string>
+    <string name="letter_short">Je sais que l’app vous a parfois causé du désagrément, c’est pourquoi je l’ai **entièrement reconstruite**. **Vos photos sont désormais sauvegardées elles aussi**, et de nouvelles fonctions utiles vous attendent.\n\nAfin de pouvoir poursuivre les mises à jour, j’ai ajouté des publicités et des fonctions payantes. En contrepartie, je vous fais deux promesses.</string>
+    <string name="letter_sign">SeoJuNyang</string>
+    <string name="letter_start">Continuer</string>
+    <string name="onboarding_backup_title">Vos photos sont sauvegardées aussi</string>
+    <string name="onboarding_backup_body">Avec la sauvegarde auto, vos entrées vont dans votre Google Drive une fois par jour.\nChangez d’appareil, votre journal et vos photos sont toujours là.</string>
+    <string name="onboarding_write_title">Une ligne par jour suffit</string>
+    <string name="onboarding_write_body">Choisissez une humeur et notez quelques lignes.</string>
+    <string name="onboarding_own_title">Seulement sur votre appareil et votre Drive</string>
+    <string name="onboarding_own_body">Sans inscription. Sauvegardez dans votre propre Google Drive,\nphotos comprises.</string>
+    <string name="onboarding_next">Suivant</string>
+    <string name="onboarding_start">Commencer</string>
+    <string name="onboarding_skip">Passer</string>
+    <plurals name="letter_moved"><item quantity="one">Vous avez écrit **%1$s entrée** jusqu’ici.\nMerci infiniment de votre fidélité à une app encore loin d’être parfaite.</item><item quantity="other">Vous avez écrit **%1$s entrées** jusqu’ici.\nMerci infiniment de votre fidélité à une app encore loin d’être parfaite.</item></plurals>
+    <string name="letter_promise_free">Les fonctions que vous utilisez restent gratuites</string>
+    <string name="letter_promise_ads">Aucune publicité quand vous lisez ou écrivez une entrée</string>
+    <string name="letter_close">J’espère que vous resterez à mes côtés 🙇‍♂️</string>
+    <string name="onboarding_style_title">Mettez vos mots en forme</string>
+    <string name="onboarding_style_body">Essayez le gras, la couleur du texte, le surlignage et les listes.\nLe brouillon s’enregistre automatiquement pendant que vous écrivez.</string>
+    <string name="onboarding_trash_title">Supprimé par erreur ? Pas de souci</string>
+    <string name="onboarding_trash_body">Vous pouvez restaurer les entrées de la corbeille pendant 30 jours.</string>
+    <string name="letter_to">À vous qui utilisez 1 Day 1 Diary</string>
+    <string name="letter_feedback_invite">Si vous souhaitez une fonction, n’hésitez pas à nous le dire.</string>
+    <string name="letter_feedback">Envoyer un avis</string>
+    <string name="onboarding_find_title">Recherche et stats simplifiées</string>
+    <string name="onboarding_find_body">Trouvez des entrées par humeur, météo ou période,\net voyez vos humeurs par semaine, mois ou année.</string>
+    <string name="onboarding_tablet_title">Plus d’espace sur tablette</string>
+    <string name="onboarding_tablet_body">Affichez la liste et une entrée côte à côte,\net écrivez tout de suite au clavier.</string>
+    <string name="onboarding_look_back_title">Revivez les jours passés</string>
+    <string name="onboarding_look_back_body">Voyez l’évolution de vos humeurs d’un coup d’œil,\net trouvez des entrées par humeur, météo ou période.</string>
+</resources>

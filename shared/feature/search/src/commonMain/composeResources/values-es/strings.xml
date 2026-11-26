@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_back">Atrás</string>
+    <string name="search_hint">Buscar entradas</string>
+    <string name="search_clear">Borrar</string>
+    <string name="search_chip_mood">Ánimo</string>
+    <string name="search_chip_more">%1$s +%2$d</string>
+    <string name="search_chip_weather">Clima</string>
+    <string name="search_chip_period">Período</string>
+    <string name="search_chip_photo">Con fotos</string>
+    <string name="search_chip_favorite">Favoritos</string>
+    <string name="search_period_week">Esta semana</string>
+    <string name="search_period_month">Este mes</string>
+    <string name="search_period_year">Este año</string>
+    <string name="search_period_custom">Personalizado</string>
+    <string name="search_period_range">%1$s – %2$s</string>
+    <string name="search_clear_conditions">Restablecer filtros</string>
+    <string name="search_clear_filter">Borrar</string>
+    <string name="search_done">Listo</string>
+    <string name="search_pick_many">Puedes elegir más de uno.</string>
+    <string name="search_range_start">Inicio</string>
+    <string name="search_range_end">Fin</string>
+    <string name="search_range_pick">Elige una fecha</string>
+    <string name="search_empty_title">No hay entradas que coincidan</string>
+    <string name="search_empty_body">Prueba con otra palabra o cambia los filtros.</string>
+    <plurals name="search_result_count">
+        <item quantity="one">%1$s entrada</item>
+        <item quantity="other">%1$s entradas</item>
+    </plurals>
+    <string name="search_idle">Escribe una palabra o elige un filtro para buscar entradas.</string>
+</resources>

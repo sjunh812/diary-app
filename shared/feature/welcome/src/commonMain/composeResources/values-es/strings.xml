@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="letter_arrived">Tienes una carta 💌</string>
+    <string name="letter_open">Abrir la carta</string>
+    <string name="letter_title">Una carta del desarrollador</string>
+    <string name="letter_hello">Hola, soy el desarrollador\nde 1 Day 1 Diary 👋</string>
+    <string name="letter_short">Sé que la app le ha causado algunas molestias, así que la rehíce **desde cero**. **Ahora también se hace copia de seguridad de sus fotos**, y hay funciones nuevas que le resultarán útiles.\n\nPara poder seguir actualizándola, agregué anuncios y funciones de pago. A cambio, quiero hacerle dos promesas.</string>
+    <string name="letter_sign">De SeoJuNyang</string>
+    <string name="letter_start">Continuar</string>
+    <string name="onboarding_backup_title">Tus fotos también van en la copia</string>
+    <string name="onboarding_backup_body">Con la copia de seguridad automática, tus entradas se guardan en tu Google Drive una vez al día.\nSi cambias de dispositivo, tu diario y tus fotos siguen ahí.</string>
+    <string name="onboarding_write_title">Basta con una línea al día</string>
+    <string name="onboarding_write_body">Elige un ánimo y escribe unas líneas.</string>
+    <string name="onboarding_own_title">Solo en tu dispositivo y tu Drive</string>
+    <string name="onboarding_own_body">Sin registro. Haz copia de seguridad en tu propio Google Drive,\nfotos incluidas.</string>
+    <string name="onboarding_next">Siguiente</string>
+    <string name="onboarding_start">Empezar</string>
+    <string name="onboarding_skip">Omitir</string>
+    <plurals name="letter_moved"><item quantity="one">Hasta ahora ha escrito **%1$s entrada**.\nMuchas gracias por quedarse con una app que está lejos de ser perfecta.</item><item quantity="other">Hasta ahora ha escrito **%1$s entradas**.\nMuchas gracias por quedarse con una app que está lejos de ser perfecta.</item></plurals>
+    <string name="letter_promise_free">Las funciones que ya usa seguirán siendo gratis</string>
+    <string name="letter_promise_ads">Sin anuncios mientras lee o escribe una entrada</string>
+    <string name="letter_close">Espero que siga conmigo 🙇‍♂️</string>
+    <string name="onboarding_style_title">Dale estilo a tu texto</string>
+    <string name="onboarding_style_body">Prueba la negrita, el color del texto, el resaltado y las listas.\nEl borrador se guarda automáticamente mientras escribes.</string>
+    <string name="onboarding_trash_title">¿Lo eliminaste sin querer? No pasa nada</string>
+    <string name="onboarding_trash_body">Puedes restaurar entradas de la papelera durante 30 días.</string>
+    <string name="letter_to">A todas las personas que usan 1 Day 1 Diary</string>
+    <string name="letter_feedback_invite">Si hay alguna función que le gustaría tener, háganoslo saber.</string>
+    <string name="letter_feedback">Enviar comentarios</string>
+    <string name="onboarding_find_title">Búsqueda y estadísticas más fáciles</string>
+    <string name="onboarding_find_body">Busca entradas por ánimo, clima o fechas,\ny mira tus ánimos por semana, mes o año.</string>
+    <string name="onboarding_tablet_title">Más espacio en la tablet</string>
+    <string name="onboarding_tablet_body">Mira la lista y una entrada lado a lado,\ny escribe al instante con un teclado.</string>
+    <string name="onboarding_look_back_title">Repasa los días pasados</string>
+    <string name="onboarding_look_back_body">Mira de un vistazo cómo cambian tus ánimos,\ny busca entradas por ánimo, clima o fechas.</string>
+</resources>

@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="backup_title">Backup</string>
+    <string name="backup_now">Fazer backup agora</string>
+    <string name="backup_auto">Backup automático</string>
+    <string name="backup_auto_body">Uma vez por dia, só o que mudou.</string>
+    <string name="backup_options">Configurações de backup</string>
+    <string name="backup_connect">Conectar o Google Drive</string>
+    <string name="backup_intro_title">Backup no Google Drive</string>
+    <string name="backup_intro_body">Guarde suas entradas e fotos no seu próprio Google Drive. Restaure tudo quando trocar de dispositivo.</string>
+    <string name="backup_intro_photos_title">As fotos também entram no backup</string>
+    <string name="backup_intro_photos_body">Entradas, humores, clima, locais e fotos: tudo é enviado.</string>
+    <string name="backup_intro_folder_title">Só no seu Drive</string>
+    <string name="backup_intro_folder_body">Fica salvo na pasta 1일 1일기 백업. Nunca olhamos seus outros arquivos.</string>
+    <string name="backup_intro_free_title">É gratuito</string>
+    <string name="backup_intro_free_body">O backup automático também é gratuito. Ele usa o armazenamento do seu próprio Google Drive.</string>
+    <string name="backup_running">Fazendo backup</string>
+    <string name="backup_running_body">Continua mesmo se você sair do app. Avisamos quando terminar.</string>
+    <string name="backup_running_body_open">Funciona enquanto o app está aberto. Se você sair, ele pausa e continua quando você voltar.</string>
+    <string name="backup_running_body_quiet">Continua mesmo se você sair do app.</string>
+    <string name="backup_running_photos">Fotos %1$s / %2$s</string>
+    <string name="backup_reconnect">Reconectar</string>
+    <string name="backup_reconnect_title">Conta do Google desconectada</string>
+    <string name="backup_reconnect_body">Reconecte para continuar. Seus backups no Drive estão seguros.</string>
+    <string name="backup_no_space_title">Armazenamento do Drive insuficiente</string>
+    <string name="backup_upload_cellular">Enviar usando dados móveis</string>
+    <string name="backup_all_done">Tudo tem backup, inclusive as fotos.</string>
+    <string name="backup_finding_title">Procurando backups</string>
+    <string name="backup_finding_body">Verificando os backups no seu Google Drive.</string>
+    <string name="backup_first_title">Nenhum backup ainda</string>
+    <string name="backup_first_body">Toque em Fazer backup agora para enviar entradas e fotos.</string>
+    <string name="backup_last">Último backup: %1$s</string>
+    <string name="backup_when_day_time">%1$s %2$s</string>
+    <string name="backup_group_account">Conta</string>
+    <string name="backup_account">Conta do Google</string>
+    <string name="backup_account_busy">Você pode trocar de conta quando o backup ou a restauração terminar.</string>
+    <string name="backup_group_upload">Envio</string>
+    <string name="backup_wifi_only">Fotos só no Wi-Fi</string>
+    <string name="backup_wifi_only_body">Desative para enviar fotos também pelos dados móveis.</string>
+    <string name="backup_group_connection">Conexão</string>
+    <string name="backup_disconnect">Desconectar</string>
+    <string name="backup_disconnect_body">Os backups no Drive continuam onde estão.</string>
+    <string name="backup_disconnect_title">Desconectar?</string>
+    <string name="backup_disconnect_message">O backup automático para. Os backups no Drive não são excluídos.</string>
+    <string name="backup_readme_body">Esta pasta guarda os backups do app 1 Day 1 Diary. Se você excluí-la, seus backups serão apagados.\n\n1일 1일기 앱의 백업 폴더예요. 이 폴더를 삭제하면 백업이 사라져요.</string>
+    <string name="backup_line_off">Backup desativado</string>
+    <string name="backup_line_on">Ativar</string>
+    <string name="backup_line_reconnect">É preciso reconectar</string>
+    <string name="backup_line_receiving">Recebendo fotos · %1$s/%2$s</string>
+    <string name="backup_line_running">Fazendo backup · Fotos %1$s/%2$s</string>
+    <string name="backup_line_running_plain">Fazendo backup</string>
+    <string name="backup_line_at">Backup %1$s · %2$s</string>
+    <string name="backup_line_all">com fotos</string>
+    <string name="backup_line_waiting">fotos na fila: %1$s</string>
+    <string name="backup_line_days">Último backup há %1$d dias</string>
+    <string name="backup_line_today">hoje às %1$s</string>
+    <string name="backup_line_yesterday">ontem às %1$s</string>
+    <plurals name="backup_photos_unusable">
+        <item quantity="one">%1$s foto não foi encontrada, então ficou sem backup.</item>
+        <item quantity="other">%1$s fotos não foram encontradas, então ficaram sem backup.</item>
+    </plurals>
+    <plurals name="backup_photos_waiting"><item quantity="one">%1$s foto será enviada no Wi-Fi.</item><item quantity="other">%1$s fotos serão enviadas no Wi-Fi.</item></plurals>
+    <plurals name="backup_photos_next"><item quantity="one">%1$s foto será enviada no próximo backup.</item><item quantity="other">%1$s fotos serão enviadas no próximo backup.</item></plurals>
+    <string name="restore_row">Restaurar do Google Drive</string>
+    <string name="restore_row_body">Mescle um backup de outro dispositivo ou da versão anterior.</string>
+    <string name="restore_keep_note">As entradas deste dispositivo são mantidas.</string>
+    <string name="restore_device_group">%1$s · %2$s</string>
+    <string name="restore_device_unknown">Dispositivo sem nome</string>
+    <string name="restore_platform_android">Android</string>
+    <string name="restore_platform_ios">iOS</string>
+    <string name="restore_when">%1$s %2$s</string>
+    <string name="restore_join">%1$s · %2$s</string>
+    <string name="restore_damaged">Parte deste backup está danificada, então não é possível restaurá-lo</string>
+    <string name="restore_needs_update">Atualize o app para restaurar este backup</string>
+    <string name="restore_empty_title">Nenhum backup no Drive ainda</string>
+    <string name="restore_empty_body">Os backups deste dispositivo aparecerão aqui.</string>
+    <string name="restore_list_failed">Não foi possível ler seus backups</string>
+    <string name="restore_list_failed_auth">Sua conta do Google foi desconectada. Reconecte na tela de Backup.</string>
+    <string name="restore_go_backup">Ir para Backup</string>
+    <string name="restore_list_failed_body">Verifique sua conexão e tente de novo.</string>
+    <string name="restore_retry">Tentar de novo</string>
+    <string name="restore_update_in_store">Atualizar na loja</string>
+    <string name="restore_preview_top">Restaurar</string>
+    <string name="restore_preview_title">Mesclar este backup</string>
+    <string name="restore_preview_title_nothing">Tudo deste backup já está aqui</string>
+    <string name="restore_preview_body">Backup de %1$s, %2$s.\nAs entradas deste dispositivo são mantidas e o backup é mesclado.</string>
+    <string name="restore_value_added">Entradas a adicionar</string>
+    <string name="restore_value_updated">Entradas atualizadas para a versão mais nova</string>
+    <string name="restore_value_both">Entradas mantidas nas duas versões</string>
+    <string name="restore_value_photos">Fotos a baixar</string>
+    <string name="restore_settings_note">Fonte, tamanho do texto do diário, aparência, modo de lista e lembrete também mudam para as configurações do backup.</string>
+    <string name="restore_no_space">As fotos precisam de mais %1$s de espaço. Libere espaço neste dispositivo e tente de novo.</string>
+    <string name="restore_merge">Mesclar</string>
+    <string name="restore_size_gb">%1$s GB</string>
+    <string name="restore_size_mb">%1$s MB</string>
+    <string name="restore_size_kb">%1$s KB</string>
+    <string name="restore_running_title">Restaurando seu diário</string>
+    <string name="restore_waiting_body">Vamos começar quando o backup terminar.</string>
+    <string name="restore_merging_body">Mesclando suas entradas.</string>
+    <string name="restore_fetching_body">Suas entradas foram mescladas. Você pode lê-las enquanto as fotos são baixadas.</string>
+    <string name="restore_value_entries">Entradas</string>
+    <string name="restore_value_merged">%1$s · mescladas</string>
+    <string name="restore_value_photo">Fotos</string>
+    <string name="restore_photo_progress">%1$s / %2$s</string>
+    <string name="restore_running_note">Continua mesmo se você sair do app, e avisamos quando terminar. Se o app fechar, só as fotos restantes serão baixadas.</string>
+    <string name="restore_running_note_quiet">Continua mesmo se você sair do app. Se o app fechar, só as fotos restantes serão baixadas.</string>
+    <string name="restore_running_note_open">Funciona enquanto o app está aberto. Se você sair, ele pausa, e só as fotos restantes serão baixadas quando você voltar.</string>
+    <string name="restore_see_entries">Ver as entradas primeiro</string>
+    <string name="restore_done_nothing">Backup mesclado</string>
+    <string name="restore_done_body">As entradas deste dispositivo são mantidas.</string>
+    <string name="restore_note_both_body">Foram editadas em dois lugares. Estão marcadas na sua lista.</string>
+    <string name="restore_note_original_body">Essas fotos ainda não têm backup. Faça backup de novo no dispositivo original para vê-las aqui.</string>
+    <string name="restore_note_pending_body">O download termina na próxima vez que você abrir o app.</string>
+    <string name="restore_note_pending_file_body">Essas fotos não estão no arquivo. Se tiverem backup no Drive, serão baixadas quando você conectar.</string>
+    <string name="restore_note_pending_space_body">O dispositivo ficou sem espaço. Libere espaço e abra o app de novo para terminar.</string>
+    <string name="restore_wait_running">Baixando suas fotos.</string>
+    <string name="restore_wait_network">O download termina quando você estiver on-line de novo.</string>
+    <string name="restore_wait_wifi">O download termina no Wi-Fi. Para usar dados móveis, toque em Baixar agora.</string>
+    <string name="restore_wait_account">O Google Drive foi desconectado. Reconecte para terminar o download.</string>
+    <string name="restore_wait_other_account">Essas fotos estão no Google Drive de %1$s. Conecte essa conta para baixá-las.</string>
+    <string name="restore_wait_other_account_unnamed">Essas fotos estão no Google Drive de onde você restaurou. Conecte essa conta para baixá-las.</string>
+    <string name="restore_wait_file">Escolha de novo o arquivo de onde você restaurou para receber as fotos restantes.</string>
+    <string name="restore_wait_now">Baixar agora</string>
+    <string name="restore_wait_pick">Escolher arquivo</string>
+    <string name="restore_note_missing_body">Os arquivos baixados não conferem, então foram marcados como não encontrados.</string>
+    <string name="restore_lock_title">Configure o bloqueio de novo</string>
+    <string name="restore_lock_body">O bloqueio estava ativado quando o backup foi feito. As senhas não entram no backup.</string>
+    <string name="restore_lock_action">Configurar</string>
+    <string name="restore_start">Concluir</string>
+    <string name="restore_failed_busy_title">Tente de novo quando a restauração terminar</string>
+    <string name="restore_failed_busy_body">Há uma restauração em andamento. Você pode escolher outro backup quando ela terminar.</string>
+    <string name="restore_failed_mismatch_title">Não foi possível verificar o backup</string>
+    <string name="restore_failed_mismatch_body">O arquivo baixado é diferente do backup, então paramos. Nada mudou neste dispositivo.</string>
+    <string name="restore_failed_other_title">Não foi possível restaurar</string>
+    <string name="restore_failed_other_body">Tente de novo em instantes. Nada mudou neste dispositivo.</string>
+    <string name="restore_needs_update_body">Atualize o app pela loja e tente de novo. Nada mudou neste dispositivo.</string>
+    <string name="restore_pick_other">Escolher outro backup</string>
+    <string name="restore_found_title">Você tem um backup no Google Drive</string>
+    <string name="restore_found_body">As entradas deste dispositivo são mantidas e o backup é mesclado.</string>
+    <string name="restore_found_later">Depois</string>
+    <string name="restore_found_action">Restaurar</string>
+    <plurals name="restore_count_entries"><item quantity="one">%1$s entrada</item><item quantity="other">%1$s entradas</item></plurals>
+    <plurals name="restore_count_photos"><item quantity="one">%1$s foto</item><item quantity="other">%1$s fotos</item></plurals>
+    <plurals name="restore_unit_entries"><item quantity="one">%1$s</item><item quantity="other">%1$s</item></plurals>
+    <plurals name="restore_unit_photos"><item quantity="one">%1$s</item><item quantity="other">%1$s</item></plurals>
+    <plurals name="restore_done_added"><item quantity="one">%1$s entrada adicionada</item><item quantity="other">%1$s entradas adicionadas</item></plurals>
+    <plurals name="restore_done_trash"><item quantity="one">%1$s entrada restaurada na lixeira</item><item quantity="other">%1$s entradas restauradas na lixeira</item></plurals>
+    <plurals name="restore_to_trash"><item quantity="one">%1$s entrada será restaurada na lixeira.</item><item quantity="other">%1$s entradas serão restauradas na lixeira.</item></plurals>
+    <plurals name="restore_done_updated"><item quantity="one">%1$s entrada atualizada</item><item quantity="other">%1$s entradas atualizadas</item></plurals>
+    <plurals name="restore_done_photos"><item quantity="one">A foto também voltou.</item><item quantity="other">As %1$s fotos também voltaram.</item></plurals>
+    <plurals name="restore_note_both"><item quantity="one">%1$s entrada mantida nas duas versões</item><item quantity="other">%1$s entradas mantidas nas duas versões</item></plurals>
+    <plurals name="restore_note_original"><item quantity="one">%1$s foto no dispositivo original</item><item quantity="other">%1$s fotos no dispositivo original</item></plurals>
+    <plurals name="restore_note_pending"><item quantity="one">%1$s foto ainda a baixar</item><item quantity="other">%1$s fotos ainda a baixar</item></plurals>
+    <plurals name="restore_note_missing"><item quantity="one">%1$s foto não pôde ser verificada</item><item quantity="other">%1$s fotos não puderam ser verificadas</item></plurals>
+    <plurals name="restore_not_in_backup"><item quantity="one">%1$s foto não está neste backup. Ela está no dispositivo original.</item><item quantity="other">%1$s fotos não estão neste backup. Elas estão no dispositivo original.</item></plurals>
+    <string name="restore_group_legacy">Backups da versão anterior</string>
+    <string name="restore_legacy_row">Da versão anterior · Sem fotos</string>
+    <plurals name="restore_more_backups"><item quantity="one">Mostrar %1$s backup mais antigo</item><item quantity="other">Mostrar %1$s backups mais antigos</item></plurals>
+    <string name="restore_legacy_title">Restaurar um backup da versão anterior</string>
+    <string name="restore_legacy_body">Enviado pela versão anterior em %1$s.\nAs entradas deste dispositivo são mantidas e o backup é mesclado.</string>
+    <string name="restore_legacy_no_photos">Estes backups não incluem fotos</string>
+    <string name="restore_legacy_no_photos_body">Texto, humor, clima, local e favoritos serão restaurados.</string>
+    <string name="restore_legacy_recent">Podem faltar entradas escritas depois disso.</string>
+    <string name="restore_legacy_recent_body">Este backup só tem as entradas até o último backup feito pela versão anterior.</string>
+    <string name="restore_value_existing">Entradas que já estão neste dispositivo</string>
+    <string name="restore_value_unreadable">Entradas que não puderam ser lidas</string>
+    <string name="restore_legacy_action">Restaurar</string>
+    <string name="restore_legacy_same_time_body">Mesma data e hora com textos diferentes. As duas são mantidas e marcadas.</string>
+    <string name="restore_legacy_gaps_body">Estes backups não têm fotos, então elas foram marcadas como não encontradas.</string>
+    <plurals name="restore_legacy_same_time"><item quantity="one">%1$s entrada com texto diferente</item><item quantity="other">%1$s entradas com texto diferente</item></plurals>
+    <plurals name="restore_legacy_gaps"><item quantity="one">%1$s foto faltando</item><item quantity="other">%1$s fotos faltando</item></plurals>
+    <string name="backup_alert_title">Sem backup há 7 dias</string>
+    <string name="backup_alert_auth">Sua conta do Google está desconectada. Toque para reconectar.</string>
+    <string name="backup_alert_space">Seu Drive está sem espaço. Toque para verificar.</string>
+    <string name="backup_alert_offline">Você está off-line. O backup continua quando você se conectar.</string>
+    <string name="backup_alert_other">Abra o app para verificar seu backup.</string>
+    <string name="backup_channel">Backup</string>
+    <string name="backup_nudge_entries_photos">%1$s e %2$s estão só neste dispositivo</string>
+    <plurals name="backup_nudge_entries"><item quantity="one">%1$s entrada está só neste dispositivo</item><item quantity="other">%1$s entradas estão só neste dispositivo</item></plurals>
+    <string name="backup_nudge_body">Faça backup no Google Drive e elas continuarão com você ao trocar de dispositivo.</string>
+    <string name="backup_nudge_action">Ativar backup</string>
+    <string name="backup_nudge_later">Depois</string>
+    <string name="restore_replace_entry">Substituir por este backup</string>
+    <string name="restore_replace_title">Substituir por este backup?</string>
+    <string name="restore_replace_action">Substituir</string>
+    <string name="restore_failed_space_title">Espaço insuficiente neste dispositivo</string>
+    <string name="restore_failed_space_body">Não há espaço para guardar uma cópia das suas entradas atuais, então paramos. Nada mudou neste dispositivo.</string>
+    <string name="backup_folder_title">Criamos uma nova pasta de backup</string>
+    <string name="backup_folder_body">Você pode restaurar a pasta excluída da lixeira do Drive por 30 dias.</string>
+    <string name="backup_folder_ok">OK</string>
+    <string name="rollback_title">Substituído por este backup</string>
+    <string name="rollback_until">Você pode desfazer até %1$s.</string>
+    <string name="rollback_tomorrow">Você pode desfazer até amanhã.</string>
+    <string name="rollback_action">Desfazer</string>
+    <string name="rollback_waiting_title">Aguardando para desfazer</string>
+    <string name="rollback_waiting_body">Vamos desfazer a substituição quando a restauração terminar.</string>
+    <string name="rollback_running_title">Desfazendo a substituição</string>
+    <string name="rollback_running_body">Leva só um instante.</string>
+    <string name="rollback_failed_title">Não foi possível desfazer a substituição</string>
+    <string name="rollback_failed_body">Nenhuma entrada foi excluída. Tente de novo.</string>
+    <string name="rollback_ask_title">Desfazer a substituição?</string>
+    <string name="rollback_ask_body">Suas entradas anteriores (%1$s) vão voltar.</string>
+    <string name="rollback_ask_after">Suas entradas anteriores (%1$s) vão voltar. As entradas escritas desde então (%2$s) continuam.</string>
+    <plurals name="restore_replace_body"><item quantity="one">%1$s entrada deste dispositivo será substituída por este backup. Você pode desfazer por 7 dias.</item><item quantity="other">%1$s entradas deste dispositivo serão substituídas por este backup. Você pode desfazer por 7 dias.</item></plurals>
+    <string name="file_top">Backup em arquivo</string>
+    <string name="file_row_body">Guarde tudo em um arquivo, sem o Drive.</string>
+    <string name="file_title">Salve seu diário em um arquivo</string>
+    <string name="file_body">Guarde %1$s e %2$s em um arquivo, sem o Drive. Tamanho estimado: %3$s.</string>
+    <string name="file_body_empty">Você ainda não tem entradas para salvar. Você pode restaurar um arquivo de backup abaixo.</string>
+    <string name="file_place_title">Salve onde quiser</string>
+    <string name="file_place_body">Escolha o armazenamento do dispositivo ou outro app de nuvem.</string>
+    <string name="file_move_title">Leve o arquivo para o novo dispositivo</string>
+    <string name="file_move_body">Copie por um computador ou um app de nuvem. Com muitas fotos, ele pode ficar grande demais para apps de mensagem.</string>
+    <string name="file_trust_title">Guarde em um lugar confiável</string>
+    <string name="file_trust_body">O arquivo contém suas entradas e fotos como estão.</string>
+    <string name="file_restore">Restaurar de um arquivo</string>
+    <string name="file_restore_body">Escolha um arquivo de backup e mescle com seu diário.</string>
+    <string name="file_action">Criar arquivo</string>
+    <string name="file_writing">Criando o arquivo</string>
+    <string name="file_write_failed">Não foi possível concluir o arquivo. Exclua-o do local onde você salvou e crie um novo. Nada mudou neste dispositivo.</string>
+    <string name="file_reading">Verificando o arquivo</string>
+    <string name="file_write_failed_removed">Não foi possível concluir o arquivo, então ele foi removido. Nada mudou neste dispositivo.</string>
+    <string name="file_stop_title">Parar de criar o arquivo?</string>
+    <string name="file_stop_body">Se você sair agora, o arquivo incompleto será excluído. Nada muda neste dispositivo.</string>
+    <string name="file_stop_action">Parar</string>
+    <string name="file_stopped_notice">O arquivo de backup não foi concluído, então não pode ser usado.</string>
+    <string name="file_read_failed">Este não é um arquivo de backup, ou parte dele está danificada. Nada mudou neste dispositivo.</string>
+    <string name="file_read_no_space">Espaço insuficiente para abrir este arquivo. Libere %1$s e tente de novo.</string>
+    <string name="file_read_no_space_plain">Espaço insuficiente para abrir este arquivo. Libere espaço e tente de novo.</string>
+    <string name="file_read_needs_update">Atualize o app para restaurar este backup.</string>
+    <string name="file_saved_title">Arquivo salvo</string>
+    <string name="file_saved_body">Leve-o para o novo dispositivo e toque em Restaurar de um arquivo.</string>
+    <string name="file_done">OK</string>
+    <string name="file_name">1Day1Diary-backup-%1$s</string>
+    <string name="backup_group_backup">Backup</string>
+    <string name="backup_group_restore">Restauração</string>
+    <string name="restore_replaced_title">Substituído por este backup</string>
+    <string name="restore_replaced_body">Você pode desfazer por 7 dias.</string>
+    <string name="backup_space_text">Você precisa de mais %1$s no Drive para fazer backup das entradas.</string>
+    <string name="backup_space_manage">Gerenciar armazenamento do Google</string>
+    <string name="backup_space_trash">Esvaziar a lixeira do Drive</string>
+    <string name="backup_space_note">As fotos sem backup continuam neste dispositivo.</string>
+    <string name="backup_space_retry">Fazer backup de novo</string>
+    <plurals name="backup_space_photos"><item quantity="one">Suas entradas têm backup. Você precisa de mais %2$s no Drive para a foto restante.</item><item quantity="other">Suas entradas têm backup. Você precisa de mais %2$s no Drive para as %1$s fotos restantes.</item></plurals>
+    <string name="restore_contact">Fale conosco</string>
+    <string name="backup_interrupted_body">As fotos enviadas estão seguras. Toque em Fazer backup agora para continuar.</string>
+    <string name="backup_restored_title">Restaurado do backup de %1$s</string>
+    <string name="backup_restored_body">Faça backup agora para salvar também as entradas deste dispositivo.</string>
+    <string name="backup_done_title">Backup concluído</string>
+    <string name="backup_done_body">Suas entradas e fotos estão todas no Drive.</string>
+    <string name="backup_done_left">As fotos restantes serão enviadas no Wi-Fi (%1$s).</string>
+    <plurals name="backup_done_left_space"><item quantity="one">%1$s foto não foi enviada porque o Drive está sem espaço.</item><item quantity="other">%1$s fotos não foram enviadas porque o Drive está sem espaço.</item></plurals>
+    <string name="backup_stopped_title">O backup não terminou</string>
+    <string name="restore_stopped_title">Não foi possível concluir a restauração</string>
+    <string name="restore_see_result">Ver</string>
+    <string name="restore_notice_title">Restauração concluída</string>
+    <string name="restore_notice_body">Todas as suas entradas e fotos voltaram.</string>
+    <string name="restore_notice_stopped_title">Algumas fotos ainda estão sendo baixadas</string>
+    <string name="restore_notice_some">Não foi possível restaurar algumas fotos. Abra o app para verificar.</string>
+    <string name="restore_notice_left">Abra o app para receber as fotos restantes.</string>
+    <string name="backup_failed_offline">Você não está conectado à internet. Conecte-se e toque em Fazer backup agora.</string>
+    <string name="backup_failed_drive">O Google Drive não está respondendo. Aguarde um momento e toque em Fazer backup agora.</string>
+    <string name="backup_failed_local">Não foi possível ler ou gravar arquivos neste dispositivo. Verifique o armazenamento e toque em Fazer backup agora.</string>
+    <string name="backup_line_failed">O backup não terminou</string>
+    <string name="backup_status_failed">Não foi possível carregar o status do backup</string>
+    <string name="backup_skip_empty">Ainda não há entradas para fazer backup</string>
+    <string name="backup_skip_busy">Outra tarefa está em andamento. Tente de novo quando ela terminar.</string>
+    <string name="backup_skip_not_checked">Não foi possível verificar os backups no Google Drive. Toque em Fazer backup agora daqui a pouco.</string>
+    <string name="backup_connect_failed_title">Não foi possível conectar ao Google Drive</string>
+    <string name="backup_connect_failed_offline">Verifique sua conexão com a internet e tente de novo.</string>
+    <string name="backup_connect_failed_auth">Não foi possível verificar sua conta do Google. Tente de novo em instantes.</string>
+    <string name="backup_connect_failed_no_drive">Marque o item Google Drive na tela do Google para conectar.</string>
+    <string name="backup_connect_failed_other">Tente de novo em instantes.</string>
+    <string name="backup_connect_failed_close">OK</string>
+    <string name="restore_no_mail">Nenhum app de e-mail encontrado. Escreva para %1$s.</string>
+</resources>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_back">返回</string>
+    <string name="search_hint">搜尋日記</string>
+    <string name="search_clear">清除</string>
+    <string name="search_chip_mood">心情</string>
+    <string name="search_chip_more">%1$s 等%2$d項</string>
+    <string name="search_chip_weather">天氣</string>
+    <string name="search_chip_period">期間</string>
+    <string name="search_chip_photo">有照片</string>
+    <string name="search_chip_favorite">收藏</string>
+    <string name="search_period_week">本週</string>
+    <string name="search_period_month">本月</string>
+    <string name="search_period_year">今年</string>
+    <string name="search_period_custom">自訂</string>
+    <string name="search_period_range">%1$s – %2$s</string>
+    <string name="search_clear_conditions">重設篩選條件</string>
+    <string name="search_clear_filter">清除</string>
+    <string name="search_done">完成</string>
+    <string name="search_pick_many">可以選擇多個。</string>
+    <string name="search_range_start">開始</string>
+    <string name="search_range_end">結束</string>
+    <string name="search_range_pick">選擇日期</string>
+    <string name="search_empty_title">沒有符合的日記</string>
+    <string name="search_empty_body">試試其他關鍵字，或變更篩選條件。</string>
+    <plurals name="search_result_count">
+        <item quantity="other">%1$s篇</item>
+    </plurals>
+    <string name="search_idle">輸入關鍵字或選擇篩選條件來找日記。</string>
+</resources>

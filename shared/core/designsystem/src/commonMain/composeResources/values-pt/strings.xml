@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ds_language">pt</string>
+    <string name="ds_in_progress">Em andamento</string>
+    <string name="ds_close">Fechar</string>
+    <string name="ds_back">Voltar</string>
+    <string name="ds_delete">Excluir</string>
+    <string name="ds_pin_progress">%1$d de %2$d dígitos inseridos</string>
+    <string name="ds_catalog_title">Sistema de design</string>
+    <string name="ds_catalog_colors">Cores</string>
+    <string name="ds_catalog_typography">Tipografia</string>
+    <string name="ds_catalog_spacing">Espaçamento e cantos</string>
+    <string name="ds_catalog_components">Componentes</string>
+    <string name="ds_catalog_type_sample">Um pequeno jabuti xereta viu dez cegonhas felizes 1234</string>
+    <string name="ds_am">AM</string>
+    <string name="ds_pm">PM</string>
+    <string name="ds_wheel_ampm">AM ou PM</string>
+    <string name="ds_wheel_hour">Hora</string>
+    <string name="ds_wheel_minute">Minuto</string>
+    <string name="ds_wheel_month">Mês</string>
+    <string name="ds_wheel_year">Ano</string>
+    <string name="ds_previous">Anterior</string>
+    <string name="ds_next">Próximo</string>
+</resources>

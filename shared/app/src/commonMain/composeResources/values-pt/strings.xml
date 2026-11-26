@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tab_home">Início</string>
+    <string name="tab_calendar">Calendário</string>
+    <string name="tab_insight">Insights</string>
+    <string name="tab_settings">Configurações</string>
+    <string name="write_new">Nova entrada</string>
+    <string name="write_saved">Salvo</string>
+    <string name="write_draft_kept">Rascunho salvo</string>
+    <string name="detail_trashed">Movido para a lixeira</string>
+    <string name="detail_trashed_undo">Desfazer</string>
+    <string name="detail_pick_hint">Nenhuma entrada selecionada</string>
+    <string name="detail_pick_body">Toque em uma entrada da lista para ler aqui.</string>
+    <string name="settings_pick_hint">Nenhuma configuração selecionada</string>
+    <string name="settings_pick_body">Toque em uma configuração da lista para ver aqui.</string>
+    <string name="ad_label">Anúncio</string>
+    <string name="reward_title">Ganhe um dia sem anúncios</string>
+    <string name="reward_body">Assista a um vídeo curto até o fim e não veja outros anúncios por 24 horas.</string>
+    <string name="reward_watch">Assistir ao vídeo</string>
+    <string name="reward_close">Fechar</string>
+    <string name="reward_failed_title">Não foi possível liberar o dia sem anúncios</string>
+    <string name="reward_failed_body">O anúncio não carregou ou não foi assistido até o fim. Tente de novo daqui a pouco.</string>
+    <string name="reward_not_saved">O armazenamento do dispositivo está quase cheio. Os anúncios podem voltar quando você abrir o app de novo.</string>
+    <string name="ad_close">Remover anúncios</string>
+    <string name="ad_notice_title">Anúncios em tela cheia aparecem uma vez por dia</string>
+    <string name="ad_notice_body">Eles aparecem rapidinho só depois que você salva uma entrada.</string>
+    <string name="ad_notice_ok">OK</string>
+    <string name="write_failed">Não foi possível salvar. Verifique o armazenamento do dispositivo.</string>
+</resources>

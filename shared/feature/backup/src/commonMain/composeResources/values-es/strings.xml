@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="backup_title">Copia de seguridad</string>
+    <string name="backup_now">Hacer copia ahora</string>
+    <string name="backup_auto">Copia automática</string>
+    <string name="backup_auto_body">Una vez al día, solo lo que cambió.</string>
+    <string name="backup_options">Ajustes de copia</string>
+    <string name="backup_connect">Conectar Google Drive</string>
+    <string name="backup_intro_title">Haz copia de seguridad en Google Drive</string>
+    <string name="backup_intro_body">Guarda tus entradas y fotos en tu propio Google Drive. Restaura todo cuando cambies de dispositivo.</string>
+    <string name="backup_intro_photos_title">Las fotos también van en la copia</string>
+    <string name="backup_intro_photos_body">Se suben las entradas, los ánimos, el clima, los lugares y las fotos.</string>
+    <string name="backup_intro_folder_title">Solo en tu Drive</string>
+    <string name="backup_intro_folder_body">Se guarda en la carpeta 1일 1일기 백업. Nunca miramos tus otros archivos.</string>
+    <string name="backup_intro_free_title">Es gratis</string>
+    <string name="backup_intro_free_body">La copia automática también es gratis. Usa el almacenamiento de tu propio Google Drive.</string>
+    <string name="backup_running">Haciendo copia</string>
+    <string name="backup_running_body">Sigue aunque salgas de la app. Te avisaremos cuando termine.</string>
+    <string name="backup_running_body_open">Funciona mientras la app está abierta. Si sales, se pausa y continúa cuando vuelvas.</string>
+    <string name="backup_running_body_quiet">Sigue aunque salgas de la app.</string>
+    <string name="backup_running_photos">Fotos %1$s / %2$s</string>
+    <string name="backup_reconnect">Reconectar</string>
+    <string name="backup_reconnect_title">Cuenta de Google desconectada</string>
+    <string name="backup_reconnect_body">Vuelve a conectarla para continuar. Tus copias en Drive están a salvo.</string>
+    <string name="backup_no_space_title">No hay suficiente espacio en Drive</string>
+    <string name="backup_upload_cellular">Subir con datos móviles</string>
+    <string name="backup_all_done">Todo está en la copia, fotos incluidas.</string>
+    <string name="backup_finding_title">Buscando copias</string>
+    <string name="backup_finding_body">Buscando copias en tu Google Drive.</string>
+    <string name="backup_first_title">Aún no hay copias</string>
+    <string name="backup_first_body">Toca Hacer copia ahora para subir tus entradas y fotos.</string>
+    <string name="backup_last">Última copia %1$s</string>
+    <string name="backup_when_day_time">%1$s %2$s</string>
+    <string name="backup_group_account">Cuenta</string>
+    <string name="backup_account">Cuenta de Google</string>
+    <string name="backup_account_busy">Podrás cambiar de cuenta cuando termine la copia o la restauración.</string>
+    <string name="backup_group_upload">Subida</string>
+    <string name="backup_wifi_only">Fotos solo con Wi-Fi</string>
+    <string name="backup_wifi_only_body">Desactívalo para subir fotos también con datos móviles.</string>
+    <string name="backup_group_connection">Conexión</string>
+    <string name="backup_disconnect">Desconectar</string>
+    <string name="backup_disconnect_body">Las copias en Drive se quedan donde están.</string>
+    <string name="backup_disconnect_title">¿Desconectar?</string>
+    <string name="backup_disconnect_message">La copia automática se detiene. Las copias en Drive no se eliminan.</string>
+    <string name="backup_readme_body">Esta carpeta contiene las copias de seguridad de la app 1 Day 1 Diary. Si la eliminas, se borrarán tus copias.\n\nThis folder holds backups from the 1 Day 1 Diary app. Deleting it removes your backups.</string>
+    <string name="backup_line_off">Copia desactivada</string>
+    <string name="backup_line_on">Activar</string>
+    <string name="backup_line_reconnect">Hay que reconectar</string>
+    <string name="backup_line_receiving">Recibiendo fotos · %1$s/%2$s</string>
+    <string name="backup_line_running">Haciendo copia · Fotos %1$s/%2$s</string>
+    <string name="backup_line_running_plain">Haciendo copia</string>
+    <string name="backup_line_at">Última copia %1$s · %2$s</string>
+    <string name="backup_line_all">con fotos</string>
+    <string name="backup_line_waiting">fotos en espera: %1$s</string>
+    <string name="backup_line_days">Última copia hace %1$d días</string>
+    <string name="backup_line_today">hoy a las %1$s</string>
+    <string name="backup_line_yesterday">ayer a las %1$s</string>
+    <plurals name="backup_photos_unusable">
+        <item quantity="one">No se encontró %1$s foto, así que no se incluyó en la copia.</item>
+        <item quantity="other">No se encontraron %1$s fotos, así que no se incluyeron en la copia.</item>
+    </plurals>
+    <plurals name="backup_photos_waiting"><item quantity="one">%1$s foto se subirá con Wi-Fi.</item><item quantity="other">%1$s fotos se subirán con Wi-Fi.</item></plurals>
+    <plurals name="backup_photos_next"><item quantity="one">%1$s foto se subirá en la próxima copia.</item><item quantity="other">%1$s fotos se subirán en la próxima copia.</item></plurals>
+    <string name="restore_row">Restaurar desde Google Drive</string>
+    <string name="restore_row_body">Combina una copia de otro dispositivo o de la versión anterior.</string>
+    <string name="restore_keep_note">Las entradas de este dispositivo se conservan.</string>
+    <string name="restore_device_group">%1$s · %2$s</string>
+    <string name="restore_device_unknown">Dispositivo sin nombre</string>
+    <string name="restore_platform_android">Android</string>
+    <string name="restore_platform_ios">iOS</string>
+    <string name="restore_when">%1$s %2$s</string>
+    <string name="restore_join">%1$s · %2$s</string>
+    <string name="restore_damaged">Una parte de esta copia está dañada, así que no se puede restaurar</string>
+    <string name="restore_needs_update">Actualiza la app para restaurar esta copia</string>
+    <string name="restore_empty_title">Aún no hay copias en Drive</string>
+    <string name="restore_empty_body">Las copias de este dispositivo aparecerán aquí.</string>
+    <string name="restore_list_failed">No se pudieron leer tus copias</string>
+    <string name="restore_list_failed_auth">Tu cuenta de Google se desconectó. Vuelve a conectarla en la pantalla Copia de seguridad.</string>
+    <string name="restore_go_backup">Ir a Copia de seguridad</string>
+    <string name="restore_list_failed_body">Revisa tu conexión y vuelve a intentarlo.</string>
+    <string name="restore_retry">Reintentar</string>
+    <string name="restore_update_in_store">Actualizar en la tienda</string>
+    <string name="restore_preview_top">Restaurar</string>
+    <string name="restore_preview_title">Combinar esta copia</string>
+    <string name="restore_preview_title_nothing">Todo lo de esta copia ya está aquí</string>
+    <string name="restore_preview_body">Copia de %1$s, %2$s.\nLas entradas de este dispositivo se conservan y se combinan con la copia.</string>
+    <string name="restore_value_added">Entradas que se agregarán</string>
+    <string name="restore_value_updated">Entradas que pasan a la versión más reciente</string>
+    <string name="restore_value_both">Entradas que conservan ambas versiones</string>
+    <string name="restore_value_photos">Fotos que se descargarán</string>
+    <string name="restore_settings_note">La fuente, el tamaño del texto del diario, la apariencia, la vista de lista y el recordatorio también cambian a los de la copia.</string>
+    <string name="restore_no_space">Necesitas %1$s más de espacio para las fotos. Libera espacio en este dispositivo y vuelve a intentarlo.</string>
+    <string name="restore_merge">Combinar</string>
+    <string name="restore_size_gb">%1$s GB</string>
+    <string name="restore_size_mb">%1$s MB</string>
+    <string name="restore_size_kb">%1$s KB</string>
+    <string name="restore_running_title">Restaurando tu diario</string>
+    <string name="restore_waiting_body">Empezaremos cuando termine la copia.</string>
+    <string name="restore_merging_body">Combinando tus entradas.</string>
+    <string name="restore_fetching_body">Tus entradas ya están combinadas. Puedes leerlas mientras se descargan las fotos.</string>
+    <string name="restore_value_entries">Entradas</string>
+    <string name="restore_value_merged">%1$s · combinadas</string>
+    <string name="restore_value_photo">Fotos</string>
+    <string name="restore_photo_progress">%1$s / %2$s</string>
+    <string name="restore_running_note">Sigue aunque salgas de la app y te avisaremos cuando termine. Si la app se cierra, solo se descargarán las fotos que falten.</string>
+    <string name="restore_running_note_quiet">Sigue aunque salgas de la app. Si la app se cierra, solo se descargarán las fotos que falten.</string>
+    <string name="restore_running_note_open">Funciona mientras la app está abierta. Si sales, se pausa y, al volver, solo se descargarán las fotos que falten.</string>
+    <string name="restore_see_entries">Ver las entradas primero</string>
+    <string name="restore_done_nothing">Copia combinada</string>
+    <string name="restore_done_body">Las entradas de este dispositivo se conservan.</string>
+    <string name="restore_note_both_body">Se editaron en dos lugares. Están marcadas en tu lista.</string>
+    <string name="restore_note_original_body">Estas fotos aún no están en la copia. Vuelve a hacer una copia en el dispositivo original para verlas aquí.</string>
+    <string name="restore_note_pending_body">Se terminarán de descargar la próxima vez que abras la app.</string>
+    <string name="restore_note_pending_file_body">Estas fotos no están en el archivo. Si están en una copia de Drive, se descargarán cuando te conectes.</string>
+    <string name="restore_note_pending_space_body">Tu dispositivo se quedó sin espacio. Libera espacio y vuelve a abrir la app para terminar.</string>
+    <string name="restore_wait_running">Descargando tus fotos.</string>
+    <string name="restore_wait_network">Se terminarán de descargar cuando vuelvas a tener conexión.</string>
+    <string name="restore_wait_wifi">Se terminarán de descargar con Wi-Fi. Para usar datos móviles, toca Descargar ahora.</string>
+    <string name="restore_wait_account">Google Drive se desconectó. Vuelve a conectarlo para terminar la descarga.</string>
+    <string name="restore_wait_other_account">Estas fotos están en el Google Drive de %1$s. Conecta esa cuenta para descargarlas.</string>
+    <string name="restore_wait_other_account_unnamed">Estas fotos están en el Google Drive desde el que restauraste. Conecta esa cuenta para descargarlas.</string>
+    <string name="restore_wait_file">Vuelve a elegir el archivo desde el que restauraste para obtener las fotos que faltan.</string>
+    <string name="restore_wait_now">Descargar ahora</string>
+    <string name="restore_wait_pick">Elegir archivo</string>
+    <string name="restore_note_missing_body">Los archivos descargados no coincidían, así que se marcaron como no encontrados.</string>
+    <string name="restore_lock_title">Vuelve a configurar el bloqueo</string>
+    <string name="restore_lock_body">El bloqueo estaba activado cuando se hizo la copia. Los códigos no se incluyen en la copia.</string>
+    <string name="restore_lock_action">Configurar</string>
+    <string name="restore_start">Listo</string>
+    <string name="restore_failed_busy_title">Vuelve a intentarlo cuando termine la restauración</string>
+    <string name="restore_failed_busy_body">Hay una restauración en curso. Podrás elegir otra copia cuando termine.</string>
+    <string name="restore_failed_mismatch_title">No se pudo verificar la copia</string>
+    <string name="restore_failed_mismatch_body">El archivo descargado no coincide con la copia, así que nos detuvimos. No cambió nada en este dispositivo.</string>
+    <string name="restore_failed_other_title">No se pudo restaurar</string>
+    <string name="restore_failed_other_body">Vuelve a intentarlo en un momento. No cambió nada en este dispositivo.</string>
+    <string name="restore_needs_update_body">Actualiza la app desde la tienda y vuelve a intentarlo. No cambió nada en este dispositivo.</string>
+    <string name="restore_pick_other">Elegir otra copia</string>
+    <string name="restore_found_title">Tienes una copia en Google Drive</string>
+    <string name="restore_found_body">Las entradas de este dispositivo se conservan y se combinan con la copia.</string>
+    <string name="restore_found_later">Más tarde</string>
+    <string name="restore_found_action">Restaurar</string>
+    <plurals name="restore_count_entries"><item quantity="one">%1$s entrada</item><item quantity="other">%1$s entradas</item></plurals>
+    <plurals name="restore_count_photos"><item quantity="one">%1$s foto</item><item quantity="other">%1$s fotos</item></plurals>
+    <plurals name="restore_unit_entries"><item quantity="one">%1$s</item><item quantity="other">%1$s</item></plurals>
+    <plurals name="restore_unit_photos"><item quantity="one">%1$s</item><item quantity="other">%1$s</item></plurals>
+    <plurals name="restore_done_added"><item quantity="one">Se agregó %1$s entrada</item><item quantity="other">Se agregaron %1$s entradas</item></plurals>
+    <plurals name="restore_done_trash"><item quantity="one">Se restauró %1$s entrada en la papelera</item><item quantity="other">Se restauraron %1$s entradas en la papelera</item></plurals>
+    <plurals name="restore_to_trash"><item quantity="one">%1$s entrada se restaurará en la papelera.</item><item quantity="other">%1$s entradas se restaurarán en la papelera.</item></plurals>
+    <plurals name="restore_done_updated"><item quantity="one">Se actualizó %1$s entrada</item><item quantity="other">Se actualizaron %1$s entradas</item></plurals>
+    <plurals name="restore_done_photos"><item quantity="one">La foto también volvió.</item><item quantity="other">Las %1$s fotos también volvieron.</item></plurals>
+    <plurals name="restore_note_both"><item quantity="one">%1$s entrada con ambas versiones</item><item quantity="other">%1$s entradas con ambas versiones</item></plurals>
+    <plurals name="restore_note_original"><item quantity="one">%1$s foto en el dispositivo original</item><item quantity="other">%1$s fotos en el dispositivo original</item></plurals>
+    <plurals name="restore_note_pending"><item quantity="one">Falta descargar %1$s foto</item><item quantity="other">Falta descargar %1$s fotos</item></plurals>
+    <plurals name="restore_note_missing"><item quantity="one">No se pudo verificar %1$s foto</item><item quantity="other">No se pudieron verificar %1$s fotos</item></plurals>
+    <plurals name="restore_not_in_backup"><item quantity="one">%1$s foto no está en esta copia. Está en el dispositivo original.</item><item quantity="other">%1$s fotos no están en esta copia. Están en el dispositivo original.</item></plurals>
+    <string name="restore_group_legacy">Copias de la versión anterior</string>
+    <string name="restore_legacy_row">De la versión anterior · Sin fotos</string>
+    <plurals name="restore_more_backups"><item quantity="one">Ver %1$s copia más antigua</item><item quantity="other">Ver %1$s copias más antiguas</item></plurals>
+    <string name="restore_legacy_title">Restaurar una copia de la versión anterior</string>
+    <string name="restore_legacy_body">Subida por la versión anterior el %1$s.\nLas entradas de este dispositivo se conservan y se combinan con la copia.</string>
+    <string name="restore_legacy_no_photos">Estas copias no incluyen fotos</string>
+    <string name="restore_legacy_no_photos_body">Se restaurarán el texto, el ánimo, el clima, el lugar y los favoritos.</string>
+    <string name="restore_legacy_recent">Pueden faltar entradas escritas después.</string>
+    <string name="restore_legacy_recent_body">Esta copia solo tiene las entradas hasta la última copia que hizo la versión anterior.</string>
+    <string name="restore_value_existing">Entradas que ya están en este dispositivo</string>
+    <string name="restore_value_unreadable">Entradas que no se pudieron leer</string>
+    <string name="restore_legacy_action">Restaurar</string>
+    <string name="restore_legacy_same_time_body">Misma fecha y hora con distinto texto. Se conservan ambas y se marcan.</string>
+    <string name="restore_legacy_gaps_body">Estas copias no tienen fotos, así que se marcan como no encontradas.</string>
+    <plurals name="restore_legacy_same_time"><item quantity="one">%1$s entrada con distinto texto</item><item quantity="other">%1$s entradas con distinto texto</item></plurals>
+    <plurals name="restore_legacy_gaps"><item quantity="one">Falta %1$s foto</item><item quantity="other">Faltan %1$s fotos</item></plurals>
+    <string name="backup_alert_title">No se hizo ninguna copia en 7 días</string>
+    <string name="backup_alert_auth">Tu cuenta de Google está desconectada. Toca para volver a conectarla.</string>
+    <string name="backup_alert_space">Tu Drive no tiene espacio. Toca para revisarlo.</string>
+    <string name="backup_alert_offline">No tienes conexión. La copia seguirá cuando te conectes.</string>
+    <string name="backup_alert_other">Abre la app para revisar tu copia.</string>
+    <string name="backup_channel">Copia de seguridad</string>
+    <string name="backup_nudge_entries_photos">%1$s y %2$s solo están en este dispositivo</string>
+    <plurals name="backup_nudge_entries"><item quantity="one">%1$s entrada solo está en este dispositivo</item><item quantity="other">%1$s entradas solo están en este dispositivo</item></plurals>
+    <string name="backup_nudge_body">Haz una copia en Google Drive y no las perderás al cambiar de dispositivo.</string>
+    <string name="backup_nudge_action">Activar copia</string>
+    <string name="backup_nudge_later">Más tarde</string>
+    <string name="restore_replace_entry">Reemplazar con esta copia</string>
+    <string name="restore_replace_title">¿Reemplazar con esta copia?</string>
+    <string name="restore_replace_action">Reemplazar</string>
+    <string name="restore_failed_space_title">No hay suficiente espacio en este dispositivo</string>
+    <string name="restore_failed_space_body">No hay espacio para guardar una copia de tus entradas actuales, así que nos detuvimos. No cambió nada en este dispositivo.</string>
+    <string name="backup_folder_title">Creamos una nueva carpeta de copias</string>
+    <string name="backup_folder_body">Puedes restaurar la carpeta eliminada desde la papelera de Drive durante 30 días.</string>
+    <string name="backup_folder_ok">OK</string>
+    <string name="rollback_title">Se reemplazó con esta copia</string>
+    <string name="rollback_until">Puedes deshacerlo hasta el %1$s.</string>
+    <string name="rollback_tomorrow">Puedes deshacerlo hasta mañana.</string>
+    <string name="rollback_action">Deshacer</string>
+    <string name="rollback_waiting_title">Esperando para deshacer</string>
+    <string name="rollback_waiting_body">Desharemos el reemplazo cuando termine la restauración.</string>
+    <string name="rollback_running_title">Deshaciendo el reemplazo</string>
+    <string name="rollback_running_body">Solo tardará un momento.</string>
+    <string name="rollback_failed_title">No se pudo deshacer el reemplazo</string>
+    <string name="rollback_failed_body">No se eliminó ninguna entrada. Vuelve a intentarlo.</string>
+    <string name="rollback_ask_title">¿Deshacer el reemplazo?</string>
+    <string name="rollback_ask_body">Volverán tus entradas anteriores (%1$s).</string>
+    <string name="rollback_ask_after">Volverán tus entradas anteriores (%1$s). Las entradas escritas desde entonces (%2$s) se conservan.</string>
+    <plurals name="restore_replace_body"><item quantity="one">%1$s entrada de este dispositivo se reemplazará con esta copia. Puedes deshacerlo durante 7 días.</item><item quantity="other">%1$s entradas de este dispositivo se reemplazarán con esta copia. Puedes deshacerlo durante 7 días.</item></plurals>
+    <string name="file_top">Copia en un archivo</string>
+    <string name="file_row_body">Guarda todo en un archivo, sin Drive.</string>
+    <string name="file_title">Guarda tu diario en un archivo</string>
+    <string name="file_body">Guarda %1$s y %2$s en un archivo, sin Drive. Tamaño estimado: %3$s.</string>
+    <string name="file_body_empty">Aún no tienes entradas para guardar. Abajo puedes restaurar un archivo de copia.</string>
+    <string name="file_place_title">Guárdalo donde quieras</string>
+    <string name="file_place_body">Elige el almacenamiento del dispositivo u otra app de nube.</string>
+    <string name="file_move_title">Pásalo tú al nuevo dispositivo</string>
+    <string name="file_move_body">Cópialo con una computadora o una app de nube. Si tiene muchas fotos, puede ser demasiado grande para las apps de mensajería.</string>
+    <string name="file_trust_title">Guárdalo en un lugar de confianza</string>
+    <string name="file_trust_body">El archivo contiene tus entradas y fotos tal cual.</string>
+    <string name="file_restore">Restaurar desde un archivo</string>
+    <string name="file_restore_body">Elige un archivo de copia y combínalo con tu diario.</string>
+    <string name="file_action">Crear archivo</string>
+    <string name="file_writing">Creando el archivo</string>
+    <string name="file_write_failed">No se pudo terminar el archivo. Elimínalo del lugar donde lo guardaste y crea uno nuevo. No cambió nada en este dispositivo.</string>
+    <string name="file_reading">Revisando el archivo</string>
+    <string name="file_write_failed_removed">No se pudo terminar el archivo, así que lo quitamos. No cambió nada en este dispositivo.</string>
+    <string name="file_stop_title">¿Dejar de crear el archivo?</string>
+    <string name="file_stop_body">Si sales ahora, se eliminará el archivo sin terminar. No cambia nada en este dispositivo.</string>
+    <string name="file_stop_action">Detener</string>
+    <string name="file_stopped_notice">El archivo de copia no se terminó, así que no se puede usar.</string>
+    <string name="file_read_failed">No es un archivo de copia o una parte está dañada. No cambió nada en este dispositivo.</string>
+    <string name="file_read_no_space">No hay espacio suficiente para abrir este archivo. Libera %1$s y vuelve a intentarlo.</string>
+    <string name="file_read_no_space_plain">No hay espacio suficiente para abrir este archivo. Libera algo de espacio y vuelve a intentarlo.</string>
+    <string name="file_read_needs_update">Actualiza la app para restaurar esta copia.</string>
+    <string name="file_saved_title">Archivo guardado</string>
+    <string name="file_saved_body">Pásalo a tu nuevo dispositivo y toca Restaurar desde un archivo.</string>
+    <string name="file_done">OK</string>
+    <string name="file_name">1Day1Diary-backup-%1$s</string>
+    <string name="backup_group_backup">Copia de seguridad</string>
+    <string name="backup_group_restore">Restaurar</string>
+    <string name="restore_replaced_title">Se reemplazó con esta copia</string>
+    <string name="restore_replaced_body">Puedes deshacerlo durante 7 días.</string>
+    <string name="backup_space_text">Necesitas %1$s más en Drive para hacer la copia de tus entradas.</string>
+    <string name="backup_space_manage">Administrar almacenamiento de Google</string>
+    <string name="backup_space_trash">Vaciar la papelera de Drive</string>
+    <string name="backup_space_note">Las fotos que no entraron en la copia siguen en este dispositivo.</string>
+    <string name="backup_space_retry">Volver a hacer copia</string>
+    <plurals name="backup_space_photos"><item quantity="one">Tus entradas ya están en la copia. Necesitas %2$s más en Drive para la foto que falta.</item><item quantity="other">Tus entradas ya están en la copia. Necesitas %2$s más en Drive para las %1$s fotos que faltan.</item></plurals>
+    <string name="restore_contact">Contactar</string>
+    <string name="backup_interrupted_body">Las fotos subidas están a salvo. Toca Hacer copia ahora para continuar.</string>
+    <string name="backup_restored_title">Restaurado desde tu copia de %1$s</string>
+    <string name="backup_restored_body">Haz una copia ahora para guardar también las entradas de este dispositivo.</string>
+    <string name="backup_done_title">Copia terminada</string>
+    <string name="backup_done_body">Tus entradas y fotos ya están todas en Drive.</string>
+    <string name="backup_done_left">Las fotos que faltan se subirán con Wi-Fi (%1$s).</string>
+    <plurals name="backup_done_left_space"><item quantity="one">%1$s foto no se subió porque Drive no tiene espacio.</item><item quantity="other">%1$s fotos no se subieron porque Drive no tiene espacio.</item></plurals>
+    <string name="backup_stopped_title">La copia no terminó</string>
+    <string name="restore_stopped_title">No se pudo terminar la restauración</string>
+    <string name="restore_see_result">Ver</string>
+    <string name="restore_notice_title">Restauración terminada</string>
+    <string name="restore_notice_body">Todas tus entradas y fotos volvieron.</string>
+    <string name="restore_notice_stopped_title">Algunas fotos aún se están descargando</string>
+    <string name="restore_notice_some">No se pudieron restaurar algunas fotos. Abre la app para revisarlo.</string>
+    <string name="restore_notice_left">Abre la app para obtener las fotos que faltan.</string>
+    <string name="backup_failed_offline">No tienes conexión a internet. Conéctate y toca Hacer copia ahora.</string>
+    <string name="backup_failed_drive">Google Drive no responde. Espera un momento y toca Hacer copia ahora.</string>
+    <string name="backup_failed_local">No se pudieron leer ni escribir archivos en este dispositivo. Revisa el almacenamiento y toca Hacer copia ahora.</string>
+    <string name="backup_line_failed">La copia no terminó</string>
+    <string name="backup_status_failed">No se pudo cargar el estado de la copia</string>
+    <string name="backup_skip_empty">Aún no hay entradas para copiar</string>
+    <string name="backup_skip_busy">Hay otra tarea en curso. Vuelve a intentarlo cuando termine.</string>
+    <string name="backup_skip_not_checked">No se pudieron revisar las copias de Google Drive. Toca Hacer copia ahora en un momento.</string>
+    <string name="backup_connect_failed_title">No se pudo conectar con Google Drive</string>
+    <string name="backup_connect_failed_offline">Revisa tu conexión a internet y vuelve a intentarlo.</string>
+    <string name="backup_connect_failed_auth">No se pudo verificar tu cuenta de Google. Vuelve a intentarlo en un momento.</string>
+    <string name="backup_connect_failed_no_drive">Para conectar, marca la opción de Google Drive en la pantalla de Google.</string>
+    <string name="backup_connect_failed_other">Vuelve a intentarlo en un momento.</string>
+    <string name="backup_connect_failed_close">OK</string>
+    <string name="restore_no_mail">No se encontró ninguna app de correo. Escríbenos a %1$s.</string>
+</resources>

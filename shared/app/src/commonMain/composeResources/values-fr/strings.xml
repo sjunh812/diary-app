@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tab_home">Accueil</string>
+    <string name="tab_calendar">Calendrier</string>
+    <string name="tab_insight">Bilan</string>
+    <string name="tab_settings">Paramètres</string>
+    <string name="write_new">Nouvelle entrée</string>
+    <string name="write_saved">Enregistré</string>
+    <string name="write_draft_kept">Brouillon enregistré</string>
+    <string name="detail_trashed">Mise à la corbeille</string>
+    <string name="detail_trashed_undo">Annuler</string>
+    <string name="detail_pick_hint">Aucune entrée sélectionnée</string>
+    <string name="detail_pick_body">Touchez une entrée de la liste pour la lire ici.</string>
+    <string name="settings_pick_hint">Aucun paramètre sélectionné</string>
+    <string name="settings_pick_body">Touchez un paramètre de la liste pour l’afficher ici.</string>
+    <string name="ad_label">Pub</string>
+    <string name="reward_title">Une journée sans pub</string>
+    <string name="reward_body">Regardez une courte vidéo jusqu’au bout et vous ne verrez plus d’autres pubs pendant 24 heures.</string>
+    <string name="reward_watch">Regarder la vidéo</string>
+    <string name="reward_close">Fermer</string>
+    <string name="reward_failed_title">Impossible d’obtenir la journée sans pub</string>
+    <string name="reward_failed_body">La pub ne s’est pas chargée ou n’a pas été regardée jusqu’au bout. Réessayez dans un moment.</string>
+    <string name="reward_not_saved">Le stockage de votre appareil est presque plein. Des pubs peuvent réapparaître quand vous rouvrirez l’app.</string>
+    <string name="ad_close">Retirer les pubs</string>
+    <string name="ad_notice_title">Pub plein écran une fois par jour</string>
+    <string name="ad_notice_body">Elle s’affiche brièvement, seulement après l’enregistrement d’une entrée.</string>
+    <string name="ad_notice_ok">OK</string>
+    <string name="write_failed">Enregistrement impossible. Vérifiez le stockage de votre appareil.</string>
+</resources>

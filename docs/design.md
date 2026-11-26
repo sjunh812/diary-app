@@ -235,8 +235,8 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 | 합계 칸 | 고급 통계 "내 기록" · 면 `surfaceCard` · 이름 `caption` `textSecondary` · 숫자 `numeral` SemiBold `textPrimary` · 단위는 `caption` 크기 Medium `textSecondary`("12,006" + "편") · 브랜드색을 쓰지 않는다. 칸이 여섯이라 색을 입히면 강조가 흩어진다(2026-11-07 사용자 제안) | [Apple 저널 인사이트](https://www.tapsmart.com/tips-and-tricks/insights-in-journal/)는 색 칸이지만 우리는 강조를 한두 곳으로 둔다(헌법 V) |
 | 막대 줄 | 돌아보기 기분 막대와 고급 통계 비율 막대가 같이 쓴다 · 막대 높이 8 · 이름 `caption` `textSecondary` · 값 `captionStrong` `textPrimary` 오른쪽 맞춤 · 사이 12 · 기분 막대는 트랙 없이 채움만 둔다(파스텔 웃음·슬픔이 `sunken`과 밝기가 같고, 가장 많은 기분이 끝이라 트랙이 뜻하는 값이 없다) | 2026-11-07 디자인 일관성 점검, 대비는 재서 정했다 |
 | 고르기 목록 | 설정 줄 + 오른쪽 체크 아이콘 24(`accentText`). 라디오 원은 쓰지 않는다 | TDS BottomSheet.Select·Checkbox.Line 24, HIG 체크 표시 목록 |
-| 시각 고르기 | 값이 있는 설정 줄을 누르면 바텀 시트에 휠 · 제목 `title2` · 휠 다섯 칸(칸 40, 높이 200) · 굴리지 않고 위아래에 보이는 칸을 눌러도 그 값이 가운데로 굴러와 골라진다(iOS 피커·Android NumberPicker와 같다, 2026-11-08 사용자 제안). 날짜와 함께 고르는 쓰기 화면 시트는 창 높이가 820 이상이면 다섯 칸, 낮으면 세 칸(높이 120)이라 6주인 달에도 시트가 스크롤되지 않는다(2026-11-08 사용자 지적, 384×832 폰은 다섯 칸이 들어가고 360×780 폰은 넘친다), 열은 오전·오후 / 시 / 분(1분 단위) 각 72, 사이 8 · 가운데 고른 칸은 `sunken` 띠(모서리 12) 위 `numeral` `textPrimary`, 위아래 한 칸은 `reading` `textTertiary`, 두 칸은 `body` `placeholder` · 아래 "닫기"(보조) + "저장"(주요). 저장해야 바뀐다. 기기가 24시간제면 오전·오후 열 없이 0~23시 · 시·분은 끝에서 처음으로 이어 돈다 · 칸이 정해져 있어 글자는 기기 글자 크기를 1.3배까지만 따른다(하단 탭과 같다) · 화면 읽기 프로그램은 열마다 "시, 10"처럼 읽고 이전·다음 동작으로 옮긴다 | HIG 피커(시계 알람은 휠, 요약 알림 설정은 값을 누르면 휠이 뜨는 compact), Day One 쓰기 알림 정확한 시각, 우리 바텀 시트 |
-| 달력 시트 (`DiaryMonthPicker`) | 달 넘기는 줄 48 · 날짜 줄 48(누르는 곳), 고른 원 40 · 어느 달이든 6주를 그려 달을 넘겨도 시트 높이가 그대로다. 쓰기 화면의 날짜·시각 시트는 제목을 두지 않는다(같은 날짜가 뒤 상단 바와 고른 동그라미에 이미 보인다, 2026-11-08 사용자 지적)(Material 3 날짜 고르기와 같은 방식, 2026-11-08 사용자 지적: 6주인 달에서 시트가 스크롤됐다) · 일요일 `danger`, 토요일 `ink/blue`, 앞뒤 달은 `placeholder`, 고른 날은 어느 달이든 `onAccent` · 연월 제목 `headline`과 화살표 16을 누르면 날짜 칸 자리에 연·월 휠이 나온다(휠 규격은 시각 고르기, 열 폭 128, 한국어·일본어는 연이 앞). 휠을 여는 동안 좌우 화살표는 숨기고 제목 자리는 그대로다. 제목을 다시 누르면 고른 달의 날짜 칸으로 돌아온다(2026-11-07 사용자 제안) | Material 달력의 연월 제목 누르기(Compose 연 고르기, [SAP Fiori](https://experience.sap.com/fiori-design-android/pickers), [Flutter 시험](https://flutter.googlesource.com/mirrors/flutter.git/+/HEAD/packages/flutter/test/material/calendar_date_picker_test.dart)), iOS 휠 피커의 연·월 모드([UIDatePickerStyle](https://developer.apple.com/documentation/uikit/uidatepickerstyle.md)) |
+| 시각 고르기 | 값이 있는 설정 줄을 누르면 바텀 시트에 휠 · 제목 `title2` · 휠 다섯 칸(칸 40, 높이 200) · 굴리지 않고 위아래에 보이는 칸을 눌러도 그 값이 가운데로 굴러와 골라진다(iOS 피커·Android NumberPicker와 같다, 2026-11-08 사용자 제안). 날짜와 함께 고르는 쓰기 화면 시트는 창 높이가 820 이상이면 다섯 칸, 낮으면 세 칸(높이 120)이라 6주인 달에도 시트가 스크롤되지 않는다(2026-11-08 사용자 지적, 384×832 폰은 다섯 칸이 들어가고 360×780 폰은 넘친다), 열은 오전·오후 / 시 / 분(1분 단위) 각 72, 사이 8 · 가운데 고른 칸은 `sunken` 띠(모서리 12) 위 `numeral` `textPrimary`, 위아래 한 칸은 `reading` `textTertiary`, 두 칸은 `body` `placeholder` · 아래 "닫기"(보조) + "저장"(주요). 저장해야 바뀐다. 기기가 24시간제면 오전·오후 열 없이 0~23시 · 오전·오후 열은 한국어·일본어·중국어에서 앞, 그 밖의 언어에서 뒤 · 시·분은 끝에서 처음으로 이어 돈다 · 칸이 정해져 있어 글자는 기기 글자 크기를 1.3배까지만 따른다(하단 탭과 같다) · 화면 읽기 프로그램은 열마다 "시, 10"처럼 읽고 이전·다음 동작으로 옮긴다 | HIG 피커(시계 알람은 휠, 요약 알림 설정은 값을 누르면 휠이 뜨는 compact), Day One 쓰기 알림 정확한 시각, 우리 바텀 시트 |
+| 달력 시트 (`DiaryMonthPicker`) | 달 넘기는 줄 48 · 날짜 줄 48(누르는 곳), 고른 원 40 · 어느 달이든 6주를 그려 달을 넘겨도 시트 높이가 그대로다. 쓰기 화면의 날짜·시각 시트는 제목을 두지 않는다(같은 날짜가 뒤 상단 바와 고른 동그라미에 이미 보인다, 2026-11-08 사용자 지적)(Material 3 날짜 고르기와 같은 방식, 2026-11-08 사용자 지적: 6주인 달에서 시트가 스크롤됐다) · 일요일 `danger`, 토요일 `ink/blue`, 앞뒤 달은 `placeholder`, 고른 날은 어느 달이든 `onAccent` · 연월 제목 `headline`과 화살표 16을 누르면 날짜 칸 자리에 연·월 휠이 나온다(휠 규격은 시각 고르기, 열 폭 128, 한국어·일본어·중국어는 연이 앞). 휠을 여는 동안 좌우 화살표는 숨기고 제목 자리는 그대로다. 제목을 다시 누르면 고른 달의 날짜 칸으로 돌아온다(2026-11-07 사용자 제안) | Material 달력의 연월 제목 누르기(Compose 연 고르기, [SAP Fiori](https://experience.sap.com/fiori-design-android/pickers), [Flutter 시험](https://flutter.googlesource.com/mirrors/flutter.git/+/HEAD/packages/flutter/test/material/calendar_date_picker_test.dart)), iOS 휠 피커의 연·월 모드([UIDatePickerStyle](https://developer.apple.com/documentation/uikit/uidatepickerstyle.md)) |
 | 숫자판 | 3열 · 키 높이 64 · 표 폭 최대 350 · 숫자 `keypad` · 지우기 아이콘 24 · 생체 인증 아이콘 32 · 누르면 모서리 20 면과 살짝 축소(누름 효과) | TDS NumberKeypad(키 64, 표 340, 숫자 30 Regular, 누르면 모서리 20) |
 | 비밀번호 점 | 지름 14 · 사이 20 · 빈칸 `textTertiary` 선 1.5, 찬 칸 `textPrimary` · 틀리면 넷 다 `danger`로 채워 좌우로 0.4초 흔들고 진동한 뒤 바로 빈다 · 제목과 점 사이 40 · 틀림·기다림 문구는 점 아래 16에 보인다. 점 아래는 숫자판까지 빈 자리라 문구가 생겨도 점과 숫자판이 움직이지 않는다(제목과 점 사이를 벌리지 않는다) · 문구가 없어도 한 줄을 비워 두어 아래 안내 상자가 움직이지 않는다(2026-11-06) | AOSP 잠금 화면(안내 줄 하나의 글을 바꾸고 입력을 지움, 줄이 늘지 않음), iPhone 잠금 화면(제목 아래 바로 점, 틀리면 흔들기), GNOME 잠금 화면(흔든 뒤 비움), 화면 읽기 프로그램은 문구를 읽는다(2026-11-03 사용자 지적 두 번) |
 | 터치 영역 | 48dp 이상(iOS 44pt도 충족) · 사이 8 이상 · 보이는 크기가 48보다 작은 버튼·스위치는 누르는 영역을 48로 넓힌다. 버튼은 보이는 크기만큼만 자리를 차지해 옆 내용과의 간격이 규격 그대로다(칩은 줄 높이 자체가 48이다) | M3 최소 터치 영역 48, HIG 44 |
@@ -278,11 +278,12 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 
 ## 여러 언어
 
-한국어, 영어, 일본어로 낸다. 맞는 언어가 없으면 영어다(2026-11-01 사용자 요청, `docs/DECISIONS.md`).
+한국어, 영어, 일본어, 번체 중국어, 스페인어, 포르투갈어(브라질), 독일어, 프랑스어로 낸다. 맞는 언어가 없으면 영어다(2026-11-01 사용자 요청, 2026-11-27 다섯 언어 추가, `docs/DECISIONS.md`).
 
-- **문자열**: 모듈마다 `composeResources/values`(영어), `values-ko`, `values-ja`에 같은 이름으로 둔다. Android 앱 껍데기(`composeApp/src/main/res`)와
-  iOS 앱 이름(`iosApp/iosApp/*.lproj/InfoPlist.strings`)도 같다. 빌드의 `stringResourceCheck`가 빠진 이름, 남는 이름, `%1$s` 자리가 다른 것을 잡는다.
-- **개수 문구**는 `plurals`로 둔다. 영어는 `one`·`other`, 한국어·일본어는 `other` 하나다. 숫자 둘이 든 문장은 앞 숫자로 꼴을 고른다.
+- **문자열**: 모듈마다 `composeResources/values`(영어), `values-ko`, `values-ja`, `values-b+zh+Hant`, `values-es`, `values-pt`, `values-de`, `values-fr`에 같은 이름으로 둔다.
+  Android 앱 껍데기(`composeApp/src/main/res`)와 iOS 앱 이름(`iosApp/iosApp/*.lproj/InfoPlist.strings`, 중국어는 `zh-Hant.lproj`)도 같다. 빌드의 `stringResourceCheck`가 빠진 이름, 남는 이름, `%1$s` 자리가 다른 것을 잡는다.
+- **중국어는 번체만**: 폴더를 문자 체계로 나눠(`b+zh+Hant`) 대만·홍콩·마카오 기기에만 나온다. 간체 기기는 영어다. 간체를 쓰는 중국 본토에는 내지 않는다(`docs/release.md` 출시 국가).
+- **개수 문구**는 `plurals`로 둔다. 영어·스페인어·포르투갈어·독일어·프랑스어는 `one`·`other`, 한국어·일본어·중국어는 `other` 하나다. 없는 꼴(프랑스어 `many` 등)은 `other`를 쓴다. 숫자 둘이 든 문장은 앞 숫자로 꼴을 고른다.
 - **말투와 표기**
   - 한국어: 위 "화면 배치 원칙"의 문구 줄.
   - 영어: 첫 글자만 대문자(sentence case), 사용자는 you, 짧은 문장, 줄임꼴(can't, couldn't)을 쓴다. 주어 없이 "Couldn't move your entries"처럼
@@ -292,11 +293,14 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
   - 일본어: です・ます調, 경어는 지나치게 쓰지 않는다. 숫자·영문은 반각이고 일본어와 숫자 사이를 띄지 않는다(「5GB」「2026年」). 개수는 일기 「件」, 사진 「枚」.
     오류는 무슨 일·까닭·할 일을 사용자 눈으로 쓴다([SmartHR Design System 표기](https://smarthr.design/products/contents/idiomatic-usage/count/),
     [기호](https://smarthr.design/products/contents/idiomatic-usage/symbol/), [오류 메시지](https://smarthr.design/products/contents/error-messages/overview/)).
+  - 번체 중국어: 대만 낱말(裝置, 檔案, 備份, 還原, 設定), 사용자는 你, 편지는 您. 전각 문장부호, 숫자·영문은 반각이고 한자와 숫자 사이를 띄지 않는다.
+  - 스페인어: 중남미 중립형, tú. 스페인에서도 읽히게 지역 말을 피한다. 포르투갈어: 브라질, você. 독일어: du(편지까지). 프랑스어: vous, 물음표·느낌표·쌍점 앞에 좁은 줄바꿈 없는 공백(U+202F), « » 따옴표.
+  - 다섯 언어는 원어민 검수 없이 낸다(2026-11-27, 영어·일본어와 같음). 지적이 오면 고친다.
   - 낱말은 플랫폼과 맞춘다. 권한 허용·Allow·許可, 설정·Settings·設定, 저장 공간·storage·ストレージ, 기록 이전·transfer·移行.
   - 같은 뜻은 한 낱말로 쓴다(2026-11-07). 일기 한 편·entry·1件, 일기 전체·diary·日記, 기록 이전·transfer·移行, 예전 앱·previous version·以前のアプリ,
     복원·Restore·復元, 되돌리기·Undo·元に戻す, 기기·device·デバイス(휴대폰·태블릿 구분 없이 이 낱말만 씀, 2026-11-15), 비밀번호·passcode·パスコード, 돌아보기·Insights·ふりかえり.
 - **따옴표**: Compose 리소스는 `\'`와 `\"`를 풀지 않아 역슬래시가 화면에 그대로 나온다. 그냥 따옴표로 쓰고, `stringResourceCheck`가 막는다.
-- **글꼴**: 기본 글꼴일 때 한국어·영어 화면은 Pretendard다. 일본어 화면은 시스템 글꼴이다(iOS 히라기노 산스, Android Noto Sans CJK JP, 열린 결정 D13 추천으로 임시). 글꼴을 고르면 언어와 상관없이 그 글꼴이고, 없는 글자는 시스템 글꼴로 채워진다.
+- **글꼴**: 기본 글꼴일 때 한국어·영어 화면은 Pretendard다. 일본어·중국어 화면은 시스템 글꼴이다(iOS 히라기노 산스·PingFang TC, Android Noto Sans CJK, 열린 결정 D13 추천으로 임시). 판단은 `usesSystemFont`. 글꼴을 고르면 언어와 상관없이 그 글꼴이고, 없는 글자는 시스템 글꼴로 채워진다.
   Pretendard는 가나 184자는 있지만 한자가 없어 섞으면 한 낱말 안에서 글꼴이 바뀐다.
 - **줄바꿈**: 글의 언어를 따른다. 화면 글은 화면 언어다. 한국어·일본어는 Android 13 이상에서 구절 단위로 바꾼다(`LineBreak.WordBreak.Phrase`).
   언어를 한국어로 묶지 않는다. 묶으면 일본어 한자가 한국어 글자 모양으로 그려진다(한중일 통합 한자).

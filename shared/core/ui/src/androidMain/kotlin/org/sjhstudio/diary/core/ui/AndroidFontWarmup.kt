@@ -10,6 +10,7 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.getString
 import org.sjhstudio.diary.core.designsystem.resources.Res
 import org.sjhstudio.diary.core.designsystem.resources.ds_language
+import org.sjhstudio.diary.core.designsystem.theme.usesSystemFont
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.quietly
 
@@ -32,8 +33,8 @@ class AndroidFontWarmup(context: Context, private val installedPath: (DiaryFont)
     private suspend fun familyFor(font: DiaryFont): FontFamily? = when {
         font == DiaryFont.SYSTEM -> null
 
-        // 기본 글꼴이면 테마의 Pretendard. 일본어 화면은 시스템 글꼴
-        font == DiaryFont.PRETENDARD -> if (getString(Res.string.ds_language) == "ja") null else pretendard()
+        // 기본 글꼴이면 테마의 Pretendard. 일본어·중국어 화면은 시스템 글꼴
+        font == DiaryFont.PRETENDARD -> if (usesSystemFont(getString(Res.string.ds_language))) null else pretendard()
 
         font in BUNDLED_FONT_FILES -> FontFamily(Font(asset(BUNDLED_FONT_FILES.getValue(font)), app.assets))
 

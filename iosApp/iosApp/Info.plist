@@ -23,6 +23,11 @@
 		<string>en</string>
 		<string>ko</string>
 		<string>ja</string>
+		<string>zh-Hant</string>
+		<string>es</string>
+		<string>pt</string>
+		<string>de</string>
+		<string>fr</string>
 	</array>
 	<key>CFBundleName</key>
 	<string>1 Day 1 Diary</string>

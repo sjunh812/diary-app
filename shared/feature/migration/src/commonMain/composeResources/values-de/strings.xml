@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 이전 준비(M0) -->
+    <string name="migration_preparing_title">Übertragung deines Tagebuchs wird vorbereitet</string>
+    <string name="migration_preparing_body">Deine Einträge werden in die neue Version übertragen. Dein ursprüngliches Tagebuch bleibt unverändert.</string>
+
+    <!-- 이전 진행(M1) -->
+    <string name="migration_progress_title">Einträge werden übertragen</string>
+    <string name="migration_progress_body">Der Bildschirm bleibt an, bis alles fertig ist.</string>
+    <string name="migration_progress_entries">Einträge</string>
+    <string name="migration_progress_entries_value">%1$s / %2$s</string>
+    <string name="migration_progress_photos">Fotos</string>
+    <string name="migration_progress_photos_value">%1$s / %2$s</string>
+    <string name="migration_progress_note">Wird die App zwischendurch geschlossen, beginnt die Übertragung von vorn. Dein ursprüngliches Tagebuch bleibt unverändert.</string>
+
+    <!-- 결과(M2) -->
+    <plurals name="migration_done_title">
+        <item quantity="one">%1$s Eintrag übertragen 🎉</item>
+        <item quantity="other">Alle %1$s Einträge übertragen 🎉</item>
+    </plurals>
+    <plurals name="migration_done_photos">
+        <item quantity="one">Auch %1$s Foto wurde übertragen.</item>
+        <item quantity="other">Auch %1$s Fotos wurden übertragen.</item>
+    </plurals>
+    <plurals name="migration_missing_photos_title">
+        <item quantity="one">%1$s Foto wurde nicht gefunden</item>
+        <item quantity="other">%1$s Fotos wurden nicht gefunden</item>
+    </plurals>
+    <string name="migration_missing_photos_body">Die vorherige Version hatte sie im temporären Speicher abgelegt, und dort wurden sie gelöscht. Ihre Stellen bleiben in deinen Einträgen markiert.</string>
+    <string name="migration_missing_photos_body_short">Ihre Stellen bleiben in deinen Einträgen markiert.</string>
+    <plurals name="migration_date_fixed_title">
+        <item quantity="one">Datum bei %1$s Eintrag korrigiert</item>
+        <item quantity="other">Datum bei %1$s Einträgen korrigiert</item>
+    </plurals>
+    <string name="migration_date_fixed_body">Die vorherige Version hat sie versehentlich einen Tag zu spät angezeigt. Jetzt stehen sie an dem Datum, das du beim Schreiben gewählt hast.</string>
+    <string name="migration_start">Los geht’s</string>
+
+    <!-- 일부만(M2-b). 숫자 둘 가운데 옮긴 일기 수로 꼴을 고른다. -->
+    <string name="migration_partial_title">Nur ein Teil der Einträge wurde übertragen</string>
+    <plurals name="migration_partial_body">
+        <item quantity="one">%1$s Eintrag wurde übertragen, aber %2$s konnten nicht gelesen werden, weil die ursprüngliche Datei beschädigt ist. Die App versucht es nach dem nächsten Update erneut. Dein ursprüngliches Tagebuch bleibt unverändert.</item>
+        <item quantity="other">%1$s Einträge wurden übertragen, aber %2$s konnten nicht gelesen werden, weil die ursprüngliche Datei beschädigt ist. Die App versucht es nach dem nächsten Update erneut. Dein ursprüngliches Tagebuch bleibt unverändert.</item>
+    </plurals>
+    <string name="migration_partial_footnote">Du findest das wieder unter Einstellungen > Übertragungsergebnis.</string>
+    <string name="migration_export_original">Originaldateien exportieren</string>
+    <string name="migration_contact">Kontakt</string>
+
+    <!-- 실패(M3) -->
+    <string name="migration_skip">Mit neuem Eintrag starten</string>
+    <string name="migration_failed_title">Tagebuch konnte nicht übertragen werden</string>
+    <string name="migration_failed_body_mismatch">Beim Prüfen der übertragenen Einträge ist ein Fehler aufgetreten. Dein ursprüngliches Tagebuch bleibt unverändert.</string>
+    <string name="migration_failed_body_snapshot">Die Übertragung wurde abgebrochen, weil dein ursprüngliches Tagebuch nicht kopiert werden konnte. Es bleibt unverändert.</string>
+    <string name="migration_failed_body_read">Die Übertragung wurde abgebrochen, weil die Dateien der vorherigen Version nicht gelesen werden konnten. Dein ursprüngliches Tagebuch bleibt unverändert.</string>
+    <string name="migration_failed_body_write">Die Übertragung wurde abgebrochen, weil die Einträge in der neuen Version nicht gespeichert werden konnten. Dein ursprüngliches Tagebuch bleibt unverändert.</string>
+    <string name="migration_failed_body_unknown">Die Übertragung wurde wegen eines Fehlers abgebrochen. Dein ursprüngliches Tagebuch bleibt unverändert.</string>
+    <string name="migration_view_legacy">Alte Einträge ansehen</string>
+    <string name="migration_retry">Erneut versuchen</string>
+    <string name="migration_no_space_title">Zu wenig Speicher auf deinem Gerät</string>
+    <string name="migration_no_space_body">Für die Übertragung brauchst du noch %1$s freien Speicher. Lösche Fotos oder Apps, die du nicht nutzt, und prüfe dann erneut. Dein ursprüngliches Tagebuch bleibt unverändert.</string>
+    <string name="migration_check_again">Erneut prüfen</string>
+
+    <!-- 관문을 지난 뒤 한 번 알림(FR-011) -->
+    <plurals name="migration_entries_recovered">
+        <item quantity="one">%1$s Eintrag übertragen, der vorher nicht lesbar war</item>
+        <item quantity="other">%1$s Einträge übertragen, die vorher nicht lesbar waren</item>
+    </plurals>
+    <plurals name="migration_photos_found">
+        <item quantity="one">%1$s fehlendes Foto gefunden</item>
+        <item quantity="other">%1$s fehlende Fotos gefunden</item>
+    </plurals>
+
+    <!-- 예전 일기 보기(M4) -->
+    <string name="legacy_reader_title">Alte Einträge</string>
+    <string name="legacy_reader_notice">Diese Einträge kannst du nur lesen. Versuch es erneut, um sie in die neue Version zu übertragen.</string>
+    <string name="legacy_reader_empty">Keine alten Einträge zum Lesen</string>
+
+    <!-- 원본 내보내기, 문의하기. %1$s는 yyyyMMdd. -->
+    <string name="migration_export_file_name">1Day1Diary-Original-%1$s.zip</string>
+    <string name="migration_export_done">Originaldateien gespeichert</string>
+    <string name="migration_export_failed">Originaldateien konnten nicht gespeichert werden. Wähle erneut einen Speicherort.</string>
+    <string name="migration_export_failed_left">Originaldateien konnten nicht gespeichert werden. Lösche die unvollständige Datei am Speicherort.</string>
+    <string name="migration_mail_missing">Keine E-Mail-App gefunden. Bitte schreib an %1$s.</string>
+    <string name="migration_mail_subject">[1 Day 1 Diary] Hilfe bei der Übertragung von Einträgen</string>
+    <string name="migration_mail_body">Die folgenden Angaben dienen nur dazu, das Problem zu finden und zu beheben. Deine Einträge sind nicht enthalten.\n\nApp-Version: %1$s\nGerät: %2$s\nAbgebrochen bei: %3$s\nFehlerart: %4$s\nVersuche: %5$s\nEinträge: %6$s\nFotos: %7$s\nNicht lesbare Einträge: %8$s\n\nBeschreibe bitte, was passiert ist oder was du fragen möchtest.\n</string>
+    <string name="migration_readme">Dies sind die Originaldateien von 1 Day 1 Diary.\n\nSie enthalten das Tagebuch der vorherigen Version (1.7.x) genau so, wie es vor der Übertragung in die neue Version war.\n\n- legacy-snapshot: die Tagebuchdatei (note.db) und die Einstellungen, ohne deinen Code\n- media: aus der vorherigen Version übertragene Fotos\n\nWenn du deine Einträge wiederherstellen lassen möchtest, bewahre diese Datei auf und schreib an sjunh812@naver.com.\n</string>
+    <!-- 복구 문의(M5 시트, FR-010a) -->
+    <string name="support_sheet_title">Wir reparieren beschädigte Einträge</string>
+    <string name="support_sheet_body">Hänge deine Tagebuchdatei an eine E-Mail an. Wir reparieren sie, damit sie wieder lesbar ist, und schicken sie dir zurück.</string>
+    <string name="support_sheet_contains">Deine Einträge sind unverändert in der Datei. Fotos und dein Code sind nicht enthalten.</string>
+    <string name="support_sheet_deleted">Wir löschen sie direkt, nachdem wir die reparierte Datei zurückgeschickt haben.</string>
+    <string name="support_sheet_restore">Führe die zurückgeschickte Datei mit „Aus Datei wiederherstellen“ zusammen.</string>
+    <string name="support_without">E-Mail ohne Datei</string>
+    <string name="support_with">E-Mail mit Datei</string>
+    <!-- 메일에 붙는 파일 이름. %1$s는 yyyyMMdd. -->
+    <string name="support_file_name">1Day1Diary-Support-%1$s.zip</string>
+    <string name="support_failed">Datei konnte nicht vorbereitet werden. Schreib uns bitte ohne Datei.</string>
+    <string name="support_mail_subject">[1 Day 1 Diary] Hilfe bei beschädigten Einträgen</string>
+    <string name="support_mail_body">Wir löschen die angehängte Datei direkt, nachdem wir die reparierte zurückgeschickt haben. Sie enthält nur deine Tagebuchdatei, ohne Fotos und ohne deinen Code.\n\nApp-Version: %1$s\nGerät: %2$s\nNicht lesbare Einträge: %3$s\n\nBeschreibe bitte, was passiert ist oder was du fragen möchtest.\n</string>
+    <string name="legacy_reader_failed">Alte Einträge konnten nicht gelesen werden</string>
+</resources>

@@ -104,7 +104,7 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
   Robolectric 없이 그릴 수 없어서다(오발있과 같다). 화면 상태·저장소 시험은 `commonTest`에 두어 두 플랫폼에서 돈다.
 - 앱 안에서 들어갈 길이 없는 화면을 띄우는 방법과 업그레이드 시험은 `/emulator-check`, Baseline Profile과 글꼴 모듈 시험은 `/release-prep`에 있다.
 - `unusedImportCheck`는 안 쓰는 import를 찾으면 실패한다. detekt `UnusedImport`는 타입 분석이 있어야 돌고, Spotless의 ktlint도 이 규칙을 잡지 못해 따로 둔다(2026-11-15).
-- `stringResourceCheck`는 `values`(영어)를 기준으로 `values-ko`·`values-ja`의 문자열 이름, 개수 문구 꼴, `%1$s` 자리가 같은지 본다.
+- `stringResourceCheck`는 `values`(영어)를 기준으로 모든 언어 폴더의 문자열 이름, 개수 문구 꼴, `%1$s` 자리가 같은지 본다.
 - 개발 빌드는 StrictMode로 화면 스레드의 디스크·네트워크 작업과 닫지 않은 자원을 로그에 남긴다. 화면이나 시작 순서를 바꾸면 `adb logcat -s StrictMode`로 새 위반이 없는지 본다(개발자 모드 요금제 도구의 읽기는 개발 빌드에만 있다).
 - 개발자 모드(`composeApp/src/debug`의 `DevModeActivity`)는 개발 빌드의 설정 맨 아래 줄로 들어가고 출시 빌드에는 없다. iOS에는 아직 없다. 화면과 기능은 `PlanRepository`만 본다.
 - 결제는 `StoreBilling`이 정한다. Android는 `Billing.kt`, iOS는 `IosBilling.kt`가 RevenueCat을 `StoreClient`로 감싼다. 키가 없는 빌드는 구매가 없는 무료 앱이다.
@@ -116,8 +116,8 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
 
 ## 관례
 
-- 화면은 한국어, 영어, 일본어(맞는 언어가 없으면 영어). 한국어 말투는 해요체, 법적 고지와 개발자의 편지만 합니다체. 영어·일본어는 `docs/design.md` "여러 언어".
-- 화면 문구는 문자열 리소스에 둔다. 코드에 문자열 상수를 두지 않는다. `values`(영어), `values-ko`, `values-ja`를 같은 커밋에서 채운다.
+- 화면은 한국어, 영어, 일본어, 번체 중국어, 스페인어, 포르투갈어, 독일어, 프랑스어(맞는 언어가 없으면 영어). 한국어 말투는 해요체, 법적 고지와 개발자의 편지만 합니다체. 다른 언어는 `docs/design.md` "여러 언어".
+- 화면 문구는 문자열 리소스에 둔다. 코드에 문자열 상수를 두지 않는다. `values`(영어)와 모든 언어 폴더(`values-ko`, `-ja`, `-b+zh+Hant`, `-es`, `-pt`, `-de`, `-fr`)를 같은 커밋에서 채운다.
   날짜·시각은 문자열로 조립하지 않고 플랫폼 형식을 쓴다.
 - 주석은 짧고 깔끔하게, 한 줄에 한 가지. 예: "액티비티 생명주기 문제가 있어 해당 화면 제거". 늘어지는 서술형과 경위·날짜는 문서와 커밋으로 보낸다(사용자 요청 2026-11-10, `~/.claude/CLAUDE.md` "주석").
 - Composable 화면과 컴포넌트를 만들면 같은 모듈 `preview/`에 프리뷰를 함께 둔다. 한국어(`locale = "ko"`)를 먼저, 라이트·다크와 상태마다 하나씩(사용자 요청 2026-11-02).

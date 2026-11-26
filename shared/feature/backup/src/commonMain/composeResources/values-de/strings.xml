@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="backup_title">Backup</string>
+    <string name="backup_now">Jetzt sichern</string>
+    <string name="backup_auto">Automatisches Backup</string>
+    <string name="backup_auto_body">Einmal am Tag, nur Änderungen.</string>
+    <string name="backup_options">Backup-Einstellungen</string>
+    <string name="backup_connect">Google Drive verbinden</string>
+    <string name="backup_intro_title">In Google Drive sichern</string>
+    <string name="backup_intro_body">Bewahre Einträge und Fotos in deinem eigenen Google Drive auf. Bei einem Gerätewechsel stellst du alles wieder her.</string>
+    <string name="backup_intro_photos_title">Auch Fotos werden gesichert</string>
+    <string name="backup_intro_photos_body">Einträge, Stimmungen, Wetter, Orte und Fotos werden hochgeladen.</string>
+    <string name="backup_intro_folder_title">Nur in deinem Drive</string>
+    <string name="backup_intro_folder_body">Gespeichert im Ordner „1일 1일기 백업“. Deine anderen Dateien sehen wir nie an.</string>
+    <string name="backup_intro_free_title">Kostenlos</string>
+    <string name="backup_intro_free_body">Auch das automatische Backup ist kostenlos. Es nutzt deinen eigenen Google-Drive-Speicher.</string>
+    <string name="backup_running">Wird gesichert</string>
+    <string name="backup_running_body">Läuft weiter, wenn du die App verlässt. Wir sagen dir Bescheid, wenn es fertig ist.</string>
+    <string name="backup_running_body_open">Läuft, solange die App offen ist. Verlässt du sie, pausiert es und geht weiter, wenn du zurückkommst.</string>
+    <string name="backup_running_body_quiet">Läuft weiter, wenn du die App verlässt.</string>
+    <string name="backup_running_photos">Fotos %1$s / %2$s</string>
+    <string name="backup_reconnect">Neu verbinden</string>
+    <string name="backup_reconnect_title">Google-Konto getrennt</string>
+    <string name="backup_reconnect_body">Verbinde es neu, um weiterzumachen. Deine Backups in Drive sind sicher.</string>
+    <string name="backup_no_space_title">Nicht genug Speicher in Drive</string>
+    <string name="backup_upload_cellular">Über mobile Daten hochladen</string>
+    <string name="backup_all_done">Alles ist gesichert, auch die Fotos.</string>
+    <string name="backup_finding_title">Backups werden gesucht</string>
+    <string name="backup_finding_body">Dein Google Drive wird nach Backups durchsucht.</string>
+    <string name="backup_first_title">Noch kein Backup</string>
+    <string name="backup_first_body">Tippe auf „Jetzt sichern“, um Einträge und Fotos hochzuladen.</string>
+    <string name="backup_last">Letztes Backup %1$s</string>
+    <string name="backup_when_day_time">%1$s %2$s</string>
+    <string name="backup_group_account">Konto</string>
+    <string name="backup_account">Google-Konto</string>
+    <string name="backup_account_busy">Du kannst das Konto wechseln, sobald Backup oder Wiederherstellung fertig ist.</string>
+    <string name="backup_group_upload">Hochladen</string>
+    <string name="backup_wifi_only">Fotos nur über WLAN</string>
+    <string name="backup_wifi_only_body">Ausschalten, um Fotos auch über mobile Daten hochzuladen.</string>
+    <string name="backup_group_connection">Verbindung</string>
+    <string name="backup_disconnect">Trennen</string>
+    <string name="backup_disconnect_body">Backups in Drive bleiben erhalten.</string>
+    <string name="backup_disconnect_title">Verbindung trennen?</string>
+    <string name="backup_disconnect_message">Das automatische Backup stoppt. Backups in Drive werden nicht gelöscht.</string>
+    <string name="backup_readme_body">Dieser Ordner enthält Backups der App 1 Day 1 Diary. Wenn du ihn löschst, sind deine Backups weg.\n\nThis folder holds backups from the 1 Day 1 Diary app. Deleting it removes your backups.</string>
+    <string name="backup_line_off">Backup aus</string>
+    <string name="backup_line_on">Einschalten</string>
+    <string name="backup_line_reconnect">Neu verbinden nötig</string>
+    <string name="backup_line_receiving">Fotos werden geladen · %1$s/%2$s</string>
+    <string name="backup_line_running">Wird gesichert · Fotos %1$s/%2$s</string>
+    <string name="backup_line_running_plain">Wird gesichert</string>
+    <string name="backup_line_at">Gesichert %1$s · %2$s</string>
+    <string name="backup_line_all">mit Fotos</string>
+    <string name="backup_line_waiting">Fotos ausstehend: %1$s</string>
+    <string name="backup_line_days">Letztes Backup vor %1$d Tagen</string>
+    <string name="backup_line_today">heute um %1$s</string>
+    <string name="backup_line_yesterday">gestern um %1$s</string>
+    <plurals name="backup_photos_unusable">
+        <item quantity="one">%1$s Foto wurde nicht gefunden und daher nicht gesichert.</item>
+        <item quantity="other">%1$s Fotos wurden nicht gefunden und daher nicht gesichert.</item>
+    </plurals>
+    <plurals name="backup_photos_waiting"><item quantity="one">%1$s Foto wird über WLAN hochgeladen.</item><item quantity="other">%1$s Fotos werden über WLAN hochgeladen.</item></plurals>
+    <plurals name="backup_photos_next"><item quantity="one">%1$s Foto wird beim nächsten Backup hochgeladen.</item><item quantity="other">%1$s Fotos werden beim nächsten Backup hochgeladen.</item></plurals>
+    <!-- 복원(B2~B6) -->
+    <string name="restore_row">Aus Google Drive wiederherstellen</string>
+    <string name="restore_row_body">Ein Backup von einem anderen Gerät oder der vorherigen Version zusammenführen.</string>
+    <string name="restore_keep_note">Einträge auf diesem Gerät bleiben erhalten.</string>
+    <string name="restore_device_group">%1$s · %2$s</string>
+    <string name="restore_device_unknown">Unbenanntes Gerät</string>
+    <string name="restore_platform_android">Android</string>
+    <string name="restore_platform_ios">iOS</string>
+    <string name="restore_when">%1$s %2$s</string>
+    <string name="restore_join">%1$s · %2$s</string>
+    <string name="restore_damaged">Ein Teil dieses Backups ist beschädigt, daher kann es nicht wiederhergestellt werden</string>
+    <string name="restore_needs_update">Aktualisiere die App, um dieses Backup wiederherzustellen</string>
+    <string name="restore_empty_title">Noch keine Backups in Drive</string>
+    <string name="restore_empty_body">Backups von diesem Gerät erscheinen hier.</string>
+    <string name="restore_list_failed">Backups konnten nicht gelesen werden</string>
+    <string name="restore_list_failed_auth">Dein Google-Konto wurde getrennt. Verbinde es im Bereich „Backup“ neu.</string>
+    <string name="restore_go_backup">Zum Backup</string>
+    <string name="restore_list_failed_body">Prüfe deine Verbindung und versuch es erneut.</string>
+    <string name="restore_retry">Erneut versuchen</string>
+    <string name="restore_update_in_store">Im Store aktualisieren</string>
+    <string name="restore_preview_top">Wiederherstellen</string>
+    <string name="restore_preview_title">Dieses Backup zusammenführen</string>
+    <string name="restore_preview_title_nothing">Alles aus diesem Backup ist schon da</string>
+    <string name="restore_preview_body">Backup von %1$s, %2$s.\nEinträge auf diesem Gerät bleiben erhalten, das Backup wird hinzugefügt.</string>
+    <string name="restore_value_added">Neue Einträge</string>
+    <string name="restore_value_updated">Auf neuere Version aktualisiert</string>
+    <string name="restore_value_both">In beiden Versionen behalten</string>
+    <string name="restore_value_photos">Zu ladende Fotos</string>
+    <string name="restore_settings_note">Schrift, Textgröße, Erscheinungsbild, Listenansicht und Erinnerung werden ebenfalls auf die Werte aus dem Backup gesetzt.</string>
+    <string name="restore_no_space">Für die Fotos brauchst du noch %1$s. Gib auf diesem Gerät Speicher frei und versuch es erneut.</string>
+    <string name="restore_merge">Zusammenführen</string>
+    <string name="restore_size_gb">%1$s GB</string>
+    <string name="restore_size_mb">%1$s MB</string>
+    <string name="restore_size_kb">%1$s KB</string>
+    <string name="restore_running_title">Tagebuch wird wiederhergestellt</string>
+    <string name="restore_waiting_body">Es geht los, sobald das Backup fertig ist.</string>
+    <string name="restore_merging_body">Einträge werden zusammengeführt.</string>
+    <string name="restore_fetching_body">Deine Einträge sind zusammengeführt. Du kannst sie lesen, während die Fotos laden.</string>
+    <string name="restore_value_entries">Einträge</string>
+    <string name="restore_value_merged">%1$s · zusammengeführt</string>
+    <string name="restore_value_photo">Fotos</string>
+    <string name="restore_photo_progress">%1$s / %2$s</string>
+    <string name="restore_running_note">Läuft weiter, wenn du die App verlässt. Wir sagen dir Bescheid, wenn es fertig ist. Wird die App geschlossen, werden nur die restlichen Fotos geladen.</string>
+    <string name="restore_running_note_quiet">Läuft weiter, wenn du die App verlässt. Wird die App geschlossen, werden nur die restlichen Fotos geladen.</string>
+    <string name="restore_running_note_open">Läuft, solange die App offen ist. Verlässt du sie, pausiert es, und beim Zurückkommen werden nur die restlichen Fotos geladen.</string>
+    <string name="restore_see_entries">Erst Einträge ansehen</string>
+    <string name="restore_done_nothing">Backup zusammengeführt</string>
+    <string name="restore_done_body">Einträge auf diesem Gerät bleiben erhalten.</string>
+    <string name="restore_note_both_body">Diese wurden an zwei Stellen bearbeitet. Sie sind in deiner Liste markiert.</string>
+    <string name="restore_note_original_body">Diese Fotos sind noch nicht gesichert. Sichere auf dem ursprünglichen Gerät erneut, um sie hier zu sehen.</string>
+    <string name="restore_note_pending_body">Sie werden beim nächsten Öffnen der App fertig geladen.</string>
+    <string name="restore_note_pending_file_body">Diese Fotos sind nicht in der Datei. Wenn sie in Drive gesichert sind, werden sie nach dem Verbinden geladen.</string>
+    <string name="restore_note_pending_space_body">Der Speicher deines Geräts ist voll. Gib Speicher frei und öffne die App erneut, um fertig zu laden.</string>
+    <string name="restore_wait_running">Deine Fotos werden geladen.</string>
+    <string name="restore_wait_network">Sie werden fertig geladen, sobald du wieder online bist.</string>
+    <string name="restore_wait_wifi">Sie werden über WLAN fertig geladen. Für mobile Daten tippe auf „Jetzt laden“.</string>
+    <string name="restore_wait_account">Google Drive wurde getrennt. Verbinde es neu, um fertig zu laden.</string>
+    <string name="restore_wait_other_account">Diese Fotos liegen im Google Drive von %1$s. Verbinde dieses Konto, um sie zu laden.</string>
+    <string name="restore_wait_other_account_unnamed">Diese Fotos liegen in dem Google Drive, aus dem du wiederhergestellt hast. Verbinde dieses Konto, um sie zu laden.</string>
+    <string name="restore_wait_file">Wähle die Datei, aus der du wiederhergestellt hast, erneut aus, um die restlichen Fotos zu laden.</string>
+    <string name="restore_wait_now">Jetzt laden</string>
+    <string name="restore_wait_pick">Datei wählen</string>
+    <string name="restore_note_missing_body">Die geladenen Dateien stimmten nicht überein, daher sind sie als nicht gefunden markiert.</string>
+    <string name="restore_lock_title">Sperre neu einrichten</string>
+    <string name="restore_lock_body">Beim Sichern war die Sperre an. Codes werden nicht gesichert.</string>
+    <string name="restore_lock_action">Einrichten</string>
+    <string name="restore_start">Fertig</string>
+    <string name="restore_failed_busy_title">Nach der Wiederherstellung erneut versuchen</string>
+    <string name="restore_failed_busy_body">Eine Wiederherstellung läuft. Danach kannst du ein anderes Backup wählen.</string>
+    <string name="restore_failed_mismatch_title">Backup konnte nicht geprüft werden</string>
+    <string name="restore_failed_mismatch_body">Die geladene Datei weicht vom Backup ab, daher haben wir abgebrochen. Auf diesem Gerät hat sich nichts geändert.</string>
+    <string name="restore_failed_other_title">Wiederherstellung fehlgeschlagen</string>
+    <string name="restore_failed_other_body">Versuch es gleich noch einmal. Auf diesem Gerät hat sich nichts geändert.</string>
+    <string name="restore_needs_update_body">Aktualisiere die App im Store und versuch es dann erneut. Auf diesem Gerät hat sich nichts geändert.</string>
+    <string name="restore_pick_other">Anderes Backup wählen</string>
+    <string name="restore_found_title">Du hast ein Backup in Google Drive</string>
+    <string name="restore_found_body">Einträge auf diesem Gerät bleiben erhalten, das Backup wird hinzugefügt.</string>
+    <string name="restore_found_later">Später</string>
+    <string name="restore_found_action">Wiederherstellen</string>
+    <plurals name="restore_count_entries"><item quantity="one">%1$s Eintrag</item><item quantity="other">%1$s Einträge</item></plurals>
+    <plurals name="restore_count_photos"><item quantity="one">%1$s Foto</item><item quantity="other">%1$s Fotos</item></plurals>
+    <plurals name="restore_unit_entries"><item quantity="one">%1$s</item><item quantity="other">%1$s</item></plurals>
+    <plurals name="restore_unit_photos"><item quantity="one">%1$s</item><item quantity="other">%1$s</item></plurals>
+    <plurals name="restore_done_added"><item quantity="one">%1$s Eintrag hinzugefügt</item><item quantity="other">%1$s Einträge hinzugefügt</item></plurals>
+    <plurals name="restore_done_trash"><item quantity="one">%1$s Eintrag im Papierkorb wiederhergestellt</item><item quantity="other">%1$s Einträge im Papierkorb wiederhergestellt</item></plurals>
+    <plurals name="restore_to_trash"><item quantity="one">%1$s Eintrag wird im Papierkorb wiederhergestellt.</item><item quantity="other">%1$s Einträge werden im Papierkorb wiederhergestellt.</item></plurals>
+    <plurals name="restore_done_updated"><item quantity="one">%1$s Eintrag aktualisiert</item><item quantity="other">%1$s Einträge aktualisiert</item></plurals>
+    <plurals name="restore_done_photos"><item quantity="one">Auch das Foto ist wieder da.</item><item quantity="other">Auch alle %1$s Fotos sind wieder da.</item></plurals>
+    <plurals name="restore_note_both"><item quantity="one">%1$s Eintrag in beiden Versionen behalten</item><item quantity="other">%1$s Einträge in beiden Versionen behalten</item></plurals>
+    <plurals name="restore_note_original"><item quantity="one">%1$s Foto auf dem ursprünglichen Gerät</item><item quantity="other">%1$s Fotos auf dem ursprünglichen Gerät</item></plurals>
+    <plurals name="restore_note_pending"><item quantity="one">%1$s Foto noch zu laden</item><item quantity="other">%1$s Fotos noch zu laden</item></plurals>
+    <plurals name="restore_note_missing"><item quantity="one">%1$s Foto konnte nicht geprüft werden</item><item quantity="other">%1$s Fotos konnten nicht geprüft werden</item></plurals>
+    <plurals name="restore_not_in_backup"><item quantity="one">%1$s Foto ist nicht in diesem Backup. Es ist auf dem ursprünglichen Gerät.</item><item quantity="other">%1$s Fotos sind nicht in diesem Backup. Sie sind auf dem ursprünglichen Gerät.</item></plurals>
+    <string name="restore_group_legacy">Backups der vorherigen Version</string>
+    <string name="restore_legacy_row">Aus der vorherigen Version · Ohne Fotos</string>
+    <plurals name="restore_more_backups"><item quantity="one">%1$s älteres Backup zeigen</item><item quantity="other">%1$s ältere Backups zeigen</item></plurals>
+    <string name="restore_legacy_title">Backup der vorherigen Version wiederherstellen</string>
+    <string name="restore_legacy_body">Am %1$s von der vorherigen Version hochgeladen.\nEinträge auf diesem Gerät bleiben erhalten, das Backup wird hinzugefügt.</string>
+    <string name="restore_legacy_no_photos">Diese Backups enthalten keine Fotos</string>
+    <string name="restore_legacy_no_photos_body">Text, Stimmung, Wetter, Ort und Favoriten werden wiederhergestellt.</string>
+    <string name="restore_legacy_recent">Später geschriebene Einträge fehlen eventuell.</string>
+    <string name="restore_legacy_recent_body">Dieses Backup enthält nur Einträge bis zum letzten Backup der vorherigen Version.</string>
+    <string name="restore_value_existing">Schon auf diesem Gerät</string>
+    <string name="restore_value_unreadable">Nicht lesbare Einträge</string>
+    <string name="restore_legacy_action">Wiederherstellen</string>
+    <string name="restore_legacy_same_time_body">Gleiches Datum und gleiche Uhrzeit, aber anderer Text. Beide bleiben erhalten und sind markiert.</string>
+    <string name="restore_legacy_gaps_body">Diese Backups haben keine Fotos, daher sind sie als nicht gefunden markiert.</string>
+    <plurals name="restore_legacy_same_time"><item quantity="one">%1$s Eintrag mit anderem Text</item><item quantity="other">%1$s Einträge mit anderem Text</item></plurals>
+    <plurals name="restore_legacy_gaps"><item quantity="one">%1$s fehlendes Foto</item><item quantity="other">%1$s fehlende Fotos</item></plurals>
+    <string name="backup_alert_title">Seit 7 Tagen kein Backup</string>
+    <string name="backup_alert_auth">Dein Google-Konto ist getrennt. Tippe, um es neu zu verbinden.</string>
+    <string name="backup_alert_space">Dein Drive ist voll. Tippe, um es zu prüfen.</string>
+    <string name="backup_alert_offline">Du bist offline. Das Backup geht weiter, sobald du verbunden bist.</string>
+    <string name="backup_alert_other">Öffne die App, um dein Backup zu prüfen.</string>
+    <string name="backup_channel">Backup</string>
+    <string name="backup_nudge_entries_photos">%1$s und %2$s sind nur auf diesem Gerät</string>
+    <plurals name="backup_nudge_entries"><item quantity="one">%1$s Eintrag ist nur auf diesem Gerät</item><item quantity="other">%1$s Einträge sind nur auf diesem Gerät</item></plurals>
+    <string name="backup_nudge_body">Sichere in Google Drive, dann bleiben sie dir beim Gerätewechsel erhalten.</string>
+    <string name="backup_nudge_action">Backup einschalten</string>
+    <string name="backup_nudge_later">Später</string>
+    <string name="restore_replace_entry">Stattdessen durch dieses Backup ersetzen</string>
+    <string name="restore_replace_title">Durch dieses Backup ersetzen?</string>
+    <string name="restore_replace_action">Ersetzen</string>
+    <string name="restore_failed_space_title">Nicht genug Speicher auf diesem Gerät</string>
+    <string name="restore_failed_space_body">Es ist kein Platz für eine Kopie deiner aktuellen Einträge, daher haben wir abgebrochen. Auf diesem Gerät hat sich nichts geändert.</string>
+    <string name="backup_folder_title">Neuer Backup-Ordner erstellt</string>
+    <string name="backup_folder_body">Den gelöschten Ordner kannst du 30 Tage lang aus dem Drive-Papierkorb wiederherstellen.</string>
+    <string name="backup_folder_ok">OK</string>
+    <string name="rollback_title">Durch dieses Backup ersetzt</string>
+    <string name="rollback_until">Du kannst das bis %1$s rückgängig machen.</string>
+    <string name="rollback_tomorrow">Du kannst das bis morgen rückgängig machen.</string>
+    <string name="rollback_action">Rückgängig</string>
+    <string name="rollback_waiting_title">Rückgängig machen wartet</string>
+    <string name="rollback_waiting_body">Das Ersetzen wird rückgängig gemacht, sobald die Wiederherstellung fertig ist.</string>
+    <string name="rollback_running_title">Wird rückgängig gemacht</string>
+    <string name="rollback_running_body">Das dauert nur einen Moment.</string>
+    <string name="rollback_failed_title">Rückgängig machen fehlgeschlagen</string>
+    <string name="rollback_failed_body">Es wurden keine Einträge gelöscht. Versuch es bitte erneut.</string>
+    <string name="rollback_ask_title">Ersetzen rückgängig machen?</string>
+    <string name="rollback_ask_body">Deine früheren Einträge (%1$s) kommen zurück.</string>
+    <string name="rollback_ask_after">Deine früheren Einträge (%1$s) kommen zurück. Seitdem geschriebene Einträge (%2$s) bleiben erhalten.</string>
+    <plurals name="restore_replace_body"><item quantity="one">%1$s Eintrag auf diesem Gerät wird durch dieses Backup ersetzt. Du kannst das 7 Tage lang rückgängig machen.</item><item quantity="other">%1$s Einträge auf diesem Gerät werden durch dieses Backup ersetzt. Du kannst das 7 Tage lang rückgängig machen.</item></plurals>
+    <string name="file_top">In Datei sichern</string>
+    <string name="file_row_body">Alles in einer Datei aufbewahren, ohne Drive.</string>
+    <string name="file_title">Tagebuch als eine Datei speichern</string>
+    <string name="file_body">Bewahre %1$s und %2$s ohne Drive in einer Datei auf. Geschätzte Größe: %3$s.</string>
+    <string name="file_body_empty">Du hast noch keine Einträge zum Speichern. Unten kannst du eine Backup-Datei wiederherstellen.</string>
+    <string name="file_place_title">Speichere sie, wo du willst</string>
+    <string name="file_place_body">Wähle den Gerätespeicher oder eine andere Cloud-App.</string>
+    <string name="file_move_title">Bring sie selbst aufs neue Gerät</string>
+    <string name="file_move_body">Kopiere sie über einen Computer oder eine Cloud-App. Mit vielen Fotos ist sie für Messenger evtl. zu groß.</string>
+    <string name="file_trust_title">Bewahre sie sicher auf</string>
+    <string name="file_trust_body">Die Datei enthält deine Einträge und Fotos unverändert.</string>
+    <string name="file_restore">Aus Datei wiederherstellen</string>
+    <string name="file_restore_body">Wähle eine Backup-Datei und führe sie mit deinem Tagebuch zusammen.</string>
+    <string name="file_action">Datei erstellen</string>
+    <string name="file_writing">Datei wird erstellt</string>
+    <string name="file_write_failed">Die Datei wurde nicht fertig. Lösche sie am Speicherort und erstelle eine neue. Auf diesem Gerät hat sich nichts geändert.</string>
+    <string name="file_reading">Datei wird geprüft</string>
+    <string name="file_write_failed_removed">Die Datei wurde nicht fertig, daher haben wir sie entfernt. Auf diesem Gerät hat sich nichts geändert.</string>
+    <string name="file_stop_title">Erstellen der Datei abbrechen?</string>
+    <string name="file_stop_body">Wenn du jetzt gehst, wird die unfertige Datei gelöscht. Auf diesem Gerät ändert sich nichts.</string>
+    <string name="file_stop_action">Abbrechen</string>
+    <string name="file_stopped_notice">Die Backup-Datei wurde nicht fertig und kann nicht verwendet werden.</string>
+    <string name="file_read_failed">Das ist keine Backup-Datei oder ein Teil ist beschädigt. Auf diesem Gerät hat sich nichts geändert.</string>
+    <string name="file_read_no_space">Nicht genug Speicher zum Öffnen dieser Datei. Gib %1$s frei und versuch es erneut.</string>
+    <string name="file_read_no_space_plain">Nicht genug Speicher zum Öffnen dieser Datei. Gib etwas Speicher frei und versuch es erneut.</string>
+    <string name="file_read_needs_update">Aktualisiere die App, um dieses Backup wiederherzustellen.</string>
+    <string name="file_saved_title">Datei gespeichert</string>
+    <string name="file_saved_body">Bring sie auf dein neues Gerät und tippe dort auf „Aus Datei wiederherstellen“.</string>
+    <string name="file_done">OK</string>
+    <string name="file_name">1Day1Diary-Backup-%1$s</string>
+    <string name="backup_group_backup">Backup</string>
+    <string name="backup_group_restore">Wiederherstellen</string>
+    <string name="restore_replaced_title">Durch dieses Backup ersetzt</string>
+    <string name="restore_replaced_body">Du kannst das 7 Tage lang rückgängig machen.</string>
+    <string name="backup_space_text">Für das Backup deiner Einträge brauchst du noch %1$s in Drive.</string>
+    <string name="backup_space_manage">Google-Speicher verwalten</string>
+    <string name="backup_space_trash">Drive-Papierkorb leeren</string>
+    <string name="backup_space_note">Nicht gesicherte Fotos sind weiter auf diesem Gerät.</string>
+    <string name="backup_space_retry">Erneut sichern</string>
+    <plurals name="backup_space_photos"><item quantity="one">Deine Einträge sind gesichert. Für das restliche Foto brauchst du noch %2$s in Drive.</item><item quantity="other">Deine Einträge sind gesichert. Für die restlichen %1$s Fotos brauchst du noch %2$s in Drive.</item></plurals>
+    <string name="restore_contact">Kontakt</string>
+    <string name="backup_interrupted_body">Hochgeladene Fotos sind sicher. Tippe auf „Jetzt sichern“, um weiterzumachen.</string>
+    <string name="backup_restored_title">Aus deinem Backup vom %1$s wiederhergestellt</string>
+    <string name="backup_restored_body">Sichere jetzt, damit auch die Einträge dieses Geräts gesichert sind.</string>
+    <string name="backup_done_title">Backup abgeschlossen</string>
+    <string name="backup_done_body">Deine Einträge und Fotos sind alle in Drive.</string>
+    <string name="backup_done_left">Restliche Fotos werden über WLAN hochgeladen (%1$s).</string>
+    <plurals name="backup_done_left_space"><item quantity="one">%1$s Foto wurde nicht hochgeladen, weil Drive voll ist.</item><item quantity="other">%1$s Fotos wurden nicht hochgeladen, weil Drive voll ist.</item></plurals>
+    <string name="backup_stopped_title">Backup nicht abgeschlossen</string>
+    <string name="restore_stopped_title">Wiederherstellung nicht abgeschlossen</string>
+    <string name="restore_see_result">Ansehen</string>
+    <string name="restore_notice_title">Wiederherstellung abgeschlossen</string>
+    <string name="restore_notice_body">Alle Einträge und Fotos sind wieder da.</string>
+    <string name="restore_notice_stopped_title">Einige Fotos werden noch geladen</string>
+    <string name="restore_notice_some">Einige Fotos konnten nicht wiederhergestellt werden. Öffne die App, um es zu prüfen.</string>
+    <string name="restore_notice_left">Öffne die App, um die restlichen Fotos zu laden.</string>
+    <string name="backup_failed_offline">Keine Internetverbindung. Verbinde dich und tippe dann auf „Jetzt sichern“.</string>
+    <string name="backup_failed_drive">Google Drive antwortet nicht. Warte kurz und tippe dann auf „Jetzt sichern“.</string>
+    <string name="backup_failed_local">Dateien auf diesem Gerät konnten nicht gelesen oder geschrieben werden. Prüfe deinen Speicher und tippe dann auf „Jetzt sichern“.</string>
+    <string name="backup_line_failed">Backup nicht abgeschlossen</string>
+    <string name="backup_status_failed">Backup-Status konnte nicht geladen werden</string>
+    <string name="backup_skip_empty">Noch keine Einträge zum Sichern</string>
+    <string name="backup_skip_busy">Ein anderer Vorgang läuft. Versuch es danach erneut.</string>
+    <string name="backup_skip_not_checked">Backups in Google Drive konnten nicht geprüft werden. Tippe gleich auf „Jetzt sichern“.</string>
+    <string name="backup_connect_failed_title">Verbindung zu Google Drive fehlgeschlagen</string>
+    <string name="backup_connect_failed_offline">Prüfe deine Internetverbindung und versuch es erneut.</string>
+    <string name="backup_connect_failed_auth">Google-Konto konnte nicht bestätigt werden. Versuch es gleich noch einmal.</string>
+    <string name="backup_connect_failed_no_drive">Aktiviere auf dem Google-Bildschirm den Punkt Google Drive, um zu verbinden.</string>
+    <string name="backup_connect_failed_other">Versuch es gleich noch einmal.</string>
+    <string name="backup_connect_failed_close">OK</string>
+    <string name="restore_no_mail">Keine E-Mail-App gefunden. Bitte schreib an %1$s.</string>
+</resources>

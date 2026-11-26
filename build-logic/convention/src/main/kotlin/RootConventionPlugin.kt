@@ -49,7 +49,7 @@ class RootConventionPlugin : Plugin<Project> {
         val stringResourceCheck =
             tasks.register<StringResourceCheckTask>("stringResourceCheck") {
                 group = "verification"
-                description = "화면 문구가 영어·한국어·일본어에 같은 이름과 자리로 있는지 본다"
+                description = "화면 문구가 모든 언어에 같은 이름과 자리로 있는지 본다"
                 sources.from(
                     fileTree("shared") {
                         include("**/composeResources/values*/strings.xml")

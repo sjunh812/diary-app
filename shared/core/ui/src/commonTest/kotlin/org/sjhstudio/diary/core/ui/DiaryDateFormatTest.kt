@@ -12,13 +12,16 @@ class DiaryDateFormatTest {
         assertEquals("en-GB", formatLocaleTag("en", "en-GB"))
         assertEquals("ko-KR", formatLocaleTag("ko", "ko_KR"))
         assertEquals("ja-JP", formatLocaleTag("ja", "ja_JP@calendar=japanese"))
+        assertEquals("es-MX", formatLocaleTag("es", "es_MX"))
+        // 화면 언어 태그에 문자 체계가 붙어도 홍콩 지역을 따름
+        assertEquals("zh-Hant-HK", formatLocaleTag("zh-Hant", "zh-Hant-HK"))
     }
 
     @Test
     fun screenLanguageWinsWhenDeviceLanguageIsNotSupported() {
-        // 프랑스어 기기는 영어 화면이 보이고 날짜도 영어
-        assertEquals("en", formatLocaleTag("en", "fr-FR"))
-        assertEquals("en", formatLocaleTag("en", "zh-Hant-TW"))
+        // 이탈리아어 기기는 영어 화면이 보이고 날짜도 영어
+        assertEquals("en", formatLocaleTag("en", "it-IT"))
+        assertEquals("en", formatLocaleTag("en", "zh-Hans-CN"))
     }
 
     // 문장 안에서 "11월 / 12일"처럼 끊기지 않게 함

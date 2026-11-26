@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ds_language">fr</string>
+    <string name="ds_in_progress">En cours</string>
+    <string name="ds_close">Fermer</string>
+    <string name="ds_back">Retour</string>
+    <string name="ds_delete">Supprimer</string>
+    <string name="ds_pin_progress">%1$d chiffres saisis sur %2$d</string>
+    <string name="ds_catalog_title">Système de design</string>
+    <string name="ds_catalog_colors">Couleurs</string>
+    <string name="ds_catalog_typography">Typographie</string>
+    <string name="ds_catalog_spacing">Espacements et coins</string>
+    <string name="ds_catalog_components">Composants</string>
+    <string name="ds_catalog_type_sample">Portez ce vieux whisky au juge blond qui fume 1234</string>
+    <string name="ds_am">AM</string>
+    <string name="ds_pm">PM</string>
+    <string name="ds_wheel_ampm">AM ou PM</string>
+    <string name="ds_wheel_hour">Heure</string>
+    <string name="ds_wheel_minute">Minute</string>
+    <string name="ds_wheel_month">Mois</string>
+    <string name="ds_wheel_year">Année</string>
+    <string name="ds_previous">Précédent</string>
+    <string name="ds_next">Suivant</string>
+</resources>

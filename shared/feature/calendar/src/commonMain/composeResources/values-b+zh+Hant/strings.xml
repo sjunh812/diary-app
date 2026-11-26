@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calendar_today">今天</string>
+    <string name="calendar_previous_month">上個月</string>
+    <string name="calendar_next_month">下個月</string>
+    <string name="calendar_month_sheet_title">前往月份</string>
+    <string name="calendar_empty">這天沒有日記</string>
+    <string name="calendar_write_on_day">寫這天的日記</string>
+    <string name="calendar_day_summary">%1$s · %2$s</string>
+    <plurals name="calendar_day_count">
+        <item quantity="other">%1$d篇</item>
+    </plurals>
+</resources>

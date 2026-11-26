@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mood_angry">Wütend</string>
+    <string name="mood_cool">Lässig</string>
+    <string name="mood_sad">Traurig</string>
+    <string name="mood_sick">Krank</string>
+    <string name="mood_laugh">Fröhlich</string>
+    <string name="mood_meh">Geht so</string>
+    <string name="mood_bad">Schlecht</string>
+    <string name="mood_good">Gut</string>
+    <string name="mood_tired">Müde</string>
+    <string name="weather_sunny">Sonnig</string>
+    <string name="weather_partly_cloudy">Leicht bewölkt</string>
+    <string name="weather_mostly_cloudy">Überwiegend bewölkt</string>
+    <string name="weather_cloudy">Bedeckt</string>
+    <string name="weather_rain">Regen</string>
+    <string name="weather_sleet">Schneeregen</string>
+    <string name="weather_snow">Schnee</string>
+    <string name="entry_kept_both">Zwei Versionen</string>
+    <string name="tip_close">Schließen</string>
+    <string name="checklist_check">%1$s abhaken</string>
+    <string name="checklist_uncheck">Haken bei %1$s entfernen</string>
+    <string name="entry_menu_edit">Bearbeiten</string>
+    <string name="entry_menu_favorite">Favorit</string>
+    <string name="entry_menu_unfavorite">Aus Favoriten entfernen</string>
+    <string name="entry_menu_share">Teilen</string>
+    <string name="entry_menu_trash">In den Papierkorb</string>
+    <string name="ui_previous_year">Vorheriges Jahr</string>
+    <string name="ui_next_year">Nächstes Jahr</string>
+    <string name="ui_previous_month">Vorheriger Monat</string>
+    <string name="ui_next_month">Nächster Monat</string>
+    <string name="share_when">%2$s, %1$s, %3$s</string>
+    <string name="load_failed_title">Einträge konnten nicht geladen werden</string>
+    <string name="load_failed_body">Versuch es gleich noch einmal.</string>
+    <string name="load_failed_retry">Erneut versuchen</string>
+    <string name="link_no_browser">Keine Browser-App gefunden.</string>
+</resources>

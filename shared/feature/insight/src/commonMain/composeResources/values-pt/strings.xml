@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="insight_title">Insights</string>
+    <string name="insight_tab_week">Semana</string>
+    <string name="insight_tab_month">Mês</string>
+    <string name="insight_tab_year">Ano</string>
+    <string name="insight_tab_all">Tudo</string>
+    <string name="insight_previous">Período anterior</string>
+    <string name="insight_next">Próximo período</string>
+    <string name="insight_period_sheet_title">Escolha um período</string>
+    <string name="insight_empty">Nenhuma entrada neste período</string>
+    <string name="insight_write">Nova entrada</string>
+    <string name="insight_no_moods">Nenhum humor neste período</string>
+    <string name="insight_top_week">Humor principal da semana: %1$s</string>
+    <string name="insight_top_month">Humor principal do mês: %1$s</string>
+    <string name="insight_top_year">Humor principal do ano: %1$s</string>
+    <string name="insight_top_all">Humor principal até agora: %1$s</string>
+    <string name="insight_top_past">Humor principal no período: %1$s</string>
+    <string name="insight_top_even">Seus humores ficaram bem distribuídos</string>
+    <string name="insight_mood_join">%1$s, %2$s</string>
+    <string name="insight_summary_counts">%1$s · %2$s</string>
+    <string name="insight_count_percent">%1$s · %2$d%</string>
+    <string name="insight_year_map">Humor de cada dia em %1$d</string>
+    <string name="insight_flow_week">Humor por dia</string>
+    <string name="insight_flow_month">Humor principal por semana</string>
+    <string name="insight_flow_all">Humor principal por ano</string>
+    <string name="insight_flow_year">Humor principal por mês</string>
+    <string name="insight_week_number">Sem. %1$d</string>
+    <plurals name="insight_entry_count">
+        <item quantity="one">%1$s entrada</item>
+        <item quantity="other">%1$s entradas</item>
+    </plurals>
+    <plurals name="insight_no_mood_count">
+        <item quantity="one">%1$s sem humor</item>
+        <item quantity="other">%1$s sem humor</item>
+    </plurals>
+    <string name="insight_adv_title">Estatísticas avançadas</string>
+    <string name="insight_adv_wd_sun">Domingo</string>
+    <string name="insight_adv_wd_mon">Segunda</string>
+    <string name="insight_adv_wd_tue">Terça</string>
+    <string name="insight_adv_wd_wed">Quarta</string>
+    <string name="insight_adv_wd_thu">Quinta</string>
+    <string name="insight_adv_wd_fri">Sexta</string>
+    <string name="insight_adv_wd_sat">Sábado</string>
+    <string name="insight_adv_day_dawn">Madrugada</string>
+    <string name="insight_adv_day_morning">Manhã</string>
+    <string name="insight_adv_day_afternoon">Tarde</string>
+    <string name="insight_adv_day_evening">Noite</string>
+    <string name="insight_adv_range_recent">Últimos 30 dias</string>
+    <string name="insight_adv_range_year">Este ano</string>
+    <string name="insight_adv_range_all">Tudo</string>
+    <plurals name="insight_adv_not_enough">
+        <item quantity="one">Aparece depois de mais %1$s entrada.</item>
+        <item quantity="other">Aparece depois de mais %1$s entradas.</item>
+    </plurals>
+    <string name="insight_adv_change_recent">Em relação aos 30 dias anteriores</string>
+    <string name="insight_adv_change_year">Em relação à mesma época do ano passado</string>
+    <string name="insight_adv_change_good">Humores positivos</string>
+    <string name="insight_adv_when">Humor por situação</string>
+    <string name="insight_adv_tab_weekday">Dia</string>
+    <string name="insight_adv_tab_part">Horário</string>
+    <string name="insight_adv_tab_weather">Clima</string>
+    <string name="insight_adv_tab_place">Local</string>
+    <string name="insight_adv_share">%1$d%</string>
+    <string name="insight_adv_when_empty">Ainda não há entradas suficientes.</string>
+    <string name="insight_adv_when_good_time">Mais humores positivos: %1$s</string>
+    <string name="insight_adv_when_hard_time">Mais humores negativos: %1$s</string>
+    <string name="insight_adv_when_good_weather">Mais humores positivos: %1$s</string>
+    <string name="insight_adv_when_hard_weather">Mais humores negativos: %1$s</string>
+    <string name="insight_adv_when_good_place">Mais humores positivos: %1$s</string>
+    <string name="insight_adv_when_hard_place">Mais humores negativos: %1$s</string>
+    <string name="insight_adv_legend_neutral">%1$s·%2$s</string>
+    <string name="insight_adv_company">Clima, dias e locais por humor</string>
+    <string name="insight_adv_habit">Em números</string>
+    <string name="insight_adv_habit_entries">Entradas</string>
+    <string name="insight_adv_habit_days">Dias com escrita</string>
+    <string name="insight_adv_habit_run">Maior sequência</string>
+    <string name="insight_adv_habit_characters">Caracteres</string>
+    <string name="insight_adv_habit_photos">Fotos</string>
+    <string name="insight_adv_habit_part">Horário favorito</string>
+    <plurals name="insight_adv_company_title">
+        <item quantity="one">%1$s · %2$s entrada</item>
+        <item quantity="other">%1$s · %2$s entradas</item>
+    </plurals>
+    <plurals name="insight_adv_habit_entries_value">
+        <item quantity="one">%1$s entrada</item>
+        <item quantity="other">%1$s entradas</item>
+    </plurals>
+    <plurals name="insight_adv_habit_days_value">
+        <item quantity="one">%1$s dia</item>
+        <item quantity="other">%1$s dias</item>
+    </plurals>
+    <plurals name="insight_adv_habit_characters_value">
+        <item quantity="one">%1$s caractere</item>
+        <item quantity="other">%1$s caracteres</item>
+    </plurals>
+    <plurals name="insight_adv_habit_photos_value">
+        <item quantity="one">%1$s foto</item>
+        <item quantity="other">%1$s fotos</item>
+    </plurals>
+    <string name="insight_section_days">Humor por dia</string>
+    <string name="insight_map_hint">Cada quadrado é um dia, colorido pelo humor daquele dia.</string>
+    <string name="tip_insight_open">Toque em um humor para ver essas entradas juntas.</string>
+    <string name="insight_section_moods">Humores principais</string>
+    <string name="insight_adv_no_moods">Poucas entradas com humor</string>
+    <plurals name="insight_adv_no_moods_body">
+        <item quantity="one">Escolha um humor em mais %1$s entrada e vamos procurar diferenças.</item>
+        <item quantity="other">Escolha um humor em mais %1$s entradas e vamos procurar diferenças.</item>
+    </plurals>
+    <string name="insight_adv_recent_better">Você tem tido mais dias bons ☀️</string>
+    <string name="insight_adv_recent_harder">Os últimos dias não foram fáceis ☁️</string>
+    <string name="insight_adv_recent_steady">Os últimos dias foram parecidos ⛅</string>
+    <string name="insight_adv_recent_steady_body">Pouca diferença em relação aos 30 dias anteriores.</string>
+    <string name="insight_adv_recent_good_up">Mais humores positivos que nos 30 dias anteriores. %1$d% → %2$d%</string>
+    <string name="insight_adv_recent_good_down">Menos humores positivos que nos 30 dias anteriores. %1$d% → %2$d%</string>
+    <string name="insight_adv_recent_hard_up">Mais humores negativos que nos 30 dias anteriores. %1$d% → %2$d%</string>
+    <string name="insight_adv_recent_hard_down">Menos humores negativos que nos 30 dias anteriores. %1$d% → %2$d%</string>
+    <string name="insight_adv_change_hard">Humores negativos</string>
+    <string name="insight_adv_change_top">Humor principal</string>
+    <string name="insight_adv_change_before">%1$s →</string>
+    <string name="insight_adv_unit_small">1000</string>
+    <string name="insight_adv_unit_big">1000000</string>
+    <string name="insight_adv_characters_small">%1$s mil caracteres</string>
+    <string name="insight_adv_characters_big">%1$s mi de caracteres</string>
+    <string name="insight_adv_tone_info">Como os humores são agrupados</string>
+    <string name="insight_adv_tone_sheet_title">Humores positivos e negativos</string>
+    <string name="insight_adv_tone_sheet_body">Entre as entradas com humor, mostra a parcela que escolheu um humor positivo ou negativo.</string>
+    <string name="insight_adv_tone_neutral">Não contado</string>
+    <string name="insight_adv_tone_ok">OK</string>
+</resources>

@@ -407,12 +407,15 @@ class AppUpdateRepositoryTest {
         remote[AppUpdateRepository.KEY_NOTE_VERSION] = "2.0.2"
         remote["update_note_ko"] = "결제 뒤에도 광고가 보이던 문제를 고쳤어요."
         remote["update_note_en"] = "Fixed ads showing after purchase."
+        remote["update_note_zh_Hant"] = "修正購買後仍顯示廣告的問題。"
         val store = FakeStoreUpdates().apply { answer = StoreCheck.Available("45") }
         val repo = repo(store)
         repo.refresh()
         val note = (repo.notice.value as UpdateNotice.Available).note
         assertEquals("결제 뒤에도 광고가 보이던 문제를 고쳤어요.", note?.textFor("ko"))
         assertEquals("Fixed ads showing after purchase.", note?.textFor("ja"))
+        // 원격 설정 키는 밑줄이고 화면 언어 태그는 하이픈
+        assertEquals("修正購買後仍顯示廣告的問題。", note?.textFor("zh-Hant"))
         remote[AppUpdateRepository.KEY_NOTE_VERSION] = "2.0.1"
         repo.refresh()
         assertNull((repo.notice.value as UpdateNotice.Available).note)

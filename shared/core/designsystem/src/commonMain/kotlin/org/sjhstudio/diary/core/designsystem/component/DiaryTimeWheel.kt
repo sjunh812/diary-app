@@ -62,6 +62,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.diaryLanguage
 import org.sjhstudio.diary.core.designsystem.theme.limitFontScale
+import org.sjhstudio.diary.core.designsystem.theme.putsLargerUnitFirst
 
 /** 휠 한 칸 높이. 다섯 칸이 보이고 가운데가 고른 값(`docs/design.md` 시각 고르기) */
 private val WheelRow: Dp = 40.dp
@@ -96,7 +97,7 @@ fun rememberCalendarWheelRows(): Int {
  * 시각 고르기 휠(`docs/design.md` 시각 고르기, HIG 피커의 휠)
  * 바텀 시트 안에 둠
  * 오전·오후 / 시 / 분(1분 단위) 세 열이고, [is24Hour]면 오전·오후 열 없이 0~23시
- * 한국어·일본어는 오전·오후가 앞, 영어는 뒤(플랫폼 시각 형식과 같은 순서)
+ * 한중일은 오전·오후가 앞, 그 밖의 언어는 뒤(플랫폼 시각 형식과 같은 순서)
  * 돌리다 멈출 때마다 [onChange]로 하루 중 몇 분째인지(0~1439) 알림
  * 칸이 정해져 있어 글자는 기기 글자 크기를 1.3배까지만 따름
  * [rows]는 보이는 칸 수(홀수). 달력과 한 시트에 놓일 때는 3으로 줄여 시트가 스크롤되지 않게 함
@@ -108,7 +109,7 @@ fun DiaryTimeWheel(minuteOfDay: Int, onChange: (Int) -> Unit, is24Hour: Boolean,
     val change by rememberUpdatedState(onChange)
     fun emit() = change(hour * 60 + minute)
 
-    val ampmFirst = diaryLanguage() != "en"
+    val ampmFirst = putsLargerUnitFirst(diaryLanguage())
     val ampm =
         @Composable {
             WheelColumn(
@@ -201,12 +202,12 @@ fun DiaryMonthWheel(
     Box(modifier.fillMaxWidth().height(WheelRow * VISIBLE_ROWS), contentAlignment = Alignment.Center) {
         Box(Modifier.fillMaxWidth().height(WheelRow).clip(DiaryShapes.r12).background(DiaryTheme.colors.sunken))
         Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-            if (diaryLanguage() == "en") {
-                monthColumn()
+            if (putsLargerUnitFirst(diaryLanguage())) {
                 yearColumn()
+                monthColumn()
             } else {
-                yearColumn()
                 monthColumn()
+                yearColumn()
             }
         }
     }

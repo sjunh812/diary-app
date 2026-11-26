@@ -26,6 +26,7 @@ import org.sjhstudio.diary.core.data.AdPlayer
 import org.sjhstudio.diary.core.designsystem.theme.DiaryRadius
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.diaryLanguage
+import org.sjhstudio.diary.core.designsystem.theme.usesSystemFont
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BUNDLED_FONT_FILES
@@ -90,10 +91,10 @@ private fun rememberAdFonts(): AdFonts? {
     val path by produceState(installer.knownPath(font.id), font, changes) {
         value = withContext(Dispatchers.IO) { installer.installedPath(font.id) }
     }
-    val japanese = diaryLanguage() == "ja"
+    val systemFont = usesSystemFont(diaryLanguage())
     return when (font) {
         DiaryFont.SYSTEM -> null
-        DiaryFont.PRETENDARD -> PRETENDARD_FILES.takeUnless { japanese }
+        DiaryFont.PRETENDARD -> PRETENDARD_FILES.takeUnless { systemFont }
         else -> (BUNDLED_FONT_FILES[font] ?: path)?.let { AdFonts(it, it, it) } ?: PRETENDARD_FILES
     }
 }

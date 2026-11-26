@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ds_language">es</string>
+    <string name="ds_in_progress">En curso</string>
+    <string name="ds_close">Cerrar</string>
+    <string name="ds_back">Atrás</string>
+    <string name="ds_delete">Eliminar</string>
+    <string name="ds_pin_progress">%1$d de %2$d dígitos introducidos</string>
+    <string name="ds_catalog_title">Sistema de diseño</string>
+    <string name="ds_catalog_colors">Colores</string>
+    <string name="ds_catalog_typography">Texto</string>
+    <string name="ds_catalog_spacing">Espaciado y esquinas</string>
+    <string name="ds_catalog_components">Componentes</string>
+    <string name="ds_catalog_type_sample">El veloz murciélago hindú comía feliz cardillo y kiwi 1234</string>
+    <string name="ds_am">a. m.</string>
+    <string name="ds_pm">p. m.</string>
+    <string name="ds_wheel_ampm">a. m. o p. m.</string>
+    <string name="ds_wheel_hour">Hora</string>
+    <string name="ds_wheel_minute">Minuto</string>
+    <string name="ds_wheel_month">Mes</string>
+    <string name="ds_wheel_year">Año</string>
+    <string name="ds_previous">Anterior</string>
+    <string name="ds_next">Siguiente</string>
+</resources>

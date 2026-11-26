@@ -72,10 +72,10 @@ expect val CenteredLineBreak: LineBreak
 
 @Composable
 internal fun diaryTypography(chosen: FontFamily? = null): DiaryTypography {
-    // 기본 글꼴의 일본어 화면은 시스템 글꼴을 씀(열린 결정 D13 추천, docs/design.md 여러 언어)
+    // 기본 글꼴의 일본어·중국어 화면은 시스템 글꼴을 씀(열린 결정 D13 추천, docs/design.md 여러 언어)
     // Pretendard에는 가나는 있지만 한자가 없어 섞으면 한 낱말 안에서 글꼴이 바뀜
     // 고른 글꼴 유무에 따라 Font() 호출이 달라져 자리를 나눔(iOS)
-    val family = key(chosen == null) { chosen ?: if (diaryLanguage() == "ja") FontFamily.Default else pretendardFamily() }
+    val family = key(chosen == null) { chosen ?: if (usesSystemFont(diaryLanguage())) FontFamily.Default else pretendardFamily() }
     fun style(size: TextUnit, lineHeight: TextUnit, weight: FontWeight) = TextStyle(
         fontFamily = family,
         fontSize = size,

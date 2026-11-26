@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="trash_title">Corbeille</string>
+    <string name="trash_empty">Vider</string>
+    <string name="trash_notice">Les entrées sont supprimées définitivement après 30 jours.</string>
+    <string name="trash_empty_title">La corbeille est vide</string>
+    <string name="trash_empty_body">Vous pouvez restaurer ici les entrées supprimées pendant 30 jours.</string>
+    <string name="trash_restore">Restaurer</string>
+    <string name="trash_delete_forever">Supprimer définitivement</string>
+    <string name="trash_restored">Restaurée</string>
+    <string name="trash_confirm_title">Supprimer définitivement ?</string>
+    <string name="trash_confirm_delete">Supprimer</string>
+    <string name="trash_confirm_body_one">Cette entrée sera supprimée et ne pourra pas être restaurée.</string>
+    <string name="trash_row_when">%1$s %2$s</string>
+    <plurals name="trash_days_left">
+        <item quantity="one">%1$d jour restant</item>
+        <item quantity="other">%1$d jours restants</item>
+    </plurals>
+    <plurals name="trash_confirm_body_all">
+        <item quantity="one">%1$s entrée de la corbeille sera supprimée et ne pourra pas être restaurée.</item>
+        <item quantity="other">%1$s entrées de la corbeille seront supprimées et ne pourront pas être restaurées.</item>
+    </plurals>
+</resources>

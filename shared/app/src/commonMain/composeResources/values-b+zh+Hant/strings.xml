@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tab_home">首頁</string>
+    <string name="tab_calendar">月曆</string>
+    <string name="tab_insight">回顧</string>
+    <string name="tab_settings">設定</string>
+    <string name="write_new">寫日記</string>
+    <string name="write_saved">已儲存</string>
+    <string name="write_draft_kept">已儲存草稿</string>
+    <string name="detail_trashed">已移至垃圾桶</string>
+    <string name="detail_trashed_undo">復原</string>
+    <string name="detail_pick_hint">尚未選擇日記</string>
+    <string name="detail_pick_body">點一下列表中的日記，就會在這裡顯示。</string>
+    <string name="settings_pick_hint">尚未選擇設定</string>
+    <string name="settings_pick_body">點一下列表中的設定，就會在這裡顯示。</string>
+    <string name="ad_label">廣告</string>
+    <string name="reward_title">享受一天無廣告</string>
+    <string name="reward_body">看完一段短片，接下來24小時不會再看到其他廣告。</string>
+    <string name="reward_watch">觀看影片</string>
+    <string name="reward_close">關閉</string>
+    <string name="reward_failed_title">無法取得一天無廣告</string>
+    <string name="reward_failed_body">廣告沒有載入，或沒有看到最後。請稍後再試一次。</string>
+    <string name="reward_not_saved">裝置儲存空間不足，重新開啟 App 時可能會再次顯示廣告。</string>
+    <string name="ad_close">移除廣告</string>
+    <string name="ad_notice_title">全螢幕廣告一天只出現一次</string>
+    <string name="ad_notice_body">只會在你儲存日記後短暫顯示。</string>
+    <string name="ad_notice_ok">確定</string>
+    <string name="write_failed">無法儲存，請檢查裝置的儲存空間。</string>
+</resources>

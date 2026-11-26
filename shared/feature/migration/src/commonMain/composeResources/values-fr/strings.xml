@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="migration_preparing_title">Préparation du transfert de votre journal</string>
+    <string name="migration_preparing_body">Vos entrées sont transférées vers la nouvelle version. Votre journal d’origine reste intact.</string>
+
+    <string name="migration_progress_title">Transfert de vos entrées</string>
+    <string name="migration_progress_body">L’écran reste allumé jusqu’à la fin.</string>
+    <string name="migration_progress_entries">Entrées</string>
+    <string name="migration_progress_entries_value">%1$s / %2$s</string>
+    <string name="migration_progress_photos">Photos</string>
+    <string name="migration_progress_photos_value">%1$s / %2$s</string>
+    <string name="migration_progress_note">Si l’app se ferme en cours de route, le transfert recommence. Votre journal d’origine reste intact.</string>
+
+    <plurals name="migration_done_title">
+        <item quantity="one">%1$s entrée transférée 🎉</item>
+        <item quantity="other">Les %1$s entrées sont transférées 🎉</item>
+    </plurals>
+    <plurals name="migration_done_photos">
+        <item quantity="one">%1$s photo transférée aussi.</item>
+        <item quantity="other">%1$s photos transférées aussi.</item>
+    </plurals>
+    <plurals name="migration_missing_photos_title">
+        <item quantity="one">%1$s photo introuvable</item>
+        <item quantity="other">%1$s photos introuvables</item>
+    </plurals>
+    <string name="migration_missing_photos_body">L’ancienne version les gardait dans un stockage temporaire, et elles ont été supprimées. Leur emplacement est conservé dans vos entrées.</string>
+    <string name="migration_missing_photos_body_short">Leur emplacement est conservé dans vos entrées.</string>
+    <plurals name="migration_date_fixed_title">
+        <item quantity="one">Date corrigée sur %1$s entrée</item>
+        <item quantity="other">Dates corrigées sur %1$s entrées</item>
+    </plurals>
+    <string name="migration_date_fixed_body">L’ancienne version les affichait par erreur un jour plus tard. Elles sont maintenant à la date choisie lors de l’écriture.</string>
+    <string name="migration_start">Commencer</string>
+
+    <string name="migration_partial_title">Seule une partie des entrées a été transférée</string>
+    <plurals name="migration_partial_body">
+        <item quantity="one">%1$s entrée a été transférée. Le fichier d’origine étant endommagé, d’autres n’ont pas pu être lues (%2$s). L’app réessaiera après sa prochaine mise à jour. Votre journal d’origine reste intact.</item>
+        <item quantity="other">%1$s entrées ont été transférées. Le fichier d’origine étant endommagé, d’autres n’ont pas pu être lues (%2$s). L’app réessaiera après sa prochaine mise à jour. Votre journal d’origine reste intact.</item>
+    </plurals>
+    <string name="migration_partial_footnote">Vous pouvez revoir ceci dans Paramètres > Résultats du transfert.</string>
+    <string name="migration_export_original">Exporter les fichiers d’origine</string>
+    <string name="migration_contact">Nous contacter</string>
+
+    <string name="migration_skip">Commencer avec une nouvelle entrée</string>
+    <string name="migration_failed_title">Impossible de transférer votre journal</string>
+    <string name="migration_failed_body_mismatch">Un problème est survenu lors de la vérification des entrées transférées. Votre journal d’origine reste intact.</string>
+    <string name="migration_failed_body_snapshot">Le transfert s’est arrêté, car votre journal d’origine n’a pas pu être copié. Il reste intact.</string>
+    <string name="migration_failed_body_read">Le transfert s’est arrêté, car les fichiers de l’ancienne version n’ont pas pu être lus. Votre journal d’origine reste intact.</string>
+    <string name="migration_failed_body_write">Le transfert s’est arrêté, car les entrées n’ont pas pu être enregistrées dans la nouvelle version. Votre journal d’origine reste intact.</string>
+    <string name="migration_failed_body_unknown">Le transfert s’est arrêté suite à un problème. Votre journal d’origine reste intact.</string>
+    <string name="migration_view_legacy">Voir les anciennes entrées</string>
+    <string name="migration_retry">Réessayer</string>
+    <string name="migration_no_space_title">Stockage presque plein</string>
+    <string name="migration_no_space_body">Il vous faut %1$s d’espace en plus sur votre appareil pour le transfert. Supprimez des photos ou des apps inutilisées, puis vérifiez à nouveau. Votre journal d’origine reste intact.</string>
+    <string name="migration_check_again">Vérifier à nouveau</string>
+
+    <plurals name="migration_entries_recovered">
+        <item quantity="one">%1$s entrée illisible auparavant a été transférée</item>
+        <item quantity="other">%1$s entrées illisibles auparavant ont été transférées</item>
+    </plurals>
+    <plurals name="migration_photos_found">
+        <item quantity="one">%1$s photo manquante retrouvée</item>
+        <item quantity="other">%1$s photos manquantes retrouvées</item>
+    </plurals>
+
+    <string name="legacy_reader_title">Anciennes entrées</string>
+    <string name="legacy_reader_notice">Vous pouvez seulement les lire. Réessayez pour les transférer vers la nouvelle version.</string>
+    <string name="legacy_reader_empty">Aucune ancienne entrée à lire</string>
+
+    <string name="migration_export_file_name">1Day1Diary-originaux-%1$s.zip</string>
+    <string name="migration_export_done">Fichiers d’origine enregistrés</string>
+    <string name="migration_export_failed">Impossible d’enregistrer les fichiers d’origine. Choisissez à nouveau où les enregistrer.</string>
+    <string name="migration_export_failed_left">Impossible d’enregistrer les fichiers d’origine. Supprimez le fichier inachevé là où vous l’avez enregistré.</string>
+    <string name="migration_mail_missing">Aucune app de messagerie trouvée. Écrivez-nous à %1$s.</string>
+    <string name="migration_mail_subject">[1 Day 1 Diary] Aide pour le transfert des entrées</string>
+    <string name="migration_mail_body">Les informations ci-dessous servent uniquement à trouver et corriger le problème. Vos entrées n’y figurent pas.\n\nVersion de l’app : %1$s\nAppareil : %2$s\nArrêt à l’étape : %3$s\nType de problème : %4$s\nTentatives : %5$s\nEntrées : %6$s\nPhotos : %7$s\nEntrées illisibles : %8$s\n\nDites-nous ce qui s’est passé ou ce que vous souhaitez demander.\n</string>
+    <string name="migration_readme">Voici les fichiers d’origine de 1 Day 1 Diary.\n\nIls contiennent le journal utilisé par l’ancienne version (1.7.x), exactement tel qu’il était avant le transfert vers la nouvelle version.\n\n- legacy-snapshot : le fichier du journal (note.db) et les réglages, sans votre code\n- media : les photos transférées depuis l’ancienne version\n\nSi vous souhaitez que vos entrées soient restaurées, conservez ce fichier et écrivez à sjunh812@naver.com.\n</string>
+    <string name="support_sheet_title">Nous réparons les entrées endommagées</string>
+    <string name="support_sheet_body">Joignez le fichier de votre journal à un e-mail : nous le réparerons pour qu’il soit lisible et vous le renverrons.</string>
+    <string name="support_sheet_contains">Vos entrées figurent telles quelles dans le fichier. Les photos et votre code n’y sont pas.</string>
+    <string name="support_sheet_deleted">Nous le supprimons dès que le fichier réparé vous est renvoyé.</string>
+    <string name="support_sheet_restore">Utilisez « Restaurer depuis un fichier » pour fusionner le fichier reçu.</string>
+    <string name="support_without">E-mail sans fichier</string>
+    <string name="support_with">E-mail avec fichier</string>
+    <string name="support_file_name">1Day1Diary-assistance-%1$s.zip</string>
+    <string name="support_failed">Impossible de préparer le fichier. Contactez-nous sans le joindre.</string>
+    <string name="support_mail_subject">[1 Day 1 Diary] Aide pour des entrées endommagées</string>
+    <string name="support_mail_body">Nous supprimons le fichier joint dès que le fichier réparé vous est renvoyé. Il contient uniquement le fichier de votre journal, sans photos ni code.\n\nVersion de l’app : %1$s\nAppareil : %2$s\nEntrées illisibles : %3$s\n\nDites-nous ce qui s’est passé ou ce que vous souhaitez demander.\n</string>
+    <string name="legacy_reader_failed">Impossible de lire vos anciennes entrées</string>
+</resources>

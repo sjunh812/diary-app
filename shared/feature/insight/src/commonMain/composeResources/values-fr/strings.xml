@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="insight_title">Bilan</string>
+    <string name="insight_tab_week">Semaine</string>
+    <string name="insight_tab_month">Mois</string>
+    <string name="insight_tab_year">Année</string>
+    <string name="insight_tab_all">Tout</string>
+    <string name="insight_previous">Période précédente</string>
+    <string name="insight_next">Période suivante</string>
+    <string name="insight_period_sheet_title">Choisir une période</string>
+    <string name="insight_empty">Aucune entrée sur cette période</string>
+    <string name="insight_write">Nouvelle entrée</string>
+    <string name="insight_no_moods">Aucune humeur sur cette période</string>
+    <string name="insight_top_week">Humeur principale de la semaine : %1$s</string>
+    <string name="insight_top_month">Humeur principale du mois : %1$s</string>
+    <string name="insight_top_year">Humeur principale de l’année : %1$s</string>
+    <string name="insight_top_all">Humeur principale jusqu’ici : %1$s</string>
+    <string name="insight_top_past">Humeur principale de la période : %1$s</string>
+    <string name="insight_top_even">Vos humeurs étaient bien réparties</string>
+    <string name="insight_mood_join">%1$s, %2$s</string>
+    <string name="insight_summary_counts">%1$s · %2$s</string>
+    <string name="insight_count_percent">%1$s · %2$d %</string>
+    <string name="insight_year_map">L’humeur de chaque jour en %1$d</string>
+    <string name="insight_flow_week">Humeur de chaque jour</string>
+    <string name="insight_flow_month">Humeur principale par semaine</string>
+    <string name="insight_flow_all">Humeur principale par année</string>
+    <string name="insight_flow_year">Humeur principale par mois</string>
+    <string name="insight_week_number">Sem. %1$d</string>
+    <plurals name="insight_entry_count">
+        <item quantity="one">%1$s entrée</item>
+        <item quantity="other">%1$s entrées</item>
+    </plurals>
+    <plurals name="insight_no_mood_count">
+        <item quantity="one">%1$s sans humeur</item>
+        <item quantity="other">%1$s sans humeur</item>
+    </plurals>
+    <string name="insight_adv_title">Statistiques avancées</string>
+    <string name="insight_adv_wd_sun">Dimanche</string>
+    <string name="insight_adv_wd_mon">Lundi</string>
+    <string name="insight_adv_wd_tue">Mardi</string>
+    <string name="insight_adv_wd_wed">Mercredi</string>
+    <string name="insight_adv_wd_thu">Jeudi</string>
+    <string name="insight_adv_wd_fri">Vendredi</string>
+    <string name="insight_adv_wd_sat">Samedi</string>
+    <string name="insight_adv_day_dawn">Nuit</string>
+    <string name="insight_adv_day_morning">Matin</string>
+    <string name="insight_adv_day_afternoon">Après-midi</string>
+    <string name="insight_adv_day_evening">Soir</string>
+    <string name="insight_adv_range_recent">30 derniers jours</string>
+    <string name="insight_adv_range_year">Cette année</string>
+    <string name="insight_adv_range_all">Tout</string>
+    <plurals name="insight_adv_not_enough">
+        <item quantity="one">S’affiche après %1$s entrée de plus.</item>
+        <item quantity="other">S’affiche après %1$s entrées de plus.</item>
+    </plurals>
+    <string name="insight_adv_change_recent">Par rapport aux 30 jours précédents</string>
+    <string name="insight_adv_change_year">Par rapport à l’an dernier à la même période</string>
+    <string name="insight_adv_change_good">Humeurs positives</string>
+    <string name="insight_adv_when">Humeur selon le contexte</string>
+    <string name="insight_adv_tab_weekday">Jour</string>
+    <string name="insight_adv_tab_part">Heure</string>
+    <string name="insight_adv_tab_weather">Météo</string>
+    <string name="insight_adv_tab_place">Lieu</string>
+    <string name="insight_adv_share">%1$d %</string>
+    <string name="insight_adv_when_empty">Pas encore assez d’entrées.</string>
+    <string name="insight_adv_when_good_time">Le plus d’humeurs positives : %1$s</string>
+    <string name="insight_adv_when_hard_time">Le plus d’humeurs négatives : %1$s</string>
+    <string name="insight_adv_when_good_weather">Le plus d’humeurs positives : %1$s</string>
+    <string name="insight_adv_when_hard_weather">Le plus d’humeurs négatives : %1$s</string>
+    <string name="insight_adv_when_good_place">Le plus d’humeurs positives : %1$s</string>
+    <string name="insight_adv_when_hard_place">Le plus d’humeurs négatives : %1$s</string>
+    <string name="insight_adv_legend_neutral">%1$s·%2$s</string>
+    <string name="insight_adv_company">Météo, jours et lieux par humeur</string>
+    <string name="insight_adv_habit">En chiffres</string>
+    <string name="insight_adv_habit_entries">Entrées</string>
+    <string name="insight_adv_habit_days">Jours d’écriture</string>
+    <string name="insight_adv_habit_run">Plus longue série</string>
+    <string name="insight_adv_habit_characters">Caractères</string>
+    <string name="insight_adv_habit_photos">Photos</string>
+    <string name="insight_adv_habit_part">Moment préféré</string>
+    <plurals name="insight_adv_company_title">
+        <item quantity="one">%1$s · %2$s entrée</item>
+        <item quantity="other">%1$s · %2$s entrées</item>
+    </plurals>
+    <plurals name="insight_adv_habit_entries_value">
+        <item quantity="one">%1$s entrée</item>
+        <item quantity="other">%1$s entrées</item>
+    </plurals>
+    <plurals name="insight_adv_habit_days_value">
+        <item quantity="one">%1$s jour</item>
+        <item quantity="other">%1$s jours</item>
+    </plurals>
+    <plurals name="insight_adv_habit_characters_value">
+        <item quantity="one">%1$s caractère</item>
+        <item quantity="other">%1$s caractères</item>
+    </plurals>
+    <plurals name="insight_adv_habit_photos_value">
+        <item quantity="one">%1$s photo</item>
+        <item quantity="other">%1$s photos</item>
+    </plurals>
+    <string name="insight_section_days">Humeur de chaque jour</string>
+    <string name="insight_map_hint">Chaque case est un jour, colorée selon l’humeur de ce jour.</string>
+    <string name="tip_insight_open">Touchez une humeur pour voir ces entrées ensemble.</string>
+    <string name="insight_section_moods">Humeurs principales</string>
+    <string name="insight_adv_no_moods">Pas assez d’entrées avec une humeur</string>
+    <plurals name="insight_adv_no_moods_body">
+        <item quantity="one">Choisissez une humeur sur %1$s entrée de plus et nous chercherons les différences.</item>
+        <item quantity="other">Choisissez une humeur sur %1$s entrées de plus et nous chercherons les différences.</item>
+    </plurals>
+    <string name="insight_adv_recent_better">Plus de bons jours ces derniers temps ☀️</string>
+    <string name="insight_adv_recent_harder">Ces derniers temps n’ont pas été faciles ☁️</string>
+    <string name="insight_adv_recent_steady">Rien de très différent ces derniers temps ⛅</string>
+    <string name="insight_adv_recent_steady_body">Peu de différence avec les 30 jours précédents.</string>
+    <string name="insight_adv_recent_good_up">Plus d’humeurs positives que les 30 jours précédents. %1$d % → %2$d %</string>
+    <string name="insight_adv_recent_good_down">Moins d’humeurs positives que les 30 jours précédents. %1$d % → %2$d %</string>
+    <string name="insight_adv_recent_hard_up">Plus d’humeurs négatives que les 30 jours précédents. %1$d % → %2$d %</string>
+    <string name="insight_adv_recent_hard_down">Moins d’humeurs négatives que les 30 jours précédents. %1$d % → %2$d %</string>
+    <string name="insight_adv_change_hard">Humeurs négatives</string>
+    <string name="insight_adv_change_top">Humeur principale</string>
+    <string name="insight_adv_change_before">%1$s →</string>
+    <string name="insight_adv_unit_small">1000</string>
+    <string name="insight_adv_unit_big">1000000</string>
+    <string name="insight_adv_characters_small">%1$s k caractères</string>
+    <string name="insight_adv_characters_big">%1$s M de caractères</string>
+    <string name="insight_adv_tone_info">Comment les humeurs sont classées</string>
+    <string name="insight_adv_tone_sheet_title">Humeurs positives et négatives</string>
+    <string name="insight_adv_tone_sheet_body">Parmi les entrées avec une humeur, indique la part d’humeurs positives ou négatives.</string>
+    <string name="insight_adv_tone_neutral">Non comptées</string>
+    <string name="insight_adv_tone_ok">OK</string>
+</resources>
