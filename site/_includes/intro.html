@@ -14,8 +14,8 @@
 </section>
 
 <div class="wrap wide">
-  {% if t.film_title %}<section class="film reveal">
-    <h2 class="section-title">{{ t.film_title }}</h2>
+  {% if t.film_alt %}<section class="film reveal" aria-label="{{ t.film_alt }}">
+    <!-- 영상이 앱 이름과 첫 문구로 시작해 제목을 따로 두지 않음 -->
     <!-- 화면에 반쯤 들어오면 그때 받아 소리 없이 재생. 움직임 줄이기·데이터 절약이면 직접 눌러 재생 -->
     <div class="film-frame">
       <video data-src="/assets/video/promo-{{ lang }}.mp4" poster="/assets/video/poster-{{ lang }}.jpg" width="1080" height="1920" muted loop playsinline preload="none" aria-label="{{ t.film_alt }}"></video>

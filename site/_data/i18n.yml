@@ -34,7 +34,6 @@ ko:
   tablet_title: 넓은 화면에서는<br>목록과 일기를 나란히
   tablet_body: iPad, 안드로이드 태블릿, 폴더블에서도 화면에 맞게 보여요.
   alt_tablet: 태블릿에서 목록과 일기를 나란히 보는 화면
-  film_title: 17초 영상으로 둘러봐요
   film_alt: 1일 1일기 소개 영상
   film_sound_on: 소리 켜기
   film_sound_off: 소리 끄기
@@ -110,7 +109,6 @@ en:
   tablet_title: On big screens,<br>list and entry side by side
   tablet_body: Fits the screen on iPad, Android tablets, and foldables.
   alt_tablet: List and entry side by side on a tablet
-  film_title: See it in 17 seconds
   film_alt: 1 Day 1 Diary intro video
   film_sound_on: Turn sound on
   film_sound_off: Turn sound off
