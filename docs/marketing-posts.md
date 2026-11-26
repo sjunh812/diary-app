@@ -11,7 +11,7 @@
 | 디시 일기·개발자 갤러리 공지 | 일기 갤러리 공지에는 홍보 규칙이 없다. 개발자 갤러리는 공지가 없다. 매니저가 개인 판단으로 지울 수 있다 | 개발자 갤러리에는 "앱 만들었는데 피드백 부탁" 글이 실제로 올라와 있다(11-09 그림일기 앱 글 등). 다만 그 글들이 남아 있다고 규칙에 걸리지 않는다는 뜻은 아니다 |
 | 긱뉴스 Show GN(`news.hada.io/blog/show`, 검색으로 확인) | 앱이 대상이다. 직접 만든 것이어야 한다. 글 종류를 Show로 고른다. 지인에게 추천·댓글 부탁 금지, 버전마다 반복 등록 금지, 짧은 기간 재등록 제한. 완성도가 높을 필요는 없다 | **가장 안전하고 맞는 곳.** 2026-11-26 올림(아래 2-1) |
 | Product Hunt(공식 도움말, 검색으로 확인) | 모바일 전용 규칙은 없다. 추천(업보트) 부탁 금지, 돈 주고 사기 금지, 업보트 대가 경품 금지. 개인 계정으로. 올리면 검토 후 공개 | 초안에 "upvote 부탁"은 없다. 피드백만 구한다 |
-| Show HN | 공식 규칙 원문은 읽지 못했다. 검색된 글들은 스토어 링크를 올리는 게 흔하고, 가입·유료 장벽에는 불만이 붙었다 | 올리기 전에 `news.ycombinator.com/showhn.html`을 직접 읽는다 |
+| Show HN | 2026-11-26에 원문을 읽었다(아래 2-2). 이전 기록: 공식 규칙 원문은 읽지 못했다. 검색된 글들은 스토어 링크를 올리는 게 흔하고, 가입·유료 장벽에는 불만이 붙었다 | 올리기 전에 `news.ycombinator.com/showhn.html`을 직접 읽는다 |
 | Reddit r/journaling | 미러에서 확인: 손글씨 일기 중심이고 자기 홍보 금지. 앱 이야기는 r/digitaljournaling으로 보낸다. r/digitaljournaling은 2026-03 모더레이터 공지로 글과 댓글의 홍보를 금지한다 | **올리지 않는다.** 아래 영어 Reddit 초안은 쓰지 않는 쪽으로 정한다 |
 | 클리앙·블라인드·네이버 카페·에브리타임 | 이번에도 읽지 못했다. 클리앙은 앞서 읽은 이용규칙대로 직접홍보 게시판만 가능 | 미확인이라 올리지 않는다 |
 
@@ -223,6 +223,45 @@ Google Play: https://play.google.com/store/apps/details?id=org.sjhstudio.diary
 꼭 한번 사용해 보시고 불편한 점이나 개선할 점, 이외 CMP 관련해서 궁금한 점 있으면 편하게 남겨 주세요.
 
 감사합니다.
+```
+
+---
+
+## 2-2. Show HN
+
+아직 올리지 않았다. 올리는 사람은 사용자다. 규칙(`news.ycombinator.com/showhn.html`, 2026-11-26에 읽음): 직접 만들어 써 볼 수 있는 것이어야 하고, 소개 페이지(landing page)는 올리지 않는다. 그래서 URL 칸에는 소개 사이트 대신 App Store 주소를 넣는다. 가입 없이 써 볼 수 있어야 하고, 만든 까닭과 방법을 적는다. 지인에게 추천이나 댓글을 부탁하지 않는다.
+
+- 광고·Plus는 먼저 밝혔다. HN은 숨긴 수익 모델에 날카롭다.
+- 댓글에 답할 거리: CMP에서 iOS 키보드·한글 입력 문제, 레거시 DB를 Room 대신 날 SQL로 읽은 까닭, 서버 없이 드라이브 `drive.file` 권한만 쓰는 백업.
+
+**제목** (80자 한도, 73자)
+
+```text
+Show HN: 1 Day 1 Diary – a diary app I rebuilt with Compose Multiplatform
+```
+
+**URL 칸**: https://apps.apple.com/app/id6835116731
+
+**본문**
+
+```text
+Hi HN. I've been running a small Android diary app on my own since 2022. This year I rebuilt it from scratch in Kotlin with Compose Multiplatform, and it's now on iOS too.
+
+The idea is simple: most people who start a journal stop within a few weeks, so the app asks for very little. One line, a mood, or a single photo counts as the day's entry. No account, no server. Entries and photos stay on the phone, and backups go to the user's own Google Drive.
+
+A few things that might be interesting here:
+
+- Nearly all UI and logic is shared between Android and iOS. The platform-specific parts are billing, ads, Google sign-in for Drive, and biometric lock.
+- The hardest part was the Android migration. The old app stored everything in its own SQLite file, and losing even one entry wasn't acceptable. The new app never touches the original. It copies the database (with its WAL files), reads the copy with raw SQL into a new Room database, then compares every entry against the original by SHA-256. If any entry differs, the new database is thrown away and the migration starts over on the next launch.
+- To keep the design consistent across phones, foldables and tablets, a Gradle check fails the build if a feature module uses a raw color hex or a literal dp/sp value instead of a design token.
+- Surprisingly, shared logic was the easy part. Most of my time went into the rich-text editor and the iOS keyboard, including Korean input composition on hardware keyboards.
+- Backup has no server behind it. The app only uses the drive.file scope, so it can see the files it created and nothing else in the user's Drive.
+
+It's free with ads (a small card in the list and at most one full-screen ad a day, after saving an entry, never while writing). A yearly subscription removes them. The UI is in English, Korean and Japanese.
+
+Google Play: https://play.google.com/store/apps/details?id=org.sjhstudio.diary
+
+I'd love feedback on the app, and I'm happy to answer questions about Compose Multiplatform on iOS.
 ```
 
 ---
