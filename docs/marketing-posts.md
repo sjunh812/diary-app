@@ -229,7 +229,7 @@ Google Play: https://play.google.com/store/apps/details?id=org.sjhstudio.diary
 
 ## 2-2. Show HN
 
-아직 올리지 않았다. 올리는 사람은 사용자다. 규칙(`news.ycombinator.com/showhn.html`, 2026-11-26에 읽음): 직접 만들어 써 볼 수 있는 것이어야 하고, 소개 페이지(landing page)는 올리지 않는다. 그래서 URL 칸에는 소개 사이트 대신 App Store 주소를 넣는다. 가입 없이 써 볼 수 있어야 하고, 만든 까닭과 방법을 적는다. 지인에게 추천이나 댓글을 부탁하지 않는다.
+아직 올라가지 않았다. 2026-11-26 사용자 계정으로 올리려 하자 HN이 "Show HN 임시 제한" 화면(`/showlim`)을 띄웠다. 사이트에 익숙하지 않은 새 사용자의 Show HN이 몰려 막아 둔 것이고, 커뮤니티에서 먼저 활동한 뒤 가끔 올리라고 안내한다. 계정이 댓글 등으로 자리를 잡은 뒤 다시 올린다. 제한을 피하려고 "Show HN" 없이 일반 링크로 올리지 않는다. 규칙(`news.ycombinator.com/showhn.html`, 2026-11-26에 읽음): 직접 만들어 써 볼 수 있는 것이어야 하고, 소개 페이지(landing page)는 올리지 않는다. 그래서 URL 칸에는 소개 사이트 대신 App Store 주소를 넣는다. 가입 없이 써 볼 수 있어야 하고, 만든 까닭과 방법을 적는다. 지인에게 추천이나 댓글을 부탁하지 않는다.
 
 - 광고·Plus는 먼저 밝혔다. HN은 숨긴 수익 모델에 날카롭다.
 - 댓글에 답할 거리: CMP에서 iOS 키보드·한글 입력 문제, 레거시 DB를 Room 대신 날 SQL로 읽은 까닭, 서버 없이 드라이브 `drive.file` 권한만 쓰는 백업.
