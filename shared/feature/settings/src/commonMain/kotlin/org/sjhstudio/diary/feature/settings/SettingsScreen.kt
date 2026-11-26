@@ -54,6 +54,7 @@ import org.sjhstudio.diary.feature.settings.resources.list_value
 import org.sjhstudio.diary.feature.settings.resources.migration_report_title
 import org.sjhstudio.diary.feature.settings.resources.reminder_value_blocked
 import org.sjhstudio.diary.feature.settings.resources.reminder_value_off
+import org.sjhstudio.diary.feature.settings.resources.settings_ad_privacy
 import org.sjhstudio.diary.feature.settings.resources.settings_backup
 import org.sjhstudio.diary.feature.settings.resources.settings_dev_mode
 import org.sjhstudio.diary.feature.settings.resources.settings_feedback
@@ -110,6 +111,7 @@ fun SettingsScreen(
     onLetter: () -> Unit = {},
     onTerms: () -> Unit = {},
     onPrivacy: () -> Unit = {},
+    onAdPrivacy: () -> Unit = {},
     onPlus: () -> Unit = {},
     onDevMode: (() -> Unit)? = null,
     backupValue: String? = null,
@@ -284,6 +286,7 @@ fun SettingsScreen(
             )
             DiarySettingsRow(stringResource(Res.string.settings_terms), onClick = onTerms)
             DiarySettingsRow(stringResource(Res.string.settings_privacy), onClick = onPrivacy)
+            if (state.showsAdPrivacy) DiarySettingsRow(stringResource(Res.string.settings_ad_privacy), onClick = onAdPrivacy)
             if (state.showsMigrationReport) {
                 DiarySettingsRow(
                     stringResource(Res.string.migration_report_title),

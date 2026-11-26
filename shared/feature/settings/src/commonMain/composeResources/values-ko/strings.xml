@@ -149,6 +149,7 @@
     <string name="settings_plus_action">Plus 알아보기</string>
     <string name="settings_terms">이용약관</string>
     <string name="settings_privacy">개인정보처리방침</string>
+    <string name="settings_ad_privacy">광고 개인정보 설정</string>
     <string name="theme_group_mode">화면 모드</string>
     <string name="theme_follow_system">시스템 설정 따르기</string>
     <string name="theme_group_color">테마 색</string>

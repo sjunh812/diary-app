@@ -140,6 +140,7 @@
     <string name="settings_plus_action">查看 Plus</string>
     <string name="settings_terms">使用條款</string>
     <string name="settings_privacy">隱私權政策</string>
+    <string name="settings_ad_privacy">廣告隱私設定</string>
     <string name="theme_group_mode">外觀</string>
     <string name="theme_follow_system">使用系統設定</string>
     <string name="theme_group_color">主題顏色</string>

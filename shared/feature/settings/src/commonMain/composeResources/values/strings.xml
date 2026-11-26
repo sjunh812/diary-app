@@ -155,6 +155,7 @@
     <string name="settings_plus_action">See Plus</string>
     <string name="settings_terms">Terms of Use</string>
     <string name="settings_privacy">Privacy Policy</string>
+    <string name="settings_ad_privacy">Ad privacy settings</string>
     <string name="theme_group_mode">Appearance</string>
     <string name="theme_follow_system">Use system setting</string>
     <string name="theme_group_color">Theme color</string>

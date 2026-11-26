@@ -51,6 +51,7 @@ import org.sjhstudio.diary.app.navigation.tabRoot
 import org.sjhstudio.diary.app.scaffold.FeedbackCardViewModel
 import org.sjhstudio.diary.app.scaffold.UpdateCardViewModel
 import org.sjhstudio.diary.core.backup.BackupAppInfo
+import org.sjhstudio.diary.core.data.AdPrivacy
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -152,6 +153,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
                 onLetter = { push(LetterKey) },
                 onTerms = { openWeb(LegalLinks.TERMS) },
                 onPrivacy = { openWeb(LegalLinks.PRIVACY) },
+                onAdPrivacy = getKoin().getOrNull<AdPrivacy>()?.let { privacy -> privacy::showChoices } ?: {},
                 onPlus = { push(PlusKey()) },
                 selected = opened()?.let(::settingsPane)
             )

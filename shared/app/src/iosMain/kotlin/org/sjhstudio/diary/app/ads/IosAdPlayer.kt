@@ -2,8 +2,12 @@ package org.sjhstudio.diary.app.ads
 
 import androidx.compose.runtime.mutableStateMapOf
 import kotlin.coroutines.resume
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.sjhstudio.diary.core.data.AdPlayer
+import org.sjhstudio.diary.core.data.AdPrivacy
 import org.sjhstudio.diary.core.data.ReadyReward
 import platform.UIKit.UIView
 
@@ -39,6 +43,12 @@ interface IosAdBridge {
 
     /** 폭에 맞춘 뷰 높이(pt) */
     fun fittingHeight(view: UIView, width: Double): Double
+
+    /** 광고 동의를 다시 고르는 곳이 필요한지 알림. 등록하면 지금 값부터 */
+    fun setPrivacyListener(listener: (Boolean) -> Unit)
+
+    /** 광고 동의를 다시 고르는 창 */
+    fun showPrivacyChoices()
 }
 
 /**
@@ -60,6 +70,18 @@ class IosAdStyle(
     val mediumFont: String?,
     val semiBoldFont: String?
 )
+
+/** iOS 광고 동의. Swift가 동의 정보를 받거나 바꿀 때마다 알려 줌 */
+class IosAdPrivacy(private val bridge: IosAdBridge) : AdPrivacy {
+    private val required = MutableStateFlow(false)
+    override val choicesRequired: StateFlow<Boolean> = required.asStateFlow()
+
+    init {
+        bridge.setPrivacyListener { required.value = it }
+    }
+
+    override fun showChoices() = bridge.showPrivacyChoices()
+}
 
 /** iOS 광고. 전면·보상형은 콜백을 기다리고, 네이티브는 받은 자리를 상태로 알려 화면을 다시 그림 */
 class IosAdPlayer(private val bridge: IosAdBridge) : AdPlayer {

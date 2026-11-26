@@ -21,6 +21,10 @@ packages:
   GoogleMobileAds:
     url: https://github.com/googleads/swift-package-manager-google-mobile-ads
     exactVersion: 13.11.0
+  # 광고 동의 창(EEA·영국·스위스, docs/business.md 광고 동의). 무료
+  GoogleUserMessagingPlatform:
+    url: https://github.com/googleads/swift-package-manager-google-user-messaging-platform
+    exactVersion: 3.1.0
 targets:
   iosApp:
     type: application
@@ -43,6 +47,8 @@ targets:
         product: FirebaseRemoteConfig
       - package: GoogleMobileAds
         product: GoogleMobileAds
+      - package: GoogleUserMessagingPlatform
+        product: GoogleUserMessagingPlatform
     sources:
       - path: iosApp
         excludes:

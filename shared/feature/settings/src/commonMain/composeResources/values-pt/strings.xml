@@ -144,6 +144,7 @@
     <string name="settings_plus_action">Ver o Plus</string>
     <string name="settings_terms">Termos de Uso</string>
     <string name="settings_privacy">Política de Privacidade</string>
+    <string name="settings_ad_privacy">Privacidade de anúncios</string>
     <string name="theme_group_mode">Aparência</string>
     <string name="theme_follow_system">Usar configuração do sistema</string>
     <string name="theme_group_color">Cor do tema</string>

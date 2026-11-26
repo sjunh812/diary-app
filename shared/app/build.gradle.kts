@@ -85,6 +85,7 @@ kotlin {
             implementation(libs.androidx.work.runtime)
             // 광고(AdMobPlayer, NativeAdCard). R1은 안드로이드만 냄
             implementation(libs.play.services.ads)
+            implementation(libs.user.messaging.platform)
             // 스토어 리뷰 창(PlayStoreReview, 스펙 007)
             implementation(libs.play.review.ktx)
             // 새 버전 받기(PlayStoreUpdates, 스펙 009)

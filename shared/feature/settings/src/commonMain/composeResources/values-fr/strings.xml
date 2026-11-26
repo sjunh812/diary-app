@@ -144,6 +144,7 @@
     <string name="settings_plus_action">Découvrir Plus</string>
     <string name="settings_terms">Conditions d’utilisation</string>
     <string name="settings_privacy">Politique de confidentialité</string>
+    <string name="settings_ad_privacy">Confidentialité des publicités</string>
     <string name="theme_group_mode">Apparence</string>
     <string name="theme_follow_system">Suivre le système</string>
     <string name="theme_group_color">Couleur du thème</string>

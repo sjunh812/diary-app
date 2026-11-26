@@ -72,7 +72,7 @@ class AdUnits(context: Context) {
  * AdMob 구현
  * 광고 요청에 일기 내용을 넣지 않음(헌법 II)
  */
-class AdMobPlayer(context: Context, val units: AdUnits, private val current: CurrentActivity) : AdPlayer {
+class AdMobPlayer(context: Context, val units: AdUnits, private val current: CurrentActivity, private val consent: AdConsent) : AdPlayer {
     private val app = context.applicationContext as Application
     private var interstitial: InterstitialAd? = null
 
@@ -109,7 +109,7 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
 
     fun loadNative(key: String) {
         if (!available || key in natives || !loading.add(key)) return
-        whenReady { requestNative(key) }
+        whenReady(askConsent = true, onFailed = { loading -= key }) { requestNative(key) }
     }
 
     private fun requestNative(key: String) {
@@ -147,7 +147,7 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
     }
 
     /**
-     * 처음 광고를 부를 때 한 번 켬
+     * 동의를 받을 수 있으면 SDK를 한 번 켬
      * 유료 사용자는 켜지지 않음
      * 초기화는 디스크를 읽어 Google 안내대로 뒤 스레드에서. 등급 설정은 첫 요청보다 먼저라 바로 둠
      */
@@ -178,15 +178,30 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
         }
     }
 
-    /** 화면 스레드에서 부름. 초기화가 끝났으면 바로, 아니면 끝난 뒤에. 초기화를 못 하면 [onFailed] */
-    private fun whenReady(onFailed: () -> Unit = {}, request: () -> Unit) {
+    /**
+     * 화면 스레드에서 부름. 광고를 받을 수 있으면 초기화 뒤에 [request], 아니면 [onFailed]
+     * [askConsent]면 아직 답하지 않은 사람에게 동의 창을 띄움. 사용자가 광고를 보는 자리(목록, 보상형)에서만
+     */
+    private fun whenReady(askConsent: Boolean, onFailed: () -> Unit = {}, request: () -> Unit) {
         if (failed) return onFailed()
-        start()
-        if (ready) request() else waiting += request to onFailed
+        consent.afterUpdate {
+            when {
+                consent.canRequestAds -> {
+                    start()
+                    if (ready) request() else waiting += request to onFailed
+                }
+
+                askConsent -> consent.showFormIfRequired { if (consent.canRequestAds) whenReady(false, onFailed, request) else onFailed() }
+
+                else -> onFailed()
+            }
+        }
     }
 
     override fun warmUp() {
-        if (available) start()
+        if (!available) return
+        // 앱 시작 단계(뒤 스레드)에서 불러 화면 스레드로 옮김. 지난번 답이 있으면 바로 켬
+        main.post { consent.afterUpdate { if (consent.canRequestAds) start() } }
     }
 
     override fun prepareInterstitial() {
@@ -198,7 +213,8 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
         if (!available || loadingInterstitial || interstitialFresh()) return
         interstitial = null
         loadingInterstitial = true
-        whenReady(onFailed = { loadingInterstitial = false }) {
+        // 작성 화면을 열 때 받으므로 동의 창은 띄우지 않음
+        whenReady(askConsent = false, onFailed = { loadingInterstitial = false }) {
             InterstitialAd.load(
                 app,
                 units.interstitial,
@@ -254,7 +270,7 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
 
     private suspend fun requestRewardedAd(): RewardedAd? = suspendCancellableCoroutine { result ->
         // 초기화를 못 하면 기다리지 않고 없음으로
-        whenReady(onFailed = { if (result.isActive) result.resume(null) }) {
+        whenReady(askConsent = true, onFailed = { if (result.isActive) result.resume(null) }) {
             requestRewarded { ad -> if (result.isActive) result.resume(ad) }
         }
     }

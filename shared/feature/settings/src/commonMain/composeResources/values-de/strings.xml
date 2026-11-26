@@ -150,6 +150,7 @@
     <string name="settings_plus_action">Plus ansehen</string>
     <string name="settings_terms">Nutzungsbedingungen</string>
     <string name="settings_privacy">Datenschutzerklärung</string>
+    <string name="settings_ad_privacy">Datenschutz bei Werbung</string>
     <string name="theme_group_mode">Erscheinungsbild</string>
     <string name="theme_follow_system">Systemeinstellung verwenden</string>
     <string name="theme_group_color">Designfarbe</string>

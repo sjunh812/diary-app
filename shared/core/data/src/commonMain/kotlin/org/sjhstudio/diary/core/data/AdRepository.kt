@@ -8,6 +8,8 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -50,6 +52,25 @@ interface AdPlayer {
      * 받는 동안은 취소할 수 있고, 취소하면 띄우지 않음(시트를 닫거나 앱이 잠김)
      */
     suspend fun loadRewarded(): ReadyReward?
+}
+
+/**
+ * 광고 동의(UMP 개인정보 선택). 설정의 "광고 개인정보 설정" 줄이 봄
+ * Android는 `AdConsent`, iOS는 `IosAdPrivacy`
+ */
+interface AdPrivacy {
+    /** 동의 창이 필요한 지역(EEA·영국·스위스)에서 한 번 답한 뒤 true. 다시 고르는 곳을 두어야 함 */
+    val choicesRequired: StateFlow<Boolean>
+
+    /** 광고 동의를 다시 고르는 창 */
+    fun showChoices()
+}
+
+/** 광고가 없는 빌드와 시험 */
+object NoAdPrivacy : AdPrivacy {
+    override val choicesRequired: StateFlow<Boolean> = MutableStateFlow(false)
+
+    override fun showChoices() = Unit
 }
 
 /** 받아 둔 보상 광고 */
