@@ -287,10 +287,10 @@ func scenes(_ real: Double) {
   }
 
   // 4. 사진(6.0~8.15)
-  caption(C.photo, hl: C.photoHl, t: t, inAt: 6.15, outAt: 7.6)
+  caption(C.photo, hl: C.photoHl, t: t, inAt: 6.02, outAt: 7.6)
   if t > 6.0 && t < 8.15 {
     let out = easeInOut(span(t, 7.65, 0.4))
-    let cin = easeOut(span(t, 6.2, 0.45))
+    let cin = easeOut(span(t, 6.05, 0.45))
     ctx.saveGState(); groupAlpha = CGFloat(cin * (1 - out)); ctx.setAlpha(groupAlpha)
     let card = CGRect(x: 110, y: 1180 + (1 - cin) * 80, width: 860, height: 380)
     rrect(card, 44, fill: rgb(0xFFFFFF), shadow: true, stroke: rgb(0xEEEAF8))
@@ -323,15 +323,16 @@ func scenes(_ real: Double) {
     for (i, chip) in C.chips.enumerated() {
       let p = back(span(t, 7.9 + Double(i) * 0.16, 0.42))
       let a = attr(chip, 50, ink)
-      let w = width(a) + 136, y = 400 + Double(i) * 126 - out * 40
+      // 왼쪽 44 + 확인 표시 46 + 사이 22 + 글 + 오른쪽 52(둥근 끝이라 조금 더)
+      let w = width(a) + 164, y = 396 + Double(i) * 132 - out * 40
       let x = 540 - w / 2
       ctx.saveGState(); groupAlpha = CGFloat(clamp(p * 2) * (1 - out)); ctx.setAlpha(groupAlpha)
       ctx.translateBy(x: 540, y: CGFloat(y)); ctx.scaleBy(x: CGFloat(p), y: CGFloat(p)); ctx.translateBy(x: -540, y: CGFloat(-y))
       rrect(CGRect(x: x, y: y - 52, width: w, height: 104), 52, fill: rgb(0xFFFFFF), shadow: true, stroke: rgb(0xE9E4F8))
       // 확인 표시
       ctx.setStrokeColor(rgb(brand)); ctx.setLineWidth(7); ctx.setLineCap(.round); ctx.setLineJoin(.round)
-      ctx.move(to: CGPoint(x: x + 46, y: y)); ctx.addLine(to: CGPoint(x: x + 62, y: y + 16)); ctx.addLine(to: CGPoint(x: x + 92, y: y - 16)); ctx.strokePath()
-      text(a, x: x + 110, baseline: CGFloat(y) + 18)
+      ctx.move(to: CGPoint(x: x + 44, y: y)); ctx.addLine(to: CGPoint(x: x + 60, y: y + 16)); ctx.addLine(to: CGPoint(x: x + 90, y: y - 16)); ctx.strokePath()
+      text(a, x: x + 112, baseline: CGFloat(y) + 18)
       ctx.restoreGState(); groupAlpha = 1
     }
   }
@@ -419,84 +420,112 @@ func addSound(_ bus: Bus, at time: Double, pan: Double = 0, _ gen: (Double) -> D
     bus.l[start + i] += v * l; bus.r[start + i] += v * r
   }
 }
-/// 칼림바 음색 하나로 배경음과 효과음을 모두 만듦(따로 놀지 않게)
-func pluck(_ bus: Bus, _ at: Double, freq: Double, gain: Double, decay: Double = 6, pan: Double = 0, length: Double = 0.9) {
+/// 펠트 피아노 같은 둥근 음. 낮은 배음을 두껍게, 시작은 6ms로 부드럽게
+func felt(_ bus: Bus, _ at: Double, freq: Double, gain: Double, decay: Double = 4, pan: Double = 0, length: Double = 1.2) {
   addSound(bus, at: at, pan: pan, { t in
-    (sin(2 * .pi * freq * t) + 0.3 * sin(2 * .pi * freq * 3 * t) * exp(-t * 22) + 0.08 * sin(2 * .pi * freq * 5.4 * t) * exp(-t * 40))
-      * exp(-t * decay) * min(1, t * 600) * gain
+    let w = 2 * .pi * freq * t
+    let tone = sin(w) + 0.5 * sin(2 * w) * exp(-t * 2.5) + 0.18 * sin(3 * w) * exp(-t * 6) + 0.15 * sin(w / 2) * exp(-t * 10)
+    return tone * exp(-t * decay) * min(1, t / 0.006) * min(1, max(0, (length - t) / 0.08)) * gain
   }, length: length)
 }
-/// 효과음. 배경음보다 한 옥타브 위에서 울리고 배경음을 잠깐 낮춤
-func hit(_ at: Double, freq: Double, gain: Double, decay: Double = 6, pan: Double = 0, length: Double = 0.9) {
-  hits.append(at); pluck(sfx, at, freq: freq, gain: gain, decay: decay, pan: pan, length: length)
+/// 나무 실로폰(마림바) 같은 짧고 동그란 음. 4배음을 살짝 얹어 나무 느낌
+func wood(_ at: Double, freq: Double, gain: Double, decay: Double = 9, pan: Double = 0, duck: Bool = false) {
+  if duck { hits.append(at) }
+  addSound(sfx, at: at, pan: pan, { t in
+    let w = 2 * .pi * freq * t
+    return (sin(w) + 0.3 * sin(4 * w) * exp(-t * 28)) * exp(-t * decay) * min(1, t / 0.002) * gain
+  }, length: 0.7)
 }
-/// 아주 짧은 탁(타이핑)
-func tick(_ at: Double, gain: Double = 0.05) {
-  addSound(sfx, at: at, { t in (sin(2 * .pi * 4_200 * t) * 0.6 + sin(2 * .pi * 1_700 * t) * 0.4) * exp(-t * 600) * min(1, t * 8_000) * gain }, length: 0.012)
+/// 뽀글 하고 올라가는 방울 소리. f0에서 f1로 짧게 미끄러짐
+func bubble(_ at: Double, from f0: Double, to f1: Double, gain: Double, glide: Double = 0.06, decay: Double = 22, pan: Double = 0, duck: Bool = false) {
+  if duck { hits.append(at) }
+  let k = log(f1 / f0)
+  addSound(sfx, at: at, pan: pan, { t in
+    let g = min(t, glide)
+    let phase = 2 * .pi * (f0 * glide / k * (exp(k * g / glide) - 1) + f1 * max(0, t - glide))
+    return (sin(phase) + 0.2 * sin(2 * phase)) * exp(-t * decay) * min(1, t / 0.002) * gain
+  }, length: 0.35)
+}
+/// 아주 짧은 톡(타이핑)
+func tick(_ at: Double, gain: Double = 0.04) {
+  addSound(sfx, at: at, { t in (sin(2 * .pi * 2_400 * t) * 0.5 + sin(2 * .pi * 900 * t) * 0.5) * exp(-t * 500) * min(1, t * 6_000) * gain }, length: 0.014)
+}
+/// 느리게 부풀었다 빠지는 패드. 살짝 어긋난 사인 둘로 따뜻하게
+func pad(_ at: Double, freq: Double, gain: Double, length: Double, attack: Double = 0.8) {
+  addSound(music, at: at, { t in
+    (sin(2 * .pi * freq * 0.9985 * t) + sin(2 * .pi * freq * 1.0015 * t)) * 0.5
+      * min(1, t / attack) * min(1, max(0, (length - t) / 0.6)) * gain * fade(at + t)
+  }, length: length)
 }
 func hz(_ midi: Double) -> Double { 440 * pow(2, (midi - 69) / 12) }
-/// C장조 5음 음계(도레미솔라)에서 n번째 음. 0 = 가운데 도 위 옥타브의 도
+/// C장조 5음 음계(도레미솔라)에서 n번째 음. 0 = 가운데 도
 func scale(_ n: Int) -> Double {
   let steps = [0, 2, 4, 7, 9]
-  return hz(72 + Double(12 * (n / 5) + steps[n % 5]))
+  return hz(60 + Double(12 * (n / 5) + steps[n % 5]))
 }
-/// 로고가 뜨는 시각. 배경음은 여기서 멈추고 도 화음으로 마무리
+/// 로고가 뜨는 시각. 배경음은 여기서 멈추고 미-솔-도로 마무리
 var endAt: Double { realTime(9.27) + 0.05 }
+/// 첫 소리부터 들리되 1초 동안 조금씩 커짐
+func fade(_ time: Double) -> Double { min(1, 0.35 + time / 1.5) }
 
-/// 산뜻한 배경음: 장조 C-F-G-C, 반 박마다 칼림바, 얇은 패드, 박마다 짧은 베이스. 효과음 자리를 비우려고 가운데 옥타브에 둠
-func addMusic() {
-  let chords: [[Double]] = [[60, 64, 67, 74], [60, 65, 69, 72], [59, 62, 67, 74], [60, 64, 67, 72]]
-  let roots: [Double] = [48, 53, 55, 48]
+/// 배경음: 장조로 앞으로 나아가는 반 박 아르페지오. 가운데 음역, 둥근 피아노, 박마다 낮은 뿌리음
+func movingPiano() {
+  // Cadd9 - G6 - Fmaj9 - G7(끝 화면의 도 화음으로 풀림)
+  let chords: [(Double, [Double])] = [(48, [60, 62, 64, 67]), (43, [59, 62, 64, 67]), (41, [57, 60, 64, 67]), (43, [59, 62, 65, 67])]
   let bar = 2.0, beat = bar / 4, eighth = beat / 2
-  func fade(_ time: Double) -> Double { min(1, time / 0.8) }
   let arp = [0, 1, 2, 3, 2, 1, 2, 3]
-  var bars = 0
-  while Double(bars) * bar < endAt {
-    let chord = chords[bars % 4], start = Double(bars) * bar
+  var b = 0
+  while Double(b) * bar < endAt {
+    let (root, tones) = chords[b % 4], start = Double(b) * bar
     for (i, idx) in arp.enumerated() {
       let at = start + Double(i) * eighth
-      if at >= endAt - 0.05 { break }
-      pluck(music, at, freq: hz(chord[idx]), gain: 0.03 * fade(at), decay: 7, pan: i % 2 == 0 ? -0.3 : 0.3, length: 0.6)
+      if at >= endAt - 0.1 { break }
+      felt(music, at, freq: hz(tones[idx]), gain: (i % 2 == 0 ? 0.03 : 0.024) * fade(at), decay: 3.2, pan: i % 2 == 0 ? -0.3 : 0.3, length: 1.0)
     }
-    let padEnd = min(start + bar + 0.15, endAt + 0.2)
-    for note in chord.prefix(3) {
-      let f = hz(note), len = padEnd - start
-      addSound(music, at: start, { t in sin(2 * .pi * f * t) * min(1, t / 0.25) * min(1, max(0, (len - t) / 0.3)) * 0.006 * fade(start + t) }, length: len)
-    }
-    let root = hz(roots[bars % 4])
-    for i in 0..<4 {
+    for i in [0, 2] where start + Double(i) * beat < endAt - 0.1 {
       let at = start + Double(i) * beat
-      if at >= endAt - 0.05 { break }
-      addSound(music, at: at, { t in sin(2 * .pi * root * t) * exp(-t * 7) * min(1, t * 300) * 0.03 * fade(at + t) }, length: 0.45)
+      felt(music, at, freq: hz(root), gain: 0.05 * fade(at), decay: 2.5, length: 1.0)
     }
-    bars += 1
+    for note in tones.prefix(3) { pad(start, freq: hz(note), gain: 0.005, length: min(bar + 0.6, endAt + 0.4 - start)) }
+    b += 1
   }
-  // 마무리: 도 화음을 아래에서 위로 굴려 펼치고 길게 울림
-  for (i, note) in [60.0, 64, 67, 72, 76].enumerated() {
-    pluck(sfx, endAt + Double(i) * 0.07, freq: hz(note + 12), gain: 0.045 - Double(i) * 0.004, decay: 1.6, pan: Double(i) / 2 - 1, length: TOTAL - endAt)
-  }
-  let low = hz(48)
-  addSound(sfx, at: endAt, { t in sin(2 * .pi * low * t) * exp(-t * 1.4) * min(1, t * 200) * 0.05 }, length: TOTAL - endAt)
+}
+
+func addMusic() {
+  movingPiano()
+  // 마무리: 미-솔-도로 올라가 높은 도에서 맺음. 남은 G7 울림은 비켜 줌
+  for (i, m) in [76.0, 79, 84].enumerated() { wood(endAt + Double(i) * 0.09, freq: hz(m), gain: 0.04 + Double(i) * 0.005, decay: i == 2 ? 3.5 : 7, pan: Double(i - 1) * 0.25, duck: i == 0) }
 }
 
 func buildSound() {
   addMusic()
   // 첫 제목 카드는 배경음만
-  // 타이핑은 아주 짧은 탁
   let perChar = min(0.075, 1.3 / Double(C.typed.count))
   for k in 0..<C.typed.count { tick(realTime(0.75 + Double(k) * perChar)) }
-  // 기분 아홉 개는 음계를 따라 올라가는 작은 물결, 고르면 높은 미
-  for i in 0..<9 { hit(realTime(2.2 + Double(i) * 0.03) + 0.08, freq: scale(i + 2), gain: 0.028, pan: Double(i % 5) / 2.5 - 0.8, length: 0.5) }
-  hit(realTime(3.0), freq: scale(7), gain: 0.085, decay: 3, length: 1.2)
-  // 통계 머리 자리에 착지
-  hit(realTime(4.1) + 0.02, freq: scale(5), gain: 0.075, decay: 4)
-  // 숫자가 다 세어지면
-  hit(realTime(5.1), freq: scale(8), gain: 0.065, decay: 3, length: 1)
-  // 사진 세 장이 자리 잡을 때(레, 미, 솔)
-  for (i, n) in [1, 2, 3].enumerated() { hit(realTime(6.3 + Double(i) * 0.13) + 0.22, freq: scale(n + 5), gain: 0.075, pan: Double(i - 1) * 0.6) }
-  // 약속 칩(도, 미, 솔)
-  for (i, n) in [5, 7, 8].enumerated() { hit(realTime(7.9 + Double(i) * 0.16) + 0.1, freq: scale(n), gain: 0.07) }
-  hits.append(endAt)
+  // 끝음은 그때 배경음 화음의 음(Fmaj9 → G7 → C → G → Fmaj9 → 도). 장면 시각이 바뀌면 다시 맞춤
+  // 기분이 뜰 때 방울 셋(첫·가운데·끝 얼굴이 튀어 오르는 때). 라·도·파로 맺음
+  for (i, m) in [(0, 69.0), (4, 72.0), (8, 77.0)] {
+    bubble(realTime(2.2 + Double(i) * 0.03) + 0.1, from: hz(m) / 1.35, to: hz(m), gain: 0.045, pan: Double(i) / 4 - 1)
+  }
+  // 웃음을 고르면 솔로 뿅 올라가고 시-레-솔이 반짝 굴러감
+  bubble(realTime(3.0), from: hz(67), to: hz(79), gain: 0.065, glide: 0.07, decay: 14, duck: true)
+  for (i, m) in [71.0, 74, 79].enumerated() { wood(realTime(3.0) + 0.06 + Double(i) * 0.05, freq: hz(m), gain: 0.03 + Double(i) * 0.006, decay: 7, pan: Double(i - 1) * 0.3) }
+  // 통계 머리 자리에 살짝 착지
+  bubble(realTime(4.1), from: hz(64), to: hz(67), gain: 0.04, decay: 26)
+  // 퍼센트가 오르는 만큼 음계를 따라 음도 오름(배경음과 같은 C장조). 숫자와 같은 easeOut이라 갈수록 느려짐
+  let pct = Double(counts[0].value) / total * 100
+  var last = -1.0
+  for k in stride(from: 3.0, through: pct, by: 3) {
+    let at = realTime(4.2 + 0.9 * (1 - pow(1 - k / pct, 1.0 / 3)))
+    if at - last < 0.05 { continue }
+    last = at
+    wood(at, freq: scale(3 + Int((5 * k / pct).rounded())), gain: 0.022 + 0.012 * k / pct, decay: 18)
+  }
+  wood(realTime(5.1), freq: hz(79), gain: 0.045, decay: 7)
+  // 사진은 작게 톡톡. 솔·시·레
+  for (i, m) in [67.0, 71, 74].enumerated() { bubble(realTime(6.3 + Double(i) * 0.13) + 0.2, from: hz(m) / 1.28, to: hz(m), gain: 0.03, decay: 28, pan: Double(i - 1) * 0.5) }
+  // 약속 칩은 아주 가볍게
+  for (i, m) in [67.0, 72, 76].enumerated() { wood(realTime(7.9 + Double(i) * 0.16) + 0.12, freq: hz(m), gain: 0.025, decay: 12) }
   // 효과음 앞뒤로 배경음을 절반쯤 낮췄다가 0.4초에 걸쳐 되돌림
   var duck = [Float](repeating: 1, count: music.l.count)
   for h in hits {
