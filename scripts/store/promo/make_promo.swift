@@ -514,14 +514,16 @@ func buildSound() {
   bubble(realTime(4.1), from: hz(64), to: hz(67), gain: 0.04, decay: 26)
   // 퍼센트가 오르는 만큼 음계를 따라 음도 오름(배경음과 같은 C장조). 숫자와 같은 easeOut이라 갈수록 느려짐
   let pct = Double(counts[0].value) / total * 100
+  // 마지막 칸은 다 셌을 때의 솔이 맡음. 그 직전 0.12초 안의 톡은 겹쳐 들려 뺌
+  let done = realTime(5.1)
   var last = -1.0
-  for k in stride(from: 3.0, through: pct, by: 3) {
+  for k in stride(from: 3.0, to: pct, by: 3) {
     let at = realTime(4.2 + 0.9 * (1 - pow(1 - k / pct, 1.0 / 3)))
-    if at - last < 0.05 { continue }
+    if at - last < 0.05 || done - at < 0.12 { continue }
     last = at
     wood(at, freq: scale(3 + Int((5 * k / pct).rounded())), gain: 0.022 + 0.012 * k / pct, decay: 18)
   }
-  wood(realTime(5.1), freq: hz(79), gain: 0.045, decay: 7)
+  wood(done, freq: hz(79), gain: 0.045, decay: 7)
   // 사진은 작게 톡톡. 솔·시·레
   for (i, m) in [67.0, 71, 74].enumerated() { bubble(realTime(6.3 + Double(i) * 0.13) + 0.2, from: hz(m) / 1.28, to: hz(m), gain: 0.03, decay: 28, pan: Double(i - 1) * 0.5) }
   // 약속 칩은 아주 가볍게
