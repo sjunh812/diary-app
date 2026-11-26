@@ -64,7 +64,7 @@
   <section class="more reveal">
     <h2 class="section-title">{{ t.more_title }}</h2>
     <ul class="more-list">
-      {% for m in t.more %}<li><h3>{{ m.t }}</h3><p>{{ m.d }}</p></li>
+      {% for m in t.more %}<li>{% include more-icon.html i=forloop.index0 %}<h3>{{ m.t }}</h3><p>{{ m.d }}</p></li>
       {% endfor %}
     </ul>
   </section>

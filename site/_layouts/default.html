@@ -162,6 +162,8 @@ html[lang=ja] .hero h1{font-size:60px}
 .more{padding:140px 0 0}
 .more-list{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:0;padding:0;list-style:none}
 .more-list li{padding:28px;border-radius:24px;background:var(--card)}
+/* 아이콘은 꾸밈이 아니라 훑어볼 때 길잡이. 중립색, 믿음 아이콘과 같은 24px·선 1.75 */
+.more-icon{display:block;width:24px;height:24px;margin-bottom:16px;color:var(--text2)}
 .more-list h3{margin:0 0 8px;font-size:19px;line-height:1.4}
 .more-list p{margin:0;font-size:16px;line-height:1.6;color:var(--text2)}
 
@@ -260,7 +262,8 @@ footer .langs a[aria-current]{color:var(--text);font-weight:600}
   .film-frame{border-radius:28px}
   /* 작은 기능은 칸 여섯 개 대신 한 묶음 목록(설정 화면처럼). 상자가 줄어 덜 무겁고 짧음 */
   .more-list{grid-template-columns:1fr;gap:0;padding:4px 24px;border-radius:24px;background:var(--card)}
-  .more-list li{padding:18px 0;border-radius:0;background:none}
+  .more-list li{display:grid;grid-template-columns:24px 1fr;column-gap:16px;padding:18px 0;border-radius:0;background:none}
+  .more-icon{grid-row:span 2;margin:2px 0 0}
   .more-list li+li{border-top:1px solid var(--divider)}
   .more-list h3{font-size:17px;margin-bottom:2px}
   .more-list p{font-size:15px}
