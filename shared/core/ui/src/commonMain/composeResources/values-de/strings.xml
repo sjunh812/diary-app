@@ -40,4 +40,8 @@
     <string name="load_failed_body">Versuch es gleich noch einmal.</string>
     <string name="load_failed_retry">Erneut versuchen</string>
     <string name="link_no_browser">Keine Browser-App gefunden.</string>
+    <string name="mood_group_good">Mir ging es gut</string>
+    <string name="mood_group_mind">Seelisch belastet</string>
+    <string name="mood_group_body">Körperlich unwohl</string>
+    <string name="mood_group_neutral">Ganz neutral</string>
 </resources>

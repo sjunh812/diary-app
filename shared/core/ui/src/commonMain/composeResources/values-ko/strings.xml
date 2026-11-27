@@ -40,4 +40,8 @@
     <string name="load_failed_body">잠시 뒤 다시 시도해 주세요.</string>
     <string name="load_failed_retry">다시 시도</string>
     <string name="link_no_browser">브라우저 앱을 찾지 못했어요. 브라우저를 설치한 뒤 다시 눌러주세요.</string>
+    <string name="mood_group_good">좋았어요</string>
+    <string name="mood_group_mind">마음이 힘들었어요</string>
+    <string name="mood_group_body">몸이 힘들었어요</string>
+    <string name="mood_group_neutral">덤덤했어요</string>
 </resources>

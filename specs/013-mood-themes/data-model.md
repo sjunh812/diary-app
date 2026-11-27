@@ -13,18 +13,18 @@
 | `calm` | 편안함 | 없음 | GOOD | 5 |
 | `angry` | 화남 | 0 | HARD | 6 |
 | `annoyed` | 짜증 | 없음 | HARD | 7 |
-| `sick` | 아픔 | 3 | HARD | 8 |
-| `tired` | 피곤함 | 8 | HARD | 9 |
-| `sad` | 슬픔 | 2 | HARD | 10 |
-| `anxious` | 불안 | 없음 | HARD | 11 |
-| `bad` | 나쁨 | 6 | HARD | 12 |
+| `anxious` | 불안 | 없음 | HARD | 8 |
+| `sad` | 슬픔 | 2 | HARD | 9 |
+| `bad` | 나쁨 | 6 | HARD | 10 |
+| `sick` | 아픔 | 3 | HARD | 11 |
+| `tired` | 피곤함 | 8 | HARD | 12 |
 | `cool` | 쿨 | 1 | NEUTRAL | 13 |
 | `meh` | 보통 | 5 | NEUTRAL | 14 |
 | `bored` | 심심함 | 없음 | NEUTRAL | 15 |
 
 - 규칙: 옛 9종의 id와 레거시 번호는 바꾸지 않는다(`StoredIdsTest`). 새 6종은 `legacyCode = null`이고 `fromLegacyCode`로 나오지 않는다.
 - `entries` 차례는 옛 9종 뒤에 새 6종을 붙인다(옛 앱 번호 차례를 그대로 둠). 화면은 `ordered`만 쓴다.
-- `ordered` 15칸이 5칸 3줄로 놓인다(US1-1). 묶음(GOOD → HARD → NEUTRAL)마다 한 덩어리이고 묶음 안은 색 차례(무지개)다. 고급 통계 기준 시트가 묶음별로 걸러도 같은 차례다(2026-11-27 사용자 지적). `MoodTest`가 "모두 한 번"을 본다.
+- `ordered`는 고르기 묶음 `MoodGroup`(GOOD 5, MIND 5, BODY 2, NEUTRAL 3) 차례를 이어 붙인 것이다(US1-1). MIND·BODY는 통계에서 모두 HARD라 기준 시트가 묶음별로 걸러도 같은 차례다(2026-11-28 사용자 결정). `MoodTest`가 "모두 한 번"을 본다.
 - 묶음: 설렘·뿌듯함·편안함은 GOOD, 불안·짜증은 HARD, 심심함은 NEUTRAL(US2-2). 쿨·보통은 그대로 NEUTRAL.
 - `Mood.LEGACY`(옛 9종 id 집합)를 두어 백업 형식 판단(아래)에 쓴다.
 

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -27,6 +28,8 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryChip
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
@@ -34,14 +37,20 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.Mood
+import org.sjhstudio.diary.core.model.MoodGroup
 import org.sjhstudio.diary.core.model.Weather
+import org.sjhstudio.diary.core.ui.resources.Res
+import org.sjhstudio.diary.core.ui.resources.mood_group_body
+import org.sjhstudio.diary.core.ui.resources.mood_group_good
+import org.sjhstudio.diary.core.ui.resources.mood_group_mind
+import org.sjhstudio.diary.core.ui.resources.mood_group_neutral
 
 /**
- * 기분 고르기 칸 15개, 5칸 3줄
+ * 기분 고르기 칸 15개. 묶음([MoodGroup])마다 이름 한 줄과 5칸 줄
  * 쓰기는 하나, 찾기는 여러 개를 고름
  * 칸이 곧 누르는 곳이라 칸끼리 맞닿게 두고 격자는 가운데
  * 좁은 폭에서는 첫·마지막 얼굴이 내용 선을 넘지 않을 만큼 칸을 줄임
- * 모자란 줄도 가운데
+ * 모자란 줄은 왼쪽부터 채워 위 줄과 세로 줄을 맞춤
  */
 @Composable
 fun DiaryMoodGrid(isSelected: (Mood) -> Boolean, onToggle: (Mood) -> Unit, modifier: Modifier = Modifier) {
@@ -56,17 +65,45 @@ fun DiaryMoodGrid(isSelected: (Mood) -> Boolean, onToggle: (Mood) -> Unit, modif
             val placeable = measurable.measure(constraints.copy(minWidth = grid, maxWidth = grid))
             layout(width, placeable.height) { placeable.placeRelative((width - grid) / 2, 0) }
         },
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
     ) {
-        for (row in Mood.ordered.chunked(GRID_COLUMNS)) {
-            Row(Modifier.fillMaxWidth(row.size / GRID_COLUMNS.toFloat())) {
-                for (mood in row) {
-                    Box(Modifier.weight(1f)) { MoodCell(mood, isSelected(mood)) { onToggle(mood) } }
+        MoodGroup.entries.forEachIndexed { index, group ->
+            // 묶음 사이는 이름 위 12를 더해 16
+            MoodGroupName(group, if (index == 0) Modifier else Modifier.padding(top = DiarySpacing.x3))
+            for (row in group.moods.chunked(GRID_COLUMNS)) {
+                Row(Modifier.fillMaxWidth()) {
+                    for (mood in row) {
+                        Box(Modifier.weight(1f)) { MoodCell(mood, isSelected(mood)) { onToggle(mood) } }
+                    }
+                    repeat(GRID_COLUMNS - row.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
         }
     }
+}
+
+/** 묶음 이름. 첫 칸 얼굴 선에 맞춤 */
+@Composable
+private fun MoodGroupName(group: MoodGroup, modifier: Modifier = Modifier) {
+    val face = DiaryWriteSize.moodFace
+    BasicText(
+        stringResource(group.label()),
+        modifier.layout { measurable, constraints ->
+            val inset = ((constraints.maxWidth / GRID_COLUMNS - face.roundToPx()) / 2).coerceAtLeast(0)
+            val placeable = measurable.measure(constraints.copy(minWidth = 0, maxWidth = constraints.maxWidth - inset))
+            layout(constraints.maxWidth, placeable.height) { placeable.placeRelative(inset, 0) }
+        },
+        style = DiaryTheme.typography.caption.copy(color = DiaryTheme.colors.textSecondary),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
+    )
+}
+
+private fun MoodGroup.label(): StringResource = when (this) {
+    MoodGroup.GOOD -> Res.string.mood_group_good
+    MoodGroup.MIND -> Res.string.mood_group_mind
+    MoodGroup.BODY -> Res.string.mood_group_body
+    MoodGroup.NEUTRAL -> Res.string.mood_group_neutral
 }
 
 @Composable

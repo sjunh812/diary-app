@@ -28,17 +28,24 @@ enum class Mood(
 
     companion object {
         /**
-         * 화면에 늘어놓는 순서. 좋은 기분, 힘든 기분, 세지 않는 기분 차례이고 묶음 안은 색 차례(무지개)
+         * 화면에 늘어놓는 순서. 고르기 묶음 차례([MoodGroup])
          * 쓰기 시트와 통계 기준 시트가 같은 순서로 읽힘. [entries]는 추가한 순서라 화면에 쓰지 않음
          */
-        val ordered: List<Mood> = listOf(
-            EXCITED, GOOD, LAUGH, PROUD, CALM,
-            ANGRY, ANNOYED, SICK, TIRED, SAD,
-            ANXIOUS, BAD, COOL, MEH, BORED
-        )
+        val ordered: List<Mood> by lazy { MoodGroup.entries.flatMap { it.moods } }
 
         fun fromId(id: String?): Mood? = entries.firstOrNull { it.id == id }
 
         fun fromLegacyCode(code: Int): Mood? = entries.firstOrNull { it.legacyCode == code }
     }
+}
+
+/**
+ * 기분 고르기 묶음. 시트 제목 "기분은 어땠나요?"에 답하는 이름을 붙임
+ * 마음·몸 묶음은 통계에서 모두 힘든 기분. 묶음 안은 색 차례
+ */
+enum class MoodGroup(val moods: List<Mood>) {
+    GOOD(listOf(Mood.EXCITED, Mood.GOOD, Mood.LAUGH, Mood.PROUD, Mood.CALM)),
+    MIND(listOf(Mood.ANGRY, Mood.ANNOYED, Mood.ANXIOUS, Mood.SAD, Mood.BAD)),
+    BODY(listOf(Mood.SICK, Mood.TIRED)),
+    NEUTRAL(listOf(Mood.COOL, Mood.MEH, Mood.BORED))
 }

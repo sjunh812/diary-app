@@ -40,4 +40,8 @@
     <string name="load_failed_body">請稍後再試一次。</string>
     <string name="load_failed_retry">再試一次</string>
     <string name="link_no_browser">找不到瀏覽器 App。</string>
+    <string name="mood_group_good">心情不錯</string>
+    <string name="mood_group_mind">心裡難受</string>
+    <string name="mood_group_body">身體不舒服</string>
+    <string name="mood_group_neutral">平平淡淡</string>
 </resources>

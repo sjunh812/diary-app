@@ -40,4 +40,8 @@
     <string name="load_failed_body">Réessayez dans un moment.</string>
     <string name="load_failed_retry">Réessayer</string>
     <string name="link_no_browser">Aucun navigateur trouvé.</string>
+    <string name="mood_group_good">Je me sentais bien</string>
+    <string name="mood_group_mind">Le moral en berne</string>
+    <string name="mood_group_body">Le corps fatigué</string>
+    <string name="mood_group_neutral">Plutôt neutre</string>
 </resources>

@@ -40,4 +40,8 @@
     <string name="load_failed_body">Tente de novo em instantes.</string>
     <string name="load_failed_retry">Tentar de novo</string>
     <string name="link_no_browser">Nenhum app de navegador encontrado.</string>
+    <string name="mood_group_good">Me senti bem</string>
+    <string name="mood_group_mind">Pesou no coração</string>
+    <string name="mood_group_body">Pesou no corpo</string>
+    <string name="mood_group_neutral">Sem grandes emoções</string>
 </resources>

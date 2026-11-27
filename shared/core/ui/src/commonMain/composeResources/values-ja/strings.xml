@@ -40,4 +40,8 @@
     <string name="load_failed_body">少し時間をおいて、もう一度お試しください。</string>
     <string name="load_failed_retry">もう一度試す</string>
     <string name="link_no_browser">ブラウザアプリが見つかりませんでした。</string>
+    <string name="mood_group_good">良かった</string>
+    <string name="mood_group_mind">心がしんどかった</string>
+    <string name="mood_group_body">体がしんどかった</string>
+    <string name="mood_group_neutral">淡々としていた</string>
 </resources>
