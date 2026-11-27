@@ -9,10 +9,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filter
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
 import org.sjhstudio.diary.app.resources.Res
 import org.sjhstudio.diary.app.resources.ad_close
 import org.sjhstudio.diary.app.resources.reward_body
@@ -22,7 +22,6 @@ import org.sjhstudio.diary.app.resources.reward_failed_title
 import org.sjhstudio.diary.app.resources.reward_not_saved
 import org.sjhstudio.diary.app.resources.reward_title
 import org.sjhstudio.diary.app.resources.reward_watch
-import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
@@ -52,13 +51,13 @@ internal expect fun NativeAdCard(key: String, shape: AdShape, frame: @Composable
 
 /**
  * 홈과 돌아보기의 광고 자리
+ * [showAds]는 앱 틀이 들고 있는 값. 화면이 새로 그려져도 처음부터 광고 자리를 둠
  * 오른쪽 위 ×를 누르면 [onClose]. 앱 틀이 광고를 없애는 방법을 보여 줌
  * ×는 둥근 면 위에 있지만 광고 뷰 밖임. 플랫폼 쪽이 광고 뷰를 × 자리만큼 왼쪽에서 끝냄
  */
 @Composable
-internal fun AdSlot(key: String, shape: AdShape, onClose: () -> Unit, modifier: Modifier = Modifier) {
-    val ads = koinInject<AdRepository>()
-    val show by ads.showAds.collectAsStateWithLifecycle(false)
+internal fun AdSlot(key: String, shape: AdShape, showAds: StateFlow<Boolean>, onClose: () -> Unit, modifier: Modifier = Modifier) {
+    val show by showAds.collectAsStateWithLifecycle()
     if (!show) return
     val colors = DiaryTheme.colors
     NativeAdCard(key, shape) { ad ->

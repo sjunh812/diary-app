@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -68,6 +69,7 @@ class AppShellViewModel(
     private val ads: AfterSaveAds,
     private val removal: AdRemovalFlow,
     locked: Flow<Boolean>,
+    showAds: Flow<Boolean> = flowOf(false),
     private val askReview: suspend () -> Unit,
     private val screen: (String) -> Unit
 ) : ViewModel() {
@@ -77,6 +79,9 @@ class AppShellViewModel(
 
     /** 확정된 요금제. 재설치 직후 스토어 답이 오기 전에는 null */
     val plan: StateFlow<Plan?> = plans.confirmed.stateInSafely(viewModelScope, SharingStarted.Eagerly, plans.confirmedNow)
+
+    /** 광고를 보일지. 광고 자리가 새로 그려질 때 마지막 값으로 바로 그려 비었다 생기지 않게 함 */
+    val showAds: StateFlow<Boolean> = showAds.stateInSafely(viewModelScope, SharingStarted.Eagerly, false)
 
     private val _adNotice = MutableStateFlow(AdNotice.None)
 
@@ -190,6 +195,7 @@ val appShellModule =
                 plans = get(),
                 removal = get<AdRemoval>(),
                 locked = get<LockController>().appLocked,
+                showAds = ads.showAds,
                 ads = object : AfterSaveAds {
                     override suspend fun prepare() = ads.prepareAfterSave()
 
