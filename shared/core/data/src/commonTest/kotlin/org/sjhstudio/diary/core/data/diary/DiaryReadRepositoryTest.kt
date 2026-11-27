@@ -423,6 +423,30 @@ class DiaryReadRepositoryTest {
         assertEquals(setOf(Mood.GOOD), counts.top)
     }
 
+    /** 새 기분 6종도 돌아보기 막대·기분 흐름·고급 통계에 그대로 세어짐 */
+    @Test
+    fun new_moods_are_counted_in_review_and_advanced_stats() = runTest {
+        db.seed(
+            entry("a", time = "09:00", mood = Mood.EXCITED),
+            entry("b", time = "10:00", mood = Mood.ANNOYED),
+            entry("c", date = "2026-10-30", mood = Mood.BORED)
+        )
+
+        val counts = stats.moodCounts(StatsPeriod.Month(YearMonth(2026, 10))).first()
+        assertEquals(15, counts.counts.size)
+        assertEquals(1, counts.counts[Mood.EXCITED])
+        assertEquals(1, counts.counts[Mood.ANNOYED])
+        assertEquals(1, counts.counts[Mood.BORED])
+        assertEquals(3, counts.total)
+
+        val flow = stats.moodFlow(StatsPeriod.Month(YearMonth(2026, 10))).first()
+        assertTrue(flow.any { it.mood == Mood.EXCITED || it.mood == Mood.ANNOYED })
+        assertTrue(flow.any { it.mood == Mood.BORED })
+
+        val advanced = stats.advanced(AdvancedPeriod.ALL, LocalDate(2026, 11, 13)).first()
+        assertEquals(3, advanced.habit.entries)
+    }
+
     @Test
     fun mood_flow_keeps_every_mood_of_the_day() = runTest {
         // 마지막 일기에 기분이 없어도 그날의 다른 기분은 통계가 세어야 함
