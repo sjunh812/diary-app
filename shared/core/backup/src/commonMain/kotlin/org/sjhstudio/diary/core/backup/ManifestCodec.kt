@@ -27,11 +27,26 @@ data class Manifest(
     companion object {
         const val FORMAT = "org.sjhstudio.diary.backup"
 
-        /** 이 앱이 읽을 수 있는 가장 새 형식이자 드라이브 백업의 형식. 3부터 스냅샷을 gzip으로 올림 */
-        const val FORMAT_VERSION = 3
+        /**
+         * 이 앱이 읽을 수 있는 가장 새 형식
+         * 2는 처음 형식, 3은 드라이브 스냅샷 gzip, 4는 기분 15종
+         */
+        const val FORMAT_VERSION = 4
+
+        /** 드라이브 백업 형식. 스냅샷을 gzip으로 올림 */
+        private const val DRIVE_FORMAT_VERSION = 3
 
         /** 묶음 파일 형식. 스냅샷을 그대로 담아 옛 앱도 읽게 2로 둠 */
-        const val BUNDLE_FORMAT_VERSION = 2
+        private const val BUNDLE_FORMAT_VERSION = 2
+
+        /** 새 6종 기분이 든 백업. 옛 앱이 새 기분을 "기분 없음"으로 읽고 고쳐 저장하면 지워져 막게 함 */
+        private const val NEW_MOODS_FORMAT_VERSION = 4
+
+        /** 드라이브 백업에 적는 형식. 새 기분이 없으면 옛 앱도 읽게 3 */
+        fun driveFormat(newMoods: Int): Int = if (newMoods > 0) NEW_MOODS_FORMAT_VERSION else DRIVE_FORMAT_VERSION
+
+        /** 묶음 파일에 적는 형식. 새 기분이 없으면 옛 앱도 읽게 2 */
+        fun bundleFormat(newMoods: Int): Int = if (newMoods > 0) NEW_MOODS_FORMAT_VERSION else BUNDLE_FORMAT_VERSION
 
         /** 이 앱이 읽을 수 있는 스냅샷 DB 버전 */
         // 스냅샷에 든 표의 판

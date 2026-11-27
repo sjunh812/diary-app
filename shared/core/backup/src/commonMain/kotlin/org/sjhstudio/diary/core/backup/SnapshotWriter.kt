@@ -9,6 +9,7 @@ import okio.Path
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.database.SyncBaseEntity
 import org.sjhstudio.diary.core.model.MediaStatus
+import org.sjhstudio.diary.core.model.Mood
 
 /**
  * 뜬 스냅샷
@@ -21,7 +22,9 @@ data class Snapshot(
     val entriesInTrash: Int,
     val mediaRows: Int,
     val mediaMissing: Int,
-    val mediaPending: Int
+    val mediaPending: Int,
+    /** 1.7.4에 없던 기분이 든 일기 수(휴지통 포함). 형식 번호를 정함 */
+    val newMoods: Int = 0
 )
 
 /**
@@ -63,7 +66,8 @@ class SnapshotWriter(private val db: DiaryDatabase, private val fileSystem: File
                 entriesInTrash = count("SELECT COUNT(*) FROM entry WHERE deleted_at IS NOT NULL"),
                 mediaRows = count("SELECT COUNT(*) FROM media"),
                 mediaMissing = count("SELECT COUNT(*) FROM media WHERE status = '${MediaStatus.MISSING.id}'"),
-                mediaPending = count("SELECT COUNT(*) FROM media WHERE status = '${MediaStatus.PENDING.id}'")
+                mediaPending = count("SELECT COUNT(*) FROM media WHERE status = '${MediaStatus.PENDING.id}'"),
+                newMoods = count("SELECT COUNT(*) FROM entry WHERE mood IS NOT NULL AND mood NOT IN ($LEGACY_MOODS)")
             )
         } finally {
             connection.close()
@@ -72,6 +76,9 @@ class SnapshotWriter(private val db: DiaryDatabase, private val fileSystem: File
     }
 
     companion object {
+        /** 사본에서 세어 담긴 내용과 형식 번호가 늘 맞음 */
+        private val LEGACY_MOODS = Mood.entries.filter { it.legacyCode != null }.joinToString { "'${it.id}'" }
+
         val DEVICE_TABLES = listOf("backup_media", "sync_base", "merge_mark", "draft", "draft_media")
     }
 }

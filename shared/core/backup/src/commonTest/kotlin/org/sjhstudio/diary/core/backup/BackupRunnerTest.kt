@@ -125,10 +125,23 @@ class BackupRunnerTest {
         // 형식 3: 줄인 스냅샷. 옛 앱은 이 형식을 새 앱이 필요하다고 보여 줌
         assertTrue(names(DriveLayout.KIND_SNAPSHOT).single().name.endsWith(".db.gz"))
         assertEquals(3, manifest.formatVersion)
+        assertEquals("3", names(DriveLayout.KIND_MANIFEST).single().props[DriveLayout.KEY_FORMAT])
         assertEquals(ManifestSnapshot.GZIP, manifest.snapshot.encoding)
         assertEquals(now, store.current().lastSuccessAt)
         assertEquals(2, db.backupDao().bases().size)
         assertEquals(2, db.backupDao().confirmed("sub-1").size)
+    }
+
+    /** 새 기분이 든 백업은 형식 4. 목록 파일과 드라이브 속성이 같아야 옛 앱이 목록에서 막음 */
+    @Test
+    fun a_backup_with_new_moods_is_format_4_in_file_and_drive_property() = runTest {
+        seed()
+        db.entryDao().insertAll(listOf(entry("excited", "2026-11-02").copy(mood = "excited")))
+
+        assertIs<BackupOutcome.Done>(runner().run())
+
+        assertEquals(4, manifest().formatVersion)
+        assertEquals("4", names(DriveLayout.KIND_MANIFEST).single().props[DriveLayout.KEY_FORMAT])
     }
 
     @Test
