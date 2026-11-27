@@ -1,6 +1,6 @@
 // 가로 그림: Play 그래픽 이미지(1024×500), App Store 헤더(3840×1646), 검색 결과 그림(3840×2560)
 // 스크린샷과 같은 연한 라벤더 바탕, 두 줄 제목과 설명 한 줄, 상태바를 자른 앱 화면
-// 쓰는 법: swift scripts/store/make_banner.swift <캡처 폴더> <결과 PNG> <ko|en|ja> <feature|header|search> [guide]
+// 쓰는 법: swift scripts/store/make_banner.swift <캡처 폴더> <결과 PNG> <ko|en|ja|zh-Hant|es|pt|de|fr> <feature|header|search> [guide]
 // 캡처 폴더에는 home.png, detail.png(iPhone 17 Pro 1206×2622)가 있어야 함
 import AppKit
 import CoreText
@@ -11,6 +11,9 @@ let caps = args[1], output = args[2], lang = args[3], mode = args[4]
 let guide = args.count > 5 && args[5] == "guide"
 let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
 CTFontManagerRegisterFontsForURL(root.appendingPathComponent("shared/core/designsystem/src/commonMain/composeResources/font/changwon_round_regular.otf") as CFURL, .process, nil)
+for file in ["pretendard_regular.otf", "pretendard_semibold.otf"] {
+    CTFontManagerRegisterFontsForURL(root.appendingPathComponent("shared/core/designsystem/src/commonMain/composeResources/font/\(file)") as CFURL, .process, nil)
+}
 
 let size: CGSize = ["feature": CGSize(width: 1024, height: 500), "header": CGSize(width: 3840, height: 1646), "search": CGSize(width: 3840, height: 2560)][mode]!
 let W = size.width, H = size.height
@@ -21,7 +24,7 @@ func color(_ hex: UInt32, _ a: CGFloat = 1) -> NSColor {
 let bg = color(0xF5F2FF), ink = color(0x1A1C20), sub = color(0x6E6A80), line = color(0xE4DEF7)
 // 강조는 낱말 하나만. 라벤더 브랜드색 중 글자 대비가 되는 진한 단계
 let accent = color(0x6550B9)
-let accentWord = ["ko": "한 줄", "en": "One line", "ja": "1行"]
+let accentWord = ["ko": "한 줄", "en": "One line", "ja": "1行", "zh-Hant": "一行", "es": "Una línea", "pt": "Uma linha", "de": "Eine Zeile", "fr": "Une ligne"]
 let statusCut: CGFloat = 162
 let lineHeightMultiple: CGFloat = 1.16
 
@@ -29,15 +32,27 @@ let copy: [String: (String, String)] = [
     "ko": ("한 줄이면\n오늘 일기 끝", "바쁜 날에도 쓰기 쉬운 일기장"),
     "en": ("One line,\nand today is done", "A diary that's easy even on busy days"),
     "ja": ("1行で\n今日の日記は完了", "忙しい日でも書きやすい日記帳"),
+    "zh-Hant": ("一行\n就寫完今天的日記", "忙碌的日子也能輕鬆寫"),
+    "es": ("Una línea\ny listo por hoy", "Un diario fácil incluso en días ocupados"),
+    "pt": ("Uma linha\ne pronto por hoje", "Um diário fácil até nos dias corridos"),
+    "de": ("Eine Zeile,\nund der Tag ist notiert", "Leicht zu schreiben, auch an vollen Tagen"),
+    "fr": ("Une ligne,\net la journée est écrite", "Un journal simple, même les jours chargés"),
 ]
 
 func R(_ x: CGFloat, _ top: CGFloat, _ w: CGFloat, _ h: CGFloat) -> NSRect { NSRect(x: x, y: H - top - h, width: w, height: h) }
 
 func attributed(_ s: String, _ px: CGFloat, _ c: NSColor, bold: Bool, align: NSTextAlignment) -> NSAttributedString {
     let style = NSMutableParagraphStyle(); style.alignment = align; style.lineHeightMultiple = lineHeightMultiple
-    let japanese = lang == "ja"
-    let f = japanese ? NSFont(name: bold ? "HiraginoSans-W6" : "HiraginoSans-W3", size: px * 0.92)! : NSFont(name: "ChangwonDangamRound-Regular", size: px)!
-    let stroke: CGFloat = japanese ? 0 : (bold ? (lang == "en" ? -5.0 : -3.4) : -0.6)
+    // 창원단감둥근체에 가나·한자·악센트 글자가 없어 일본어·중국어는 시스템 글꼴, 유럽 언어는 앱 기본 글꼴(Pretendard)
+    let f: NSFont
+    switch lang {
+    case "ja": f = NSFont(name: bold ? "HiraginoSans-W6" : "HiraginoSans-W3", size: px * 0.92)!
+    case "zh-Hant": f = NSFont(name: bold ? "PingFangTC-Semibold" : "PingFangTC-Light", size: px * 0.92)!
+    case "es", "pt", "de", "fr": f = NSFont(name: bold ? "Pretendard-SemiBold" : "Pretendard-Regular", size: px * 0.92)!
+    default: f = NSFont(name: "ChangwonDangamRound-Regular", size: px)!
+    }
+    let systemFont = ["ja", "zh-Hant", "es", "pt", "de", "fr"].contains(lang)
+    let stroke: CGFloat = systemFont ? 0 : (bold ? (lang == "ko" ? -3.4 : -5.0) : -0.6)
     return NSAttributedString(string: s, attributes: [.font: f, .foregroundColor: c, .strokeColor: c, .strokeWidth: stroke, .paragraphStyle: style])
 }
 
@@ -130,8 +145,8 @@ case "header":
     phone("detail", x: 120, top: 330, width: 720)
 case "search":
     // 왼쪽 글, 오른쪽 화면(안전 영역 836~3004 안)
-    // 영어는 줄이 길어 두 줄에 들어가게 조금 줄임
-    sideBySide(title: lang == "en" ? 124 : 150, phoneWidth: 830, maxGap: 420, room: 3004 - 836)
+    // 라틴 문자 언어는 줄이 길어 두 줄에 들어가게 조금 줄임
+    sideBySide(title: ["ko", "ja", "zh-Hant"].contains(lang) ? 150 : 124, phoneWidth: 830, maxGap: 420, room: 3004 - 836)
 default:
     fatalError(mode)
 }

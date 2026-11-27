@@ -614,6 +614,16 @@ Plusが登場しました
 영어(원어민 검수 전): One line, and today is done / Keep your day with photos / Your moods on a calendar / Look back on your moods / Make it your color / Back up photos to your own Drive.
 일본어(원어민 검수 전): 1行で今日の日記は完了 / 写真と一緒に残せます / その日の気分がカレンダーに / どんな気分が多かったかふり返れます / 好きな色に変えられます / 写真まで自分のドライブに.
 
+다섯 언어(2026-11-27, 원어민 검수 전, 아직 어느 스토어에도 올리지 않음). 같은 틀과 같은 여섯 장이고, 스크린샷 폴더 이름은 `zh-Hant`, `es`, `pt`, `de`, `fr`이다.
+
+- 번체 중국어: 一行 就寫完今天的日記 / 和照片一起 留下今天 / 每天的心情 留在月曆上 / 回顧哪種心情 最多 / 換成 喜歡的顏色 / 連照片都備份到 自己的雲端硬碟
+- 스페인어: Una línea y listo por hoy / Guarda tu día con fotos / Tu ánimo en el calendario / Repasa cómo te sentiste / Ponle tu color / Respalda tus fotos en tu propio Drive
+- 포르투갈어: Uma linha e pronto por hoje / Guarde seu dia com fotos / Seu humor no calendário / Reveja seu humor / Deixe com a sua cor / Backup das fotos no seu próprio Drive
+- 독일어: Eine Zeile, und der Tag ist notiert / Halte deinen Tag mit Fotos fest / Deine Stimmung im Kalender / Blick zurück auf deine Stimmung / Mach es in deiner Farbe / Fotos sichern in deinem Drive
+- 프랑스어: Une ligne, et la journée est écrite / Gardez votre journée en photos / Votre humeur sur le calendrier / Revoyez vos humeurs / À vos couleurs / Sauvegardez vos photos dans votre Drive
+- 가로 그림의 강조 낱말: 一行, Una línea, Uma linha, Eine Zeile, Une ligne.
+- 글꼴: 창원단감둥근체에 악센트 글자(á, ç, ü, é 등)와 한자가 없다. 그래서 중국어는 시스템 글꼴(평팡 번체), 유럽 네 언어는 앱 기본 글꼴 Pretendard로 제목과 앱 화면을 함께 찍었다. 앱에서 창원단감둥근체를 고르면 악센트 글자만 다른 글꼴로 섞여 보인다.
+
 그래픽 이미지·App Store 헤더·검색 결과 그림은 1번 제목과 설명에 목록 화면을 둔다. 가로 그림은 제목의 낱말 하나("한 줄", "One line", "1行")만 브랜드색 #6550B9로 강조하고, 글자는 화면보다 무겁지 않게 줄였다(사용자 요청 2026-11-24). 헤더는 Apple 안전 영역(가운데 1646×661)에 글만 두고, 넓은 화면에서만 보이는 양옆에 화면을 둔다. 그래픽 이미지와 검색 결과 그림은 글과 화면을 한 묶음으로 가로 가운데에 두고, 글과 화면 모두 세로 가운데에 맞춘다. 글 폭은 언어마다 재서 사이 간격만 바꾼다(2026-11-25 사용자 지적: 글과 폰 대칭).
 만드는 법: 폰·태블릿 `swift scripts/store/make_store_screens.swift <캡처> <결과> <언어> <폭> <높이> <앞이름> [tablet|landscape]`(Play 태블릿은 `3840 2160 tablet landscape`, Play 폰은 Pro Max 캡처로 `1620 2880 phone`), 가로 그림 `swift scripts/store/make_banner.swift <캡처> <결과> <언어> feature|header|search`. 캡처는 `docs/store/source/ios/<언어>/`(iPhone 17 Pro), `ipad/`(iPad Pro 13" 세로), `ipad-land/`(iPad Pro 13" 가로, Play 태블릿)다.
 

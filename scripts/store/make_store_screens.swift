@@ -1,5 +1,5 @@
 // 스토어 폰 스크린샷: 연한 라벤더 바탕, 두 줄 제목과 설명 한 줄, 상태바를 자른 앱 화면
-// 쓰는 법: swift scripts/store/make_store_screens.swift <캡처 폴더> <결과 폴더> <ko|en|ja> <폭> <높이> <파일 앞이름> [tablet|landscape]
+// 쓰는 법: swift scripts/store/make_store_screens.swift <캡처 폴더> <결과 폴더> <ko|en|ja|zh-Hant|es|pt|de|fr> <폭> <높이> <파일 앞이름> [tablet|landscape]
 // 캡처 폴더에는 home, detail, calendar, insight, theme-rose, backup.png가 있어야 함
 // 폰은 iPhone 17 Pro(1206×2622), tablet은 iPad 13" 세로(2064×2752), landscape는 iPad 13" 가로(2752×2064) 캡처
 import AppKit
@@ -51,19 +51,70 @@ let copy: [String: [(String, String, String)]] = [
         ("theme-rose", "好きな色に\n変えられます", "7つのテーマカラーから選べます"),
         ("backup", "写真まで\n自分のドライブに", "会員登録なしで、1日1回自動でバックアップ"),
     ],
+    "zh-Hant": [
+        ("home", "一行\n就寫完今天的日記", "忙碌的日子也能輕鬆寫"),
+        ("detail", "和照片一起\n留下今天", "每篇最多10張照片"),
+        ("calendar", "每天的心情\n留在月曆上", "一眼看完整個月的心情"),
+        ("insight", "回顧哪種心情\n最多", "可以依期間查看"),
+        ("theme-rose", "換成\n喜歡的顏色", "從7種主題色中挑選"),
+        ("backup", "連照片都備份到\n自己的雲端硬碟", "免註冊，每天自動備份一次"),
+    ],
+    "es": [
+        ("home", "Una línea\ny listo por hoy", "Un diario fácil incluso en días ocupados"),
+        ("detail", "Guarda tu día\ncon fotos", "Hasta 10 fotos en cada entrada"),
+        ("calendar", "Tu ánimo\nen el calendario", "Todo el mes de un vistazo"),
+        ("insight", "Repasa\ncómo te sentiste", "Descubre tus ánimos más frecuentes"),
+        ("theme-rose", "Ponle\ntu color", "Elige entre 7 colores de tema"),
+        ("backup", "Respalda tus fotos\nen tu propio Drive", "Sin registro. Automático, una vez al día."),
+    ],
+    "pt": [
+        ("home", "Uma linha\ne pronto por hoje", "Um diário fácil até nos dias corridos"),
+        ("detail", "Guarde seu dia\ncom fotos", "Até 10 fotos em cada registro"),
+        ("calendar", "Seu humor\nno calendário", "O mês inteiro de relance"),
+        ("insight", "Reveja\nseu humor", "Veja qual humor apareceu mais"),
+        ("theme-rose", "Deixe com\na sua cor", "Escolha entre 7 cores de tema"),
+        ("backup", "Backup das fotos\nno seu próprio Drive", "Sem cadastro. Automático, uma vez por dia."),
+    ],
+    "de": [
+        ("home", "Eine Zeile,\nund der Tag ist notiert", "Leicht zu schreiben, auch an vollen Tagen"),
+        ("detail", "Halte deinen Tag\nmit Fotos fest", "Bis zu 10 Fotos pro Eintrag"),
+        ("calendar", "Deine Stimmung\nim Kalender", "Den ganzen Monat auf einen Blick"),
+        ("insight", "Blick zurück\nauf deine Stimmung", "Sieh, welche Stimmung am häufigsten war"),
+        ("theme-rose", "Mach es\nin deiner Farbe", "Wähle aus 7 Designfarben"),
+        ("backup", "Fotos sichern\nin deinem Drive", "Ohne Konto. Automatisch, einmal am Tag."),
+    ],
+    "fr": [
+        ("home", "Une ligne,\net la journée est écrite", "Un journal simple, même les jours chargés"),
+        ("detail", "Gardez votre journée\nen photos", "Jusqu’à 10 photos par entrée"),
+        ("calendar", "Votre humeur\nsur le calendrier", "Tout le mois en un coup d’œil"),
+        ("insight", "Revoyez\nvos humeurs", "Voyez celles qui reviennent le plus"),
+        ("theme-rose", "À vos\ncouleurs", "Choisissez parmi 7 couleurs de thème"),
+        ("backup", "Sauvegardez vos photos\ndans votre Drive", "Sans inscription. Automatique, une fois par jour."),
+    ],
 ]
 
 func R(_ x: CGFloat, _ top: CGFloat, _ w: CGFloat, _ h: CGFloat) -> NSRect { NSRect(x: x, y: H - top - h, width: w, height: h) }
 
+// 창원단감둥근체에 가나·한자·악센트 글자가 없어 일본어·중국어는 시스템 글꼴, 유럽 언어는 앱 기본 글꼴(Pretendard)
+let usesSystemFont = ["ja", "zh-Hant", "es", "pt", "de", "fr"].contains(lang)
+for file in ["pretendard_regular.otf", "pretendard_semibold.otf"] {
+    CTFontManagerRegisterFontsForURL(root.appendingPathComponent("shared/core/designsystem/src/commonMain/composeResources/font/\(file)") as CFURL, .process, nil)
+}
+func systemFont(bold: Bool, size: CGFloat) -> NSFont {
+    switch lang {
+    case "ja": return NSFont(name: bold ? "HiraginoSans-W6" : "HiraginoSans-W3", size: size * 0.92)!
+    case "zh-Hant": return NSFont(name: bold ? "PingFangTC-Semibold" : "PingFangTC-Light", size: size * 0.92)!
+    case "es", "pt", "de", "fr": return NSFont(name: bold ? "Pretendard-SemiBold" : "Pretendard-Regular", size: size * 0.92)!
+    default: return NSFont(name: "ChangwonDangamRound-Regular", size: size)!
+    }
+}
+
 // 창원단감둥근체는 굵기가 하나라 획을 덧그려 굵게. 일본어는 시스템 글꼴(히라기노)
 func text(_ s: String, size: CGFloat, color c: NSColor, top: CGFloat, bold: Bool) -> CGFloat {
     let style = NSMutableParagraphStyle(); style.alignment = .center; style.lineHeightMultiple = 1.18
-    let japanese = lang == "ja"
-    let f = japanese
-        ? NSFont(name: bold ? "HiraginoSans-W6" : "HiraginoSans-W3", size: size * 0.92)!
-        : NSFont(name: "ChangwonDangamRound-Regular", size: size)!
-    // 영문은 같은 획에도 가늘어 보여 더 굵게
-    let stroke: CGFloat = japanese ? 0 : (bold ? (lang == "en" ? -5.0 : -3.4) : -0.6)
+    let f = systemFont(bold: bold, size: size)
+    // 라틴 문자는 같은 획에도 가늘어 보여 더 굵게
+    let stroke: CGFloat = usesSystemFont ? 0 : (bold ? (lang == "ko" ? -3.4 : -5.0) : -0.6)
     let a = NSAttributedString(string: s, attributes: [.font: f, .foregroundColor: c, .strokeColor: c, .strokeWidth: stroke, .paragraphStyle: style])
     let h = a.boundingRect(with: NSSize(width: W - 120 * k, height: 2000), options: [.usesLineFragmentOrigin]).height
     a.draw(with: R(60 * k, top, W - 120 * k, h + 10), options: [.usesLineFragmentOrigin])
@@ -72,7 +123,7 @@ func text(_ s: String, size: CGFloat, color c: NSColor, top: CGFloat, bold: Bool
 
 func header(_ title: String, _ subline: String) -> CGFloat {
     // 가로는 제목을 한 줄로 두어 화면 자리를 넓힘. 일본어는 띄어 쓰지 않아 붙임
-    let t = text(landscape ? title.replacingOccurrences(of: "\n", with: lang == "ja" ? "" : " ") : title, size: 92 * k, color: ink, top: (landscape ? 110 : 190) * k, bold: true)
+    let t = text(landscape ? title.replacingOccurrences(of: "\n", with: ["ja", "zh-Hant"].contains(lang) ? "" : " ") : title, size: 92 * k, color: ink, top: (landscape ? 110 : 190) * k, bold: true)
     return text(subline, size: 46 * k, color: sub, top: t + 34 * k, bold: false)
 }
 
