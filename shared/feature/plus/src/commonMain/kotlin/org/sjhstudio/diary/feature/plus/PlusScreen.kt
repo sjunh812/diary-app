@@ -64,6 +64,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
+import org.sjhstudio.diary.core.designsystem.theme.diaryLanguage
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.ProductId
 import org.sjhstudio.diary.core.ui.DiaryLottie
@@ -350,16 +351,17 @@ private fun PaywallBenefits(adFreeOwned: Boolean, from: PlusBenefit?, onSeeAll: 
 
 @Composable
 private fun PaywallLegal(onLink: (String) -> Unit) {
+    val language = diaryLanguage()
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
         DiaryButton(
             stringResource(Res.string.plus_terms),
-            { onLink(LegalLinks.TERMS) },
+            { onLink(LegalLinks.terms(language)) },
             kind = DiaryButtonKind.QuietText,
             size = DiaryButtonSize.Small
         )
         DiaryButton(
             stringResource(Res.string.plus_privacy),
-            { onLink(LegalLinks.PRIVACY) },
+            { onLink(LegalLinks.privacy(language)) },
             kind = DiaryButtonKind.QuietText,
             size = DiaryButtonSize.Small
         )

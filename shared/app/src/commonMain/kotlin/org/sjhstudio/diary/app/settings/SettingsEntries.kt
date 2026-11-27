@@ -56,6 +56,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.diaryLanguage
 import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
 import org.sjhstudio.diary.core.platform.DevMenu
 import org.sjhstudio.diary.core.platform.deviceInfo
@@ -125,6 +126,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         val device = remember { deviceInfo() }
         val feedback = rememberFeedbackLink(app.versionName, device.os, device.model)
         val openLink = rememberOpenLink()
+        val language = diaryLanguage()
         val updates = koinViewModel<UpdateCardViewModel>()
         val update by updates.notice.collectAsStateWithLifecycle()
         Box(Modifier.fillMaxSize()) {
@@ -151,8 +153,8 @@ fun EntryProviderScope<NavKey>.settingsEntries(
                 onBackup = { open(BackupSettingsKey) },
                 backupValue = state.lastBackupAt?.let { settingsBackupValue(it) },
                 onLetter = { push(LetterKey) },
-                onTerms = { openWeb(LegalLinks.TERMS) },
-                onPrivacy = { openWeb(LegalLinks.PRIVACY) },
+                onTerms = { openWeb(LegalLinks.terms(language)) },
+                onPrivacy = { openWeb(LegalLinks.privacy(language)) },
                 onAdPrivacy = getKoin().getOrNull<AdPrivacy>()?.let { privacy -> privacy::showChoices } ?: {},
                 onPlus = { push(PlusKey()) },
                 selected = opened()?.let(::settingsPane)
