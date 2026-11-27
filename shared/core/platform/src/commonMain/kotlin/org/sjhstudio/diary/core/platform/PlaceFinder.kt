@@ -36,14 +36,24 @@ data class PlaceParts(
     /**
      * 일기에 남길 글자. 한국은 1.7.4처럼 "마포구 망원동"
      * 길 이름은 동네가 아니라 쓰지 않고, 동을 모르면 시·군·구까지만
-     * 다른 나라는 작은 지역부터 두 칸
+     * 다른 나라는 "쿠퍼티노, CA"처럼 도시와 주·도. 도시를 모를 때만 [district]
      */
     fun label(): String? {
-        val area = listOf(district, city, region).mapNotNull { it?.trim()?.ifEmpty { null } }.distinct()
-        if (countryCode != KOREA) return area.take(2).joinToString(", ").ifEmpty { null }
+        if (countryCode != KOREA) return abroad()
+        val area = listOf(district, city, region).mapNotNull { it.clean() }.distinct()
         val neighborhood = street?.trim()?.takeIf { NEIGHBORHOOD.containsMatchIn(it) }
         return listOfNotNull(area.firstOrNull(), neighborhood).joinToString(" ").ifEmpty { null }
     }
+
+    // iOS는 미국 군(산타클라라)·대만 시처럼 도시보다 큰 지역을 district로 줌
+    // 나라 코드와 같은 주(싱가포르 "SG")는 뺌
+    private fun abroad(): String? {
+        val place = city.clean() ?: district.clean()
+        val area = region.clean()?.takeUnless { it.equals(countryCode, ignoreCase = true) }
+        return listOfNotNull(place, area).distinct().joinToString(", ").ifEmpty { null }
+    }
+
+    private fun String?.clean(): String? = this?.trim()?.ifEmpty { null }
 
     private companion object {
         const val KOREA = "KR"
