@@ -84,8 +84,9 @@ data class MoodLook(
 
     fun withTheme(theme: MoodTheme): MoodLook = copy(themeId = theme.id)
 
-    fun withClay(hair: ClayHair = this.hair, skin: ClaySkin = this.skin, glasses: Boolean = this.glasses): MoodLook =
-        copy(clayHair = hair.id, claySkin = skin.id, clayGlasses = glasses)
+    /** 넘긴 칸만 바꿈. 나머지는 모르는 id여도 원문 그대로 */
+    fun withClay(hair: ClayHair? = null, skin: ClaySkin? = null, glasses: Boolean? = null): MoodLook =
+        copy(clayHair = hair?.id ?: clayHair, claySkin = skin?.id ?: claySkin, clayGlasses = glasses ?: clayGlasses)
 
     fun withSticker(on: Boolean): MoodLook = copy(shapeSticker = on)
 

@@ -17,13 +17,13 @@ import org.sjhstudio.diary.core.model.DiaryFont
 // 기분 칸 이름이 잘리지 않는지 봄
 // 글자 폭은 칸 68에서 고른 바탕 여백 2씩을 뺀 64, 태블릿 쓰기 옆 칸은 칸이 줄어 약 63. 좁은 쪽보다 조금 더 좁게 봄
 @OptIn(ExperimentalTestApi::class)
-class MoodNameTest {
+class FaceLabelTest {
     private fun overflows(name: String, font: DiaryFont, width: Int = PANEL_CELL, selected: Boolean = false): Boolean {
         val results = mutableListOf<TextLayoutResult>()
         runComposeUiTest {
             setContent {
                 DiaryTheme(darkTheme = false, fontFamily = diaryBodyFontFamily(font) { null }) {
-                    Box(Modifier.width(width.dp)) { MoodName(name, selected) }
+                    Box(Modifier.width(width.dp)) { FaceLabel(name, selected) }
                 }
             }
             onNodeWithText(name).fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)

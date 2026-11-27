@@ -178,4 +178,25 @@
     <string name="mood_theme_veggie">Frutas y verduras</string>
     <string name="mood_theme_clay">Caras de arcilla</string>
     <string name="mood_theme_sticker">Efecto pegatina</string>
+    <string name="mood_theme_clay_custom">Personalizar</string>
+    <string name="clay_preview_note">Los 15 estados de ánimo usan esta cara. El color del pelo cambia con cada uno.</string>
+    <string name="clay_hair_title">Peinado</string>
+    <string name="clay_skin_title">Tono de piel</string>
+    <string name="clay_glasses">Gafas</string>
+    <string name="clay_hair_bob">Bob</string>
+    <string name="clay_hair_long">Largo</string>
+    <string name="clay_hair_short">Corto</string>
+    <string name="clay_hair_dandy">Clásico</string>
+    <string name="clay_hair_part">Raya</string>
+    <string name="clay_hair_bun">Moño</string>
+    <string name="clay_hair_ponytail">Coleta</string>
+    <string name="clay_hair_curly">Rizado</string>
+    <string name="clay_hair_buzz">Rapado</string>
+    <string name="clay_skin_1">Muy claro</string>
+    <string name="clay_skin_2">Claro</string>
+    <string name="clay_skin_3">Claro medio</string>
+    <string name="clay_skin_4">Medio</string>
+    <string name="clay_skin_5">Oscuro medio</string>
+    <string name="clay_skin_6">Oscuro</string>
+    <string name="mood_theme_preview_body">Con Plus, tus estados de ánimo se ven con este tema.</string>
 </resources>

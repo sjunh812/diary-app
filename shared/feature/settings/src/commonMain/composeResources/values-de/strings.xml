@@ -184,4 +184,25 @@
     <string name="mood_theme_veggie">Obst &amp; Gemüse</string>
     <string name="mood_theme_clay">Knetgesichter</string>
     <string name="mood_theme_sticker">Sticker-Effekt</string>
+    <string name="mood_theme_clay_custom">Anpassen</string>
+    <string name="clay_preview_note">Alle 15 Stimmungen nutzen dieses Gesicht. Die Haarfarbe ändert sich je nach Stimmung.</string>
+    <string name="clay_hair_title">Frisur</string>
+    <string name="clay_skin_title">Hautton</string>
+    <string name="clay_glasses">Brille</string>
+    <string name="clay_hair_bob">Bob</string>
+    <string name="clay_hair_long">Lang</string>
+    <string name="clay_hair_short">Kurz</string>
+    <string name="clay_hair_dandy">Klassisch</string>
+    <string name="clay_hair_part">Seitenscheitel</string>
+    <string name="clay_hair_bun">Dutt</string>
+    <string name="clay_hair_ponytail">Zopf</string>
+    <string name="clay_hair_curly">Locken</string>
+    <string name="clay_hair_buzz">Kurzschnitt</string>
+    <string name="clay_skin_1">Sehr hell</string>
+    <string name="clay_skin_2">Hell</string>
+    <string name="clay_skin_3">Hell mittel</string>
+    <string name="clay_skin_4">Mittel</string>
+    <string name="clay_skin_5">Dunkel mittel</string>
+    <string name="clay_skin_6">Dunkel</string>
+    <string name="mood_theme_preview_body">Mit Plus siehst du deine Stimmungen in diesem Thema.</string>
 </resources>

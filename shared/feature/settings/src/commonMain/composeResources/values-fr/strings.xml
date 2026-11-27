@@ -178,4 +178,25 @@
     <string name="mood_theme_veggie">Fruits et légumes</string>
     <string name="mood_theme_clay">Visages en pâte</string>
     <string name="mood_theme_sticker">Effet autocollant</string>
+    <string name="mood_theme_clay_custom">Personnaliser</string>
+    <string name="clay_preview_note">Les 15 humeurs utilisent ce visage. La couleur des cheveux change selon l’humeur.</string>
+    <string name="clay_hair_title">Coiffure</string>
+    <string name="clay_skin_title">Teint</string>
+    <string name="clay_glasses">Lunettes</string>
+    <string name="clay_hair_bob">Carré</string>
+    <string name="clay_hair_long">Longs</string>
+    <string name="clay_hair_short">Courts</string>
+    <string name="clay_hair_dandy">Dandy</string>
+    <string name="clay_hair_part">Raie</string>
+    <string name="clay_hair_bun">Chignon</string>
+    <string name="clay_hair_ponytail">Queue</string>
+    <string name="clay_hair_curly">Bouclés</string>
+    <string name="clay_hair_buzz">Rasés</string>
+    <string name="clay_skin_1">Très clair</string>
+    <string name="clay_skin_2">Clair</string>
+    <string name="clay_skin_3">Moyen clair</string>
+    <string name="clay_skin_4">Moyen</string>
+    <string name="clay_skin_5">Moyen foncé</string>
+    <string name="clay_skin_6">Foncé</string>
+    <string name="mood_theme_preview_body">Avec Plus, vos humeurs s’affichent dans ce thème.</string>
 </resources>

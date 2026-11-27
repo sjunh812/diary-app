@@ -45,6 +45,9 @@ data object ThemeSettingsKey : Screen
 data object MoodThemeSettingsKey : Screen
 
 @Serializable
+data object ClayLookSettingsKey : Screen
+
+@Serializable
 data object ReminderSettingsKey : Screen
 
 @Serializable

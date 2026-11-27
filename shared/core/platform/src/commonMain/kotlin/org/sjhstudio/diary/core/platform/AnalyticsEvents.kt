@@ -44,6 +44,7 @@ object AnalyticsEvents {
             "TextSizeSettingsKey",
             "ThemeSettingsKey",
             "MoodThemeSettingsKey",
+            "ClayLookSettingsKey",
             "LockSettingsKey",
             "ReminderSettingsKey",
             "MigrationReportKey",

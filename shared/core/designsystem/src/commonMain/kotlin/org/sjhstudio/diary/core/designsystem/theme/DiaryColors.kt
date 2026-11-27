@@ -281,3 +281,14 @@ internal fun DiaryColors.withBrand(brand: BrandTokens): DiaryColors = copy(
 /** 화면 모드와 테마 색으로 정한 색 토큰. 테마 화면의 작은 홈 그림처럼 지금 모드와 다른 색이 필요할 때 씀 */
 fun diaryColors(dark: Boolean, brand: DiaryBrand = DiaryBrand.Lavender): DiaryColors =
     (if (dark) DarkDiaryColors else LightDiaryColors).withBrand(brand.tokens(dark))
+
+/**
+ * 클레이 얼굴 피부톤 여섯 단계(Figma "9-옵션" 피부톤, 밝은 쪽부터)
+ * 얼굴과 코 색을 함께 둠. 라이트·다크 같은 값
+ */
+object DiaryClaySkin {
+    val faces: List<Color> =
+        listOf(Color(0xFFFBE5D6), Color(0xFFF5CFB3), Color(0xFFE8B690), Color(0xFFD09A72), Color(0xFFA56C4B), Color(0xFF6C432E))
+    val noses: List<Color> =
+        listOf(Color(0xFFFCBCB7), Color(0xFFF9ADA0), Color(0xFFF09D8A), Color(0xFFE08B76), Color(0xFFC56D5D), Color(0xFF9F524A))
+}

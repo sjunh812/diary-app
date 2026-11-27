@@ -189,4 +189,25 @@
     <string name="mood_theme_veggie">Fruit &amp; Veg</string>
     <string name="mood_theme_clay">Clay Faces</string>
     <string name="mood_theme_sticker">Sticker effect</string>
+    <string name="mood_theme_clay_custom">Customize</string>
+    <string name="clay_preview_note">All 15 moods use this face. Hair color follows each mood.</string>
+    <string name="clay_hair_title">Hairstyle</string>
+    <string name="clay_skin_title">Skin tone</string>
+    <string name="clay_glasses">Glasses</string>
+    <string name="clay_hair_bob">Bob</string>
+    <string name="clay_hair_long">Long</string>
+    <string name="clay_hair_short">Short</string>
+    <string name="clay_hair_dandy">Dandy</string>
+    <string name="clay_hair_part">Side part</string>
+    <string name="clay_hair_bun">Bun</string>
+    <string name="clay_hair_ponytail">Ponytail</string>
+    <string name="clay_hair_curly">Curly</string>
+    <string name="clay_hair_buzz">Buzz</string>
+    <string name="clay_skin_1">Very light</string>
+    <string name="clay_skin_2">Light</string>
+    <string name="clay_skin_3">Light medium</string>
+    <string name="clay_skin_4">Medium</string>
+    <string name="clay_skin_5">Medium dark</string>
+    <string name="clay_skin_6">Dark</string>
+    <string name="mood_theme_preview_body">With Plus, your moods show in this theme.</string>
 </resources>

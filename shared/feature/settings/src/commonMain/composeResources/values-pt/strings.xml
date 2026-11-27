@@ -178,4 +178,25 @@
     <string name="mood_theme_veggie">Frutas e legumes</string>
     <string name="mood_theme_clay">Rostos de massinha</string>
     <string name="mood_theme_sticker">Efeito adesivo</string>
+    <string name="mood_theme_clay_custom">Personalizar</string>
+    <string name="clay_preview_note">Os 15 humores usam este rosto. A cor do cabelo muda com cada um.</string>
+    <string name="clay_hair_title">Penteado</string>
+    <string name="clay_skin_title">Tom de pele</string>
+    <string name="clay_glasses">Óculos</string>
+    <string name="clay_hair_bob">Chanel</string>
+    <string name="clay_hair_long">Longo</string>
+    <string name="clay_hair_short">Curto</string>
+    <string name="clay_hair_dandy">Social</string>
+    <string name="clay_hair_part">Repartido</string>
+    <string name="clay_hair_bun">Coque</string>
+    <string name="clay_hair_ponytail">Rabo de cavalo</string>
+    <string name="clay_hair_curly">Cacheado</string>
+    <string name="clay_hair_buzz">Raspado</string>
+    <string name="clay_skin_1">Muito claro</string>
+    <string name="clay_skin_2">Claro</string>
+    <string name="clay_skin_3">Médio claro</string>
+    <string name="clay_skin_4">Médio</string>
+    <string name="clay_skin_5">Médio escuro</string>
+    <string name="clay_skin_6">Escuro</string>
+    <string name="mood_theme_preview_body">Com o Plus, seus humores aparecem neste tema.</string>
 </resources>

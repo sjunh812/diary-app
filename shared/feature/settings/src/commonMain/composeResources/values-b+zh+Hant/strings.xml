@@ -174,4 +174,25 @@
     <string name="mood_theme_veggie">蔬果</string>
     <string name="mood_theme_clay">黏土臉</string>
     <string name="mood_theme_sticker">貼紙效果</string>
+    <string name="mood_theme_clay_custom">自訂</string>
+    <string name="clay_preview_note">15種心情都會用這張臉呈現，髮色會隨心情改變。</string>
+    <string name="clay_hair_title">髮型</string>
+    <string name="clay_skin_title">膚色</string>
+    <string name="clay_glasses">眼鏡</string>
+    <string name="clay_hair_bob">鮑伯頭</string>
+    <string name="clay_hair_long">長直髮</string>
+    <string name="clay_hair_short">短髮</string>
+    <string name="clay_hair_dandy">紳士頭</string>
+    <string name="clay_hair_part">旁分</string>
+    <string name="clay_hair_bun">丸子頭</string>
+    <string name="clay_hair_ponytail">馬尾</string>
+    <string name="clay_hair_curly">捲髮</string>
+    <string name="clay_hair_buzz">平頭</string>
+    <string name="clay_skin_1">很淺</string>
+    <string name="clay_skin_2">淺</string>
+    <string name="clay_skin_3">偏淺</string>
+    <string name="clay_skin_4">中等</string>
+    <string name="clay_skin_5">偏深</string>
+    <string name="clay_skin_6">深</string>
+    <string name="mood_theme_preview_body">Plus 可用這個主題顯示心情。</string>
 </resources>

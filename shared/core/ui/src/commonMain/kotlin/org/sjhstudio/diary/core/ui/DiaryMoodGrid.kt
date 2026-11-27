@@ -1,5 +1,9 @@
 package org.sjhstudio.diary.core.ui
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -17,9 +21,12 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -28,10 +35,12 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryChip
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
+import org.sjhstudio.diary.core.designsystem.theme.DiaryMotion
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -53,7 +62,14 @@ import org.sjhstudio.diary.core.ui.resources.mood_group_neutral
  * 모자란 줄은 왼쪽부터 채워 위 줄과 세로 줄을 맞춤
  */
 @Composable
-fun DiaryMoodGrid(isSelected: (Mood) -> Boolean, onToggle: (Mood) -> Unit, modifier: Modifier = Modifier) {
+fun DiaryMoodGrid(
+    isSelected: (Mood) -> Boolean,
+    onToggle: (Mood) -> Unit,
+    modifier: Modifier = Modifier,
+    /** 고를 때 얼굴이 한 번 통 튐(쓰기 시트만, 스펙 013 US5). 동작 줄이기면 움직이지 않음 */
+    popOnSelect: Boolean = false
+) {
+    val pop = popOnSelect && !rememberReduceMotion()
     Column(
         modifier.layout { measurable, constraints ->
             val width = constraints.maxWidth
@@ -73,7 +89,7 @@ fun DiaryMoodGrid(isSelected: (Mood) -> Boolean, onToggle: (Mood) -> Unit, modif
             for (row in group.moods.chunked(GRID_COLUMNS)) {
                 Row(Modifier.fillMaxWidth()) {
                     for (mood in row) {
-                        Box(Modifier.weight(1f)) { MoodCell(mood, isSelected(mood)) { onToggle(mood) } }
+                        Box(Modifier.weight(1f)) { MoodCell(mood, isSelected(mood), pop) { onToggle(mood) } }
                     }
                     repeat(GRID_COLUMNS - row.size) { Spacer(Modifier.weight(1f)) }
                 }
@@ -107,10 +123,12 @@ private fun MoodGroup.label(): StringResource = when (this) {
 }
 
 @Composable
-private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
+private fun MoodCell(mood: Mood, selected: Boolean, pop: Boolean, onClick: () -> Unit) {
     val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
     val haptic = LocalHapticFeedback.current
+    val scale = remember { Animatable(1f) }
+    val scope = rememberCoroutineScope()
     // 누르는 곳은 칸 전체, 칠하는 바탕만 양옆 2 안으로
     // 찾기에서 여러 개를 고를 때 칠한 칸끼리 하나로 붙어 보이지 않게
     Box(
@@ -119,7 +137,20 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
             .semantics { this.selected = selected }
             .clickable(interactionSource = interaction, indication = null, role = Role.Button) {
                 haptic.performHapticFeedback(HapticFeedbackType.SegmentTick)
-                onClick()
+                when {
+                    // 튀는 중에 또 누르면 같은 기분을 두 번 골라 풀리지 않게 무시
+                    scale.isRunning -> Unit
+
+                    !pop || selected -> onClick()
+
+                    else ->
+                        // 시트가 바로 닫히면 움직임이 보이지 않아 커지는 순간까지 본 뒤 고름
+                        scope.launch {
+                            scale.animateTo(POP_SCALE, tween(DiaryMotion.EXIT_MILLIS, easing = DiaryMotion.decelerate))
+                            onClick()
+                            scale.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
+                        }
+                }
             }
             .padding(horizontal = DiarySpacing.x0_5)
     ) {
@@ -136,19 +167,25 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)
         ) {
-            MoodFace(mood, DiaryWriteSize.moodFace)
-            MoodName(moodName(mood), selected)
+            MoodFace(
+                mood,
+                DiaryWriteSize.moodFace,
+                Modifier.graphicsLayer {
+                    scaleX = scale.value
+                    scaleY = scale.value
+                }
+            )
+            FaceLabel(moodName(mood), selected)
         }
     }
 }
 
-/** 기분 칸 아래 이름 */
+/** 얼굴 칸 아래 이름(기분 칸, 클레이 머리 칸) */
 @Composable
-internal fun MoodName(name: String, selected: Boolean, modifier: Modifier = Modifier) {
-    val colors = DiaryTheme.colors
+fun FaceLabel(name: String, selected: Boolean, modifier: Modifier = Modifier, color: Color = DiaryTheme.colors.textSecondary) {
     val style =
         (if (selected) DiaryTheme.typography.captionStrong else DiaryTheme.typography.caption).copy(
-            color = colors.textSecondary,
+            color = color,
             textAlign = TextAlign.Center
         )
     // 칸 폭이 고정이라 긴 이름은 두 줄까지
@@ -190,6 +227,7 @@ fun DiaryWeatherGrid(isSelected: (Weather) -> Boolean, onToggle: (Weather) -> Un
 
 private const val GRID_COLUMNS = 5
 private const val NAME_LINES = 2
+private const val POP_SCALE = 1.2f
 
 /** 한 낱말 이름을 줄일 수 있는 끝(본래 크기의 80%) */
 private const val MIN_NAME_SCALE = 0.8f

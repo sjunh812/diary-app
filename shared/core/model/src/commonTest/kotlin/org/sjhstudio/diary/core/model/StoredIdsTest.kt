@@ -129,4 +129,18 @@ class StoredIdsTest {
         assertEquals("diary.pin.v1", lock.keyAlias)
         assertEquals(false, lock.hasPin)
     }
+
+    /** 설정과 백업에 저장하는 기분 테마·클레이 꼴 id(스펙 013) */
+    @Test
+    fun mood_theme_and_clay_ids() {
+        assertEquals(
+            listOf("basic", "shape", "gouache", "line", "dot", "bubble", "doodle", "veggie", "clay"),
+            MoodTheme.entries.map { it.id }
+        )
+        assertEquals(
+            listOf("bob", "long", "short", "dandy", "part", "bun", "ponytail", "curly", "buzz"),
+            ClayHair.entries.map { it.id }
+        )
+        assertEquals((1..6).map { "skin$it" }, ClaySkin.entries.map { it.id })
+    }
 }

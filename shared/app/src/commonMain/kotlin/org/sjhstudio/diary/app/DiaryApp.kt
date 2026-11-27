@@ -81,7 +81,7 @@ fun DiaryApp() {
     DiaryTheme(darkTheme = darkTheme, fontFamily = chosenFontFamily(settings.font), brand = brand) {
         ApplyPlatformTheme(settings.themeMode, darkTheme)
         val moodLook = settings.moodLook
-        val shownMood = remember(moodLook, plan.moodThemes) { ShownMoodLook(moodLook.shownTheme(plan.moodThemes), moodLook.sticker) }
+        val shownMood = remember(moodLook, plan.moodThemes) { ShownMoodLook.of(moodLook, plan.moodThemes) }
         CompositionLocalProvider(LocalChosenFont provides settings.font, LocalMoodLook provides shownMood) {
             ProvideScreenGutter {
                 ProvideTabViewModelStores {

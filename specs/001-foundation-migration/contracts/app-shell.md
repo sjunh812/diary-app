@@ -32,7 +32,7 @@
 | `HomeKey`, `CalendarKey`, `InsightKey` | 002 | 빈 자리 화면("곧 채워져요"가 아니라 빈 상태 컴포넌트) |
 | `WriteKey(entryId: String?)` | 002 | 없음(쓰기 버튼은 002에서 잇는다) |
 | `SettingsKey` | settings | 설정 틀 |
-| `FontSettingsKey`, `TextSizeSettingsKey`, `ThemeSettingsKey`, `MoodThemeSettingsKey` | settings | 있음 |
+| `FontSettingsKey`, `TextSizeSettingsKey`, `ThemeSettingsKey`, `MoodThemeSettingsKey`, `ClayLookSettingsKey` | settings | 있음 |
 | `LockSettingsKey`, `PinSetupKey(mode)` | lock | 있음 |
 | `ReminderSettingsKey` | settings | 켜기·시각. 알림 허용이 없으면 "알림이 꺼져 있어요"와 [허용하기](허용 묻기는 004) |
 | `MigrationReportKey` | migration | 일부만 옮겨진 기기에서만 설정에 보인다. 결과, 원본 파일 내보내기, 문의하기 |

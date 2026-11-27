@@ -180,6 +180,12 @@ object DiaryWriteSize {
 
     /** 기분 테마 줄의 대표 얼굴(Figma "기분 테마 (G5)") */
     val moodThemeFace: Dp = 28.dp
+
+    /** 클레이 꾸미기: 위 미리보기 얼굴, 머리 스타일 칸 얼굴, 피부톤 원과 누르는 칸 */
+    val clayPreviewFace: Dp = 56.dp
+    val clayHairFace: Dp = 48.dp
+    val claySkinDot: Dp = 36.dp
+    val claySkinTouch: Dp = 48.dp
     val moodFace: Dp = 44.dp
 
     /** 서식 도구 줄 */

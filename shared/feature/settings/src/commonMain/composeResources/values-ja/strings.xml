@@ -183,4 +183,25 @@
     <string name="mood_theme_veggie">やさい・くだもの</string>
     <string name="mood_theme_clay">ねんど</string>
     <string name="mood_theme_sticker">ステッカー風</string>
+    <string name="mood_theme_clay_custom">カスタマイズ</string>
+    <string name="clay_preview_note">15種類の気分をこの顔で表示します。髪の色は気分ごとに変わります。</string>
+    <string name="clay_hair_title">髪型</string>
+    <string name="clay_skin_title">肌の色</string>
+    <string name="clay_glasses">メガネ</string>
+    <string name="clay_hair_bob">ボブ</string>
+    <string name="clay_hair_long">ロング</string>
+    <string name="clay_hair_short">ショート</string>
+    <string name="clay_hair_dandy">ダンディ</string>
+    <string name="clay_hair_part">分け目</string>
+    <string name="clay_hair_bun">おだんご</string>
+    <string name="clay_hair_ponytail">ポニーテール</string>
+    <string name="clay_hair_curly">くせ毛</string>
+    <string name="clay_hair_buzz">坊主</string>
+    <string name="clay_skin_1">とても明るい</string>
+    <string name="clay_skin_2">明るい</string>
+    <string name="clay_skin_3">やや明るい</string>
+    <string name="clay_skin_4">中間</string>
+    <string name="clay_skin_5">やや濃い</string>
+    <string name="clay_skin_6">濃い</string>
+    <string name="mood_theme_preview_body">Plusならこのテーマで気分を表示できます。</string>
 </resources>

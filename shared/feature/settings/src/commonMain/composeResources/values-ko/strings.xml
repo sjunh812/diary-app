@@ -183,4 +183,25 @@
     <string name="mood_theme_veggie">채소·과일</string>
     <string name="mood_theme_clay">클레이 얼굴</string>
     <string name="mood_theme_sticker">스티커 효과</string>
+    <string name="mood_theme_clay_custom">꾸미기</string>
+    <string name="clay_preview_note">기분 15가지를 이 얼굴로 볼 수 있어요. 머리색은 기분마다 달라요.</string>
+    <string name="clay_hair_title">머리 스타일</string>
+    <string name="clay_skin_title">피부톤</string>
+    <string name="clay_glasses">안경</string>
+    <string name="clay_hair_bob">단발</string>
+    <string name="clay_hair_long">긴 생머리</string>
+    <string name="clay_hair_short">숏컷</string>
+    <string name="clay_hair_dandy">댄디컷</string>
+    <string name="clay_hair_part">가르마</string>
+    <string name="clay_hair_bun">똥머리</string>
+    <string name="clay_hair_ponytail">포니테일</string>
+    <string name="clay_hair_curly">곱슬</string>
+    <string name="clay_hair_buzz">버즈컷</string>
+    <string name="clay_skin_1">아주 밝음</string>
+    <string name="clay_skin_2">밝음</string>
+    <string name="clay_skin_3">연한</string>
+    <string name="clay_skin_4">중간</string>
+    <string name="clay_skin_5">짙은</string>
+    <string name="clay_skin_6">깊은</string>
+    <string name="mood_theme_preview_body">Plus에서는 기분을 이 테마로 볼 수 있어요.</string>
 </resources>

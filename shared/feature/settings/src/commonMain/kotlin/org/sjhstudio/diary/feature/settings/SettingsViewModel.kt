@@ -20,8 +20,6 @@ import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.LockSettings
-import org.sjhstudio.diary.core.model.MoodLook
-import org.sjhstudio.diary.core.model.MoodTheme
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.core.model.ThemeChoice
@@ -75,9 +73,6 @@ data class SettingsUiState(
     val loaded: Boolean = false
 )
 
-/** 기분 테마 화면 상태(스펙 013). 요금제를 아직 모르면 [canPlus]가 null이고 잠금 표시를 하지 않음 */
-data class MoodThemeUiState(val look: MoodLook, val canPlus: Boolean?)
-
 /** 테마 화면 상태. 설정과 요금제만 봐서 다른 읽기를 기다리지 않음 */
 data class ThemeUiState(val mode: ThemeMode, val theme: ThemeChoice, val listStyle: ListStyle, val canCustom: Boolean?)
 
@@ -113,10 +108,6 @@ class SettingsViewModel(
         combine(settings.settings, settledPlan) { app, plan ->
             ThemeUiState(app.themeMode, app.theme, app.list.listStyle, plan?.customTheme)
         }.stateInSafely(viewModelScope, WhileUiSubscribed, null)
-
-    val moodTheme: StateFlow<MoodThemeUiState?> =
-        combine(settings.settings, settledPlan) { app, plan -> MoodThemeUiState(app.moodLook, plan?.moodThemes) }
-            .stateInSafely(viewModelScope, WhileUiSubscribed, null)
 
     val state: StateFlow<SettingsUiState> =
         combine(
@@ -177,15 +168,6 @@ class SettingsViewModel(
     fun setCustomThemeColor(rgb: Int) {
         viewModelScope.launchWrite { settings.updateTheme { it.withCustom(rgb) } }
         changed("theme_color", ThemeColor.CUSTOM.id)
-    }
-
-    fun setMoodTheme(theme: MoodTheme) {
-        viewModelScope.launchWrite { settings.updateMoodLook { it.withTheme(theme) } }
-        changed("mood_theme", theme.id)
-    }
-
-    fun setShapeSticker(on: Boolean) {
-        viewModelScope.launchWrite { settings.updateMoodLook { it.withSticker(on) } }
     }
 
     // 설정 이름과 고른 값의 ID만 보냄(contracts/app-shell.md 사용 통계 고정 표)

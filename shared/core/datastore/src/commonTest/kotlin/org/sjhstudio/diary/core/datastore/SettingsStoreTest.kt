@@ -11,6 +11,8 @@ import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.LegacyBackupLink
+import org.sjhstudio.diary.core.model.MoodLook
+import org.sjhstudio.diary.core.model.MoodTheme
 import org.sjhstudio.diary.core.model.ThemeChoice
 import org.sjhstudio.diary.core.model.ThemeColor
 import org.sjhstudio.diary.core.model.ThemeMode
@@ -87,6 +89,30 @@ class SettingsStoreTest {
             assertEquals(ThemeChoice(colorId = "mauve", customHex = "broken"), theme)
             assertEquals(ThemeColor.LAVENDER, theme.color)
             assertEquals(null, theme.customRgb)
+        }
+    }
+
+    /** 기분 테마 키 다섯. 모르는 테마·머리 id는 다른 설정을 바꿔도 지우지 않음(스펙 013) */
+    @Test
+    fun mood_look_round_trips_and_unknown_ids_survive() = runTest {
+        TestDataStores().use { stores ->
+            val dataStore = stores.factory.settings()
+            val store = SettingsStore(dataStore)
+            val look = MoodLook(themeId = "clay", clayHair = "bun", claySkin = "skin3", clayGlasses = true, shapeSticker = false)
+            store.update { it.copy(moodLook = look) }
+            assertEquals(look, store.settings.first().moodLook)
+            assertEquals("clay", dataStore.data.first()[stringPreferencesKey("mood_theme")])
+
+            dataStore.edit {
+                it[stringPreferencesKey("mood_theme")] = "galaxy"
+                it[stringPreferencesKey("clay_hair")] = "mohawk"
+            }
+            store.update { it.copy(themeMode = ThemeMode.DARK) }
+
+            val kept = store.settings.first().moodLook
+            assertEquals("galaxy", kept.themeId)
+            assertEquals("mohawk", kept.clayHair)
+            assertEquals(MoodTheme.BASIC, kept.theme)
         }
     }
 
