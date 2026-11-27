@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -40,28 +39,31 @@ import org.sjhstudio.diary.core.model.Weather
 /**
  * 기분 고르기 칸 15개, 5칸 3줄
  * 쓰기는 하나, 찾기는 여러 개를 고름
- * 줄마다 같은 다섯 칸을 쓰고 모자란 줄은 왼쪽부터 채움
- * 칸이 얼굴보다 넓어서 그만큼 왼쪽으로 내어 얼굴을 제목 선에 맞춤
+ * 칸이 곧 누르는 곳이라 칸끼리 맞닿게 두고 격자는 가운데
+ * 좁은 폭에서는 첫·마지막 얼굴이 내용 선을 넘지 않을 만큼 칸을 줄임
+ * 모자란 줄도 가운데
  */
 @Composable
 fun DiaryMoodGrid(isSelected: (Mood) -> Boolean, onToggle: (Mood) -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier.layout { measurable, constraints ->
-            val placeable = measurable.measure(constraints)
-            val gaps = DiarySpacing.x1.roundToPx() * (GRID_COLUMNS - 1)
-            val side = ((placeable.width - gaps) / GRID_COLUMNS - DiaryWriteSize.moodFace.roundToPx()) / 2
-            layout(placeable.width, placeable.height) { placeable.placeRelative(-side, 0) }
+            val width = constraints.maxWidth
+            val face = DiaryWriteSize.moodFace.roundToPx()
+            // 칸 다섯 개가 내용 폭보다 넓으면 양쪽 얼굴 바깥 여백만큼만 넘침
+            val fit = (width - face) / (GRID_COLUMNS - 1)
+            val cell = minOf(DiaryWriteSize.moodCellWidth.roundToPx(), fit)
+            val grid = cell * GRID_COLUMNS
+            val placeable = measurable.measure(constraints.copy(minWidth = grid, maxWidth = grid))
+            layout(width, placeable.height) { placeable.placeRelative((width - grid) / 2, 0) }
         },
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
         for (row in Mood.ordered.chunked(GRID_COLUMNS)) {
-            // 칸 사이 4
-            // 붙이면 찾기에서 여러 개를 고를 때 칠한 칸끼리 하나로 보임
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
+            Row(Modifier.fillMaxWidth(row.size / GRID_COLUMNS.toFloat())) {
                 for (mood in row) {
                     Box(Modifier.weight(1f)) { MoodCell(mood, isSelected(mood)) { onToggle(mood) } }
                 }
-                repeat(GRID_COLUMNS - row.size) { Spacer(Modifier.weight(1f)) }
             }
         }
     }
@@ -72,26 +74,34 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
     val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
     val haptic = LocalHapticFeedback.current
-    Column(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .heightIn(min = DiaryWriteSize.moodCellHeight)
-                .diaryPress(interaction, colors.textPrimary, DiaryShapes.r16)
-                .clip(DiaryShapes.r16)
-                // 시트와 쓰기 옆 칸 어디서나 바탕 위에 그대로 놓이게 고른 칸만 칠함
-                .then(if (selected) Modifier.background(colors.selected) else Modifier)
-                .semantics { this.selected = selected }
-                .clickable(interactionSource = interaction, indication = null, role = Role.Button) {
-                    haptic.performHapticFeedback(HapticFeedbackType.SegmentTick)
-                    onClick()
-                }
-                .padding(horizontal = DiarySpacing.x0_5, vertical = DiarySpacing.x2),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)
+    // 누르는 곳은 칸 전체, 칠하는 바탕만 양옆 2 안으로
+    // 찾기에서 여러 개를 고를 때 칠한 칸끼리 하나로 붙어 보이지 않게
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .semantics { this.selected = selected }
+            .clickable(interactionSource = interaction, indication = null, role = Role.Button) {
+                haptic.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                onClick()
+            }
+            .padding(horizontal = DiarySpacing.x0_5)
     ) {
-        MoodFace(mood, DiaryWriteSize.moodFace)
-        MoodName(moodName(mood), selected)
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = DiaryWriteSize.moodCellHeight)
+                    .diaryPress(interaction, colors.textPrimary, DiaryShapes.r16)
+                    .clip(DiaryShapes.r16)
+                    // 시트와 쓰기 옆 칸 어디서나 바탕 위에 그대로 놓이게 고른 칸만 칠함
+                    .then(if (selected) Modifier.background(colors.selected) else Modifier)
+                    .padding(vertical = DiarySpacing.x2),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)
+        ) {
+            MoodFace(mood, DiaryWriteSize.moodFace)
+            MoodName(moodName(mood), selected)
+        }
     }
 }
 
