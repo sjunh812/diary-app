@@ -16,6 +16,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -25,6 +26,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.ads.nativead.MediaView
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdView
@@ -46,7 +48,10 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 @Composable
 internal actual fun NativeAdCard(key: String, shape: AdShape, frame: @Composable (ad: @Composable () -> Unit) -> Unit) {
     val player = koinInject<AdPlayer>() as? AdMobPlayer ?: return
-    LaunchedEffect(key) { player.loadNative(key) }
+    val allowed by player.consent.adsAllowed.collectAsStateWithLifecycle()
+    player.consent.gate.AskWhileShown(key)
+    // 동의 창에 답하면 다시 받음
+    LaunchedEffect(key, allowed) { player.loadNative(key) }
     val ad = player.natives[key] ?: return
     // 그려진 동안은 치우지 않게 알림
     DisposableEffect(key) {

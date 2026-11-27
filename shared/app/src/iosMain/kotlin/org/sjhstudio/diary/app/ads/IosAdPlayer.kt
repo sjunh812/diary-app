@@ -16,7 +16,7 @@ import platform.UIKit.UIView
  * 결과는 화면 스레드에서 콜백으로 돌려줌
  * 광고 요청에 일기 내용을 넣지 않음(헌법 II)
  */
-interface IosAdBridge {
+interface IosAdBridge : IosConsentBridge {
     /** 광고 단위가 있어야 true. 출시 빌드에 값이 없으면 광고를 부르지 않음 */
     val available: Boolean
 
@@ -43,9 +43,21 @@ interface IosAdBridge {
 
     /** 폭에 맞춘 뷰 높이(pt) */
     fun fittingHeight(view: UIView, width: Double): Double
+}
 
-    /** 광고 동의를 다시 고르는 곳이 필요한지 알림. 등록하면 지금 값부터 */
-    fun setPrivacyListener(listener: (Boolean) -> Unit)
+/** Swift가 구현하는 광고 동의(UMP) 다리. [IosAdBridge]와 같은 객체 */
+interface IosConsentBridge {
+    /** 아직 동의 창에 답하지 않았으면 true */
+    val consentNeeded: Boolean
+
+    /** 광고를 받을 수 있는지와 동의를 다시 고르는 곳이 필요한지 알림. 등록하면 지금 값부터 */
+    fun setConsentListener(listener: (allowed: Boolean, choicesRequired: Boolean) -> Unit)
+
+    /** 동의 정보를 받은 뒤 답할 차례면 창을 받아 둠. 받으면 [onReady], 못 받으면 [onFailed]. 필요 없으면 부르지 않음 */
+    fun prepareConsentForm(onReady: () -> Unit, onFailed: () -> Unit)
+
+    /** 받아 둔 동의 창을 띄움. 닫히면 true, 앱이 앞에 없거나 받아 둔 창이 없으면 바로 false */
+    fun presentConsentForm(onClosed: (Boolean) -> Unit)
 
     /** 광고 동의를 다시 고르는 창 */
     fun showPrivacyChoices()
@@ -71,14 +83,26 @@ class IosAdStyle(
     val semiBoldFont: String?
 )
 
-/** iOS 광고 동의. Swift가 동의 정보를 받거나 바꿀 때마다 알려 줌 */
-class IosAdPrivacy(private val bridge: IosAdBridge) : AdPrivacy {
+/** iOS 광고 동의. Swift가 동의 정보를 받거나 바꿀 때마다 알려 줌. 창은 [gate]가 띄울 때를 정함 */
+class IosAdConsent(private val bridge: IosConsentBridge) : AdPrivacy {
     private val required = MutableStateFlow(false)
     override val choicesRequired: StateFlow<Boolean> = required.asStateFlow()
 
+    private val allowed = MutableStateFlow(false)
+
+    /** 광고를 받을 수 있는지. 동의 창에 답하면 바뀌어 목록 광고 자리가 다시 받음 */
+    val adsAllowed: StateFlow<Boolean> = allowed.asStateFlow()
+
+    val gate = ConsentFormGate(needed = { bridge.consentNeeded }, present = bridge::presentConsentForm)
+
     init {
-        bridge.setPrivacyListener { required.value = it }
+        bridge.setConsentListener { canRequest, choices ->
+            allowed.value = canRequest
+            required.value = choices
+        }
     }
+
+    internal fun prepare() = bridge.prepareConsentForm(onReady = gate::formReady, onFailed = gate::formFailed)
 
     override fun showChoices() = bridge.showPrivacyChoices()
 }
@@ -87,11 +111,15 @@ class IosAdPrivacy(private val bridge: IosAdBridge) : AdPrivacy {
 class IosAdPlayer(private val bridge: IosAdBridge) : AdPlayer {
     override val available: Boolean get() = bridge.available
 
+    val consent = IosAdConsent(bridge)
+
     /** 받은 네이티브 자리. Swift가 받거나 치울 때 알려 바뀜 */
     internal val loaded = mutableStateMapOf<String, Boolean>()
 
     override fun warmUp() {
-        if (available) bridge.warmUp()
+        if (!available) return
+        bridge.warmUp()
+        consent.prepare()
     }
 
     override fun prepareInterstitial() {
@@ -107,6 +135,8 @@ class IosAdPlayer(private val bridge: IosAdBridge) : AdPlayer {
 
     override suspend fun loadRewarded(): ReadyReward? {
         if (!available) return null
+        // 사용자가 눌러 부르는 자리라 아직 답하지 않았으면 바로 물음
+        suspendCancellableCoroutine { result -> consent.gate.askNow { if (result.isActive) result.resume(Unit) } }
         val loaded = suspendCancellableCoroutine { result ->
             result.invokeOnCancellation { bridge.cancelRewarded() }
             bridge.loadRewarded { ok -> if (result.isActive) result.resume(ok) }

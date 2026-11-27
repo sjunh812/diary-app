@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.pm.ApplicationInfo
 import android.provider.Settings
 import com.google.android.ump.ConsentDebugSettings
+import com.google.android.ump.ConsentForm
 import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
@@ -16,6 +17,7 @@ import org.sjhstudio.diary.core.data.AdPrivacy
 /**
  * 광고 동의(Google UMP, `docs/business.md` 광고 동의)
  * 동의가 필요한지는 Google이 접속 지역으로 정해 EEA·영국·스위스에서만 창이 뜸. 그 밖의 지역은 창도 설정 줄도 없음
+ * 창은 미리 받아 두고 [gate]가 띄울 때를 정함
  * 화면 스레드에서만 부름
  */
 class AdConsent(private val app: Application, private val current: CurrentActivity) : AdPrivacy {
@@ -23,13 +25,36 @@ class AdConsent(private val app: Application, private val current: CurrentActivi
     private var updated = false
     private var updating = false
     private val afterUpdate = mutableListOf<() -> Unit>()
-    private var formWaiters: MutableList<() -> Unit>? = null
+    private var form: ConsentForm? = null
 
     private val required = MutableStateFlow(false)
     override val choicesRequired: StateFlow<Boolean> = required.asStateFlow()
 
     /** 지난번 답이 남아 있으면 앱을 새로 켜도 바로 true */
     val canRequestAds: Boolean get() = info.canRequestAds()
+
+    private val allowed = MutableStateFlow(info.canRequestAds())
+
+    /** 광고를 받을 수 있는지. 동의 창에 답하면 바뀌어 목록 광고 자리가 다시 받음 */
+    val adsAllowed: StateFlow<Boolean> = allowed.asStateFlow()
+
+    val gate =
+        ConsentFormGate(
+            needed = { info.consentStatus == ConsentInformation.ConsentStatus.REQUIRED },
+            present = { onClosed ->
+                val ready = form
+                val screen = current.value
+                if (ready == null || screen == null) {
+                    onClosed(false)
+                } else {
+                    ready.show(screen) {
+                        form = null
+                        refresh()
+                        onClosed(true)
+                    }
+                }
+            }
+        )
 
     /**
      * 앱을 켤 때마다 한 번 동의 정보를 새로 받은 뒤 [then]
@@ -49,25 +74,24 @@ class AdConsent(private val app: Application, private val current: CurrentActivi
         updating = false
         updated = true
         refresh()
+        prepareForm()
         val works = afterUpdate.toList()
         afterUpdate.clear()
         works.forEach { it() }
     }
 
-    /** 아직 답하지 않았으면 동의 창을 띄우고 닫힌 뒤 [then]. 필요 없으면 바로 [then] */
-    fun showFormIfRequired(then: () -> Unit) {
-        formWaiters?.let {
-            it += then
-            return
-        }
-        val screen = current.value ?: return then()
-        formWaiters = mutableListOf(then)
-        UserMessagingPlatform.loadAndShowConsentFormIfRequired(screen) {
-            refresh()
-            val waiters = formWaiters.orEmpty()
-            formWaiters = null
-            waiters.forEach { it() }
-        }
+    /** 아직 답하지 않았으면 창을 받아 둠. 띄우는 것은 [gate] */
+    private fun prepareForm() {
+        if (info.consentStatus != ConsentInformation.ConsentStatus.REQUIRED) return
+        if (!info.isConsentFormAvailable) return gate.formFailed()
+        UserMessagingPlatform.loadConsentForm(
+            app,
+            { loaded ->
+                form = loaded
+                gate.formReady()
+            },
+            { gate.formFailed() }
+        )
     }
 
     override fun showChoices() {
@@ -76,6 +100,7 @@ class AdConsent(private val app: Application, private val current: CurrentActivi
     }
 
     private fun refresh() {
+        allowed.value = info.canRequestAds()
         required.value = info.privacyOptionsRequirementStatus == ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
     }
 

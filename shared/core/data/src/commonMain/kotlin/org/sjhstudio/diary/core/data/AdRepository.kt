@@ -56,7 +56,7 @@ interface AdPlayer {
 
 /**
  * 광고 동의(UMP 개인정보 선택). 설정의 "광고 개인정보 설정" 줄이 봄
- * Android는 `AdConsent`, iOS는 `IosAdPrivacy`
+ * Android는 `AdConsent`, iOS는 `IosAdConsent`
  */
 interface AdPrivacy {
     /** 동의 창이 필요한 지역(EEA·영국·스위스)에서 한 번 답한 뒤 true. 다시 고르는 곳을 두어야 함 */

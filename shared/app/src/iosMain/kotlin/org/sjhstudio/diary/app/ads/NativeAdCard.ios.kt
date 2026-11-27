@@ -42,8 +42,10 @@ import platform.UIKit.UIView
 internal actual fun NativeAdCard(key: String, shape: AdShape, frame: @Composable (ad: @Composable () -> Unit) -> Unit) {
     val player = koinInject<AdPlayer>() as? IosAdPlayer ?: return
     val loaded = player.loaded[key] == true
-    // Swift가 치운 자리는 받음 표시가 지워져 다시 받음
-    LaunchedEffect(key, loaded) { if (!loaded) player.loadNative(key) }
+    val allowed by player.consent.adsAllowed.collectAsStateWithLifecycle()
+    player.consent.gate.AskWhileShown(key)
+    // Swift가 치운 자리는 받음 표시가 지워져 다시 받음. 동의 창에 답해도 다시 받음
+    LaunchedEffect(key, loaded, allowed) { if (!loaded) player.loadNative(key) }
     val style = rememberAdStyle()
     val view = if (loaded) remember(key, shape, style) { player.nativeView(key, shape == AdShape.Card, style) } else null
     if (view != null) frame { AdView(player, view) }

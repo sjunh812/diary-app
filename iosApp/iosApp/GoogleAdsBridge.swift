@@ -48,8 +48,10 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
     private var consentUpdated = false
     private var consentUpdating = false
     private var afterConsentUpdate: [() -> Void] = []
-    private var consentFormWaiters: [() -> Void]?
-    private var privacyListener: ((KotlinBoolean) -> Void)?
+    /// 받아 둔 동의 창. 띄울 때는 Kotlin `ConsentFormGate`가 정함
+    private var consentForm: ConsentForm?
+    private var preparingConsentForm = false
+    private var consentListener: ((KotlinBoolean, KotlinBoolean) -> Void)?
 
     override init() {
         #if DEBUG
@@ -85,21 +87,12 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
     }
 
     /// 광고를 받을 수 있으면 SDK를 켠 뒤 [then](true)
-    /// [ask]면 아직 답하지 않은 사람에게 동의 창을 띄움. 사용자가 광고를 보는 자리(목록, 보상형)에서만
-    /// 동의가 필요한지는 Google이 접속 지역으로 정해 EEA·영국·스위스에서만 창이 뜸
-    private func whenConsented(ask: Bool, _ then: @escaping (Bool) -> Void) {
+    /// 동의 창은 여기서 띄우지 않음. 목록 광고 자리가 화면에 있을 때나 보상형을 누를 때 Kotlin이 띄움
+    private func whenConsented(_ then: @escaping (Bool) -> Void) {
         whenConsentKnown { [self] in
-            if ConsentInformation.shared.canRequestAds {
-                start()
-                then(true)
-            } else if ask {
-                showConsentFormIfRequired { [self] in
-                    if ConsentInformation.shared.canRequestAds { start() }
-                    then(ConsentInformation.shared.canRequestAds)
-                }
-            } else {
-                then(false)
-            }
+            let allowed = ConsentInformation.shared.canRequestAds
+            if allowed { start() }
+            then(allowed)
         }
     }
 
@@ -114,7 +107,7 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
                 guard let self else { return }
                 consentUpdating = false
                 consentUpdated = true
-                notifyPrivacy()
+                notifyConsent()
                 let works = afterConsentUpdate
                 afterConsentUpdate = []
                 works.forEach { $0() }
@@ -122,29 +115,49 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
         }
     }
 
-    private func showConsentFormIfRequired(_ then: @escaping () -> Void) {
-        if consentFormWaiters != nil {
-            consentFormWaiters?.append(then)
-            return
-        }
-        guard UIApplication.shared.applicationState == .active, let screen = topScreen() else { return then() }
-        consentFormWaiters = [then]
-        ConsentForm.loadAndPresentIfRequired(from: screen) { _ in
-            DispatchQueue.main.async { [weak self] in
-                guard let self else { return }
-                notifyPrivacy()
-                let waiters = consentFormWaiters ?? []
-                consentFormWaiters = nil
-                waiters.forEach { $0() }
+    var consentNeeded: Bool { ConsentInformation.shared.consentStatus == .required }
+
+    func prepareConsentForm(onReady: @escaping () -> Void, onFailed: @escaping () -> Void) {
+        onMain { [self] in
+            guard available, consentForm == nil, !preparingConsentForm else { return }
+            whenConsentKnown { [self] in
+                guard consentNeeded else { return }
+                guard ConsentInformation.shared.formStatus == .available else { return onFailed() }
+                preparingConsentForm = true
+                ConsentForm.load { form, _ in
+                    DispatchQueue.main.async { [weak self] in
+                        guard let self else { return }
+                        preparingConsentForm = false
+                        consentForm = form
+                        form != nil ? onReady() : onFailed()
+                    }
+                }
             }
         }
     }
 
-    /// 설정의 "광고 개인정보 설정" 줄이 보이는지 Kotlin에 알림. 등록하면 지금 값부터
-    func setPrivacyListener(listener: @escaping (KotlinBoolean) -> Void) {
+    func presentConsentForm(onClosed: @escaping (KotlinBoolean) -> Void) {
         onMain { [self] in
-            privacyListener = listener
-            notifyPrivacy()
+            guard UIApplication.shared.applicationState == .active, let form = consentForm, let screen = topScreen() else {
+                return onClosed(false)
+            }
+            form.present(from: screen) { _ in
+                DispatchQueue.main.async { [weak self] in
+                    guard let self else { return }
+                    consentForm = nil
+                    if ConsentInformation.shared.canRequestAds { start() }
+                    notifyConsent()
+                    onClosed(true)
+                }
+            }
+        }
+    }
+
+    /// 광고를 받을 수 있는지와 설정의 "광고 개인정보 설정" 줄이 보이는지 Kotlin에 알림. 등록하면 지금 값부터
+    func setConsentListener(listener: @escaping (KotlinBoolean, KotlinBoolean) -> Void) {
+        onMain { [self] in
+            consentListener = listener
+            notifyConsent()
         }
     }
 
@@ -152,14 +165,15 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
         onMain { [self] in
             guard let screen = topScreen() else { return }
             ConsentForm.presentPrivacyOptionsForm(from: screen) { _ in
-                DispatchQueue.main.async { [weak self] in self?.notifyPrivacy() }
+                DispatchQueue.main.async { [weak self] in self?.notifyConsent() }
             }
         }
     }
 
-    private func notifyPrivacy() {
+    private func notifyConsent() {
+        let allowed = ConsentInformation.shared.canRequestAds
         let required = ConsentInformation.shared.privacyOptionsRequirementStatus == .required
-        privacyListener?(KotlinBoolean(bool: required))
+        consentListener?(KotlinBoolean(bool: allowed), KotlinBoolean(bool: required))
     }
 
     /// 개발 빌드는 실행 인자 `-DiaryUmpEEA YES`면 유럽에 있는 것처럼 시험. 시뮬레이터는 시험 기기로 따로 등록하지 않아도 됨
@@ -181,8 +195,7 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
             guard available, !loadingInterstitial, !interstitialIsFresh else { return }
             interstitial = nil
             loadingInterstitial = true
-            // 작성 화면을 열 때 받으므로 동의 창은 띄우지 않음
-            whenConsented(ask: false) { [self] allowed in
+            whenConsented { [self] allowed in
                 guard allowed else {
                     loadingInterstitial = false
                     return
@@ -236,7 +249,8 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
             }
             rewardedRequest += 1
             let request = rewardedRequest
-            whenConsented(ask: true) { [self] allowed in
+            // 동의 창은 Kotlin이 먼저 물음
+            whenConsented { [self] allowed in
                 guard request == rewardedRequest else { return }
                 guard allowed else { return onLoaded(false) }
                 askTrackingOnce { [self] in
@@ -289,8 +303,8 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
                 onLoaded()
             }
             loaders[key] = loader
-            // 잠금·온보딩이 끝나고 광고를 볼 사람에게만 옴. 동의 창(유럽만) 다음에 추적 허용
-            whenConsented(ask: true) { [self] allowed in
+            // 잠금·온보딩이 끝나고 광고를 볼 사람에게만 옴. 동의(유럽만)를 받은 뒤 추적 허용
+            whenConsented { [self] allowed in
                 guard allowed else {
                     loaders[key] = nil
                     return

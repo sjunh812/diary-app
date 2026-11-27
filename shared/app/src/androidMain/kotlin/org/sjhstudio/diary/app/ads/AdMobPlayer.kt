@@ -72,7 +72,7 @@ class AdUnits(context: Context) {
  * AdMob 구현
  * 광고 요청에 일기 내용을 넣지 않음(헌법 II)
  */
-class AdMobPlayer(context: Context, val units: AdUnits, private val current: CurrentActivity, private val consent: AdConsent) : AdPlayer {
+class AdMobPlayer(context: Context, val units: AdUnits, private val current: CurrentActivity, internal val consent: AdConsent) : AdPlayer {
     private val app = context.applicationContext as Application
     private var interstitial: InterstitialAd? = null
 
@@ -107,9 +107,10 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
      */
     private val nativeOrder = ArrayDeque<String>()
 
+    /** 동의 전이면 받지 않고 끝남. 동의 창은 자리가 화면에 있을 때 [AdConsent.gate]가 띄움 */
     fun loadNative(key: String) {
         if (!available || key in natives || !loading.add(key)) return
-        whenReady(askConsent = true, onFailed = { loading -= key }) { requestNative(key) }
+        whenReady(askConsent = false, onFailed = { loading -= key }) { requestNative(key) }
     }
 
     private fun requestNative(key: String) {
@@ -180,7 +181,7 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
 
     /**
      * 화면 스레드에서 부름. 광고를 받을 수 있으면 초기화 뒤에 [request], 아니면 [onFailed]
-     * [askConsent]면 아직 답하지 않은 사람에게 동의 창을 띄움. 사용자가 광고를 보는 자리(목록, 보상형)에서만
+     * [askConsent]면 아직 답하지 않은 사람에게 바로 동의 창을 띄움. 사용자가 눌러 부르는 보상형에서만
      */
     private fun whenReady(askConsent: Boolean, onFailed: () -> Unit = {}, request: () -> Unit) {
         if (failed) return onFailed()
@@ -191,7 +192,7 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
                     if (ready) request() else waiting += request to onFailed
                 }
 
-                askConsent -> consent.showFormIfRequired { if (consent.canRequestAds) whenReady(false, onFailed, request) else onFailed() }
+                askConsent -> consent.gate.askNow { if (consent.canRequestAds) whenReady(false, onFailed, request) else onFailed() }
 
                 else -> onFailed()
             }
