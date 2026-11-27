@@ -1,6 +1,6 @@
 # 계약: 기분 테마 그림 원본과 생성 코드
 
-> **2026-11-28 개발에서 바뀜.** 시안 그림은 노이즈·속 그림자 같은 필터와 그라데이션을 많이 써서 벡터 경로로 옮기면 모양이 달라졌다. 그래서 아래 SVG 생성기 대신 Figma "시안 · 기분 테마 후보"의 라이트·다크 판을 3배로 내보내 144px webp로 넣었다(`shared/core/ui/src/commonMain/composeResources/drawable/mood_<테마>_<기분>.webp`). 다크 그림이 따로 있는 테마(테두리, 비눗방울, 말랑 낙서 친구)만 `_dark` 판을 둔다. 클레이는 겹(뒤 머리·피부·코·앞머리는 흰 그림에 색을 곱함, 표정 15, 안경)으로 넣어 머리 9 × 피부 6 × 안경을 앱에서 쌓는다(`clay_<겹>_<머리>.webp`, `ShownMoodLook.clayLayers`). 기본 테마는 지금처럼 코드 경로(`DiaryMoodFace`)다. 아래 절은 그림을 벡터로 바꿀 때를 위한 기록으로 남긴다.
+> **2026-11-28 개발에서 바뀜.** 시안 그림은 노이즈·속 그림자 같은 필터와 그라데이션을 많이 써서 벡터 경로로 옮기면 모양이 달라졌다. 그래서 아래 SVG 생성기 대신 Figma "시안 · 기분 테마 후보"의 라이트·다크 판(72칸)을 240px webp로 넣었다(`shared/core/ui/src/commonMain/composeResources/drawable/mood_<테마>_<기분>.webp`). 다크 그림이 따로 있는 테마(테두리, 비눗방울, 말랑 낙서 친구)만 `_dark` 판을 둔다. 클레이는 겹(뒤 머리·피부·코·앞머리는 흰 그림에 색을 곱함, 표정 15, 안경)으로 넣어 머리 9 × 피부 6 × 안경을 앱에서 쌓는다(`clay_<겹>_<머리>.webp`, `ShownMoodLook.clayLayers`). 기본 테마는 지금처럼 코드 경로(`DiaryMoodFace`)다. 아래 절은 그림을 벡터로 바꿀 때를 위한 기록으로 남긴다.
 
 Figma에서 내보낸 SVG가 원본이고, `scripts/mood/make_mood_art.py`가 이것을 읽어 Kotlin 코드를 만든다. 이 문서는 디자인과 생성기 사이의 약속이다. 어기는 원본은 생성기가 실패로 멈추고 무엇이 틀렸는지 적는다(조용히 건너뛰지 않는다).
 
@@ -68,5 +68,5 @@ internal object MoodArtLine : MoodArtSet {
 - 테마마다 15장이 모두 있고 이름이 `Mood.id`와 같다(하나라도 없으면 실패).
 - 같은 원본으로 두 번 돌리면 결과 파일이 바이트까지 같다.
 - 금지 요소·다른 기분 색·`viewBox` 어긋남을 넣은 작은 원본 셋으로 각각 실패하는지 본다.
-- Kotlin 쪽 `commonTest`(`shared/core/designsystem/src/commonTest/.../mood/MoodArtTest.kt`): 모든 테마가 `Mood.entries` 15종에 그림을 주고, 모든 경로가 `addPathNodes`로 읽히고, 클레이 9 × 6 × 2 조합이 모두 그려진다.
+- Kotlin 쪽 `commonTest`(`shared/core/ui/src/commonTest/.../MoodArtTest.kt`): 그림 테마마다 `Mood.ordered` 15종이 라이트·다크·스티커 판까지 있고, 클레이는 머리 9가지마다 피부·머리·코·표정 겹이 있다. 피부톤 6은 색을 곱할 뿐이라 따로 보지 않는다(2026-11-28 webp로 바뀌어 경로 읽기 시험은 없음).
 - 모든 테마 얼굴은 같은 칸에서 같은 크기로 보이게 맞춘다. 기본 얼굴은 지금 크기 그대로 두고, 다른 테마 그림은 SVG 둘레 여백을 잘라 몸 크기를 기본 얼굴 원에 맞춘다. 웃음 반짝임과 피곤함 zz는 칸 밖으로 조금 나가도 된다(프로토타입 확정 때 사용자 지적: 기본만 커 보임).

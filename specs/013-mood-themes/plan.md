@@ -6,13 +6,17 @@
 
 기분을 9종에서 15종으로 늘리고(새 id `excited`·`proud`·`calm`·`bored`·`anxious`·`annoyed`), 기분 색을 15색으로 바꾸고, 기분 얼굴을 테마 가운데 골라 앱 전체에 쓴다. 테마는 9벌(무료 5, Plus 4)이고, 도형은 "스티커 효과"를 켜고 끄는 설정이 있다(research 11절).
 DB 스키마는 그대로다. 기분 칸이 이미 글자 id라 새 값이 그냥 들어간다. 옛 앱이 새 기분을 "기분 없음"으로 읽고 지우지 않게, 새 기분 일기가 든 백업만 형식 4로 써서 옛 앱이 "앱을 업데이트하면 복원할 수 있어요"로 막게 한다.
-테마 그림은 Figma SVG를 원본으로 생성 스크립트가 Kotlin 경로 코드로 만들고, 지금 `DiaryMoodFace`처럼 `ImageVector`로 그린다. 설정·Plus 잠금·백업은 스펙 010 테마 색과 같은 꼴(원문 값 보관, 보일 때 거르기, 확정된 요금제로 되돌리기)을 쓴다.
+테마 그림은 Figma 판을 내보낸 webp로 넣고, 클레이는 겹 그림을 쌓아 그린다. 설정·Plus 잠금·백업은 스펙 010 테마 색과 같은 꼴(원문 값 보관, 보일 때 거르기, 확정된 요금제로 되돌리기)을 쓴다.
 
 ## 기술 배경
 
+> **2026-11-28 개발에서 바뀜.** 테마 그림은 SVG 생성기 대신 Figma 판(72칸)을 240px로 내보낸 webp로 넣었다(`shared/core/ui/src/commonMain/composeResources/drawable/mood_<테마>_<기분>.webp`, 다크 그림이 따로 있는 테마만 `_dark`). 클레이는 겹 webp를 앱에서 쌓는다(`ShownMoodLook.clayLayers`). 기본 테마는 코드 경로(`DiaryMoodFace`) 그대로다. 생성기·벡터 캐시·질감 합성은 하지 않았다(contracts/mood-art.md 머리글, `docs/DECISIONS.md` 2026-11-28).
+
+
 - 축은 스펙 001과 같다(Kotlin, CMP, Koin, DataStore, Room). 새 라이브러리는 없다.
-- 그림: Figma SVG → `scripts/mood/make_mood_art.py`(`python3 -I`) → `shared/core/designsystem/.../mood/art/MoodArt<테마>.kt`. 런타임은 `addPathNodes` + `ImageVector` 캐시(`(테마, 기분, 크기)`), `rememberVectorPainter`. 근거는 research 4절(NIA `NiaIcons.kt`, 지금 `DiaryMoodFace`·`DiaryIcons`).
-- 질감: 이어 붙이는 작은 회색 PNG 셋을 `ImageShader(TileMode.Repeated)`로 그림 모양 안에 옅게. AGSL은 API 33부터라 쓰지 않는다(`minSdk` 24).
+- 그림: Figma 72칸 판을 240px webp로 내보내 `shared/core/ui/src/commonMain/composeResources/drawable/mood_<테마>_<기분>.webp`에 둔다. 클레이는 겹 webp를 앱에서 쌓는다(`ShownMoodLook.clayLayers`). 기본 테마만 코드 경로(`DiaryMoodFace`)다.
+- 질감: 그림 파일에 들어 있어 따로 그리지 않는다.
+- (2026-11-28 바뀜) 처음 계획한 SVG 생성기(`scripts/mood/make_mood_art.py`), `ImageVector` 캐시, 질감 타일은 하지 않았다. 질감·속 그림자를 경로로 옮기지 못해서다(contracts/mood-art.md 머리글, `docs/DECISIONS.md` 2026-11-28).
 - 움직임: `graphicsLayer` 한 가지 움직임을 테마가 고름, `rememberReduceMotion()`을 따름.
 - 백업: `SnapshotWriter`가 사본에서 새 기분 일기를 세고, 드라이브·묶음 목록 파일 번호를 정한다(research 2절).
 - 시험: `commonTest`(기분 정의·묶음, 백업 번호 규칙과 왕복, 설정 저장·모르는 값 지키기, Plus 되돌리기, 그림 생성 결과, 테마 화면 모델), `iosTest`(15칸 시트, 테마 화면, 미리보기 시트, 큰 글자), Android `androidTest` 업그레이드 시험(옛 기분 그대로).
@@ -26,7 +30,7 @@ DB 스키마는 그대로다. 기분 칸이 이미 글자 id라 새 값이 그�
 | II 일기는 사용자 것 | 미리보기 시트의 일기 줄은 기기 안에서만 그린다. 통계에는 테마 id만 보낸다(일기 내용·기분 기록은 보내지 않음) |
 | III 무료 기능·광고 | 기분 15종 모두 무료, 지금 얼굴(기본)을 포함한 무료 6벌은 무료. Plus 4개는 새로 만든 꾸미기(`docs/business.md`). 테마 화면은 설정 안이라 광고 없음. Plus가 끝나도 일기와 기분은 그대로이고 얼굴만 기본으로 |
 | IV 돈 드는 서버 없음 | 서버 없음. 그림은 앱에 든다 |
-| V 심플 | 테마는 기분 얼굴 그림만 바꾼다. 기분 색·바탕·부품은 디자인 시스템 토큰 그대로. 그림 코드와 고정 색은 디자인 시스템 모듈 안(`designTokenCheck` 대상 밖)에 두고 화면 코드는 `MoodFace`만 부른다. Figma·`docs/design.md`를 먼저 고친다 |
+| V 심플 | 테마는 기분 얼굴 그림만 바꾼다. 기분 색·바탕·부품은 디자인 시스템 토큰 그대로. 테마 그림(webp)과 고르는 코드는 `shared/core/ui`(`ShownMoodLook.kt`, `MoodWeather.kt`, `designTokenCheck` 대상 밖)에, 클레이 피부톤 고정 색은 디자인 시스템(`DiaryClaySkin`)에 두고 화면 코드는 `MoodFace`만 부른다. Figma·`docs/design.md`를 먼저 고친다 |
 | VI 어떤 기기에서도 | 공통 코드 하나. 15칸 격자는 폰 세로에서 스크롤 없이, 큰 글자에서 이름 두 줄. 태블릿 쓰기 옆 칸과 설정 오른쪽 칸 확인. 위젯은 아직 없어 이 스펙에서 다루지 않음(열린 결정 3) |
 | VII 근거 | `research.md` 1~11절, 스펙 레퍼런스 |
 
@@ -35,9 +39,7 @@ DB 스키마는 그대로다. 기분 칸이 이미 글자 id라 새 값이 그�
 ## 구조
 
 ```text
-design/mood-art/<테마>/<mood>.svg                    Figma에서 내보낸 원본(contracts/mood-art.md)
-design/mood-art/textures/*.png                       질감 원본
-scripts/mood/make_mood_art.py                        SVG → Kotlin 생성, 시험 원본은 scripts/mood/fixtures/
+(2026-11-28 바뀜) 그림은 Figma "시안 · 기분 테마 후보"가 원본이다. design/mood-art/ 원본, 질감 PNG, scripts/mood/make_mood_art.py 생성기는 만들지 않았다
 
 shared/core/model/.../Mood.kt                        15종, legacyCode Int?, ordered, LEGACY
 shared/core/model/.../AdvancedStats.kt               Mood.tone 15종
@@ -52,13 +54,11 @@ shared/core/backup/.../ManifestCodec.kt              FORMAT_VERSION 4, 쓰는 �
 shared/core/backup/.../BackupRunner.kt               드라이브 번호·diary.format 속성
 shared/core/backup/.../BundleExporter.kt             묶음 번호
 shared/core/designsystem/.../theme/DiaryColors.kt    DiaryMoodColors 15칸, lineOn
-shared/core/designsystem/.../mood/MoodArt.kt         ArtLayer, Slot, MoodArtSet, 벡터 캐시, 질감 그리기
-shared/core/designsystem/.../mood/art/MoodArt*.kt    생성 파일(테마마다)
-shared/core/designsystem/.../icon/DiaryMoodFace.kt   기본 테마로 옮긴 뒤 지움
-shared/core/designsystem/src/commonMain/composeResources/drawable/mood_texture_*.png
+shared/core/designsystem/.../icon/DiaryMoodFace.kt   기본 테마 얼굴(코드 경로, 15종)
+shared/core/ui/src/commonMain/composeResources/drawable/mood_*.webp, clay_*.webp   테마 그림(Figma 판 240px)
 shared/core/ui/.../MoodWeather.kt                    MoodFace(테마 읽기), 이름 15종, DiaryMoodColors.of 15종
-shared/core/ui/.../MoodLook.kt                       LocalMoodLook, shownTheme 적용, 테마 → MoodArtSet
-shared/core/ui/.../DiaryMoodGrid.kt                  15칸 3줄, 고를 때 움직임(쓰기만)
+shared/core/ui/.../ShownMoodLook.kt                  LocalMoodLook, 테마 → 그림 고르기(art), 클레이 겹(clayLayers)
+shared/core/ui/.../DiaryMoodGrid.kt                  네 묶음(5·5·2·3) 최대 5칸, 고를 때 움직임(쓰기만)
 shared/core/ui/.../preview/MoodWeatherPreviews.kt    15종 × 테마
 shared/app/.../DiaryApp.kt                           LocalMoodLook 내려 주기
 shared/app/.../AppRootViewModel.kt                   PlusLookReset 감시
@@ -75,7 +75,7 @@ scripts/lottie/make_onboarding.py                    MOOD_SICK → 자리표시,
 composeResources values*/strings.xml (core/ui, feature/settings, feature/plus, feature/insight) 8개 언어
 ```
 
-**구조 결정**: 새 모듈은 만들지 않는다. 그림은 디자인 시스템 모듈(아이콘과 같은 자리, `Mood`를 모르므로 글자 id로 받음), 기분과 테마의 잇기는 `shared/core/ui`, 설정 화면은 `shared/feature/settings`다(`/cmp-architecture` 1절). 테마를 고르는 화면만 새로 생긴다.
+**구조 결정**: 새 모듈은 만들지 않는다. 테마 그림과 기분·테마의 잇기는 `shared/core/ui`(`ShownMoodLook.kt`가 고르고 `MoodWeather.kt`가 그림), 기본 테마 얼굴 경로와 클레이 피부톤 색은 디자인 시스템, 설정 화면은 `shared/feature/settings`다(`/cmp-architecture` 1절). 테마를 고르는 화면만 새로 생긴다.
 
 ## 데이터 흐름
 
@@ -83,7 +83,7 @@ composeResources values*/strings.xml (core/ui, feature/settings, feature/plus, f
 SettingsStore(mood_theme…) → SettingsRepository.settings → DiaryApp
 PlanRepository.plan ─────────────────────────────────────→ DiaryApp
 DiaryApp: look.shownTheme(plan.moodThemes) → LocalMoodLook
-MoodFace(mood, size) → LocalMoodLook → MoodArtSet.layers(mood.id) → 캐시된 ImageVector + 질감
+MoodFace(mood, size) → LocalMoodLook → ShownMoodLook.art(mood, dark) 또는 clayLayers(mood) → painterResource(webp)
 테마 화면 → MoodThemeViewModel → SettingsRepository.updateMoodLook (launchWrite)
 PlanRepository.confirmed + settings → PlusLookReset → withoutPlusTheme()
 ```
@@ -97,8 +97,8 @@ PlanRepository.confirmed + settings → PlusLookReset → withoutPlusTheme()
 - **파일로 내보내기 약속이 깨짐**: 새 기분이 없으면 묶음은 형식 2 그대로인 시험.
 - **Plus가 아닌데 Plus 테마가 스침**: 보일 때 거르기(`shownTheme`)로 첫 프레임부터 막고, 저장값은 확정된 요금제로만 고친다(재설치 직후 산 사람의 값을 지우지 않음). 스펙 010 US6과 같은 시험.
 - **테마를 바꿀 때 앱 전체 다시 그리기**: 테마 id가 바뀔 때만. 연타해도 저장은 마지막 값(`launchWrite`).
-- **목록·달력이 느려짐**: 벡터 캐시, 고른 테마만 읽기, 작은 크기는 질감 없음(열린 결정 1 권장). `ScrollBenchmark`·`StartupBenchmark`로 잼. Baseline Profile 다시 만듦.
-- **앱 크기**: 예산을 넘으면 생성기에서 소수 자리·점을 줄임. `apkanalyzer`로 잼.
+- **목록·달력이 느려짐**: 고른 테마 그림만 읽는다(`painterResource` 캐시). `ScrollBenchmark`·`StartupBenchmark`로 잼(T113, 아직 안 잼). Baseline Profile 다시 만듦.
+- **앱 크기**: 그림 약 1.5MB로 예산(+500KB)을 넘는다. 단순한 테마(테두리·도형·도트)를 벡터로 바꾸는 것을 다음 판에서 본다. `apkanalyzer`로 잼(T112, 아직 안 잼).
 - **15칸이 폰에서 넘침**: 쓰기 시트 높이를 작은 폰(360dp 폭)·큰 글자에서 캡처로 확인. 넘치면 칸 높이 토큰(`DiaryWriteSize.moodCellHeight`)부터 본다.
 - **색만으로 구별**: 테마마다 15종을 흑백 캡처로 나란히 놓고 구별되는지 디자인 점검에서 본다(SC-003).
 - **온보딩·결제 그림 색이 옛 값으로 남음**: `MOOD_SICK` 자리표시로 바꾸고 다시 만든 그림을 화면에서 확인.

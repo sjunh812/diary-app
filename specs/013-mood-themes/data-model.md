@@ -1,6 +1,6 @@
 # 데이터 모델: 기분 15종과 기분 테마
 
-일기 DB 스키마는 바꾸지 않는다. 기분 칸은 이미 글자 id(`entry.mood`, `draft.mood` TEXT)다. 바뀌는 것은 `Mood` 정의, 설정 값 넷, 백업 목록 파일의 형식 번호 규칙과 설정 칸 넷, 요금제 칸 하나다.
+일기 DB 스키마는 바꾸지 않는다. 기분 칸은 이미 글자 id(`entry.mood`, `draft.mood` TEXT)다. 바뀌는 것은 `Mood` 정의, 설정 값 다섯, 백업 목록 파일의 형식 번호 규칙과 설정 칸 다섯, 요금제 칸 하나다.
 
 ## Mood (`shared/core/model/.../Mood.kt`)
 
@@ -67,14 +67,15 @@ MoodLook(
   themeId: String?,      // MoodTheme.id. 없으면 기본
   clayHair: String?,     // 없거나 모르면 bob
   claySkin: String?,     // 없거나 모르면 처음 값
-  clayGlasses: Boolean?  // 없으면 끔
+  clayGlasses: Boolean?, // 없으면 끔
+  shapeSticker: Boolean? // 도형 스티커 효과. 없으면 끔
 )
 ```
 
 - 원문 그대로 든다. 모르는 id는 기본으로 보이고 저장값은 사용자가 다시 고를 때까지 지우지 않는다(스펙 010 `ThemeChoice`와 같음).
 - `theme`: 아는 id면 그 테마, 아니면 기본.
 - `shownTheme(plusAllowed)`: Plus 테마인데 `plusAllowed`가 거짓이면 기본.
-- `withTheme(t)`, `withClay(hair, skin, glasses)`: 바꾼 설정. 쓰기는 `SettingsRepository.updateMoodLook(transform)` 한 번.
+- `withTheme(t)`, `withClay(hair, skin, glasses)`, `withSticker(on)`: 바꾼 설정. 넘기지 않은 칸은 원문 그대로 둔다. 쓰기는 `SettingsRepository.updateMoodLook(transform)` 한 번.
 - `withoutPlusTheme()`: Plus 테마면 `themeId = basic`, 클레이 꼴은 그대로.
 
 ## 설정 저장 (`shared/core/datastore/.../SettingsStore.kt`)
@@ -85,6 +86,7 @@ MoodLook(
 | `clay_hair` | 머리 모양 id | `bob` |
 | `clay_skin` | 피부톤 id | 처음 값 |
 | `clay_glasses` | Boolean | 끔 |
+| `mood_theme_shape_sticker` | Boolean | 끔 |
 
 `setOrRemove`로 쓰고, 기본을 고르면 `mood_theme`에 `basic`을 적는다(다른 기기에 복원해도 기본으로 돌아오게, 스펙 010 `themeColor`와 같은 까닭).
 
@@ -128,11 +130,12 @@ MoodLook(
 | `clayHair` | 머리 모양 id | 그대로 |
 | `claySkin` | 피부톤 id | 그대로 |
 | `clayGlasses` | Boolean | 그대로 |
+| `shapeSticker` | Boolean | 그대로 |
 
 적용(`BackupSettingsBridge.applyMoodLook`): 아는 값만, 한 번에 쓴다. 모르는 테마 id는 건너뛴다. Plus가 아닌 기기에서는 값이 들어가도 보이는 테마는 기본이고, 확정된 요금제가 무료면 `PlusLookReset`가 저장값도 기본으로 고친다.
 
 ## 화면 상태
 
-- `MoodThemeUiState(look: MoodLook, canPlus: Boolean?, preview: MoodTheme?, pendingTheme: MoodTheme?, samples: List<MoodPreviewSample>)`. `canPlus`가 null이면 요금제를 아직 모름(잠금 표시를 하지 않고 누르면 기다림).
-- 미리보기 시트의 일기 몇 줄(`MoodPreviewSample(date, mood, firstLine)`, 불변 값)은 기기 안 최근 일기 3편이고 없으면 견본 문구다. 기기 밖으로 나가지 않는다(헌법 II).
+- `MoodThemeUiState(look: MoodLook, canPlus: Boolean?)`. `canPlus`가 null이면 요금제를 아직 모름(잠금 표시를 하지 않고 누르면 기다림). 미리보기 시트에 띄울 테마는 화면이 든다.
+- 미리보기 시트는 그 테마의 기분 얼굴 15종만 보인다. 최근 일기 줄은 넣지 않았다(2026-11-28 개발 결정, `docs/DECISIONS.md`).
 - 고른 테마는 `DiaryApp`이 `LocalMoodLook`(`shared/core/ui`)으로 내려 주고 `MoodFace`가 읽는다. 테마 미리보기는 같은 `CompositionLocal`을 그 칸 안에서만 바꿔 그린다.

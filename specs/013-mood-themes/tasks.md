@@ -30,12 +30,12 @@
 - [x] T013 [P] `ds/theme/DiaryColors.kt` `DiaryMoodColors` 15칸과 `lineOn`, 라이트·다크 값을 `docs/design.md` 15색 표로. `shared/core/designsystem/src/commonTest/.../theme/`에 "15색 값이 표와 같음", "lineOn은 나쁨만 흰색, 대비가 큰 쪽" 시험
 - [x] T014 `ui/MoodWeather.kt`: `Mood.label()`, `DiaryMoodColors.of` 15종, `MoodFace`의 `mood == Mood.BAD` 대신 `lineOn` 사용
 - [x] T015 [P] 기분 이름 6개를 `shared/core/ui/src/commonMain/composeResources/values/strings.xml`, `values-ko`, `values-ja`, `values-b+zh+Hant`, `values-es`, `values-pt`, `values-de`, `values-fr`에 더함(`mood_excited` … `mood_annoyed`). 한국어는 `korean-humanizer`·`korean-spell-check`. 다섯 언어는 초안(열린 결정 5)
-- [ ] T016 [P] `scripts/mood/make_mood_art.py`와 시험 원본 `scripts/mood/fixtures/`(바른 원본 1, 금지 요소·다른 기분 색·`viewBox` 어긋남 각 1). `--check`는 다시 만든 결과가 생성 파일과 같은지 봄(contracts/mood-art.md 6절)
-- [ ] T017 `ds/mood/MoodArt.kt`: `ArtLayer`, `Slot`(Mood·Line·Highlight·Skin·Fixed), `MoodArtSet`, `(테마, 기분 id, 크기)` 벡터 캐시, 질감 겹치기(`ImageShader(TileMode.Repeated)`, 질감 비트맵 하나를 나눠 씀). `shared/core/designsystem/src/commonTest/.../mood/MoodArtTest.kt`: 모든 테마가 15종을 주고 경로가 읽힘
+- [ ] ~~T016 [P] `scripts/mood/make_mood_art.py`와 시험 원본 `scripts/mood/fixtures/`(바른 원본 1, 금지 요소·다른 기분 색·`viewBox` 어긋남 각 1). `--check`는 다시 만든 결과가 생성 파일과 같은지 봄(contracts/mood-art.md 6절)~~ 하지 않음: 그림을 Figma 판 webp로 넣어 생성기와 벡터 틀이 필요 없어짐(2026-11-28)
+- [ ] ~~T017 `ds/mood/MoodArt.kt`: `ArtLayer`, `Slot`(Mood·Line·Highlight·Skin·Fixed), `MoodArtSet`, `(테마, 기분 id, 크기)` 벡터 캐시, 질감 겹치기(`ImageShader(TileMode.Repeated)`, 질감 비트맵 하나를 나눠 씀). `shared/core/designsystem/src/commonTest/.../mood/MoodArtTest.kt`: 모든 테마가 15종을 주고 경로가 읽힘~~ 하지 않음: 그림을 Figma 판 webp로 넣어 생성기와 벡터 틀이 필요 없어짐(2026-11-28)
 - [x] T018 `model/MoodTheme.kt`: `MoodTheme` 9개 id와 Plus 여부(data-model 표), 도형 스티커 효과 값, `ClayHair` 9, `ClaySkin` 6, `MoodLook`(원문 보관, `theme`, `shownTheme(plusAllowed)`, `withTheme`, `withClay`, `withoutPlusTheme`). `StoredIdsTest`에 테마·머리·피부톤 id 고정 시험
 - [x] T019 `model/AppSettings.kt` `moodLook`, `model/Plan.kt` `moodThemes`(PLUS만 참)
 - [x] T020 `shared/core/datastore/.../SettingsStore.kt` 키 `mood_theme`·`clay_hair`·`clay_skin`·`clay_glasses`, `shared/core/data/.../SettingsRepository.kt`·`DefaultSettingsRepository.kt` `updateMoodLook`, `shared/core/testing/.../FakeSettingsRepository.kt`. `SettingsStoreTest`·`DefaultSettingsRepositoryTest`: 저장·읽기, 모르는 id를 지우지 않고 다시 씀
-- [x] T021 `ui/MoodLook.kt`: `LocalMoodLook`(`staticCompositionLocalOf`), `MoodTheme` → `MoodArtSet` 잇기. `MoodFace`가 `LocalMoodLook`을 읽고 바탕 원을 테마 그림으로 옮김(research 4절)
+- [x] T021 `ui/ShownMoodLook.kt`: `LocalMoodLook`(`staticCompositionLocalOf`), 테마 → 그림 고르기(`art`)와 클레이 겹(`clayLayers`). `MoodFace`가 `LocalMoodLook`을 읽고 바탕 원을 테마 그림으로 옮김(research 4절)
 - [x] T022 `shared/app/src/commonMain/kotlin/org/sjhstudio/diary/app/DiaryApp.kt`: `settings.moodLook.shownTheme(plan.moodThemes)`를 `LocalMoodLook`으로 내려 줌(첫 프레임부터, 테마 색과 같은 자리)
 
 **여기까지 끝나면**: 기본 테마 하나로 15종이 앱 어디서나 그려진다.
@@ -69,8 +69,8 @@
 
 **목표**: 무료 테마를 골라 앱 전체가 바뀜. **독립 시험**: 설정에서 도트를 고르고 홈·달력·돌아보기를 본다.
 
-- [x] T050 [P] [US3] 무료 테마 원본을 `design/mood-art/line/`, `shape/`(스티커 효과 겹 포함), `dot/`, `gouache/`에 두고 생성(`ds/mood/art/MoodArtLine.kt` 등). 질감 PNG(`paper`, `brush`)를 `design/mood-art/textures/`와 `shared/core/designsystem/src/commonMain/composeResources/drawable/mood_texture_*.png`에
-- [x] T051 [US3] 질감을 그리는 크기 기준(열린 결정 1 권장: 28 이상)을 `ds/mood/MoodArt.kt`에 두고 `MoodArtTest`에 크기별 시험
+- [x] T050 [P] [US3] 무료 테마(테두리, 도형·스티커 효과, 도트, 과슈) 그림을 Figma 판 webp로 `shared/core/ui/src/commonMain/composeResources/drawable/mood_<테마>_*.webp`에 둠(2026-11-28 바뀜: 생성기·질감 PNG 대신 그림 파일. `MoodArtTest`가 테마마다 15종을 확인)
+- [ ] T051 [US3] ~~질감을 그리는 크기 기준~~ 하지 않음: 질감이 그림 파일에 들어 있어 크기별로 따로 그리지 않는다(2026-11-28)
 - [x] T052 [US3] `shared/feature/settings/src/commonTest/.../MoodThemeViewModelTest.kt`(새 파일)를 먼저: 처음 값 기본, 무료 테마를 누르면 저장, 연타하면 마지막 값만, 모르는 저장 id는 기본으로 보이고 지우지 않음, 요금제를 모를 때 `canPlus == null`
 - [x] T053 [US3] `settings/MoodThemeViewModel.kt`: `MoodThemeUiState`(data-model "화면 상태"), `stateInSafely`, 쓰기는 `launchWrite`, `SettingsModule.kt`에 등록
 - [x] T054 [US3] `settings/MoodThemeSettingsScreen.kt`: 테마마다 이름·대표 얼굴 몇 개·무료/Plus 표시(`DiaryPlusChip`), 고른 테마 체크, 도형 줄에 "스티커 효과" 켜고 끄기. 원시 색·숫자 크기 없이 토큰만(`designTokenCheck`)
@@ -86,8 +86,8 @@
 
 **목표**: Plus 테마 미리보기, 결제 뒤 적용, Plus가 끝나면 기본. **독립 시험**: 무료에서 클레이를 눌러 미리보기 → 개발자 모드로 Plus → 적용 → 무료로 → 기본.
 
-- [x] T070 [P] [US4] Plus 테마 원본 `design/mood-art/bubble/`, `doodle/`, `veggie/`, 클레이 겹 `design/mood-art/clay/`(head, face 15, hair 9, glasses)와 질감 `grain`, 생성 `ds/mood/art/MoodArtBubble.kt` 등. 채소 잎·꼭지·씨와 클레이 피부톤은 고정 색(contracts 3·4절). 피부톤 6단계 이름과 처음 값("밝음")을 Figma에서 확인해 `model/MoodTheme.kt` `ClaySkin`에 맞춤
-- [x] T071 [US4] `MoodArtTest`에 클레이 9 × 6 × 2 조합이 모두 그려지고 머리 채움이 기분 색 자리인지
+- [x] T070 [P] [US4] Plus 테마(비눗방울, 말랑 낙서 친구, 채소·과일) 그림과 클레이 겹(뒤 머리·피부·코·앞머리 흰 명암 그림, 표정 15, 안경)을 Figma 판 webp로 `shared/core/ui/src/commonMain/composeResources/drawable/`에 둠(2026-11-28 바뀜: 원본 SVG·생성 파일·질감 없음). 채소 잎·꼭지·씨는 그림에 든 색, 클레이 피부톤은 `DiaryClaySkin`을 곱함. 피부톤 6단계 이름과 처음 값("밝음")을 Figma에서 확인해 `model/MoodTheme.kt` `ClaySkin`에 맞춤
+- [x] T071 [US4] `MoodArtTest`(shared/core/ui commonTest)에서 클레이 머리 9가지마다 피부·머리·코·표정 겹이 있는지, 머리 겹이 기분 색을 곱하는 자리(`Tint.HAIR`)인지. 피부톤 6·안경 조합을 그려 보지는 않고, 쿨에 안경을 겹치지 않는 것은 `ClayLayersTest`가 봄
 - [x] T072 [US4] `shared/core/data/src/commonTest/.../CustomThemeResetTest.kt`를 `PlusLookResetTest.kt`로 넓혀 먼저: 확정된 무료면 Plus 테마 → 기본, 클레이 꼴은 남김, 요금제를 모르면 아무것도 지우지 않음, 테마 색 규칙(스펙 010 US6)은 그대로, 무료 기기에서 Plus 테마 백업 복원 → 기본
 - [x] T073 [US4] `shared/core/data/.../CustomThemeReset.kt` → `PlusLookReset.kt`(이름 바꿈, 테마 색과 기분 테마를 함께), `shared/app/.../AppRootViewModel.kt`·DI 등록 고침
 - [x] T074 [US4] `MoodThemeViewModelTest`에 더함: 무료에서 Plus 테마를 누르면 미리보기만 열리고 저장하지 않음, `pendingTheme`이 있는 채 요금제가 Plus로 확정되면 그 테마 저장, 결제 없이 돌아오면 `pendingTheme` 지움
@@ -102,7 +102,7 @@
 
 **목표**: 쓰기 시트에서 고를 때만 한 번 움직임. **독립 시험**: 쓰기에서 고르면 움직이고, 찾기·목록에서는 움직이지 않고, 동작 줄이기에서는 움직이지 않는다.
 
-- [x] T090 [US5] `ds/theme/DiaryMotion.kt`에 고르기 움직임 몇 가지(1초 안쪽, 한 번), 테마마다 하나를 `MoodArtSet`에. T003에서 정한 방식대로
+- [x] T090 [US5] 고를 때 움직임: 테마마다 따로 두지 않고 쓰기 시트에서 고른 얼굴이 한 번 커졌다 돌아오는 하나로 둠(동작 줄이기면 없음, `docs/DECISIONS.md` 2026-11-28)
 - [x] T091 [US5] `ui/DiaryMoodGrid.kt`에 움직임 인자(쓰기만 켬), `rememberReduceMotion()`을 따름. `shared/feature/write/.../WriteSheets.kt`에서 켬
 - [ ] T092 [P] [US5] `MoodSheetUiTest.kt`에 동작 줄이기면 움직임 없이 바로 들어감, 찾기 시트에는 움직임 없음
 
@@ -120,9 +120,9 @@ US1이 새 기분을 저장할 수 있게 되는 순간 필요하므로 3단계�
 
 - [ ] T110 [P] `shared/core/ui/.../DiaryLottie.kt` 자리표시 확인, `scripts/lottie/make_onboarding.py`의 `MOOD_SICK`을 자리표시로 바꾸고 온보딩·결제 그림을 다시 만듦(`python3 -I scripts/lottie/make_onboarding.py`)
 - [ ] T111 [P] 오픈소스 그림을 쓰지 않았는지 확인. 썼다면 `./gradlew :composeApp:exportLibraryDefinitions`와 라이선스 목록(FR-011)
-- [ ] T112 크기 예산: `apkanalyzer apk download-size`로 `develop`과 비교(+500KB 이하), iOS 출시형 앱 크기(+1MB 이하). 넘으면 생성기에서 소수 자리·점을 줄임
+- [ ] T112 크기 예산: `apkanalyzer apk download-size`로 `develop`과 비교(+500KB 이하), iOS 출시형 앱 크기(+1MB 이하). 넘으면 단순한 테마를 벡터로 바꾸는 것을 다음 판에서 본다
 - [ ] T113 성능: 실기기 `benchmarkRelease`로 `StartupBenchmark`·`ScrollBenchmark`를 기본·클레이·질감 테마에서(SC-004). `benchmarks/.../BaselineProfileGenerator.kt` 확인 뒤 Baseline Profile 다시 만듦(`/release-prep`). `adb logcat -s StrictMode`에 새 위반 없음
-- [ ] T114 전체 검사(`spotlessCheck designTokenCheck coroutineSafetyCheck stringResourceCheck unusedImportCheck detekt :composeApp:lint allTests assembleDebug`), `python3 -I scripts/mood/make_mood_art.py --check`, iOS 빌드(`xcodebuild … -derivedDataPath iosApp/build`)
+- [ ] T114 전체 검사(`spotlessCheck designTokenCheck coroutineSafetyCheck stringResourceCheck unusedImportCheck detekt :composeApp:lint allTests assembleDebug`), iOS 빌드(`xcodebuild … -derivedDataPath iosApp/build`)
 - [ ] T115 `/emulator-check`: 한국어 먼저, 라이트·다크, 큰 글자, 태블릿, 영어·일본어·다섯 언어, 무료·Plus·Plus 끝남, 1.7.4·2.2.0 업그레이드(quickstart 2·4절). 캡처를 남기고 못 본 것은 그대로 적음
 - [ ] T116 9개 테마 × 15종을 16·28, 라이트·다크로 나란히 캡처해 이름 없이 구별되는지(SC-003)
 - [ ] T117 업데이트 안내 문구(기분 15종, 색이 바뀜, 기분 테마) 세 언어 초안을 사용자에게 확인받음. Remote Config·출시 노트에 넣지 않고 확인만
@@ -132,7 +132,7 @@ US1이 새 기분을 저장할 수 있게 되는 순간 필요하므로 3단계�
 ## 순서와 의존
 
 - 1단계(디자인) → 2단계(바탕) → 3단계 US1 + 8단계(백업 형식 4)는 함께 끝냄 → 4단계 US2, 5단계 US3는 서로 독립 → 6단계 US4는 US3 화면 위에 → 7단계 US5는 US1 격자 위에 → 9단계.
-- T011(Mood) 뒤에 T014·T032·T041·T102가 열린다. T017(그림 틀) 뒤에 T030·T050·T070이 열린다. T018~T020(설정) 뒤에 T053·T060·T073이 열린다.
+- T011(Mood) 뒤에 T014·T032·T041·T102가 열린다. T050·T070(그림 파일)은 T017(그림 틀, 하지 않음) 없이 바로 했다. T018~T020(설정) 뒤에 T053·T060·T073이 열린다.
 - T001 프로토타입 확정 전에는 T004 이후 디자인과 개발을 시작하지 않는다.
 
 ## 함께 할 수 있는 것

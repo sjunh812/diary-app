@@ -108,7 +108,10 @@
 
 CMP 리소스의 `painterResource`가 벡터 XML을 첫 프레임 전에 동기로 읽는지는 확인하지 못했다.
 
-### 결정: Figma SVG → 생성 스크립트 → Kotlin 경로 코드
+### 처음 결정(검토 기록): Figma SVG → 생성 스크립트 → Kotlin 경로 코드
+
+> **2026-11-28 개발에서 바뀜.** 테마 그림은 SVG 생성기 대신 Figma 판(72칸)을 240px로 내보낸 webp로 넣었다(`shared/core/ui/src/commonMain/composeResources/drawable/mood_<테마>_<기분>.webp`, 다크 그림이 따로 있는 테마만 `_dark`). 클레이는 겹 webp를 앱에서 쌓는다(`ShownMoodLook.clayLayers`). 기본 테마는 코드 경로(`DiaryMoodFace`) 그대로다. 생성기·벡터 캐시·질감 합성은 하지 않았다(contracts/mood-art.md 머리글, `docs/DECISIONS.md` 2026-11-28). 아래 결정·질감·크기 예산은 처음 계획으로 남긴다. 실제 그림 크기는 약 770KB로 예산(500KB)을 넘는다(tasks.md 개발 메모).
+
 
 - 원본은 Figma 시안에서 내보낸 SVG다. `scripts/mood/make_mood_art.py`(`python3 -I`, 로띠 스크립트와 같은 자리)가 SVG를 읽어 테마마다 Kotlin 파일 하나(`shared/core/designsystem/.../mood/art/MoodArt<테마>.kt`)를 만든다. 손으로 고치지 않고, 같은 SVG로 다시 돌리면 같은 파일이 나와야 한다(시험).
 - 색은 로띠의 `@accent` 자리표시와 같은 방식으로 자리를 둔다: 기분 색 값 → `MOOD` 자리, `#1A1C20` → `LINE` 자리, 그 밖(채소 잎·꼭지, 클레이 피부톤, 볼 터치)은 고정 색. 규칙은 [contracts/mood-art.md](contracts/mood-art.md).
