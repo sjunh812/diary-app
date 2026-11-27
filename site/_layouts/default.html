@@ -287,7 +287,7 @@ footer .langs a[aria-current]{color:var(--text);font-weight:600}
 {{ content }}
 </div>{% endif %}</main>
 <footer><div class="wrap{% if page.home %} wide{% endif %}">
-<nav><a href="/1day1diary/privacy/">{{ t.privacy }}</a><a href="/1day1diary/terms/">{{ t.terms }}</a><a href="mailto:sjunh812@naver.com" data-copy="sjunh812@naver.com" data-done="{{ t.copied }}" data-fail="{{ t.mail }}">{{ t.contact }}</a></nav>
+<nav><a href="{{ t.privacy_url | default: '/1day1diary/privacy/' }}">{{ t.privacy }}</a><a href="{{ t.terms_url | default: '/1day1diary/terms/' }}">{{ t.terms }}</a><a href="mailto:sjunh812@naver.com" data-copy="sjunh812@naver.com" data-done="{{ t.copied }}" data-fail="{{ t.mail }}">{{ t.contact }}</a></nav>
 {% if page.home %}<nav class="langs" aria-label="{{ t.language }}">{% for l in site.data.i18n %}<a href="{{ l[1].home }}" hreflang="{{ l[0] }}" lang="{{ l[0] }}" data-lang="{{ l[0] }}"{% if l[0] == lang %} aria-current="page"{% endif %}>{% case l[0] %}{% when 'ko' %}한국어{% when 'en' %}English{% when 'ja' %}日本語{% endcase %}</a>{% endfor %}</nav>{% endif %}
 <span class="copy">© 서주냥</span>
 </div></footer>
