@@ -13,14 +13,14 @@ import org.sjhstudio.diary.core.testing.FakePlanRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
 
 // Plus가 끝나면 직접 고른 색을 지움(스펙 010 US6)
-class CustomThemeResetTest {
+class PlusLookResetTest {
     private val custom = ThemeChoice(colorId = "custom", customHex = "#C2185B")
 
     @Test
     fun ending_plus_clears_the_custom_color_and_goes_back_to_lavender() = runTest {
         val settings = FakeSettingsRepository(AppSettings(theme = custom))
         val plans = FakePlanRepository(Plan.PLUS)
-        backgroundScope.launch { CustomThemeReset(settings, plans).watch() }
+        backgroundScope.launch { PlusLookReset(settings, plans).watch() }
         runCurrent()
         assertEquals(custom, settings.settings.value.theme)
 
@@ -42,7 +42,7 @@ class CustomThemeResetTest {
                     real.updateTheme(transform)
                 }
             }
-        backgroundScope.launch { CustomThemeReset(settings, FakePlanRepository(Plan.FREE)).watch() }
+        backgroundScope.launch { PlusLookReset(settings, FakePlanRepository(Plan.FREE)).watch() }
         runCurrent()
         assertEquals(custom, real.settings.value.theme)
 
@@ -55,7 +55,7 @@ class CustomThemeResetTest {
     @Test
     fun a_preset_stays_but_the_remembered_custom_color_goes() = runTest {
         val settings = FakeSettingsRepository(AppSettings(theme = ThemeChoice(colorId = "sea", customHex = "#C2185B")))
-        backgroundScope.launch { CustomThemeReset(settings, FakePlanRepository(Plan.AD_FREE)).watch() }
+        backgroundScope.launch { PlusLookReset(settings, FakePlanRepository(Plan.AD_FREE)).watch() }
         runCurrent()
 
         assertEquals(ThemeChoice(colorId = "sea"), settings.settings.value.theme)
@@ -65,7 +65,7 @@ class CustomThemeResetTest {
     @Test
     fun custom_color_restored_while_free_is_cleared() = runTest {
         val settings = FakeSettingsRepository(AppSettings(theme = ThemeChoice(colorId = "rose")))
-        backgroundScope.launch { CustomThemeReset(settings, FakePlanRepository(Plan.FREE)).watch() }
+        backgroundScope.launch { PlusLookReset(settings, FakePlanRepository(Plan.FREE)).watch() }
         runCurrent()
 
         settings.updateTheme { custom }
@@ -79,7 +79,7 @@ class CustomThemeResetTest {
     fun unknown_color_name_stays_while_free() = runTest {
         val unknown = ThemeChoice(colorId = "mauve")
         val settings = FakeSettingsRepository(AppSettings(theme = unknown))
-        backgroundScope.launch { CustomThemeReset(settings, FakePlanRepository(Plan.FREE)).watch() }
+        backgroundScope.launch { PlusLookReset(settings, FakePlanRepository(Plan.FREE)).watch() }
         runCurrent()
 
         assertEquals(unknown, settings.settings.value.theme)
@@ -89,7 +89,7 @@ class CustomThemeResetTest {
     @Test
     fun unknown_plan_keeps_the_custom_color() = runTest {
         val settings = FakeSettingsRepository(AppSettings(theme = custom))
-        backgroundScope.launch { CustomThemeReset(settings, FakePlanRepository(Plan.FREE, known = false)).watch() }
+        backgroundScope.launch { PlusLookReset(settings, FakePlanRepository(Plan.FREE, known = false)).watch() }
         runCurrent()
 
         assertEquals(custom, settings.settings.value.theme)

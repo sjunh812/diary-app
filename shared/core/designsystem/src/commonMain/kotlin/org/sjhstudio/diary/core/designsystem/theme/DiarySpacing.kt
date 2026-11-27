@@ -177,6 +177,9 @@ object DiaryWriteSize {
     /** 기분 칸(얼굴 44 + 이름). 칸이 곧 누르는 곳이라 칸끼리 맞닿음. 폭은 얼굴 44 + 얼굴 사이 24(화면 좌우 여백과 같은 단계) */
     val moodCellWidth: Dp = 68.dp
     val moodCellHeight: Dp = 84.dp
+
+    /** 기분 테마 줄의 대표 얼굴(Figma "기분 테마 (G5)") */
+    val moodThemeFace: Dp = 28.dp
     val moodFace: Dp = 44.dp
 
     /** 서식 도구 줄 */

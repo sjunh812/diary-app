@@ -173,4 +173,15 @@
     <string name="theme_swatch_plus">%1$s, Plus</string>
     <string name="theme_plus_title">Eigene Designfarben gehören zu Plus</string>
     <string name="theme_plus_body">Wähle für dein Design jede Farbe, die dir gefällt.</string>
+    <string name="settings_mood_theme">Stimmungsthema</string>
+    <string name="mood_theme_basic">Klassisch</string>
+    <string name="mood_theme_shape">Formen</string>
+    <string name="mood_theme_gouache">Gouache</string>
+    <string name="mood_theme_line">Umriss</string>
+    <string name="mood_theme_dot">Pixel</string>
+    <string name="mood_theme_bubble">Seifenblasen</string>
+    <string name="mood_theme_doodle">Kritzelfreunde</string>
+    <string name="mood_theme_veggie">Obst &amp; Gemüse</string>
+    <string name="mood_theme_clay">Knetgesichter</string>
+    <string name="mood_theme_sticker">Sticker-Effekt</string>
 </resources>

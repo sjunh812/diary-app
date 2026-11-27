@@ -4,19 +4,23 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.Dp
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
@@ -65,6 +69,15 @@ val MoodFaceLine = Color(0xFF1A1C20)
  */
 @Composable
 fun MoodFace(mood: Mood, size: Dp, modifier: Modifier = Modifier, contentDescription: String? = null) {
+    val dark = DiaryTheme.colors.canvas.luminance() < DARK_LUMINANCE
+    val art = LocalMoodLook.current.art(mood, dark)
+    if (art != null) {
+        // 그림 칸이 얼굴 칸보다 커서 얼굴 칸 밖으로 고르게 넘침. 자리는 얼굴 칸만 차지
+        Box(modifier.size(size), contentAlignment = Alignment.Center) {
+            Image(painterResource(art), contentDescription, Modifier.requiredSize(size * MOOD_ART_SCALE))
+        }
+        return
+    }
     val face = remember(mood) { mood.face() }
     Box(modifier.size(size).clip(DiaryShapes.full).background(DiaryTheme.colors.mood.of(mood))) {
         Image(
@@ -75,6 +88,8 @@ fun MoodFace(mood: Mood, size: Dp, modifier: Modifier = Modifier, contentDescrip
         )
     }
 }
+
+private const val DARK_LUMINANCE = 0.5f
 
 /**
  * 기분 없이 글만 쓴 일기

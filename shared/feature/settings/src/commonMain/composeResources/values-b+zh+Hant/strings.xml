@@ -163,4 +163,15 @@
     <string name="theme_swatch_plus">%1$s，Plus</string>
     <string name="theme_plus_title">自訂主題顏色是 Plus 功能</string>
     <string name="theme_plus_body">為主題挑選任何你喜歡的顏色。</string>
+    <string name="settings_mood_theme">心情主題</string>
+    <string name="mood_theme_basic">基本</string>
+    <string name="mood_theme_shape">圖形</string>
+    <string name="mood_theme_gouache">水粉</string>
+    <string name="mood_theme_line">描邊</string>
+    <string name="mood_theme_dot">像素</string>
+    <string name="mood_theme_bubble">泡泡</string>
+    <string name="mood_theme_doodle">塗鴉夥伴</string>
+    <string name="mood_theme_veggie">蔬果</string>
+    <string name="mood_theme_clay">黏土臉</string>
+    <string name="mood_theme_sticker">貼紙效果</string>
 </resources>

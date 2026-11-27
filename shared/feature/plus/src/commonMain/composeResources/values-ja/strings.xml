@@ -49,4 +49,6 @@
     <string name="plus_format_body">太字、下線、文字色、マーカーまで表示されます。</string>
     <string name="plus_theme_title">テーマカラーを自由に選ぶ</string>
     <string name="plus_theme_body">好きな色を選んでテーマにできます。</string>
+    <string name="plus_mood_theme_title">気分テーマをもっと選べる</string>
+    <string name="plus_mood_theme_body">シャボン玉、らくがき、やさい・くだもの、ねんどが使えます。ねんどは自分好みに変えられます。</string>
 </resources>

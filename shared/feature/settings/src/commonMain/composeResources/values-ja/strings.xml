@@ -172,4 +172,15 @@
     <string name="theme_swatch_plus">%1$s、Plus</string>
     <string name="theme_plus_title">テーマカラーを自由に選ぶ機能はPlusで使えます</string>
     <string name="theme_plus_body">好きな色を選んでテーマにできます。</string>
+    <string name="settings_mood_theme">気分テーマ</string>
+    <string name="mood_theme_basic">ベーシック</string>
+    <string name="mood_theme_shape">かたち</string>
+    <string name="mood_theme_gouache">ガッシュ</string>
+    <string name="mood_theme_line">ふちどり</string>
+    <string name="mood_theme_dot">ドット</string>
+    <string name="mood_theme_bubble">シャボン玉</string>
+    <string name="mood_theme_doodle">らくがき</string>
+    <string name="mood_theme_veggie">やさい・くだもの</string>
+    <string name="mood_theme_clay">ねんど</string>
+    <string name="mood_theme_sticker">ステッカー風</string>
 </resources>

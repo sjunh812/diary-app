@@ -91,6 +91,8 @@ import org.sjhstudio.diary.feature.plus.resources.plus_manage_store_body
 import org.sjhstudio.diary.feature.plus.resources.plus_manage_thanks
 import org.sjhstudio.diary.feature.plus.resources.plus_manage_title
 import org.sjhstudio.diary.feature.plus.resources.plus_manage_top
+import org.sjhstudio.diary.feature.plus.resources.plus_mood_theme_body
+import org.sjhstudio.diary.feature.plus.resources.plus_mood_theme_title
 import org.sjhstudio.diary.feature.plus.resources.plus_no_store
 import org.sjhstudio.diary.feature.plus.resources.plus_notice
 import org.sjhstudio.diary.feature.plus.resources.plus_others_in_all
@@ -555,6 +557,7 @@ private val PlusBenefit.icon: ImageVector
         PlusBenefit.STATS -> DiaryIcons.TabInsight
         PlusBenefit.CHECKLIST -> DiaryIcons.Checklist
         PlusBenefit.LIST_FORMATTING -> DiaryIcons.TextColor
+        PlusBenefit.MOOD_THEME -> DiaryIcons.Smile
     }
 
 private val PlusBenefit.title: StringResource
@@ -565,6 +568,7 @@ private val PlusBenefit.title: StringResource
         PlusBenefit.STATS -> Res.string.plus_stats_title
         PlusBenefit.CHECKLIST -> Res.string.plus_checklist_title
         PlusBenefit.LIST_FORMATTING -> Res.string.plus_format_title
+        PlusBenefit.MOOD_THEME -> Res.string.plus_mood_theme_title
     }
 
 private val PlusBenefit.body: StringResource
@@ -575,4 +579,5 @@ private val PlusBenefit.body: StringResource
         PlusBenefit.STATS -> Res.string.plus_stats_body
         PlusBenefit.CHECKLIST -> Res.string.plus_checklist_body
         PlusBenefit.LIST_FORMATTING -> Res.string.plus_format_body
+        PlusBenefit.MOOD_THEME -> Res.string.plus_mood_theme_body
     }

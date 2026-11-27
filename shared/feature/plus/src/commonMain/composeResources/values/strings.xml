@@ -49,4 +49,6 @@
     <string name="plus_format_body">Bold, underline, text color, and highlights show too.</string>
     <string name="plus_theme_title">Custom theme colors</string>
     <string name="plus_theme_body">Pick any color you like for your theme.</string>
+    <string name="plus_mood_theme_title">More mood themes</string>
+    <string name="plus_mood_theme_body">Use Bubble, Doodle Pals, Fruit &amp; Veg, and Clay Faces. You can style Clay Faces too.</string>
 </resources>

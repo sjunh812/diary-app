@@ -49,4 +49,6 @@
     <string name="plus_format_body">粗體、底線、文字顏色和螢光筆也會顯示。</string>
     <string name="plus_theme_title">自訂主題顏色</string>
     <string name="plus_theme_body">為主題挑選任何你喜歡的顏色。</string>
+    <string name="plus_mood_theme_title">更多心情主題</string>
+    <string name="plus_mood_theme_body">可使用泡泡、塗鴉夥伴、蔬果和黏土臉，黏土臉還能自己打扮。</string>
 </resources>

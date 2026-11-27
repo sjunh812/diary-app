@@ -167,4 +167,15 @@
     <string name="theme_swatch_plus">%1$s, Plus</string>
     <string name="theme_plus_title">Los colores de tema personalizados son una función de Plus</string>
     <string name="theme_plus_body">Elige el color que quieras para tu tema.</string>
+    <string name="settings_mood_theme">Tema de ánimo</string>
+    <string name="mood_theme_basic">Clásico</string>
+    <string name="mood_theme_shape">Formas</string>
+    <string name="mood_theme_gouache">Gouache</string>
+    <string name="mood_theme_line">Contorno</string>
+    <string name="mood_theme_dot">Píxel</string>
+    <string name="mood_theme_bubble">Burbujas</string>
+    <string name="mood_theme_doodle">Garabatos</string>
+    <string name="mood_theme_veggie">Frutas y verduras</string>
+    <string name="mood_theme_clay">Caras de arcilla</string>
+    <string name="mood_theme_sticker">Efecto pegatina</string>
 </resources>

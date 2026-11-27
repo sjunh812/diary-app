@@ -49,4 +49,6 @@
     <string name="plus_format_body">Le gras, le soulignement, la couleur du texte et le surlignage s’affichent aussi.</string>
     <string name="plus_theme_title">Couleurs de thème perso</string>
     <string name="plus_theme_body">Choisissez la couleur de votre choix pour le thème.</string>
+    <string name="plus_mood_theme_title">Plus de thèmes d’humeur</string>
+    <string name="plus_mood_theme_body">Utilisez Bulles, Gribouillis, Fruits et légumes et Visages en pâte. Les visages en pâte se personnalisent.</string>
 </resources>

@@ -49,4 +49,6 @@
     <string name="plus_format_body">Negrito, sublinhado, cor do texto e destaques também aparecem.</string>
     <string name="plus_theme_title">Cores de tema personalizadas</string>
     <string name="plus_theme_body">Escolha a cor que quiser para o seu tema.</string>
+    <string name="plus_mood_theme_title">Mais temas de humor</string>
+    <string name="plus_mood_theme_body">Use Bolhas, Rabiscos, Frutas e legumes e Rostos de massinha. Os rostos de massinha podem ser personalizados.</string>
 </resources>

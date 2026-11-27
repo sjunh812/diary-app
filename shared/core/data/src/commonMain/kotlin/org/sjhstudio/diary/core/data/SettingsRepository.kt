@@ -5,6 +5,7 @@ import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.ListStyle
+import org.sjhstudio.diary.core.model.MoodLook
 import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.core.model.ThemeChoice
 import org.sjhstudio.diary.core.model.ThemeMode
@@ -24,6 +25,9 @@ interface SettingsRepository {
 
     /** 테마 색 설정을 한 번에 바꿈(정한 색 고르기, 직접 고른 색 쓰기·지우기) */
     suspend fun updateTheme(transform: (ThemeChoice) -> ThemeChoice)
+
+    /** 기분 테마와 클레이 꼴을 한 번에 씀 */
+    suspend fun updateMoodLook(transform: (MoodLook) -> MoodLook)
 
     suspend fun setAskLocationAgain(ask: Boolean)
 

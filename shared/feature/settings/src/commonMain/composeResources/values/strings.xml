@@ -178,4 +178,15 @@
     <string name="theme_swatch_plus">%1$s, Plus</string>
     <string name="theme_plus_title">Custom theme colors are a Plus feature</string>
     <string name="theme_plus_body">Pick any color you like for your theme.</string>
+    <string name="settings_mood_theme">Mood theme</string>
+    <string name="mood_theme_basic">Classic</string>
+    <string name="mood_theme_shape">Shapes</string>
+    <string name="mood_theme_gouache">Gouache</string>
+    <string name="mood_theme_line">Outline</string>
+    <string name="mood_theme_dot">Pixel</string>
+    <string name="mood_theme_bubble">Bubble</string>
+    <string name="mood_theme_doodle">Doodle Pals</string>
+    <string name="mood_theme_veggie">Fruit &amp; Veg</string>
+    <string name="mood_theme_clay">Clay Faces</string>
+    <string name="mood_theme_sticker">Sticker effect</string>
 </resources>

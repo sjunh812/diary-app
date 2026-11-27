@@ -49,4 +49,6 @@
     <string name="plus_format_body">También se ven la negrita, el subrayado, el color del texto y el resaltado.</string>
     <string name="plus_theme_title">Colores de tema a tu gusto</string>
     <string name="plus_theme_body">Elige el color que quieras para tu tema.</string>
+    <string name="plus_mood_theme_title">Más temas de ánimo</string>
+    <string name="plus_mood_theme_body">Usa Burbujas, Garabatos, Frutas y verduras y Caras de arcilla. Las caras de arcilla se pueden personalizar.</string>
 </resources>

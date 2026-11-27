@@ -49,4 +49,6 @@
     <string name="plus_format_body">Fett, Unterstrichen, Textfarbe und Markierung werden auch dort angezeigt.</string>
     <string name="plus_theme_title">Eigene Designfarben</string>
     <string name="plus_theme_body">Wähle für dein Design jede Farbe, die dir gefällt.</string>
+    <string name="plus_mood_theme_title">Mehr Stimmungsthemen</string>
+    <string name="plus_mood_theme_body">Nutze Seifenblasen, Kritzelfreunde, Obst &amp; Gemüse und Knetgesichter. Knetgesichter kannst du selbst gestalten.</string>
 </resources>
