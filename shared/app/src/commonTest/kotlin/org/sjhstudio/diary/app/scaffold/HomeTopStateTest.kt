@@ -19,6 +19,7 @@ import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.PromptRepository
 import org.sjhstudio.diary.core.datastore.PromptStore
 import org.sjhstudio.diary.core.model.BackupNudge
+import org.sjhstudio.diary.core.model.ReleaseNote
 import org.sjhstudio.diary.core.model.StoreCheck
 import org.sjhstudio.diary.core.model.UpdateNotice
 import org.sjhstudio.diary.core.testing.FakeBackupRepository
@@ -49,9 +50,12 @@ class HomeTopStateTest {
 
     private val store = FakeStoreUpdates()
 
+    // 홈 카드는 업데이트 요약을 넣은 버전에서만 뜸
+    private val remote = mapOf(AppUpdateRepository.KEY_NOTE_VERSION to "2.0.2", AppUpdateRepository.noteKey("en") to NOTE_TEXT)
+
     // 처음 확인을 마친 상태. 그 전에는 맨 위 칸이 읽는 중
     private suspend fun TestScope.updates() = AppUpdateRepository(store, {
-        ""
+        remote[it].orEmpty()
     }, PromptStore(InMemoryDataStore(emptyPreferences())), "2.0.1", CoroutineScope(backgroundScope.coroutineContext))
         .also { it.refresh() }
 
@@ -141,7 +145,10 @@ class HomeTopStateTest {
 
         store.answer = StoreCheck.Available("45")
         updates.refresh()
-        assertEquals(HomeTop.Update(UpdateNotice.Available(required = false, note = null)), state.top.value)
+        assertEquals(
+            HomeTop.Update(UpdateNotice.Available(required = false, note = ReleaseNote(mapOf("en" to NOTE_TEXT)))),
+            state.top.value
+        )
 
         val nudge = BackupNudge(10, 2, null)
         backup.nudge.value = nudge
@@ -194,6 +201,10 @@ class HomeTopStateTest {
 
         slow.read.emit(null)
         assertEquals(HomeTop.Feedback, state.top.value)
+    }
+
+    private companion object {
+        const val NOTE_TEXT = "Easier to read list."
     }
 }
 
