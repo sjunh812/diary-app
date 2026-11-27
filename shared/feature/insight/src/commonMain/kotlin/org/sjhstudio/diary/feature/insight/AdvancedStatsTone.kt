@@ -264,7 +264,7 @@ internal fun ToneLegend() {
         // 가운데 빈칸(트랙)의 뜻. 트랙 색은 바탕과 비슷해 테두리로 보이게
         LegendItem(
             colors.sunken,
-            stringResource(Res.string.insight_adv_legend_neutral, moodName(Mood.MEH), moodName(Mood.COOL)),
+            stringResource(Res.string.insight_adv_legend_neutral, moodName(Mood.COOL), moodName(Mood.MEH), moodName(Mood.BORED)),
             outline = colors.textTertiary
         )
     }

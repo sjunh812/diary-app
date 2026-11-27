@@ -9,6 +9,12 @@
     <string name="mood_bad">悪い</string>
     <string name="mood_good">良い</string>
     <string name="mood_tired">疲れた</string>
+    <string name="mood_excited">ワクワク</string>
+    <string name="mood_proud">誇らしい</string>
+    <string name="mood_calm">穏やか</string>
+    <string name="mood_bored">退屈</string>
+    <string name="mood_anxious">不安</string>
+    <string name="mood_annoyed">イライラ</string>
     <string name="weather_sunny">晴れ</string>
     <string name="weather_partly_cloudy">少し曇り</string>
     <string name="weather_mostly_cloudy">曇りがち</string>

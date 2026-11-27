@@ -22,11 +22,10 @@ private fun Sample(dark: Boolean) = DiaryTheme(darkTheme = dark) {
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         for (size in listOf(44, 30, 18)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Mood.entries.chunked(5).first().forEach { MoodFace(it, size.dp) }
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Mood.entries.drop(5).forEach { MoodFace(it, size.dp) }
+            for (row in Mood.ordered.chunked(5)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    row.forEach { MoodFace(it, size.dp) }
+                }
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

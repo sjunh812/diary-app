@@ -33,6 +33,17 @@ class AdvancedStatsTest {
         assertEquals(MoodTone.NEUTRAL, Mood.MEH.tone)
     }
 
+    /** 새 기분 묶음: 설렘·뿌듯함·편안함은 좋은 기분, 불안·짜증은 힘든 기분, 심심함은 세지 않음 */
+    @Test
+    fun new_moods_fall_into_their_tone() {
+        assertEquals(
+            listOf(MoodTone.GOOD, MoodTone.GOOD, MoodTone.GOOD),
+            listOf(Mood.EXCITED, Mood.PROUD, Mood.CALM).map { it.tone }
+        )
+        assertEquals(listOf(MoodTone.HARD, MoodTone.HARD), listOf(Mood.ANXIOUS, Mood.ANNOYED).map { it.tone })
+        assertEquals(MoodTone.NEUTRAL, Mood.BORED.tone)
+    }
+
     /** 좋은 기분과 힘든 기분을 나란히 보여도 합이 100을 넘지 않음 */
     @Test
     fun good_and_hard_shares_never_pass_100() {

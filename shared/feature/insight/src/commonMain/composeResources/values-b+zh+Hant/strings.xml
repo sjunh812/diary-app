@@ -66,7 +66,7 @@
     <string name="insight_adv_when_hard_weather">負面心情最多：%1$s</string>
     <string name="insight_adv_when_good_place">正面心情最多：%1$s</string>
     <string name="insight_adv_when_hard_place">負面心情最多：%1$s</string>
-    <string name="insight_adv_legend_neutral">%1$s·%2$s</string>
+    <string name="insight_adv_legend_neutral">%1$s·%2$s·%3$s</string>
     <string name="insight_adv_company">各心情的天氣、星期與地點</string>
     <string name="insight_adv_habit">日記數據</string>
     <string name="insight_adv_habit_entries">日記</string>

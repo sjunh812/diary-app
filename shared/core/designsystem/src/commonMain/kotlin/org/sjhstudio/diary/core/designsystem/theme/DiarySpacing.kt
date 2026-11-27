@@ -95,7 +95,7 @@ object DiaryHomeSize {
 
 /** 돌아보기 크기(Figma "돌아보기 (S5)") */
 object DiaryInsightSize {
-    /** 기분 막대 줄. 아홉 줄이 이어져 화면이 길어지지 않게 HIG 최소 터치 높이 44에 맞춤 */
+    /** 기분 막대 줄. 여러 줄이 이어져 화면이 길어지지 않게 HIG 최소 터치 높이 44에 맞춤 */
     val barRow: Dp = 48.dp
     val barHeight: Dp = 8.dp
     val barFace: Dp = 24.dp

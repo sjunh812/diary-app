@@ -9,6 +9,12 @@
     <string name="mood_bad">나쁨</string>
     <string name="mood_good">좋음</string>
     <string name="mood_tired">피곤함</string>
+    <string name="mood_excited">설렘</string>
+    <string name="mood_proud">뿌듯함</string>
+    <string name="mood_calm">편안함</string>
+    <string name="mood_bored">심심함</string>
+    <string name="mood_anxious">불안</string>
+    <string name="mood_annoyed">짜증</string>
     <string name="weather_sunny">맑음</string>
     <string name="weather_partly_cloudy">구름 조금</string>
     <string name="weather_mostly_cloudy">구름 많음</string>

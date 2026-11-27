@@ -69,7 +69,7 @@
     <string name="insight_adv_when_hard_weather">Most negative moods: %1$s</string>
     <string name="insight_adv_when_good_place">Most positive moods: %1$s</string>
     <string name="insight_adv_when_hard_place">Most negative moods: %1$s</string>
-    <string name="insight_adv_legend_neutral">%1$s·%2$s</string>
+    <string name="insight_adv_legend_neutral">%1$s·%2$s·%3$s</string>
     <string name="insight_adv_company">Weather, days, and places by mood</string>
     <string name="insight_adv_habit">By the numbers</string>
     <string name="insight_adv_habit_entries">Entries</string>

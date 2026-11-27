@@ -38,9 +38,9 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
 
 /**
- * 기분 고르기 칸 9개
+ * 기분 고르기 칸 15개, 5칸 3줄
  * 쓰기는 하나, 찾기는 여러 개를 고름
- * 두 줄이 같은 다섯 칸을 쓰고 아랫줄은 왼쪽부터 채움
+ * 줄마다 같은 다섯 칸을 쓰고 모자란 줄은 왼쪽부터 채움
  * 칸이 얼굴보다 넓어서 그만큼 왼쪽으로 내어 얼굴을 제목 선에 맞춤
  */
 @Composable

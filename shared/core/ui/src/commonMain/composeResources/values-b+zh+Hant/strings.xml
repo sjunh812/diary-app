@@ -9,6 +9,12 @@
     <string name="mood_bad">很糟</string>
     <string name="mood_good">很好</string>
     <string name="mood_tired">疲倦</string>
+    <string name="mood_excited">心動</string>
+    <string name="mood_proud">自豪</string>
+    <string name="mood_calm">平靜</string>
+    <string name="mood_bored">無聊</string>
+    <string name="mood_anxious">不安</string>
+    <string name="mood_annoyed">煩躁</string>
     <string name="weather_sunny">晴天</string>
     <string name="weather_partly_cloudy">晴時多雲</string>
     <string name="weather_mostly_cloudy">多雲</string>

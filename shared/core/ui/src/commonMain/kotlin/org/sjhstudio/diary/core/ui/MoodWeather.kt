@@ -30,11 +30,17 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.ui.resources.Res
 import org.sjhstudio.diary.core.ui.resources.mood_angry
+import org.sjhstudio.diary.core.ui.resources.mood_annoyed
+import org.sjhstudio.diary.core.ui.resources.mood_anxious
 import org.sjhstudio.diary.core.ui.resources.mood_bad
+import org.sjhstudio.diary.core.ui.resources.mood_bored
+import org.sjhstudio.diary.core.ui.resources.mood_calm
 import org.sjhstudio.diary.core.ui.resources.mood_cool
+import org.sjhstudio.diary.core.ui.resources.mood_excited
 import org.sjhstudio.diary.core.ui.resources.mood_good
 import org.sjhstudio.diary.core.ui.resources.mood_laugh
 import org.sjhstudio.diary.core.ui.resources.mood_meh
+import org.sjhstudio.diary.core.ui.resources.mood_proud
 import org.sjhstudio.diary.core.ui.resources.mood_sad
 import org.sjhstudio.diary.core.ui.resources.mood_sick
 import org.sjhstudio.diary.core.ui.resources.mood_tired
@@ -124,6 +130,12 @@ fun Mood.label(): StringResource = when (this) {
     Mood.BAD -> Res.string.mood_bad
     Mood.GOOD -> Res.string.mood_good
     Mood.TIRED -> Res.string.mood_tired
+    Mood.EXCITED -> Res.string.mood_excited
+    Mood.PROUD -> Res.string.mood_proud
+    Mood.CALM -> Res.string.mood_calm
+    Mood.BORED -> Res.string.mood_bored
+    Mood.ANXIOUS -> Res.string.mood_anxious
+    Mood.ANNOYED -> Res.string.mood_annoyed
 }
 
 fun Weather.label(): StringResource = when (this) {
@@ -152,6 +164,12 @@ private fun Mood.face(): DiaryMoodFace = when (this) {
     Mood.BAD -> DiaryMoodFace.Bad
     Mood.GOOD -> DiaryMoodFace.Good
     Mood.TIRED -> DiaryMoodFace.Tired
+    Mood.EXCITED -> DiaryMoodFace.Excited
+    Mood.PROUD -> DiaryMoodFace.Proud
+    Mood.CALM -> DiaryMoodFace.Calm
+    Mood.BORED -> DiaryMoodFace.Bored
+    Mood.ANXIOUS -> DiaryMoodFace.Anxious
+    Mood.ANNOYED -> DiaryMoodFace.Annoyed
 }
 
 fun Weather.icon(): ImageVector = when (this) {
@@ -181,4 +199,10 @@ private fun DiaryMoodColors.of(mood: Mood): Color = when (mood) {
     Mood.BAD -> bad
     Mood.GOOD -> good
     Mood.TIRED -> tired
+    Mood.EXCITED -> excited
+    Mood.PROUD -> proud
+    Mood.CALM -> calm
+    Mood.BORED -> bored
+    Mood.ANXIOUS -> anxious
+    Mood.ANNOYED -> annoyed
 }

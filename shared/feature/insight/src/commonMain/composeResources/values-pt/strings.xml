@@ -69,7 +69,7 @@
     <string name="insight_adv_when_hard_weather">Mais humores negativos: %1$s</string>
     <string name="insight_adv_when_good_place">Mais humores positivos: %1$s</string>
     <string name="insight_adv_when_hard_place">Mais humores negativos: %1$s</string>
-    <string name="insight_adv_legend_neutral">%1$s·%2$s</string>
+    <string name="insight_adv_legend_neutral">%1$s·%2$s·%3$s</string>
     <string name="insight_adv_company">Clima, dias e locais por humor</string>
     <string name="insight_adv_habit">Em números</string>
     <string name="insight_adv_habit_entries">Entradas</string>

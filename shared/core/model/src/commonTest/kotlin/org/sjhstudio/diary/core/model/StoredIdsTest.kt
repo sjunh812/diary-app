@@ -9,7 +9,23 @@ class StoredIdsTest {
     @Test
     fun mood_ids_and_legacy_codes() {
         assertEquals(
-            listOf("angry" to 0, "cool" to 1, "sad" to 2, "sick" to 3, "laugh" to 4, "meh" to 5, "bad" to 6, "good" to 7, "tired" to 8),
+            listOf(
+                "angry" to 0,
+                "cool" to 1,
+                "sad" to 2,
+                "sick" to 3,
+                "laugh" to 4,
+                "meh" to 5,
+                "bad" to 6,
+                "good" to 7,
+                "tired" to 8,
+                "excited" to null,
+                "proud" to null,
+                "calm" to null,
+                "bored" to null,
+                "anxious" to null,
+                "annoyed" to null
+            ),
             Mood.entries.map { it.id to it.legacyCode }
         )
         assertEquals(null, Mood.fromLegacyCode(-1))

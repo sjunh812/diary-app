@@ -99,7 +99,13 @@ data class DiaryMoodColors(
     val meh: Color,
     val bad: Color,
     val good: Color,
-    val tired: Color
+    val tired: Color,
+    val excited: Color,
+    val proud: Color,
+    val calm: Color,
+    val bored: Color,
+    val anxious: Color,
+    val annoyed: Color
 )
 
 @Immutable
@@ -150,15 +156,21 @@ internal val LightDiaryColors =
         shadow = Color(0x29000000),
         mood =
             DiaryMoodColors(
-                angry = Color(0xFFFFAFB0),
-                cool = Color(0xFFAEE4FF),
-                sad = Color(0xFFC4F4FE),
-                sick = Color(0xFFBEE9B4),
-                laugh = Color(0xFFFDFA87),
-                meh = Color(0xFFDFD4E4),
-                bad = Color(0xFF808080),
-                good = Color(0xFFFFD4A8),
-                tired = Color(0xFFFCC6F7)
+                angry = Color(0xFFDC776D),
+                cool = Color(0xFF90DCDB),
+                sad = Color(0xFF7EA7DD),
+                sick = Color(0xFFC8E5A5),
+                laugh = Color(0xFFFCE694),
+                meh = Color(0xFFD6CEBF),
+                bad = Color(0xFF717A8D),
+                good = Color(0xFFFBD4B6),
+                tired = Color(0xFFC4E6F4),
+                excited = Color(0xFFF9B6CF),
+                proud = Color(0xFF8ED5AF),
+                calm = Color(0xFFCDC0F0),
+                bored = Color(0xFFBBC0C5),
+                anxious = Color(0xFFCEA0D4),
+                annoyed = Color(0xFFF7AA83)
             ),
         ink =
             DiaryInkColors(
@@ -214,15 +226,21 @@ internal val DarkDiaryColors =
         shadow = Color(0x66000000),
         mood =
             DiaryMoodColors(
-                angry = Color(0xFFFFAFB0),
-                cool = Color(0xFFAEE4FF),
-                sad = Color(0xFFC4F4FE),
-                sick = Color(0xFFBEE9B4),
-                laugh = Color(0xFFFDFA87),
-                meh = Color(0xFFDFD4E4),
-                bad = Color(0xFF808080),
-                good = Color(0xFFFFD4A8),
-                tired = Color(0xFFFCC6F7)
+                angry = Color(0xFFDC776D),
+                cool = Color(0xFF90DCDB),
+                sad = Color(0xFF7EA7DD),
+                sick = Color(0xFFC8E5A5),
+                laugh = Color(0xFFFCE694),
+                meh = Color(0xFFD6CEBF),
+                bad = Color(0xFF717A8D),
+                good = Color(0xFFFBD4B6),
+                tired = Color(0xFFC4E6F4),
+                excited = Color(0xFFF9B6CF),
+                proud = Color(0xFF8ED5AF),
+                calm = Color(0xFFCDC0F0),
+                bored = Color(0xFFBBC0C5),
+                anxious = Color(0xFFCEA0D4),
+                annoyed = Color(0xFFF7AA83)
             ),
         ink =
             DiaryInkColors(

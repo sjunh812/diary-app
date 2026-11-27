@@ -9,6 +9,12 @@
     <string name="mood_bad">Bad</string>
     <string name="mood_good">Good</string>
     <string name="mood_tired">Tired</string>
+    <string name="mood_excited">Excited</string>
+    <string name="mood_proud">Proud</string>
+    <string name="mood_calm">Calm</string>
+    <string name="mood_bored">Bored</string>
+    <string name="mood_anxious">Anxious</string>
+    <string name="mood_annoyed">Annoyed</string>
     <string name="weather_sunny">Sunny</string>
     <string name="weather_partly_cloudy">Partly cloudy</string>
     <string name="weather_mostly_cloudy">Mostly cloudy</string>

@@ -69,7 +69,7 @@
     <string name="insight_adv_when_hard_weather">Más ánimos negativos: %1$s</string>
     <string name="insight_adv_when_good_place">Más ánimos positivos: %1$s</string>
     <string name="insight_adv_when_hard_place">Más ánimos negativos: %1$s</string>
-    <string name="insight_adv_legend_neutral">%1$s·%2$s</string>
+    <string name="insight_adv_legend_neutral">%1$s·%2$s·%3$s</string>
     <string name="insight_adv_company">Clima, días y lugares según el ánimo</string>
     <string name="insight_adv_habit">En números</string>
     <string name="insight_adv_habit_entries">Entradas</string>
