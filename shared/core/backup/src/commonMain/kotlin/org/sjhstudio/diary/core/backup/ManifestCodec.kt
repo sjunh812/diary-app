@@ -106,7 +106,13 @@ data class ManifestSettings(
     @SerialName("lockEnabled") val lockEnabled: Boolean = false,
     /** 있어도 그만인 칸(스펙 010). 테마 색 이름과 직접 고른 색 `#RRGGBB` */
     val themeColor: String? = null,
-    val customThemeColor: String? = null
+    val customThemeColor: String? = null,
+    /** 있어도 그만인 칸(스펙 013). 기분 테마 id, 클레이 꼴, 도형 스티커 효과 */
+    val moodTheme: String? = null,
+    val clayHair: String? = null,
+    val claySkin: String? = null,
+    val clayGlasses: Boolean? = null,
+    val shapeSticker: Boolean? = null
 )
 
 /**
