@@ -199,4 +199,7 @@
     <string name="clay_skin_5">Médio escuro</string>
     <string name="clay_skin_6">Escuro</string>
     <string name="mood_theme_preview_body">Com o Plus, seus humores aparecem neste tema.</string>
+    <string name="mood_theme_options">Opções de %1$s</string>
+    <string name="mood_theme_sticker_body">Adiciona uma borda branca e sombra.</string>
+    <string name="clay_look_value">%1$s · %2$s</string>
 </resources>

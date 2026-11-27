@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -99,12 +100,21 @@ fun ClayLookSettingsScreen(
                 Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // 그림 칸이 얼굴보다 커서(28/23) 사이를 넓혀야 머리끼리 닿지 않음
-                Row(
-                    Modifier.padding(top = DiarySpacing.x4),
-                    horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
+                // 그림이 얼굴보다 커서(28/23) 그림 칸 사이 10(Figma)이 얼굴 사이로는 20
+                // 360dp 폰처럼 좁으면 화면 여백 안에 들어가게 얼굴을 줄임
+                BoxWithConstraints(
+                    Modifier.fillMaxWidth().padding(
+                        top = DiarySpacing.x4,
+                        start = LocalScreenGutter.current,
+                        end = LocalScreenGutter.current
+                    ),
+                    contentAlignment = Alignment.Center
                 ) {
-                    for (mood in PREVIEW_MOODS) MoodFace(mood, DiaryWriteSize.clayPreviewFace)
+                    val fit = (maxWidth - DiarySpacing.x5 * (PREVIEW_MOODS.size - 1)) / PREVIEW_MOODS.size
+                    val face = minOf(DiaryWriteSize.clayPreviewFace, fit)
+                    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x5)) {
+                        for (mood in PREVIEW_MOODS) MoodFace(mood, face)
+                    }
                 }
                 BasicText(
                     stringResource(Res.string.clay_preview_note),
@@ -211,7 +221,7 @@ private fun SkinRow(selected: ClaySkin, onSkin: (ClaySkin) -> Unit) {
 private const val HAIR_COLUMNS = 5
 private val PREVIEW_MOODS = listOf(Mood.GOOD, Mood.LAUGH, Mood.COOL, Mood.SAD, Mood.ANGRY)
 
-private fun ClayHair.label(): StringResource = when (this) {
+internal fun ClayHair.label(): StringResource = when (this) {
     ClayHair.BOB -> Res.string.clay_hair_bob
     ClayHair.LONG -> Res.string.clay_hair_long
     ClayHair.SHORT -> Res.string.clay_hair_short
@@ -223,7 +233,7 @@ private fun ClayHair.label(): StringResource = when (this) {
     ClayHair.BUZZ -> Res.string.clay_hair_buzz
 }
 
-private fun ClaySkin.label(): StringResource = when (this) {
+internal fun ClaySkin.label(): StringResource = when (this) {
     ClaySkin.SKIN1 -> Res.string.clay_skin_1
     ClaySkin.SKIN2 -> Res.string.clay_skin_2
     ClaySkin.SKIN3 -> Res.string.clay_skin_3

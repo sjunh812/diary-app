@@ -189,7 +189,7 @@
     <string name="clay_hair_dandy">Dandy</string>
     <string name="clay_hair_part">Raie</string>
     <string name="clay_hair_bun">Chignon</string>
-    <string name="clay_hair_ponytail">Queue</string>
+    <string name="clay_hair_ponytail">Queue de cheval</string>
     <string name="clay_hair_curly">Bouclés</string>
     <string name="clay_hair_buzz">Rasés</string>
     <string name="clay_skin_1">Très clair</string>
@@ -199,4 +199,7 @@
     <string name="clay_skin_5">Moyen foncé</string>
     <string name="clay_skin_6">Foncé</string>
     <string name="mood_theme_preview_body">Avec Plus, vos humeurs s’affichent dans ce thème.</string>
+    <string name="mood_theme_options">Options de %1$s</string>
+    <string name="mood_theme_sticker_body">Ajoute un contour blanc et une ombre.</string>
+    <string name="clay_look_value">%1$s · %2$s</string>
 </resources>

@@ -199,4 +199,7 @@
     <string name="clay_skin_5">Oscuro medio</string>
     <string name="clay_skin_6">Oscuro</string>
     <string name="mood_theme_preview_body">Con Plus, tus estados de ánimo se ven con este tema.</string>
+    <string name="mood_theme_options">Opciones de %1$s</string>
+    <string name="mood_theme_sticker_body">Añade un borde blanco y sombra.</string>
+    <string name="clay_look_value">%1$s · %2$s</string>
 </resources>
