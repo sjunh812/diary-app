@@ -220,8 +220,8 @@ About Plus
 • Renews automatically every year unless canceled at least 24 hours before the renewal date.
 • Manage or cancel in Settings > Apple Account > Subscriptions.
 
-Terms of Use: https://sjunh812.pages.dev/1day1diary/terms/
-Privacy Policy: https://sjunh812.pages.dev/1day1diary/privacy/
+Terms of Use: https://sjunh812.pages.dev/en/1day1diary/terms/
+Privacy Policy: https://sjunh812.pages.dev/en/1day1diary/privacy/
 ```
 
 ### 일본어
@@ -263,8 +263,8 @@ Plusについて
 • 更新日の24時間前までに解約しない限り、1年ごとに自動更新されます。
 • 管理と解約は「設定」>「Apple アカウント」>「サブスクリプション」から行えます。
 
-利用規約: https://sjunh812.pages.dev/1day1diary/terms/
-プライバシーポリシー: https://sjunh812.pages.dev/1day1diary/privacy/
+利用規約: https://sjunh812.pages.dev/en/1day1diary/terms/
+プライバシーポリシー: https://sjunh812.pages.dev/en/1day1diary/privacy/
 ```
 
 ## App Store 이름·부제·홍보 문구·키워드
@@ -409,6 +409,16 @@ Your entries and photos stay on your device and Google Drive.
 - 영어(en-US)·일본어(ja-JP)를 더했다(2026-11-13). 같은 날 앱 콘텐츠 신고 5건과 함께 검토에 들어갔고, 관리형 게시라 승인 뒤 직접 게시해야 한다. 두 언어는 그룹을 물려받지 못해 기본 등록정보와 같은 것을 직접 넣었다: 위 이름·간단한 설명·자세한 설명, 아이콘 `play-512.png`, 피처 그래픽 `feature.png`(한국어 그림, 기본 등록정보와 같음), 휴대폰 `{en,ja}-phone-1~4`, 7·10인치 태블릿 `{en,ja}-tablet-1~4`.
 - 한국어는 그룹을 물려받는데, 그룹이 아직 1.7.4 시절 글과 그림을 보여 준다. 기본 등록정보 초안을 게시하면 함께 바뀌는지 게시 뒤에 확인한다.
 - 기본 등록정보의 문구나 그림을 바꾸면 여기 영어·일본어도 함께 바꾼다.
+
+### 다섯 언어 검색어 맞춤 등록정보 (2.3.0 출시 전에 만든다)
+
+언어마다 따로 만든다. 지금 것(한국어)에 다른 언어 검색어를 넣으면 그 언어 사용자에게 한국어 글이 보인다. 새 맞춤 등록정보는 기본 등록정보 그룹의 언어를 물려받는데, 다섯 언어가 그룹에 들어오는 것은 기본 등록정보 검토가 끝난 뒤라 그다음에 만든다(2026-11-27 검토 제출). 만들 때 참조 이름 `1Day1Diary <언어 코드>`, 출시 100%, 기간 종료일 없음, 잠재고객 검색 키워드(일괄 추가), 문구·그림은 그룹 애셋 상속.
+
+- zh-TW: 日記, 日記本, 日記app, 寫日記, 心情日記, 情緒日記, 日誌, 手帳, 每日日記, 私密日記, 照片日記, 心情紀錄, 感恩日記, 記事本, 一行日記, 日記軟體, 生活紀錄
+- es-419: diario, diario personal, diario íntimo, mi diario, diario secreto, diario con fotos, diario de emociones, diario de ánimo, diario de gratitud, diario con contraseña, app de diario, journal, notas personales, escribir diario, bitácora personal, diario simple
+- pt-BR: diário, diário pessoal, meu diário, diário secreto, diário com fotos, diário de emoções, diário de humor, diário de gratidão, diário com senha, app de diário, journal, anotações pessoais, escrever diário, diário simples, agenda pessoal
+- de-DE: Tagebuch, Tagebuch App, persönliches Tagebuch, geheimes Tagebuch, Tagebuch mit Passwort, Fototagebuch, Stimmungstagebuch, Gefühlstagebuch, Dankbarkeitstagebuch, Journal, Journal App, Notizen, Tagebuch schreiben, einfaches Tagebuch, Stimmung Tracker
+- fr-FR: journal intime, journal, journal personnel, mon journal, journal secret, journal avec photos, journal d'humeur, journal des émotions, journal de gratitude, journal avec mot de passe, carnet, carnet intime, notes personnelles, écrire un journal, journal simple
 
 ## 인앱 상품 이름
 
@@ -651,9 +661,13 @@ Threads·Reddit·릴스에 올릴 세로 영상이다(1080×1920, 60fps, 7.5Mbps
 
 만드는 법: 문구와 시간은 `docs/store/promo/<언어>.json`, 재료는 `docs/store/promo/assets/`다. 저장소 맨 위에서 `swiftc -O scripts/store/promo/make_promo.swift -o /tmp/make_promo` 뒤 `/tmp/make_promo docs/store/promo/ko.json`. 기분 얼굴은 앱의 벡터 경로(`DiaryMoodFace`)와 기분 색을 그대로 옮겨 그려 크게 키워도 선명하다. 쓰기 카드와 다크 홈은 시뮬레이터 녹화에서 `grab_frame.swift`로 뽑았다.
 
-## 다섯 언어 등록정보 초안 (2026-11-27)
+## 다섯 언어 등록정보 (2026-11-27)
 
-원어민 검수 전 초안이다. 아직 어느 스토어에도 넣지 않았다.
+원어민 검수 전 글이다. 2026-11-27에 두 스토어에 넣었다.
+
+- Play: 기본 등록정보에 zh-TW, es-419, pt-BR, de-DE, fr-FR을 더해 이름·간단한 설명·자세한 설명과 그림(그래픽 이미지, 휴대폰 6장, 7·10인치 태블릿 6장씩)을 넣고 검토에 보냈다.
+- App Store: 2.3.0 버전(제출 전)에 중국어(번체)·스페인어(멕시코)·포르투갈어(브라질)·독일어·프랑스어(프랑스)로 이름·부제(앱 정보), 홍보 문구·설명·키워드(버전), iPhone 6.3" 6장, iPad 13" 6장, 헤더, 검색 결과 그림을 넣었다. "이 버전에서 업그레이드된 사항"은 한국어를 복사한 채라 출시 노트를 확정한 뒤 바꾼다.
+- 설명 끝 약관·처리방침 주소는 한국어만 한국어 페이지, 나머지 언어(영어·일본어 포함)는 영어 번역본(`/en/1day1diary/terms/`, `/privacy/`)이다(2026-11-27, App Store 영어·영국 영어·일본어 설명도 함께 바꿈).
 
 - 기능 범위는 위 영어 원문과 같다. 화면 낱말은 앱 문자열(`values-{b+zh+Hant,es,pt,de,fr}`)을 따른다. 예: 돌아보기 回顧·Resumen·Insights·Rückblick·Bilan, 휴지통 垃圾桶·papelera·lixeira·Papierkorb·corbeille.
 - App Store 이름은 다섯 언어끼리, 그리고 기존 이름(영어 두 가지, 한국어, 일본어, 2.2.0까지 쓴 "1Day1Diary - Everyday Diary")과 모두 다르다. 브랜드는 "1Day1Diary", 중국어는 「1日1日記」다.
@@ -767,8 +781,8 @@ Plus（年訂閱）
 • 除非在續訂日至少24小時前取消，否則每年會自動續訂。
 • 可在「設定」>「Apple 帳號」>「訂閱項目」管理或取消。
 
-使用條款：https://sjunh812.pages.dev/1day1diary/terms/
-隱私權政策：https://sjunh812.pages.dev/1day1diary/privacy/
+使用條款：https://sjunh812.pages.dev/en/1day1diary/terms/
+隱私權政策：https://sjunh812.pages.dev/en/1day1diary/privacy/
 ```
 
 ### 스페인어(중남미 중립, es-MX·es-419, tú)
@@ -866,8 +880,8 @@ Acerca de Plus
 • Se renueva automáticamente cada año, salvo que la canceles al menos 24 horas antes de la fecha de renovación.
 • Adminístrala o cancélala en Configuración > Cuenta de Apple > Suscripciones.
 
-Términos de uso: https://sjunh812.pages.dev/1day1diary/terms/
-Política de privacidad: https://sjunh812.pages.dev/1day1diary/privacy/
+Términos de uso: https://sjunh812.pages.dev/en/1day1diary/terms/
+Política de privacidad: https://sjunh812.pages.dev/en/1day1diary/privacy/
 ```
 
 ### 브라질 포르투갈어(pt-BR, você)
@@ -965,8 +979,8 @@ Sobre o Plus
 • A assinatura é renovada automaticamente todo ano, a menos que seja cancelada pelo menos 24 horas antes da data de renovação.
 • Gerencie ou cancele em Ajustes > Conta Apple > Assinaturas.
 
-Termos de Uso: https://sjunh812.pages.dev/1day1diary/terms/
-Política de Privacidade: https://sjunh812.pages.dev/1day1diary/privacy/
+Termos de Uso: https://sjunh812.pages.dev/en/1day1diary/terms/
+Política de Privacidade: https://sjunh812.pages.dev/en/1day1diary/privacy/
 ```
 
 ### 독일어(de-DE, du)
@@ -1064,8 +1078,8 @@ Kontakt: sjunh812@naver.com
 • Das Abo verlängert sich jedes Jahr automatisch, wenn du nicht mindestens 24 Stunden vor dem Verlängerungsdatum kündigst.
 • Verwalten oder kündigen kannst du es unter Einstellungen > Apple Account > Abonnements.
 
-Nutzungsbedingungen: https://sjunh812.pages.dev/1day1diary/terms/
-Datenschutzerklärung: https://sjunh812.pages.dev/1day1diary/privacy/
+Nutzungsbedingungen: https://sjunh812.pages.dev/en/1day1diary/terms/
+Datenschutzerklärung: https://sjunh812.pages.dev/en/1day1diary/privacy/
 ```
 
 ### 프랑스어(fr-FR, vous)
@@ -1163,8 +1177,8 @@ Contact : sjunh812@naver.com
 • L’abonnement se renouvelle automatiquement chaque année, sauf résiliation au moins 24 heures avant la date de renouvellement.
 • Gérez-le ou résiliez-le dans Réglages > Compte Apple > Abonnements.
 
-Conditions d’utilisation : https://sjunh812.pages.dev/1day1diary/terms/
-Politique de confidentialité : https://sjunh812.pages.dev/1day1diary/privacy/
+Conditions d’utilisation : https://sjunh812.pages.dev/en/1day1diary/terms/
+Politique de confidentialité : https://sjunh812.pages.dev/en/1day1diary/privacy/
 ```
 
 ### 검수 때 볼 것
