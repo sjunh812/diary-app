@@ -121,7 +121,8 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
         onMain { [self] in
             guard available, consentForm == nil, !preparingConsentForm else { return }
             whenConsentKnown { [self] in
-                guard consentNeeded else { return }
+                // 답할 차례가 아니어도 끝을 알려 Kotlin 문지기가 받는 중에 머물지 않게
+                guard consentNeeded else { return onFailed() }
                 guard ConsentInformation.shared.formStatus == .available else { return onFailed() }
                 preparingConsentForm = true
                 ConsentForm.load { form, _ in

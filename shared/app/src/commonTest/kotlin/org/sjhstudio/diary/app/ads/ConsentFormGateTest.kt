@@ -4,6 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -12,7 +13,8 @@ import kotlinx.coroutines.test.runTest
 class ConsentFormGateTest {
     private var needed = true
     private val closes = mutableListOf<(Boolean) -> Unit>()
-    private val gate = ConsentFormGate(needed = { needed }, present = { onClosed -> closes += onClosed })
+    private var loads = 0
+    private val gate = ConsentFormGate(needed = { needed }, load = { loads++ }, present = { onClosed -> closes += onClosed })
 
     @Test
     fun a_form_ready_after_the_slot_left_the_screen_is_not_shown() {
@@ -95,6 +97,29 @@ class ConsentFormGateTest {
         runCurrent()
 
         assertTrue(tap.isCompleted)
+    }
+
+    @Test
+    fun a_tap_after_the_form_failed_loads_it_again() = runTest {
+        gate.prepare()
+        gate.formFailed()
+        val tap = launch(start = CoroutineStart.UNDISPATCHED) { gate.answer() }
+
+        assertEquals(2, loads)
+        gate.formReady()
+        closes.single()(true)
+        runCurrent()
+
+        assertTrue(tap.isCompleted)
+    }
+
+    @Test
+    fun a_form_being_loaded_is_not_loaded_twice() = runTest {
+        gate.prepare()
+        launch(start = CoroutineStart.UNDISPATCHED) { gate.answer() }
+
+        assertEquals(1, loads)
+        coroutineContext.cancelChildren()
     }
 
     @Test

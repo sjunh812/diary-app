@@ -11,23 +11,37 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * 받는 사이 상세·작성 화면으로 넘어가면 그 화면 위에 뜨지 않게(헌법 III)
  * 화면 스레드에서만 부름
  *
- * [needed]는 아직 답하지 않았는지, [present]는 받아 둔 창을 띄우고 닫히면 띄웠는지를 알림
+ * [needed]는 아직 답하지 않았는지, [load]는 창 받기, [present]는 받아 둔 창을 띄우고 닫히면 띄웠는지를 알림
+ * 창 받기도 여기서만 불러 받는 중에 겹쳐 받거나, 실패한 뒤 누름이 끝없이 기다리지 않게
  */
-class ConsentFormGate(private val needed: () -> Boolean, private val present: (onClosed: (shown: Boolean) -> Unit) -> Unit) {
+class ConsentFormGate(
+    private val needed: () -> Boolean,
+    private val load: () -> Unit,
+    private val present: (onClosed: (shown: Boolean) -> Unit) -> Unit
+) {
+    private enum class Form { NONE, LOADING, READY }
+
     private val askers = mutableSetOf<String>()
     private val afterAnswer = mutableListOf<() -> Unit>()
-    private var ready = false
+    private var form = Form.NONE
     private var showing = false
+
+    /** 받아 둔 창이 없으면 받음. 답할 차례가 아니면 [load]가 [formFailed]로 끝냄 */
+    fun prepare() {
+        if (form != Form.NONE) return
+        form = Form.LOADING
+        load()
+    }
 
     /** 창을 받아 둠 */
     fun formReady() {
-        ready = true
+        form = Form.READY
         showIfWanted()
     }
 
-    /** 창을 받지 못함. 누르고 기다리던 일은 동의 없이 이어 감 */
+    /** 창을 받지 못함. 누르고 기다리던 일은 동의 없이 이어 가고, 다음 누름 때 다시 받음 */
     fun formFailed() {
-        ready = false
+        form = Form.NONE
         finish()
     }
 
@@ -53,6 +67,7 @@ class ConsentFormGate(private val needed: () -> Boolean, private val present: (o
             afterAnswer += resume
             result.invokeOnCancellation { withdraw(resume) }
             ask(TAPPED)
+            prepare()
         }
     }
 
@@ -62,16 +77,16 @@ class ConsentFormGate(private val needed: () -> Boolean, private val present: (o
     }
 
     private fun showIfWanted() {
-        if (!ready || showing || askers.isEmpty()) return
+        if (form != Form.READY || showing || askers.isEmpty()) return
         if (!needed()) {
-            ready = false
+            form = Form.NONE
             return finish()
         }
         showing = true
         present { shown ->
             showing = false
             if (shown) {
-                ready = false
+                form = Form.NONE
                 finish()
             }
         }

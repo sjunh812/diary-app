@@ -2,10 +2,12 @@ package org.sjhstudio.diary.app.ads
 
 import androidx.compose.runtime.mutableStateMapOf
 import kotlin.coroutines.resume
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import org.sjhstudio.diary.core.data.AdPlayer
 import org.sjhstudio.diary.core.data.AdPrivacy
 import org.sjhstudio.diary.core.data.ReadyReward
@@ -53,7 +55,7 @@ interface IosConsentBridge {
     /** 광고를 받을 수 있는지와 동의를 다시 고르는 곳이 필요한지 알림. 등록하면 지금 값부터 */
     fun setConsentListener(listener: (allowed: Boolean, choicesRequired: Boolean) -> Unit)
 
-    /** 동의 정보를 받은 뒤 답할 차례면 창을 받아 둠. 받으면 [onReady], 못 받으면 [onFailed]. 필요 없으면 부르지 않음 */
+    /** 동의 정보를 받은 뒤 답할 차례면 창을 받아 둠. 받으면 [onReady], 못 받거나 답할 차례가 아니면 [onFailed] */
     fun prepareConsentForm(onReady: () -> Unit, onFailed: () -> Unit)
 
     /** 받아 둔 동의 창을 띄움. 닫히면 true, 앱이 앞에 없거나 받아 둔 창이 없으면 바로 false */
@@ -93,7 +95,12 @@ class IosAdConsent(private val bridge: IosConsentBridge) : AdPrivacy {
     /** 광고를 받을 수 있는지. 동의 창에 답하면 바뀌어 목록 광고 자리가 다시 받음 */
     val adsAllowed: StateFlow<Boolean> = allowed.asStateFlow()
 
-    val gate = ConsentFormGate(needed = { bridge.consentNeeded }, present = bridge::presentConsentForm)
+    val gate: ConsentFormGate =
+        ConsentFormGate(
+            needed = { bridge.consentNeeded },
+            load = { bridge.prepareConsentForm(onReady = { gate.formReady() }, onFailed = { gate.formFailed() }) },
+            present = bridge::presentConsentForm
+        )
 
     init {
         bridge.setConsentListener { canRequest, choices ->
@@ -102,7 +109,7 @@ class IosAdConsent(private val bridge: IosConsentBridge) : AdPrivacy {
         }
     }
 
-    internal fun prepare() = bridge.prepareConsentForm(onReady = gate::formReady, onFailed = gate::formFailed)
+    internal fun prepare() = gate.prepare()
 
     override fun showChoices() = bridge.showPrivacyChoices()
 }
@@ -133,15 +140,16 @@ class IosAdPlayer(private val bridge: IosAdBridge) : AdPlayer {
         }
     }
 
-    override suspend fun loadRewarded(): ReadyReward? {
-        if (!available) return null
+    // 동의 문지기는 화면 스레드에서만 다룸. 부르는 쪽(앱 범위)은 IO
+    override suspend fun loadRewarded(): ReadyReward? = withContext(Dispatchers.Main.immediate) {
+        if (!available) return@withContext null
         // 사용자가 눌러 부르는 자리라 아직 답하지 않았으면 바로 물음
         consent.gate.answer()
         val loaded = suspendCancellableCoroutine { result ->
             result.invokeOnCancellation { bridge.cancelRewarded() }
             bridge.loadRewarded { ok -> if (result.isActive) result.resume(ok) }
         }
-        return if (loaded) {
+        if (loaded) {
             ReadyReward { onEarned ->
                 suspendCancellableCoroutine { result ->
                     bridge.showRewarded(onEarned = onEarned) { if (result.isActive) result.resume(Unit) }

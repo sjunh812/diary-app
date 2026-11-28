@@ -325,7 +325,7 @@ internal fun ToneBar(good: Float, hard: Float, modifier: Modifier = Modifier) {
     val colors = DiaryTheme.colors
     val goodColor = colors.toneGood
     val hardColor = colors.toneHard
-    // 범례 점과 같은 색. 바탕과 구별되는 가장 옅은 회색
+    // 그 밖의 기분 범례 점과 같은 색
     val track = colors.toneNeutral
     Canvas(modifier.height(DiarySpacing.x2).clip(DiaryShapes.full).background(track)) {
         val gap = DiarySpacing.x0_5.toPx()

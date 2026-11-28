@@ -41,6 +41,7 @@ class AdConsent(private val app: Application, private val current: CurrentActivi
     val gate =
         ConsentFormGate(
             needed = { info.consentStatus == ConsentInformation.ConsentStatus.REQUIRED },
+            load = ::loadForm,
             present = { onClosed ->
                 val ready = form
                 val screen = current.value
@@ -74,16 +75,15 @@ class AdConsent(private val app: Application, private val current: CurrentActivi
         updating = false
         updated = true
         refresh()
-        prepareForm()
+        gate.prepare()
         val works = afterUpdate.toList()
         afterUpdate.clear()
         works.forEach { it() }
     }
 
-    /** 아직 답하지 않았으면 창을 받아 둠. 띄우는 것은 [gate] */
-    private fun prepareForm() {
-        if (info.consentStatus != ConsentInformation.ConsentStatus.REQUIRED) return
-        if (!info.isConsentFormAvailable) return gate.formFailed()
+    /** 창을 받음. 언제 받고 띄울지는 [gate]. 답할 차례가 아니거나 창이 없으면 실패로 끝냄 */
+    private fun loadForm() {
+        if (info.consentStatus != ConsentInformation.ConsentStatus.REQUIRED || !info.isConsentFormAvailable) return gate.formFailed()
         UserMessagingPlatform.loadConsentForm(
             app,
             { loaded ->
