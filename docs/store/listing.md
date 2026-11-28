@@ -442,6 +442,76 @@ App Store는 상품 설명 칸이 짧아(비소모품 45자, 구독 55자 안팎
 
 ## 새로운 기능
 
+### 2.3.0 (52) — 초안, 확인 전
+
+두 스토어 모두 이 노트를 쓴다. 2.2.0과 같은 꼴이다(버전 줄 아래 세 줄, 해요체, 마침표). 기분 테마는 무료 테마(도형·과슈 붓·테두리·도트)가 있어 Plus를 따로 적지 않는다.
+다섯 언어는 원어민 검수 전이다. 낱말은 앱 화면 문구(`write_mood`, `settings_mood_theme`)에 맞췄다.
+
+```text
+<ko-KR>
+[버전 2.3.0]
+• 기분을 15가지 중에서 고를 수 있어요.
+• 기분 테마로 기분 얼굴을 바꿀 수 있어요.
+• 구글 드라이브에 올리는 백업 크기를 줄였어요.
+</ko-KR>
+<en-US>
+[Version 2.3.0]
+• Choose from 15 moods.
+• Change your mood faces with mood themes.
+• Google Drive backups are now smaller.
+</en-US>
+<ja-JP>
+[バージョン 2.3.0]
+• 15種類の気分から選べるようになりました。
+• 気分テーマで気分の顔を変えられます。
+• Googleドライブに保存するバックアップを小さくしました。
+</ja-JP>
+<zh-TW>
+[版本 2.3.0]
+• 可從 15 種心情中選擇。
+• 可用心情主題更換心情表情。
+• 縮小了上傳到 Google 雲端硬碟的備份大小。
+</zh-TW>
+<es-419>
+[Versión 2.3.0]
+• Elige entre 15 estados de ánimo.
+• Cambia las caritas de ánimo con los temas de ánimo.
+• Las copias de seguridad en Google Drive ahora ocupan menos.
+</es-419>
+<pt-BR>
+[Versão 2.3.0]
+• Escolha entre 15 humores.
+• Mude as carinhas de humor com os temas de humor.
+• Os backups no Google Drive agora ocupam menos espaço.
+</pt-BR>
+<de-DE>
+[Version 2.3.0]
+• Wähle aus 15 Stimmungen.
+• Ändere die Stimmungsgesichter mit Stimmungsthemen.
+• Backups in Google Drive sind jetzt kleiner.
+</de-DE>
+<fr-FR>
+[Version 2.3.0]
+• Choisissez parmi 15 humeurs.
+• Changez les visages d’humeur avec les thèmes d’humeur.
+• Les sauvegardes Google Drive prennent moins de place.
+</fr-FR>
+```
+
+Remote Config 업데이트 요약 초안(새 버전이 스토어에 열린 뒤 넣는다). 홈 카드 "새 버전이 나왔어요" 아래 줄이라 2.2.0처럼 "이제"를 붙인다.
+
+| 키 | 값 |
+| --- | --- |
+| `update_note_version` | 2.3.0 |
+| `update_note_ko` | 이제 기분 15가지와 기분 테마를 쓸 수 있어요. |
+| `update_note_en` | You can now pick from 15 moods and mood themes. |
+| `update_note_ja` | 15種類の気分と気分テーマが使えるようになりました。 |
+| `update_note_zh_Hant` | 現在可以選擇 15 種心情和心情主題。 |
+| `update_note_es` | Ahora hay 15 estados de ánimo y temas de ánimo. |
+| `update_note_pt` | Agora você pode escolher entre 15 humores e temas de humor. |
+| `update_note_de` | Jetzt gibt es 15 Stimmungen und Stimmungsthemen. |
+| `update_note_fr` | Nouveau : 15 humeurs et des thèmes d’humeur. |
+
 ### 2.2.0 (49)
 
 두 스토어 모두 이 노트를 쓴다. 2.1.0과 같은 꼴이다(버전 줄 아래 세 줄, 해요체, 마침표).
