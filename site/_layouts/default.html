@@ -124,15 +124,18 @@ html[data-font=sans] :is(h1,h2,.section-title){font-weight:600}
 /* 기분 얼굴(Headspace·Duolingo처럼 앱만의 얼굴로 첫인상): 첫 화면 폰 둘레에 여섯(떠 있음), 마지막 권유에 아홉(가만히) */
 .ring{position:absolute;inset:0;z-index:2;pointer-events:none}
 .ring .face{position:absolute;width:64px;height:64px;filter:drop-shadow(0 8px 16px rgba(26,28,32,.12))}
-.ring .f0{left:2%;top:12%}.ring .f1{right:4%;top:4%;width:56px;height:56px}.ring .f2{left:-2%;top:46%;width:52px;height:52px}
-.ring .f3{right:0;top:38%}.ring .f4{left:12%;top:76%;width:48px;height:48px}.ring .f5{right:12%;top:70%;width:44px;height:44px}
+/* 아홉 테마 얼굴을 폰 양옆에 엇갈려 둠. 크기를 섞어 앞뒤 깊이감 */
+.ring .f0{left:4%;top:4%}.ring .f1{right:6%;top:0;width:56px;height:56px}.ring .f2{left:-3%;top:27%;width:52px;height:52px}
+.ring .f3{right:-1%;top:22%;width:58px;height:58px}.ring .f4{left:7%;top:50%;width:48px;height:48px}.ring .f5{right:5%;top:46%;width:52px;height:52px}
+.ring .f6{left:-1%;top:72%;width:56px;height:56px}.ring .f7{right:-2%;top:68%;width:50px;height:50px}.ring .f8{left:16%;top:90%;width:60px;height:60px}
 /* 처음 열 때 하나씩 살짝 튀어나오고(600ms), 그 뒤로 각자 다른 속도로 8px 위아래로 떠 있음
    속도와 시작점을 엇갈려 같이 움직이지 않게. 움직임 줄이기면 .motion이 없어 가만히 있음 */
 @keyframes face-in{from{opacity:0;scale:.6}}
 @keyframes face-float{50%{translate:0 -8px}}
 .motion .ring .face{will-change:translate;animation:face-in 600ms cubic-bezier(.34,1.56,.64,1) var(--in) both,face-float var(--float) ease-in-out var(--phase) infinite}
-.ring .f0{--in:.15s;--float:4.6s;--phase:-1.2s}.ring .f1{--in:.25s;--float:5.4s;--phase:-3.1s}.ring .f2{--in:.35s;--float:5s;--phase:-.4s}
-.ring .f3{--in:.45s;--float:4.2s;--phase:-2.6s}.ring .f4{--in:.55s;--float:5.8s;--phase:-4s}.ring .f5{--in:.65s;--float:4.8s;--phase:-1.8s}
+.ring .f0{--in:.1s;--float:4.6s;--phase:-1.2s}.ring .f1{--in:.18s;--float:5.4s;--phase:-3.1s}.ring .f2{--in:.26s;--float:5s;--phase:-.4s}
+.ring .f3{--in:.34s;--float:4.2s;--phase:-2.6s}.ring .f4{--in:.42s;--float:5.8s;--phase:-4s}.ring .f5{--in:.5s;--float:4.8s;--phase:-1.8s}
+.ring .f6{--in:.58s;--float:5.2s;--phase:-2.2s}.ring .f7{--in:.66s;--float:4.4s;--phase:-.9s}.ring .f8{--in:.74s;--float:5.6s;--phase:-3.6s}
 .face-row{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
 .face-row .face{width:48px;height:48px}
 /* 휴대폰 틀 */
@@ -213,7 +216,10 @@ html[data-font=sans] .chip[aria-pressed=true]{font-weight:600}
 .plan{padding:36px;border-radius:28px;background:var(--card)}
 .plan.plus{background:var(--selected)}
 .plan h3{margin:0;font-size:26px;line-height:1.3;letter-spacing:-.02em}
-.plan.plus h3{color:var(--accentText)}
+.plan.plus h3{display:flex;align-items:center;gap:10px;color:var(--accentText)}
+/* Plus 표시: 브랜드색 원 안 흰 반짝이. 이 섹션의 강조는 이것 하나 */
+.plus-mark{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--accent)}
+.plus-mark svg{width:20px;height:20px;fill:var(--onAccent);stroke:var(--onAccent);stroke-width:.6;stroke-linejoin:round}
 .plan-sub{margin:8px 0 24px;font-size:16px;line-height:1.55;color:var(--text2)}
 .plan ul{display:grid;gap:12px;margin:0;padding:0;list-style:none}
 .plan li{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start;font-size:17px;line-height:1.5}
@@ -253,7 +259,7 @@ footer .langs a[aria-current]{color:var(--text);font-weight:600}
   .feature .phone{width:240px}
   .phone.hero-shot{width:280px}
   /* 폰 옆 여백이 좁아 얼굴이 화면을 덮지 않게 줄이고 바깥으로 */
-  .ring .face{width:48px;height:48px}.ring .f0{left:-4%;top:10%}.ring .f1{right:0}.ring .f2{left:-8%}.ring .f3{right:-3%}.ring .f4{left:0}.ring .f5{right:2%}
+  .ring .face{width:44px;height:44px}.ring .f0{left:-4%}.ring .f2{left:-9%}.ring .f3{right:-6%}.ring .f6{left:-7%}.ring .f7{right:-7%}.ring .f8{left:6%}
 }
 /* 휴대폰 폭: 첫 화면은 가운데로 쌓고, 기능은 옆으로 넘기는 카드(스크롤이 길어지지 않게) */
 @media (max-width:760px){
@@ -306,7 +312,7 @@ footer .langs a[aria-current]{color:var(--text);font-weight:600}
   .faq summary{min-height:64px;padding:18px 8px;font-size:17px}
   .faq .answer{padding:0 8px 20px;font-size:16px}
   .cta{margin-top:96px;padding:56px 16px;border-radius:28px}
-  .ring .face{width:44px;height:44px}.ring .f0{left:6%}.ring .f2{left:2%}.ring .f3{right:2%}
+  .ring .face{width:38px;height:38px}.ring .f0{left:4%}.ring .f2{left:0}.ring .f3{right:1%}.ring .f6{left:2%}.ring .f7{right:2%}.ring .f8{left:14%;top:84%}
   /* 아홉 개가 한 줄에 들어가게(375 폭 카드 안쪽 311) */
   .cta p{font-size:16px}
   .cta .badges{gap:8px}
