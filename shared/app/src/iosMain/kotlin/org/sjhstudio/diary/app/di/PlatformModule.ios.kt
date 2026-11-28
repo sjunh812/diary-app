@@ -17,8 +17,10 @@ import org.sjhstudio.diary.app.update.IosStoreUpdates
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
 import org.sjhstudio.diary.core.data.AdPlayer
+import org.sjhstudio.diary.core.data.AdPrivacy
 import org.sjhstudio.diary.core.data.AdSwitch
 import org.sjhstudio.diary.core.data.NoAdPlayer
+import org.sjhstudio.diary.core.data.NoAdPrivacy
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PurchaseRepository
 import org.sjhstudio.diary.core.data.RemoteValues
@@ -59,6 +61,7 @@ internal actual val platformModule: Module =
         single { AppFiles() }
         // 광고는 Swift의 구글 광고 다리로(GoogleAdsBridge.swift). 개발 빌드는 늘 시험 광고
         single<AdPlayer>(createdAtStart = true) { IosAds.bridge?.let(::IosAdPlayer) ?: NoAdPlayer }
+        single<AdPrivacy> { (get<AdPlayer>() as? IosAdPlayer)?.consent ?: NoAdPrivacy }
         single<AdSwitch> { IosAds.switch }
         // 리뷰 창은 Swift 다리로(StoreReviewBridge.swift). 다리 없이 켠 시험 앱은 요청하지 않음
         single<StoreReview> { IosReview.bridge?.let(::IosStoreReview) ?: StoreReview { false } }

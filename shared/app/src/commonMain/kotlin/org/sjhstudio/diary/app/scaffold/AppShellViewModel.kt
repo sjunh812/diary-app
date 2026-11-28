@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -23,8 +24,9 @@ import org.sjhstudio.diary.app.lock.LockState
 import org.sjhstudio.diary.app.navigation.EntryDetailKey
 import org.sjhstudio.diary.app.navigation.WriteKey
 import org.sjhstudio.diary.core.data.AdRepository
-import org.sjhstudio.diary.core.data.CustomThemeReset
+import org.sjhstudio.diary.core.data.ListStyleTipRule
 import org.sjhstudio.diary.core.data.PlanRepository
+import org.sjhstudio.diary.core.data.PlusLookReset
 import org.sjhstudio.diary.core.data.PromptRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.model.Plan
@@ -67,6 +69,7 @@ class AppShellViewModel(
     private val ads: AfterSaveAds,
     private val removal: AdRemovalFlow,
     locked: Flow<Boolean>,
+    showAds: Flow<Boolean> = flowOf(false),
     private val askReview: suspend () -> Unit,
     private val screen: (String) -> Unit
 ) : ViewModel() {
@@ -76,6 +79,9 @@ class AppShellViewModel(
 
     /** 확정된 요금제. 재설치 직후 스토어 답이 오기 전에는 null */
     val plan: StateFlow<Plan?> = plans.confirmed.stateInSafely(viewModelScope, SharingStarted.Eagerly, plans.confirmedNow)
+
+    /** 광고를 보일지. 광고 자리가 새로 그려질 때 마지막 값으로 바로 그려 비었다 생기지 않게 함 */
+    val showAds: StateFlow<Boolean> = showAds.stateInSafely(viewModelScope, SharingStarted.Eagerly, false)
 
     private val _adNotice = MutableStateFlow(AdNotice.None)
 
@@ -179,7 +185,9 @@ class AppShellViewModel(
 /** 앱 틀 화면 모델 등록. 앱과 화면 시험이 함께 씀 */
 val appShellModule =
     module {
-        viewModel { AppRootViewModel(get(), get(), get(), get(), get(), get(), CustomThemeReset(get(), get())) }
+        viewModel {
+            AppRootViewModel(get(), get(), get(), get(), get(), get(), PlusLookReset(get(), get()), ListStyleTipRule(get(), get()))
+        }
         viewModel {
             val ads = get<AdRepository>()
             AppShellViewModel(
@@ -187,6 +195,7 @@ val appShellModule =
                 plans = get(),
                 removal = get<AdRemoval>(),
                 locked = get<LockController>().appLocked,
+                showAds = ads.showAds,
                 ads = object : AfterSaveAds {
                     override suspend fun prepare() = ads.prepareAfterSave()
 

@@ -1,0 +1,7 @@
+phone|home|[Une ligne],\net la journée est écrite|Un journal simple, même les jours chargés
+phone|calendar|Votre humeur\nsur le [calendrier]|Tout le mois en un coup d’œil
+stack|cal-shape=Formes/cal-clay=Visages en pâte · Plus/cal-veggie=Fruits et légumes · Plus|Changez de\n[thème d’humeur]|9 thèmes pleins de personnalité
+phone|detail|Gardez votre journée\nen [photos]|Jusqu’à 10 photos par entrée
+phone|insight|[Revoyez]\nvos humeurs|Par semaine, mois ou année
+phone|theme-rose|À vos\n[couleurs]|Choisissez parmi 7 couleurs de thème
+phone|backup|Sauvegardez vos photos\ndans votre [Drive]|Sans inscription. Automatique, une fois par jour.

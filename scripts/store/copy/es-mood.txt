@@ -1,0 +1,7 @@
+phone|home|[Una línea]\ny listo por hoy|Un diario fácil incluso en días ocupados
+phone|mood-sheet|Guarda también\ncómo te [sentiste]|Elige entre 15 estados de ánimo
+phone|calendar|Tu ánimo\nen el [calendario]|Todo el mes de un vistazo
+phone|insight|[Repasa]\ncómo te sentiste|Por semana, mes o año
+phone|theme-list|Cambia tu\n[tema de ánimo]|9 temas con mucha personalidad
+stack|cal-bubble=Burbujas · Plus/cal-veggie=Frutas y verduras · Plus/cal-clay=Caras de arcilla · Plus|Más variedad con\nlos temas [Plus]|Burbujas, Garabatos, Frutas y verduras, Caras de arcilla
+phone|clay-custom|Una cara que\nse parece a [ti]|Caras de arcilla de Plus: peinado, tono de piel y gafas

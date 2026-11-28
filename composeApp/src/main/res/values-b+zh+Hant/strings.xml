@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">1日1日記</string>
+    <string name="reminder_channel">每日提醒</string>
+    <string name="reminder_body">今天過得如何？✍️ 寫一行就好。</string>
+    <string name="font_module_title">日記字型</string>
+</resources>

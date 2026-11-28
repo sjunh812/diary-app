@@ -1,0 +1,4 @@
+phone|home|[Uma linha]\ne pronto por hoje|Um diário fácil até nos dias corridos
+phone|detail|Guarde seu dia\ncom [fotos]|Até 10 fotos em cada registro
+phone|home-grid|Reveja seus dias\ncom [fotos]|Veja a lista em grade de fotos
+phone|backup|Backup das fotos\nno seu próprio [Drive]|Sem cadastro. Automático, uma vez por dia.

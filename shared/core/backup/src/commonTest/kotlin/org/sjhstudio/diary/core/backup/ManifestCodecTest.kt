@@ -39,7 +39,9 @@ class ManifestCodecTest {
     @Test
     fun newer_format_or_database_needs_newer_app() {
         assertEquals(ManifestCheck.OK, ManifestCodec.check(manifest))
-        assertEquals(ManifestCheck.NEEDS_NEWER_APP, ManifestCodec.check(manifest.copy(formatVersion = 3)))
+        assertEquals(ManifestCheck.OK, ManifestCodec.check(manifest.copy(formatVersion = 3)))
+        assertEquals(ManifestCheck.OK, ManifestCodec.check(manifest.copy(formatVersion = 4)))
+        assertEquals(ManifestCheck.NEEDS_NEWER_APP, ManifestCodec.check(manifest.copy(formatVersion = 5)))
         assertEquals(ManifestCheck.NEEDS_NEWER_APP, ManifestCodec.check(manifest.copy(snapshot = manifest.snapshot.copy(dbVersion = 3))))
     }
 
@@ -62,5 +64,17 @@ class ManifestCodecTest {
         assertEquals(withList, ManifestCodec.decode(ManifestCodec.encode(withList)))
         // 형식 버전은 그대로라 옛 앱도 읽음
         assertEquals(ManifestCheck.OK, ManifestCodec.check(withList))
+    }
+
+    /**
+     * 새 기분이 든 백업만 형식 4로 올려 옛 앱(2.2.x는 2까지, 다음 판은 3까지)이 막게 함
+     * 새 기분이 없으면 지금 번호라 옛 앱에서도 복원됨
+     */
+    @Test
+    fun format_version_follows_new_moods() {
+        assertEquals(3, Manifest.driveFormat(newMoods = 0))
+        assertEquals(4, Manifest.driveFormat(newMoods = 1))
+        assertEquals(2, Manifest.bundleFormat(newMoods = 0))
+        assertEquals(4, Manifest.bundleFormat(newMoods = 3))
     }
 }

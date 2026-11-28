@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
@@ -99,6 +98,7 @@ import org.sjhstudio.diary.core.ui.EntryMenuEvents
 import org.sjhstudio.diary.core.ui.EntryMenuFor
 import org.sjhstudio.diary.core.ui.LoadFailedLine
 import org.sjhstudio.diary.core.ui.MoodFace
+import org.sjhstudio.diary.core.ui.MoodSilhouette
 import org.sjhstudio.diary.core.ui.NoMoodFace
 import org.sjhstudio.diary.core.ui.OnTabReselected
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
@@ -509,23 +509,25 @@ private fun DayCell(
 
 /**
  * 그날 마지막 일기의 얼굴
- * 여러 편이면 앞 일기 기분 색을 뒤에 겹침. 편수는 고른 날 목록에서 보임
+ * 기분을 고른 일기가 둘 이상이면 다른 기분 색을 그 테마 얼굴 모양으로 옅게 뒤에 겹침. 편수는 고른 날 목록에서 보임
+ * 앞 얼굴 둘레는 칸 바탕색으로 얼굴 모양을 따라 띄움
  */
 @Composable
 private fun DayFace(day: DayMood, size: Dp, stackOffset: Dp, background: Color) {
+    val mood = day.mood
     Box(Modifier.size(size), contentAlignment = Alignment.Center) {
-        if (day.count > 1) {
-            val colors = DiaryTheme.colors
-            val previous = day.previousMood?.let { moodColor(it) } ?: colors.sunken
-            Box(Modifier.offset(x = stackOffset).size(size).clip(DiaryShapes.full).background(previous))
-            Box(
-                Modifier
-                    .requiredSize(size + DiaryCalendarSize.stackRing * 2)
-                    .clip(DiaryShapes.full)
-                    .background(background)
+        val previous = day.previousMood
+        // 기분이 하나뿐이면 글만 쓴 일기가 더 있어도 얼굴 하나. 기분 없는 날은 여러 편임을 겹쳐 보임
+        if (previous != null || (mood == null && day.count > 1)) {
+            // 뒤 얼굴은 옅게 깔아 앞 얼굴보다 나서지 않게
+            MoodSilhouette(
+                previous,
+                size,
+                previous?.let { moodColor(it).copy(alpha = STACK_BACK_ALPHA) } ?: DiaryTheme.colors.sunken,
+                Modifier.offset(x = stackOffset)
             )
+            MoodSilhouette(mood, size, background, grow = DiaryCalendarSize.stackRing)
         }
-        val mood = day.mood
         if (mood != null) MoodFace(mood, size) else NoMoodFace(size)
     }
 }
@@ -628,3 +630,6 @@ internal fun monthCells(month: YearMonth): List<LocalDate> {
 
 /** 달력 격자의 주 수. 가장 긴 달에 맞춤 */
 private const val WEEKS_SHOWN = 6
+
+/** 하루 여러 편의 뒤 얼굴 투명도. 앞 얼굴보다 나서지 않게 옅게 */
+private const val STACK_BACK_ALPHA = 0.35f

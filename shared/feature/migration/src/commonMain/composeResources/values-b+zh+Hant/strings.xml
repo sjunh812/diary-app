@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="migration_preparing_title">正在準備轉移日記</string>
+    <string name="migration_preparing_body">正在將日記轉移到新版本，原本的日記會完整保留。</string>
+
+    <string name="migration_progress_title">正在轉移日記</string>
+    <string name="migration_progress_body">完成前螢幕會保持開啟。</string>
+    <string name="migration_progress_entries">日記</string>
+    <string name="migration_progress_entries_value">%1$s / %2$s篇</string>
+    <string name="migration_progress_photos">照片</string>
+    <string name="migration_progress_photos_value">%1$s / %2$s張</string>
+    <string name="migration_progress_note">如果 App 中途關閉，會重新開始轉移。原本的日記會完整保留。</string>
+
+    <plurals name="migration_done_title">
+        <item quantity="other">已轉移全部%1$s篇日記 🎉</item>
+    </plurals>
+    <plurals name="migration_done_photos">
+        <item quantity="other">%1$s張照片也一起轉移了。</item>
+    </plurals>
+    <plurals name="migration_missing_photos_title">
+        <item quantity="other">找不到%1$s張照片</item>
+    </plurals>
+    <string name="migration_missing_photos_body">舊版 App 把這些照片存放在暫存空間，因此已被刪除。照片原本的位置會保留在日記中。</string>
+    <string name="migration_missing_photos_body_short">照片原本的位置會保留在日記中。</string>
+    <plurals name="migration_date_fixed_title">
+        <item quantity="other">已修正%1$s篇日記的日期</item>
+    </plurals>
+    <string name="migration_date_fixed_body">舊版 App 因錯誤而晚一天顯示這些日記，現在已改回你寫日記時選的日期。</string>
+    <string name="migration_start">開始使用</string>
+
+    <string name="migration_partial_title">只轉移了部分日記</string>
+    <plurals name="migration_partial_body">
+        <item quantity="other">已轉移%1$s篇日記，但原始檔案損壞，有%2$s篇無法讀取。App 會在下次更新後再試一次。原本的日記會完整保留。</item>
+    </plurals>
+    <string name="migration_partial_footnote">之後也能在「設定 > 轉移結果」再次查看。</string>
+    <string name="migration_export_original">匯出原始檔案</string>
+    <string name="migration_contact">聯絡我們</string>
+
+    <string name="migration_skip">從新的日記開始</string>
+    <string name="migration_failed_title">無法轉移日記</string>
+    <string name="migration_failed_body_mismatch">檢查轉移的日記時發生問題。原本的日記會完整保留。</string>
+    <string name="migration_failed_body_snapshot">無法複製原本的日記，因此已停止轉移。原本的日記會完整保留。</string>
+    <string name="migration_failed_body_read">無法讀取舊版 App 的檔案，因此已停止轉移。原本的日記會完整保留。</string>
+    <string name="migration_failed_body_write">無法在新版本中儲存日記，因此已停止轉移。原本的日記會完整保留。</string>
+    <string name="migration_failed_body_unknown">發生問題，因此已停止轉移。原本的日記會完整保留。</string>
+    <string name="migration_view_legacy">查看舊日記</string>
+    <string name="migration_retry">再試一次</string>
+    <string name="migration_no_space_title">裝置儲存空間不足</string>
+    <string name="migration_no_space_body">轉移需要再多%1$s的裝置空間。請刪除不用的照片或 App 後再檢查一次。原本的日記會完整保留。</string>
+    <string name="migration_check_again">再檢查一次</string>
+
+    <plurals name="migration_entries_recovered">
+        <item quantity="other">已轉移%1$s篇之前無法讀取的日記</item>
+    </plurals>
+    <plurals name="migration_photos_found">
+        <item quantity="other">找到%1$s張遺失的照片</item>
+    </plurals>
+
+    <string name="legacy_reader_title">舊日記</string>
+    <string name="legacy_reader_notice">這些日記只能閱讀。再試一次即可轉移到新版本。</string>
+    <string name="legacy_reader_empty">沒有可閱讀的舊日記</string>
+
+    <string name="migration_export_file_name">1日1日記-原始檔案-%1$s.zip</string>
+    <string name="migration_export_done">已儲存原始檔案</string>
+    <string name="migration_export_failed">無法儲存原始檔案，請重新選擇儲存位置。</string>
+    <string name="migration_export_failed_left">無法儲存原始檔案，請到儲存位置刪除未完成的檔案。</string>
+    <string name="migration_mail_missing">找不到電子郵件 App，請寄信至%1$s。</string>
+    <string name="migration_mail_subject">[1日1日記] 日記轉移問題</string>
+    <string name="migration_mail_body">以下資料只會用來找出並解決問題，不包含日記內容。\n\nApp 版本：%1$s\n裝置：%2$s\n停止的階段：%3$s\n問題類型：%4$s\n嘗試次數：%5$s\n日記數：%6$s\n照片數：%7$s\n無法讀取的日記數：%8$s\n\n請告訴我們發生了什麼事，或想詢問的問題。\n</string>
+    <string name="migration_readme">這是1日1日記的原始檔案。\n\n裡面是舊版 App（1.7.x）使用的日記，保持轉移到新版本前的原樣。\n\n- legacy-snapshot：日記檔案（note.db）和設定，不含密碼\n- media：從舊版 App 轉移的照片\n\n如果想還原日記，請保留這個檔案，並寄信至sjunh812@naver.com。\n</string>
+    <string name="support_sheet_title">我們可以修復損壞的日記</string>
+    <string name="support_sheet_body">請將日記檔案附加在電子郵件中寄給我們，我們會修復成可讀取的檔案並寄回給你。</string>
+    <string name="support_sheet_contains">檔案中包含原樣的日記內容，但不含照片和密碼。</string>
+    <string name="support_sheet_deleted">寄回修復好的檔案後，我們會立即刪除。</string>
+    <string name="support_sheet_restore">收到檔案後，請用「從檔案還原」合併。</string>
+    <string name="support_without">不附檔案寄信</string>
+    <string name="support_with">附上檔案寄信</string>
+    <string name="support_file_name">1日1日記-客服-%1$s.zip</string>
+    <string name="support_failed">無法準備檔案，請不附檔案直接聯絡我們。</string>
+    <string name="support_mail_subject">[1日1日記] 損壞日記修復</string>
+    <string name="support_mail_body">寄回修復好的檔案後，我們會立即刪除附加的檔案。檔案中只有日記檔案，不含照片和密碼。\n\nApp 版本：%1$s\n裝置：%2$s\n無法讀取的日記數：%3$s\n\n請告訴我們發生了什麼事，或想詢問的問題。\n</string>
+    <string name="legacy_reader_failed">無法讀取舊日記</string>
+</resources>

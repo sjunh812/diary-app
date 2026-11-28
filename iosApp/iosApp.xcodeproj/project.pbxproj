@@ -13,54 +13,65 @@
 		1C81D6F669B7BB6D2FFCCEB3 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = B6E18E1D8AEE3BF1FDA1E5E9 /* GoogleSignIn */; };
 		22EA1CB33A17DCC6FC82406D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F543015C899423D4B01CEB2E /* Assets.xcassets */; };
 		23CEA18C5D402BAD832FD636 /* DailyBackupTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61482D56A37EB21A053921AF /* DailyBackupTask.swift */; };
+		24323778ABA0C668C758086B /* GoogleUserMessagingPlatform in Frameworks */ = {isa = PBXBuildFile; productRef = 7059D9422CBC82550AA6093F /* GoogleUserMessagingPlatform */; };
 		307C2654CD5972A25FB7FD87 /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 668CECA83ACC03A83C85A623 /* iOSApp.swift */; };
-		314BA75E03D8DD2B648E4DE6 /* ownglyph_wiseelist.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 17C8AC76977EA90A35D3E0E8 /* ownglyph_wiseelist.ttf */; settings = {ASSET_TAGS = (ownglyph_wiseelist, ); }; };
 		379D4C6DBBA934A8EF44CDDE /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = A1BE688F1F56E46F4CAF1BC4 /* FirebaseRemoteConfig */; };
-		3F1B1025BF42F8EB8714FDB1 /* nanum_jeomggol.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 74933316D8D6FC56EEBD5B02 /* nanum_jeomggol.ttf */; settings = {ASSET_TAGS = (nanum_jeomggol, ); }; };
 		445C052442747365B7CB2124 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 1359B5E3E79A6103CB63C864 /* FirebaseAnalytics */; };
 		4A5DBA83376222DB0B0119CC /* StoreReviewBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC073EB68EA1A383E339E31B /* StoreReviewBridge.swift */; };
 		56B0305B5D3847FC6B326502 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8509E5A49E4A5CAAEB3ADB /* ContentView.swift */; };
-		5B2150E6F394789FE4EF3CE5 /* busan_dandi_myeongjo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B5FEDCF1A35F33D602081BF /* busan_dandi_myeongjo.ttf */; settings = {ASSET_TAGS = (busan_dandi_myeongjo, ); }; };
+		65DE513A78A7CC010DFDD31A /* nanum_jeomggol.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E3785DE868DD26837BBED789 /* nanum_jeomggol.ttf */; settings = {ASSET_TAGS = (nanum_jeomggol, ); }; };
 		6B2031D9196667F65FD358E5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 37A6BA4C5AAF06904D9C889E /* InfoPlist.strings */; };
-		72BB1457396BFE6A8CFA76D4 /* gowun_batang.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 82867C0E6E771F7BEFBF5C73 /* gowun_batang.ttf */; settings = {ASSET_TAGS = (gowun_batang, ); }; };
+		6CD783322CF59FEA8F6D85BE /* ownglyph_wiseelist.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2656882C35EC1A23FACC3B9A /* ownglyph_wiseelist.ttf */; settings = {ASSET_TAGS = (ownglyph_wiseelist, ); }; };
 		86A6000310FA931D64BB4C68 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A7F3482AB68B54C1CB27AB9D /* Localizable.strings */; };
-		9E124C587866261C0E2EAD11 /* sejong_geulggot.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B2DF1964EE3C72981584CCF4 /* sejong_geulggot.ttf */; settings = {ASSET_TAGS = (sejong_geulggot, ); }; };
+		8BECD5DD133507199A2BBF79 /* gowun_batang.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6C24D2D78AF296AECC9C36E6 /* gowun_batang.ttf */; settings = {ASSET_TAGS = (gowun_batang, ); }; };
 		9FE7668650337D06261A28C9 /* PrivacyCover.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6111777718F5751E749AACD /* PrivacyCover.swift */; };
 		A825AC5F0531A8569219D47A /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = D653C9A304F35EF27606B403 /* GoogleMobileAds */; };
 		ADFCDFCE784C8BDCCA73FA93 /* GoogleAdsBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8763BE2505E1BB74D35DF8 /* GoogleAdsBridge.swift */; };
 		B7C4F6137AC8345E71E92063 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 108F0D6F9A31550A5E7E3D81 /* FirebaseCrashlytics */; };
 		C116126A0D40FD6BA0083649 /* KeychainLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D4F6CC1D1C60ECBAE99BCA1 /* KeychainLock.swift */; };
 		D82707C64548212945C31A4D /* AppUpdateBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4620BDB64EC58C3B9B63C34 /* AppUpdateBridge.swift */; };
+		E49ADD1057B0BE9AD74E8FEB /* busan_dandi_myeongjo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C4CF4205C019713A9924FC88 /* busan_dandi_myeongjo.ttf */; settings = {ASSET_TAGS = (busan_dandi_myeongjo, ); }; };
+		F02466F1EACFF2C30AE57F97 /* sejong_geulggot.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7BA0C7263BB1943177C442D3 /* sejong_geulggot.ttf */; settings = {ASSET_TAGS = (sejong_geulggot, ); }; };
 		F8CD82E2961BDCC4877BF60B /* GoogleDriveBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF08BA0251C94AD4CD0B4B56 /* GoogleDriveBridge.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		17C8AC76977EA90A35D3E0E8 /* ownglyph_wiseelist.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ownglyph_wiseelist.ttf; sourceTree = "<group>"; };
+		177718108E14CE47562714EB /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1F368840F5CE48EA3B21B976 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		2B5FEDCF1A35F33D602081BF /* busan_dandi_myeongjo.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = busan_dandi_myeongjo.ttf; sourceTree = "<group>"; };
+		2656882C35EC1A23FACC3B9A /* ownglyph_wiseelist.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ownglyph_wiseelist.ttf; sourceTree = "<group>"; };
 		343488E477CB7C977BDDC8FF /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+		355C3984DF061165CB1DA131 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		38A2317CA7F32917D748F615 /* Local.xcconfig.example */ = {isa = PBXFileReference; path = Local.xcconfig.example; sourceTree = "<group>"; };
 		424A11BA3CA8492ED2631CE4 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		511C6387634BCC10003BAE4A /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		5C916204E130EF428382DF21 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		61482D56A37EB21A053921AF /* DailyBackupTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyBackupTask.swift; sourceTree = "<group>"; };
+		666FD0ED86975D8A9669D68F /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		668CECA83ACC03A83C85A623 /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
+		6C24D2D78AF296AECC9C36E6 /* gowun_batang.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = gowun_batang.ttf; sourceTree = "<group>"; };
 		7009FFABBC02111FC2C6BBEA /* Local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Local.xcconfig; sourceTree = "<group>"; };
-		74933316D8D6FC56EEBD5B02 /* nanum_jeomggol.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = nanum_jeomggol.ttf; sourceTree = "<group>"; };
 		7497B00B5F8A0AE75FFEA1E1 /* FirebaseReporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseReporter.swift; sourceTree = "<group>"; };
+		7BA0C7263BB1943177C442D3 /* sejong_geulggot.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sejong_geulggot.ttf; sourceTree = "<group>"; };
 		7D4F6CC1D1C60ECBAE99BCA1 /* KeychainLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainLock.swift; sourceTree = "<group>"; };
-		82867C0E6E771F7BEFBF5C73 /* gowun_batang.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = gowun_batang.ttf; sourceTree = "<group>"; };
+		80A8EE26B4C077F759E5A47C /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
+		81DA1760586FB12685017578 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		86038AE1032E284E79B32AD6 /* iosApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = iosApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A200F24526F2E89B50E53BA7 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		A4620BDB64EC58C3B9B63C34 /* AppUpdateBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateBridge.swift; sourceTree = "<group>"; };
 		AC8763BE2505E1BB74D35DF8 /* GoogleAdsBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleAdsBridge.swift; sourceTree = "<group>"; };
 		AF08BA0251C94AD4CD0B4B56 /* GoogleDriveBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleDriveBridge.swift; sourceTree = "<group>"; };
-		B2DF1964EE3C72981584CCF4 /* sejong_geulggot.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sejong_geulggot.ttf; sourceTree = "<group>"; };
 		BC073EB68EA1A383E339E31B /* StoreReviewBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreReviewBridge.swift; sourceTree = "<group>"; };
 		C117AD187833E2513BD2F553 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C35CD2C849A242A9332863DC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C4CF4205C019713A9924FC88 /* busan_dandi_myeongjo.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = busan_dandi_myeongjo.ttf; sourceTree = "<group>"; };
 		C6D2DD7FE2E0BF5DB2A96B4B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		CBFF6F7B5E6378BAD9C2AD97 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CE8509E5A49E4A5CAAEB3ADB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D6111777718F5751E749AACD /* PrivacyCover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyCover.swift; sourceTree = "<group>"; };
+		D6D1427F2389C800AB521062 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		D954C834685089816B3F17C5 /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/Localizable.strings; sourceTree = "<group>"; };
+		DC2EF9DA978F927746BF4AED /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		E3785DE868DD26837BBED789 /* nanum_jeomggol.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = nanum_jeomggol.ttf; sourceTree = "<group>"; };
 		F543015C899423D4B01CEB2E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FA0F3A778E3FD20C9033683F /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -75,18 +86,19 @@
 				B7C4F6137AC8345E71E92063 /* FirebaseCrashlytics in Frameworks */,
 				379D4C6DBBA934A8EF44CDDE /* FirebaseRemoteConfig in Frameworks */,
 				A825AC5F0531A8569219D47A /* GoogleMobileAds in Frameworks */,
+				24323778ABA0C668C758086B /* GoogleUserMessagingPlatform in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0829C29D5CD07FD8323907E9 /* assets */ = {
+		11ED903624FE43A4FC329A13 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				8BBFF0963DA8D2FFAE2F9227 /* fonts */,
+				D620FE564937BD6FE532EAB7 /* main */,
 			);
-			path = assets;
+			path = src;
 			sourceTree = "<group>";
 		};
 		1DB4B685CAEE8BEFEBBAEF94 /* iosApp */ = {
@@ -112,6 +124,26 @@
 			path = iosApp;
 			sourceTree = "<group>";
 		};
+		1E9AB7432D9EB43A6D01FBF7 /* sejong_geulggot */ = {
+			isa = PBXGroup;
+			children = (
+				86DDCD3572CC1A0BC007637C /* src */,
+			);
+			path = sejong_geulggot;
+			sourceTree = "<group>";
+		};
+		22CA76694883E117651B3835 /* fonts */ = {
+			isa = PBXGroup;
+			children = (
+				8AE9FD617282A95D22E723F6 /* busan_dandi_myeongjo */,
+				44FD3CBD4DEA1928EECF1CC5 /* gowun_batang */,
+				EFBA0EBB2359D2048B7F88F8 /* nanum_jeomggol */,
+				CF002EF9EC635F5B79ED3FA2 /* ownglyph_wiseelist */,
+				1E9AB7432D9EB43A6D01FBF7 /* sejong_geulggot */,
+			);
+			path = fonts;
+			sourceTree = "<group>";
+		};
 		2987522560EBD04F5F94FA64 /* Backup */ = {
 			isa = PBXGroup;
 			children = (
@@ -122,130 +154,110 @@
 			path = Backup;
 			sourceTree = "<group>";
 		};
-		2C11C2FFDF9E926260816767 /* main */ = {
-			isa = PBXGroup;
-			children = (
-				3217BB312C4EC820561CE1D6 /* assets */,
-			);
-			path = main;
-			sourceTree = "<group>";
-		};
-		2D721485793AB3EF880DCF73 /* sejong_geulggot */ = {
-			isa = PBXGroup;
-			children = (
-				478B9A022AD939AA74E32D94 /* src */,
-			);
-			path = sejong_geulggot;
-			sourceTree = "<group>";
-		};
-		3217BB312C4EC820561CE1D6 /* assets */ = {
-			isa = PBXGroup;
-			children = (
-				64BDC66A41C085701A3FB8C6 /* fonts */,
-			);
-			path = assets;
-			sourceTree = "<group>";
-		};
-		35B96AD4BF675C9C37206448 /* diary-project */ = {
-			isa = PBXGroup;
-			children = (
-				85D05FCA181AEE1E809FE065 /* fonts */,
-			);
-			name = "diary-project";
-			path = ..;
-			sourceTree = "<group>";
-		};
 		38B69C3F79CD97858CF7B609 = {
 			isa = PBXGroup;
 			children = (
-				35B96AD4BF675C9C37206448 /* diary-project */,
+				9490C0B9DF59C96EEB6DB906 /* i18n */,
 				1DB4B685CAEE8BEFEBBAEF94 /* iosApp */,
 				94C98B8B3A2BFC1966447269 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		478B9A022AD939AA74E32D94 /* src */ = {
+		3C6F5C9EF208CC342D2FE374 /* assets */ = {
 			isa = PBXGroup;
 			children = (
-				C7F3813546187E78FCC65FCC /* main */,
+				95DBB82336E938ACD02893C3 /* fonts */,
 			);
-			path = src;
+			path = assets;
 			sourceTree = "<group>";
 		};
-		4B4833D6F7BAC6A1B79174C5 /* main */ = {
+		44C0EB9C8470344CE0A3D75E /* assets */ = {
 			isa = PBXGroup;
 			children = (
-				0829C29D5CD07FD8323907E9 /* assets */,
+				901DD477A0D23E7671852F7F /* fonts */,
+			);
+			path = assets;
+			sourceTree = "<group>";
+		};
+		44FD3CBD4DEA1928EECF1CC5 /* gowun_batang */ = {
+			isa = PBXGroup;
+			children = (
+				A61DADFCBA192D6436E294DC /* src */,
+			);
+			path = gowun_batang;
+			sourceTree = "<group>";
+		};
+		4CF78F1D15105E0106EDFC05 /* main */ = {
+			isa = PBXGroup;
+			children = (
+				621E643EB469F3C4111C036A /* assets */,
 			);
 			path = main;
 			sourceTree = "<group>";
 		};
-		4F3A4899A3644B9786395DB4 /* assets */ = {
+		5495A3F8CC811B43373F97D8 /* fonts */ = {
 			isa = PBXGroup;
 			children = (
-				D52A411267E6050F38BAB7AD /* fonts */,
-			);
-			path = assets;
-			sourceTree = "<group>";
-		};
-		5104FF0815D49258C79403CA /* assets */ = {
-			isa = PBXGroup;
-			children = (
-				6F1BB108F659F9C41F56CC7B /* fonts */,
-			);
-			path = assets;
-			sourceTree = "<group>";
-		};
-		582DF8028DA93DD691E3AD91 /* nanum_jeomggol */ = {
-			isa = PBXGroup;
-			children = (
-				A4CFF0789D88E31B4EB43E03 /* src */,
-			);
-			path = nanum_jeomggol;
-			sourceTree = "<group>";
-		};
-		64BDC66A41C085701A3FB8C6 /* fonts */ = {
-			isa = PBXGroup;
-			children = (
-				82867C0E6E771F7BEFBF5C73 /* gowun_batang.ttf */,
+				2656882C35EC1A23FACC3B9A /* ownglyph_wiseelist.ttf */,
 			);
 			path = fonts;
 			sourceTree = "<group>";
 		};
-		6C8BC6EFB5F5946B8AF8DFB1 /* busan_dandi_myeongjo */ = {
+		621E643EB469F3C4111C036A /* assets */ = {
 			isa = PBXGroup;
 			children = (
-				F65081848EA1722130F0CE95 /* src */,
+				E38B5A7E418A9EF386C16C4E /* fonts */,
+			);
+			path = assets;
+			sourceTree = "<group>";
+		};
+		636F324CB293409351822BD4 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				4CF78F1D15105E0106EDFC05 /* main */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		86DDCD3572CC1A0BC007637C /* src */ = {
+			isa = PBXGroup;
+			children = (
+				B494B5D8C619F25391F5B2FD /* main */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8AE9FD617282A95D22E723F6 /* busan_dandi_myeongjo */ = {
+			isa = PBXGroup;
+			children = (
+				11ED903624FE43A4FC329A13 /* src */,
 			);
 			path = busan_dandi_myeongjo;
 			sourceTree = "<group>";
 		};
-		6F1BB108F659F9C41F56CC7B /* fonts */ = {
+		8E81D5B99CC7F1E5D4D50287 /* main */ = {
 			isa = PBXGroup;
 			children = (
-				74933316D8D6FC56EEBD5B02 /* nanum_jeomggol.ttf */,
+				3C6F5C9EF208CC342D2FE374 /* assets */,
+			);
+			path = main;
+			sourceTree = "<group>";
+		};
+		901DD477A0D23E7671852F7F /* fonts */ = {
+			isa = PBXGroup;
+			children = (
+				C4CF4205C019713A9924FC88 /* busan_dandi_myeongjo.ttf */,
 			);
 			path = fonts;
 			sourceTree = "<group>";
 		};
-		85D05FCA181AEE1E809FE065 /* fonts */ = {
+		9490C0B9DF59C96EEB6DB906 /* i18n */ = {
 			isa = PBXGroup;
 			children = (
-				6C8BC6EFB5F5946B8AF8DFB1 /* busan_dandi_myeongjo */,
-				A019CF602C4E532EA960EF15 /* gowun_batang */,
-				582DF8028DA93DD691E3AD91 /* nanum_jeomggol */,
-				A8DDE4F86BECF04C1CC3512F /* ownglyph_wiseelist */,
-				2D721485793AB3EF880DCF73 /* sejong_geulggot */,
+				22CA76694883E117651B3835 /* fonts */,
 			);
-			path = fonts;
-			sourceTree = "<group>";
-		};
-		8BBFF0963DA8D2FFAE2F9227 /* fonts */ = {
-			isa = PBXGroup;
-			children = (
-				2B5FEDCF1A35F33D602081BF /* busan_dandi_myeongjo.ttf */,
-			);
-			path = fonts;
+			name = i18n;
+			path = ..;
 			sourceTree = "<group>";
 		};
 		94C98B8B3A2BFC1966447269 /* Products */ = {
@@ -256,100 +268,100 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A019CF602C4E532EA960EF15 /* gowun_batang */ = {
+		95DBB82336E938ACD02893C3 /* fonts */ = {
 			isa = PBXGroup;
 			children = (
-				B10D538915F2C6B033A0E924 /* src */,
-			);
-			path = gowun_batang;
-			sourceTree = "<group>";
-		};
-		A4CFF0789D88E31B4EB43E03 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				D61BC2751F1D23773DD69B45 /* main */,
-			);
-			path = src;
-			sourceTree = "<group>";
-		};
-		A8DDE4F86BECF04C1CC3512F /* ownglyph_wiseelist */ = {
-			isa = PBXGroup;
-			children = (
-				DC3D73A9800BB2630A190562 /* src */,
-			);
-			path = ownglyph_wiseelist;
-			sourceTree = "<group>";
-		};
-		B10D538915F2C6B033A0E924 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				2C11C2FFDF9E926260816767 /* main */,
-			);
-			path = src;
-			sourceTree = "<group>";
-		};
-		C7F3813546187E78FCC65FCC /* main */ = {
-			isa = PBXGroup;
-			children = (
-				4F3A4899A3644B9786395DB4 /* assets */,
-			);
-			path = main;
-			sourceTree = "<group>";
-		};
-		CAA353FC54DD457DE36BEFD6 /* fonts */ = {
-			isa = PBXGroup;
-			children = (
-				17C8AC76977EA90A35D3E0E8 /* ownglyph_wiseelist.ttf */,
+				6C24D2D78AF296AECC9C36E6 /* gowun_batang.ttf */,
 			);
 			path = fonts;
 			sourceTree = "<group>";
 		};
-		D52A411267E6050F38BAB7AD /* fonts */ = {
+		A61DADFCBA192D6436E294DC /* src */ = {
 			isa = PBXGroup;
 			children = (
-				B2DF1964EE3C72981584CCF4 /* sejong_geulggot.ttf */,
+				8E81D5B99CC7F1E5D4D50287 /* main */,
 			);
-			path = fonts;
+			path = src;
 			sourceTree = "<group>";
 		};
-		D61BC2751F1D23773DD69B45 /* main */ = {
+		B188D288D6AFD8C33E1F3CAF /* main */ = {
 			isa = PBXGroup;
 			children = (
-				5104FF0815D49258C79403CA /* assets */,
+				CCE01C8D1FC9C129E3ADCF0F /* assets */,
 			);
 			path = main;
 			sourceTree = "<group>";
 		};
-		D84402063E7A32FAFCD52E04 /* assets */ = {
+		B3C4A2D9E68C5088B0261F55 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				CAA353FC54DD457DE36BEFD6 /* fonts */,
+				B188D288D6AFD8C33E1F3CAF /* main */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		B494B5D8C619F25391F5B2FD /* main */ = {
+			isa = PBXGroup;
+			children = (
+				FFA420DBACA9E38879F51ED4 /* assets */,
+			);
+			path = main;
+			sourceTree = "<group>";
+		};
+		CCE01C8D1FC9C129E3ADCF0F /* assets */ = {
+			isa = PBXGroup;
+			children = (
+				5495A3F8CC811B43373F97D8 /* fonts */,
 			);
 			path = assets;
 			sourceTree = "<group>";
 		};
-		D877612C4D7780A5D4DDE7C0 /* main */ = {
+		CF002EF9EC635F5B79ED3FA2 /* ownglyph_wiseelist */ = {
 			isa = PBXGroup;
 			children = (
-				D84402063E7A32FAFCD52E04 /* assets */,
+				B3C4A2D9E68C5088B0261F55 /* src */,
+			);
+			path = ownglyph_wiseelist;
+			sourceTree = "<group>";
+		};
+		D620FE564937BD6FE532EAB7 /* main */ = {
+			isa = PBXGroup;
+			children = (
+				44C0EB9C8470344CE0A3D75E /* assets */,
 			);
 			path = main;
 			sourceTree = "<group>";
 		};
-		DC3D73A9800BB2630A190562 /* src */ = {
+		E38B5A7E418A9EF386C16C4E /* fonts */ = {
 			isa = PBXGroup;
 			children = (
-				D877612C4D7780A5D4DDE7C0 /* main */,
+				E3785DE868DD26837BBED789 /* nanum_jeomggol.ttf */,
 			);
-			path = src;
+			path = fonts;
 			sourceTree = "<group>";
 		};
-		F65081848EA1722130F0CE95 /* src */ = {
+		EFBA0EBB2359D2048B7F88F8 /* nanum_jeomggol */ = {
 			isa = PBXGroup;
 			children = (
-				4B4833D6F7BAC6A1B79174C5 /* main */,
+				636F324CB293409351822BD4 /* src */,
 			);
-			path = src;
+			path = nanum_jeomggol;
+			sourceTree = "<group>";
+		};
+		F8740600FD50B1590BFA22B1 /* fonts */ = {
+			isa = PBXGroup;
+			children = (
+				7BA0C7263BB1943177C442D3 /* sejong_geulggot.ttf */,
+			);
+			path = fonts;
+			sourceTree = "<group>";
+		};
+		FFA420DBACA9E38879F51ED4 /* assets */ = {
+			isa = PBXGroup;
+			children = (
+				F8740600FD50B1590BFA22B1 /* fonts */,
+			);
+			path = assets;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -378,6 +390,7 @@
 				108F0D6F9A31550A5E7E3D81 /* FirebaseCrashlytics */,
 				A1BE688F1F56E46F4CAF1BC4 /* FirebaseRemoteConfig */,
 				D653C9A304F35EF27606B403 /* GoogleMobileAds */,
+				7059D9422CBC82550AA6093F /* GoogleUserMessagingPlatform */,
 			);
 			productName = iosApp;
 			productReference = 86038AE1032E284E79B32AD6 /* iosApp.app */;
@@ -410,9 +423,14 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				Base,
+				de,
 				en,
+				es,
+				fr,
 				ja,
 				ko,
+				pt,
+				"zh-Hant",
 			);
 			mainGroup = 38B69C3F79CD97858CF7B609;
 			minimizedProjectReferenceProxies = 1;
@@ -420,6 +438,7 @@
 				7C4F1707FE80007C7DCEAE3C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				725F7048BD13A1F327E4B712 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 				DF1BCD5B98717A06C1B5AE17 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				3646247126C30E64BAF546F5 /* XCRemoteSwiftPackageReference "swift-package-manager-google-user-messaging-platform" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 94C98B8B3A2BFC1966447269 /* Products */;
@@ -441,11 +460,11 @@
 				07116D6032514A5FC4CDB3DB /* Local.xcconfig.example in Resources */,
 				86A6000310FA931D64BB4C68 /* Localizable.strings in Resources */,
 				09FED4B446BD58DF150C455A /* PrivacyInfo.xcprivacy in Resources */,
-				5B2150E6F394789FE4EF3CE5 /* busan_dandi_myeongjo.ttf in Resources */,
-				72BB1457396BFE6A8CFA76D4 /* gowun_batang.ttf in Resources */,
-				3F1B1025BF42F8EB8714FDB1 /* nanum_jeomggol.ttf in Resources */,
-				314BA75E03D8DD2B648E4DE6 /* ownglyph_wiseelist.ttf in Resources */,
-				9E124C587866261C0E2EAD11 /* sejong_geulggot.ttf in Resources */,
+				E49ADD1057B0BE9AD74E8FEB /* busan_dandi_myeongjo.ttf in Resources */,
+				8BECD5DD133507199A2BBF79 /* gowun_batang.ttf in Resources */,
+				65DE513A78A7CC010DFDD31A /* nanum_jeomggol.ttf in Resources */,
+				6CD783322CF59FEA8F6D85BE /* ownglyph_wiseelist.ttf in Resources */,
+				F02466F1EACFF2C30AE57F97 /* sejong_geulggot.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -557,9 +576,14 @@
 		37A6BA4C5AAF06904D9C889E /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
+				5C916204E130EF428382DF21 /* de */,
 				A200F24526F2E89B50E53BA7 /* en */,
+				DC2EF9DA978F927746BF4AED /* es */,
+				81DA1760586FB12685017578 /* fr */,
 				1F368840F5CE48EA3B21B976 /* ja */,
 				424A11BA3CA8492ED2631CE4 /* ko */,
+				177718108E14CE47562714EB /* pt */,
+				D6D1427F2389C800AB521062 /* zh-Hant */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -567,9 +591,14 @@
 		A7F3482AB68B54C1CB27AB9D /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
+				511C6387634BCC10003BAE4A /* de */,
 				C35CD2C849A242A9332863DC /* en */,
+				80A8EE26B4C077F759E5A47C /* es */,
+				666FD0ED86975D8A9669D68F /* fr */,
 				FA0F3A778E3FD20C9033683F /* ja */,
 				CBFF6F7B5E6378BAD9C2AD97 /* ko */,
+				D954C834685089816B3F17C5 /* pt */,
+				355C3984DF061165CB1DA131 /* zh-Hant */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -773,6 +802,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		3646247126C30E64BAF546F5 /* XCRemoteSwiftPackageReference "swift-package-manager-google-user-messaging-platform" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-user-messaging-platform";
+			requirement = {
+				kind = exactVersion;
+				version = 3.1.0;
+			};
+		};
 		725F7048BD13A1F327E4B712 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads";
@@ -809,6 +846,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 7C4F1707FE80007C7DCEAE3C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalytics;
+		};
+		7059D9422CBC82550AA6093F /* GoogleUserMessagingPlatform */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3646247126C30E64BAF546F5 /* XCRemoteSwiftPackageReference "swift-package-manager-google-user-messaging-platform" */;
+			productName = GoogleUserMessagingPlatform;
 		};
 		A1BE688F1F56E46F4CAF1BC4 /* FirebaseRemoteConfig */ = {
 			isa = XCSwiftPackageProductDependency;

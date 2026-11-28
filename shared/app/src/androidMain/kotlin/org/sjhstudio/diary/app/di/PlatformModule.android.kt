@@ -10,11 +10,14 @@ import kotlin.uuid.Uuid
 import kotlinx.datetime.TimeZone
 import okio.FileSystem
 import okio.Path.Companion.toPath
+import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
+import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.CurrentActivity
 import org.sjhstudio.diary.app.StartupWork
+import org.sjhstudio.diary.app.ads.AdConsent
 import org.sjhstudio.diary.app.ads.AdMobPlayer
 import org.sjhstudio.diary.app.ads.AdUnits
 import org.sjhstudio.diary.app.ads.FirebaseRemote
@@ -28,6 +31,7 @@ import org.sjhstudio.diary.app.update.PlayStoreUpdates
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
 import org.sjhstudio.diary.core.data.AdPlayer
+import org.sjhstudio.diary.core.data.AdPrivacy
 import org.sjhstudio.diary.core.data.AdSwitch
 import org.sjhstudio.diary.core.data.ContextTips
 import org.sjhstudio.diary.core.data.PlanRepository
@@ -90,7 +94,8 @@ internal actual val platformModule: Module =
         // 앱이 켜질 때 만들어야 지금 화면을 놓치지 않음
         single(createdAtStart = true) { CurrentActivity(androidContext().applicationContext as Application) }
         // 광고 SDK는 처음 부를 때 켜짐
-        single<AdPlayer> { AdMobPlayer(androidContext(), AdUnits(androidContext()), get()) }
+        single { AdConsent(androidApplication(), get()) } bind AdPrivacy::class
+        single<AdPlayer> { AdMobPlayer(androidContext(), AdUnits(androidContext()), get(), get()) }
         single { FirebaseRemote(androidContext()) }
         single<AdSwitch> { get<FirebaseRemote>().adSwitch }
         single<RemoteValues> { get<FirebaseRemote>().values }

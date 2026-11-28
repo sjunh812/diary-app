@@ -16,6 +16,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -24,7 +25,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.ads.nativead.MediaView
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdView
@@ -38,6 +41,11 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
+@Composable
+internal actual fun AskConsentWhileShown(key: String) {
+    (koinInject<AdPlayer>() as? AdMobPlayer)?.consent?.gate?.AskWhileShown(key)
+}
+
 /**
  * 일기 줄과 구별되게 `sunken` 면과 "광고" 표시를 둠(AdMob 네이티브 정책)
  * 받기 전이나 못 받으면 그리지 않음
@@ -46,7 +54,10 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 @Composable
 internal actual fun NativeAdCard(key: String, shape: AdShape, frame: @Composable (ad: @Composable () -> Unit) -> Unit) {
     val player = koinInject<AdPlayer>() as? AdMobPlayer ?: return
-    LaunchedEffect(key) { player.loadNative(key) }
+    val allowed by player.consent.adsAllowed.collectAsStateWithLifecycle()
+    player.consent.gate.AskWhileShown(key)
+    // 동의 창에 답하면 다시 받음
+    LaunchedEffect(key, allowed) { player.loadNative(key) }
     val ad = player.natives[key] ?: return
     // 그려진 동안은 치우지 않게 알림
     DisposableEffect(key) {
@@ -63,7 +74,9 @@ internal actual fun NativeAdCard(key: String, shape: AdShape, frame: @Composable
                 .background(DiaryTheme.colors.sunken)
                 .padding(start = DiarySpacing.x4, top = DiarySpacing.x4, end = DiarySpacing.minTouchTarget, bottom = DiarySpacing.x4)
         ) {
-            NativeAdFrame(ad) { adView -> if (shape == AdShape.Card) AdCard(ad, adView) else AdRow(ad, adView) }
+            NativeAdFrame(ad, minHeight = if (shape == AdShape.Card) DiaryAdSize.media else DiaryAdSize.icon) { adView ->
+                if (shape == AdShape.Card) AdCard(ad, adView) else AdRow(ad, adView)
+            }
         }
     }
 }
@@ -71,9 +84,10 @@ internal actual fun NativeAdCard(key: String, shape: AdShape, frame: @Composable
 /**
  * [NativeAdView] 안에 Compose로 그린 광고를 담음
  * 요소가 모두 등록된 뒤에 광고를 붙여야 눌림이 이어져 안쪽이 두 프레임 그려진 뒤에 붙임
+ * 안쪽 ComposeView는 첫 측정에 높이가 덜 나와 [minHeight]만큼 자리를 잡아 둠. 없으면 돌아온 화면의 스크롤이 줄어든 높이에 맞춰 밀림
  */
 @Composable
-private fun NativeAdFrame(ad: NativeAd, content: @Composable (NativeAdView) -> Unit) {
+private fun NativeAdFrame(ad: NativeAd, minHeight: Dp, content: @Composable (NativeAdView) -> Unit) {
     val context = LocalContext.current
     val adView = remember { NativeAdView(context) }
     AndroidView(
@@ -85,7 +99,7 @@ private fun NativeAdFrame(ad: NativeAd, content: @Composable (NativeAdView) -> U
                 )
             }
         },
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().heightIn(min = minHeight)
     )
     LaunchedEffect(ad) {
         withFrameNanos { }

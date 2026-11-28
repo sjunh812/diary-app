@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lock_title">Introduce tu código</string>
+    <plurals name="lock_wrong">
+        <item quantity="one">Código incorrecto · Queda %1$d intento</item>
+        <item quantity="other">Código incorrecto · Quedan %1$d intentos</item>
+    </plurals>
+    <string name="lock_wait_title">Espera un momento</string>
+    <plurals name="lock_wait_body">
+        <item quantity="one">Puedes volver a intentarlo en %1$d segundo</item>
+        <item quantity="other">Puedes volver a intentarlo en %1$d segundos</item>
+    </plurals>
+    <string name="lock_forgot">¿Olvidaste el código?</string>
+    <string name="lock_biometric">Desbloquear con biometría</string>
+    <string name="lock_biometric_locked">Biometría bloqueada. Usa tu código.</string>
+    <string name="lock_biometric_prompt_title">Verificar con biometría</string>
+    <string name="lock_biometric_prompt_reason">Confirma que eres tú para abrir tu diario</string>
+    <string name="lock_biometric_prompt_cancel">Usar código</string>
+
+    <string name="pin_setup_title">Elige un nuevo código de 4 dígitos</string>
+    <string name="pin_setup_again">Vuelve a introducirlo</string>
+    <string name="pin_setup_mismatch">Los códigos no coinciden. Empieza de nuevo.</string>
+    <string name="pin_setup_note">Si olvidas tu código, puedes confirmar con el bloqueo de pantalla de tu dispositivo y crear uno nuevo. Cualquier persona que conozca el bloqueo de pantalla de tu dispositivo también podrá abrir tu diario así.</string>
+
+    <string name="forgot_title">Confirma con el bloqueo de pantalla de tu dispositivo</string>
+    <string name="forgot_body">Después de confirmar que eres tú con el bloqueo de pantalla del dispositivo, podrás crear un nuevo código. Tu diario no se verá afectado.</string>
+    <string name="forgot_confirm">Confirmar</string>
+    <string name="forgot_prompt_title">Crea un nuevo código</string>
+    <string name="forgot_no_device_lock_title">Tu dispositivo no tiene bloqueo de pantalla</string>
+    <string name="forgot_no_device_lock_body">Sin bloqueo de pantalla, no puedes crear un nuevo código. Si tienes una copia de seguridad, reinstala la app y restaura tu diario desde ella.</string>
+    <string name="lock_turned_off">Tu dispositivo no tiene bloqueo de pantalla, así que se desactivó el bloqueo del diario. Crea un nuevo código en Ajustes.</string>
+
+    <string name="lock_settings_title">Bloqueo</string>
+    <string name="lock_settings_enable">Bloquear diario</string>
+    <string name="lock_settings_change">Cambiar código</string>
+    <string name="lock_settings_biometric_unavailable">La biometría no está disponible en este dispositivo en este momento.</string>
+    <string name="lock_settings_biometric_none_enrolled">Configura la biometría en la app Ajustes para usar esta opción.</string>
+    <string name="lock_settings_biometric_not_allowed">Permite Face ID para esta app en la app Ajustes.</string>
+    <string name="lock_settings_biometric_locked_out">La biometría se bloqueó por demasiados intentos. Desbloquea tu dispositivo con su código para volver a usarla.</string>
+    <string name="lock_settings_relock">Bloqueo automático</string>
+    <string name="lock_settings_relock_body">Tu diario se vuelve a bloquear si regresas desde otra app después del tiempo que elijas.</string>
+    <string name="relock_immediately">De inmediato</string>
+    <string name="relock_one_minute">Después de 1 minuto</string>
+    <string name="relock_five_minutes">Después de 5 minutos</string>
+    <string name="relock_cold_start">Solo al reiniciar la app</string>
+    <string name="lock_settings_note">Si olvidas tu código, puedes confirmar con el bloqueo de pantalla de tu dispositivo y crear uno nuevo.</string>
+    <string name="lock_note_no_device_lock">Tu dispositivo no tiene bloqueo de pantalla, así que si olvidas tu código no podrás crear uno nuevo.</string>
+    <string name="lock_confirm_title">Introduce tu código actual</string>
+    <string name="lock_settings_method">Método de bloqueo</string>
+    <string name="pin_setup_save_failed">No se pudo guardar el código. Revisa el almacenamiento y vuelve a introducirlo.</string>
+    <string name="lock_key_unavailable">No se puede comprobar tu código ahora. Vuelve a intentarlo en un momento.</string>
+    <string name="lock_off_failed">No se pudo desactivar el bloqueo. Revisa el almacenamiento y vuelve a intentarlo.</string>
+</resources>

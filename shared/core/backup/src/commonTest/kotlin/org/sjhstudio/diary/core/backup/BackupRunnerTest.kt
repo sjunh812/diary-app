@@ -122,9 +122,26 @@ class BackupRunnerTest {
         assertEquals(2, manifest.counts.entries)
         assertTrue(manifest.media.all { it.inBackup })
         assertEquals(names(DriveLayout.KIND_SNAPSHOT).single().sha256, manifest.snapshot.sha256)
+        // 형식 3: 줄인 스냅샷. 옛 앱은 이 형식을 새 앱이 필요하다고 보여 줌
+        assertTrue(names(DriveLayout.KIND_SNAPSHOT).single().name.endsWith(".db.gz"))
+        assertEquals(3, manifest.formatVersion)
+        assertEquals("3", names(DriveLayout.KIND_MANIFEST).single().props[DriveLayout.KEY_FORMAT])
+        assertEquals(ManifestSnapshot.GZIP, manifest.snapshot.encoding)
         assertEquals(now, store.current().lastSuccessAt)
         assertEquals(2, db.backupDao().bases().size)
         assertEquals(2, db.backupDao().confirmed("sub-1").size)
+    }
+
+    /** 새 기분이 든 백업은 형식 4. 목록 파일과 드라이브 속성이 같아야 옛 앱이 목록에서 막음 */
+    @Test
+    fun a_backup_with_new_moods_is_format_4_in_file_and_drive_property() = runTest {
+        seed()
+        db.entryDao().insertAll(listOf(entry("excited", "2026-11-02").copy(mood = "excited")))
+
+        assertIs<BackupOutcome.Done>(runner().run())
+
+        assertEquals(4, manifest().formatVersion)
+        assertEquals("4", names(DriveLayout.KIND_MANIFEST).single().props[DriveLayout.KEY_FORMAT])
     }
 
     @Test
@@ -199,7 +216,9 @@ class BackupRunnerTest {
     fun low_space_uploads_recent_photos_first() = runTest {
         val (old, new) = seed()
         // README 6, 스냅샷, 목록 파일 몫 1MiB에 사진 한 장(10바이트)이 겨우 들어가는 공간
-        val snapshot = SnapshotWriter(db, fs).write(dir / "probe.db").hashes.byteSize
+        SnapshotWriter(db, fs).write(dir / "probe.db")
+        fs.gzip(dir / "probe.db", dir / "probe.db.gz")
+        val snapshot = fs.metadata(dir / "probe.db.gz").size!!
         drive.limit = 6 + snapshot + 1024L * 1024 + 15
 
         val outcome = assertIs<BackupOutcome.Done>(runner().run())
@@ -227,7 +246,7 @@ class BackupRunnerTest {
         assertEquals(2, first.photosUploaded)
         val before = store.current().lastSuccessAt
         now = Instant.parse("2026-11-06T01:00:00Z")
-        drive.corruptNames += "2026-11-06_01-00-00_Galaxy-S24_${store.deviceId().take(4)}.db"
+        drive.corruptNames += "2026-11-06_01-00-00_Galaxy-S24_${store.deviceId().take(4)}.db.gz"
 
         assertEquals(BackupFailure.DRIVE_ERROR, assertIs<BackupOutcome.Failed>(runner().run()).kind)
         assertEquals(before, store.current().lastSuccessAt)
@@ -285,6 +304,37 @@ class BackupRunnerTest {
         val manifests = names(DriveLayout.KIND_MANIFEST)
         assertTrue(manifests.size in 5..6, "${manifests.size}")
         assertEquals(manifests.size, names(DriveLayout.KIND_SNAPSHOT).size)
+    }
+
+    /** 이 앱 전에 올린 형식 2 백업(.db)도 보관 규칙대로 목록 파일과 함께 정리 */
+    @Test
+    fun an_old_uncompressed_backup_ages_out_with_its_manifest() = runTest {
+        seed()
+        assertIs<BackupOutcome.Done>(runner().run())
+        val folder = names(DriveLayout.KIND_SNAPSHOT).single().parents.single()
+        drive.visible.filter { it.props[DriveLayout.KEY_KIND] in setOf(DriveLayout.KIND_SNAPSHOT, DriveLayout.KIND_MANIFEST) }
+            .forEach { drive.deleteByUser(it.id) }
+        val props = mapOf(DriveLayout.KEY_DEVICE to store.deviceId())
+        val old = "2026-10-01_00-00-00_Galaxy-S24_${store.deviceId().take(4)}"
+        fs.write(dir / "old.db") { writeUtf8("옛 스냅샷") }
+        drive.uploadSmall(
+            NewFile("$old.db", folder, "application/x-sqlite3", props + (DriveLayout.KEY_KIND to DriveLayout.KIND_SNAPSHOT)),
+            dir / "old.db"
+        )
+        drive.uploadSmall(
+            NewFile("$old.json", folder, "application/json", props + (DriveLayout.KEY_KIND to DriveLayout.KIND_MANIFEST)),
+            dir / "old.db"
+        )
+
+        repeat(6) { i ->
+            now = Instant.parse("2026-11-${(i + 10).toString().padStart(2, '0')}T01:00:00Z")
+            assertIs<BackupOutcome.Done>(runner().run())
+        }
+
+        assertTrue("$old.db" in drive.trashedNames)
+        assertTrue("$old.json" in drive.trashedNames)
+        assertTrue(names(DriveLayout.KIND_SNAPSHOT).all { it.name.endsWith(".db.gz") })
+        assertEquals(names(DriveLayout.KIND_MANIFEST).size, names(DriveLayout.KIND_SNAPSHOT).size)
     }
 
     @Test

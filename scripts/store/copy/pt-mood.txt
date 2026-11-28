@@ -1,0 +1,7 @@
+phone|home|[Uma linha]\ne pronto por hoje|Um diário fácil até nos dias corridos
+phone|mood-sheet|Guarde também\ncomo você se [sentiu]|Escolha entre 15 humores
+phone|calendar|Seu humor\nno [calendário]|O mês inteiro de relance
+phone|insight|[Reveja]\nseu humor|Por semana, mês ou ano
+phone|theme-list|Troque o\n[tema de humor]|9 temas cheios de personalidade
+stack|cal-bubble=Bolhas · Plus/cal-veggie=Frutas e legumes · Plus/cal-clay=Rostos de massinha · Plus|Mais variedade com\nos temas [Plus]|Bolhas, Rabiscos, Frutas e legumes, Rostos de massinha
+phone|clay-custom|Um rosto parecido\ncom [você]|Rostos de massinha do Plus: cabelo, tom de pele e óculos

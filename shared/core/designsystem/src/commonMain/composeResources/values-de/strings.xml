@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 이 폴더의 언어 태그. 번역하지 않는다. -->
+    <string name="ds_language">de</string>
+    <string name="ds_in_progress">Läuft</string>
+    <string name="ds_close">Schließen</string>
+    <string name="ds_back">Zurück</string>
+    <string name="ds_delete">Löschen</string>
+    <string name="ds_pin_progress">%1$d von %2$d Ziffern eingegeben</string>
+    <string name="ds_catalog_title">Designsystem</string>
+    <string name="ds_catalog_colors">Farben</string>
+    <string name="ds_catalog_typography">Schrift</string>
+    <string name="ds_catalog_spacing">Abstände und Ecken</string>
+    <string name="ds_catalog_components">Komponenten</string>
+    <string name="ds_catalog_type_sample">Falsches Üben von Xylophonmusik quält jeden größeren Zwerg 1234</string>
+    <string name="ds_am">AM</string>
+    <string name="ds_pm">PM</string>
+    <string name="ds_wheel_ampm">AM oder PM</string>
+    <string name="ds_wheel_hour">Stunde</string>
+    <string name="ds_wheel_minute">Minute</string>
+    <string name="ds_wheel_month">Monat</string>
+    <string name="ds_wheel_year">Jahr</string>
+    <string name="ds_previous">Zurück</string>
+    <string name="ds_next">Weiter</string>
+</resources>

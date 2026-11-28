@@ -1,0 +1,7 @@
+phone|home|[Une ligne],\net la journée est écrite|Un journal simple, même les jours chargés
+phone|mood-sheet|Notez aussi\nvotre [humeur]|Parmi 15 humeurs
+phone|calendar|Votre humeur\nsur le [calendrier]|Tout le mois en un coup d’œil
+phone|insight|[Revoyez]\nvos humeurs|Par semaine, mois ou année
+phone|theme-list|Changez de\n[thème d’humeur]|9 thèmes pleins de personnalité
+stack|cal-bubble=Bulles · Plus/cal-veggie=Fruits et légumes · Plus/cal-clay=Visages en pâte · Plus|Plus de variété avec\nles thèmes [Plus]|Bulles, Gribouillis, Fruits et légumes, Visages en pâte
+phone|clay-custom|Un visage\nqui vous [ressemble]|Visages en pâte Plus : coiffure, teint et lunettes

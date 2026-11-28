@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="backup_title">備份</string>
+    <string name="backup_now">立即備份</string>
+    <string name="backup_auto">自動備份</string>
+    <string name="backup_auto_body">每天一次，只備份有變更的部分。</string>
+    <string name="backup_options">備份設定</string>
+    <string name="backup_connect">連結 Google 雲端硬碟</string>
+    <string name="backup_intro_title">備份到 Google 雲端硬碟</string>
+    <string name="backup_intro_body">將日記和照片存放在你自己的 Google 雲端硬碟，換裝置時就能全部還原。</string>
+    <string name="backup_intro_photos_title">照片也會一起備份</string>
+    <string name="backup_intro_photos_body">日記、心情、天氣、地點和照片都會上傳。</string>
+    <string name="backup_intro_folder_title">只存在你的雲端硬碟</string>
+    <string name="backup_intro_folder_body">儲存在「1일 1일기 백업」資料夾，我們絕不會查看你的其他檔案。</string>
+    <string name="backup_intro_free_title">完全免費</string>
+    <string name="backup_intro_free_body">自動備份也免費，使用的是你自己的 Google 雲端硬碟空間。</string>
+    <string name="backup_running">正在備份</string>
+    <string name="backup_running_body">離開 App 也會繼續進行，完成後會通知你。</string>
+    <string name="backup_running_body_open">App 開啟時才會進行。離開後會暫停，回來時再接著進行。</string>
+    <string name="backup_running_body_quiet">離開 App 也會繼續進行。</string>
+    <string name="backup_running_photos">照片 %1$s / %2$s張</string>
+    <string name="backup_reconnect">重新連結</string>
+    <string name="backup_reconnect_title">Google 帳戶已中斷連結</string>
+    <string name="backup_reconnect_body">重新連結即可繼續。雲端硬碟上的備份都安全無虞。</string>
+    <string name="backup_no_space_title">雲端硬碟空間不足</string>
+    <string name="backup_upload_cellular">使用行動數據上傳</string>
+    <string name="backup_all_done">包含照片在內，全部都已備份。</string>
+    <string name="backup_finding_title">正在尋找備份</string>
+    <string name="backup_finding_body">正在 Google 雲端硬碟中尋找備份。</string>
+    <string name="backup_first_title">還沒有備份</string>
+    <string name="backup_first_body">點「立即備份」上傳日記和照片。</string>
+    <string name="backup_last">上次備份 %1$s</string>
+    <string name="backup_when_day_time">%1$s %2$s</string>
+    <string name="backup_group_account">帳戶</string>
+    <string name="backup_account">Google 帳戶</string>
+    <string name="backup_account_busy">備份或還原完成後才能切換帳戶。</string>
+    <string name="backup_group_upload">上傳</string>
+    <string name="backup_wifi_only">照片只用 Wi-Fi 上傳</string>
+    <string name="backup_wifi_only_body">關閉後也會用行動數據上傳照片。</string>
+    <string name="backup_group_connection">連結</string>
+    <string name="backup_disconnect">中斷連結</string>
+    <string name="backup_disconnect_body">雲端硬碟上的備份會保留。</string>
+    <string name="backup_disconnect_title">要中斷連結嗎？</string>
+    <string name="backup_disconnect_message">自動備份會停止，雲端硬碟上的備份不會被刪除。</string>
+    <string name="backup_readme_body">這是1日1日記 App 的備份資料夾。刪除這個資料夾，備份就會消失。\n\nThis folder holds backups from the 1 Day 1 Diary app. Deleting it removes your backups.</string>
+    <string name="backup_line_off">備份已關閉</string>
+    <string name="backup_line_on">開啟</string>
+    <string name="backup_line_reconnect">需要重新連結</string>
+    <string name="backup_line_receiving">正在接收照片 · %1$s/%2$s張</string>
+    <string name="backup_line_running">正在備份 · 照片 %1$s/%2$s張</string>
+    <string name="backup_line_running_plain">正在備份</string>
+    <string name="backup_line_at">%1$s已備份 · %2$s</string>
+    <string name="backup_line_all">含所有照片</string>
+    <string name="backup_line_waiting">%1$s張照片等待中</string>
+    <string name="backup_line_days">上次備份是%1$d天前</string>
+    <string name="backup_line_today">今天 %1$s</string>
+    <string name="backup_line_yesterday">昨天 %1$s</string>
+    <plurals name="backup_photos_unusable">
+        <item quantity="other">找不到%1$s張照片，因此沒有備份。</item>
+    </plurals>
+    <plurals name="backup_photos_waiting"><item quantity="other">%1$s張照片會在連上 Wi-Fi 時上傳。</item></plurals>
+    <plurals name="backup_photos_next"><item quantity="other">%1$s張照片會在下次備份時上傳。</item></plurals>
+    <string name="restore_row">從 Google 雲端硬碟還原</string>
+    <string name="restore_row_body">合併其他裝置或舊版 App 的備份。</string>
+    <string name="restore_keep_note">這部裝置上的日記會保留。</string>
+    <string name="restore_device_group">%1$s · %2$s</string>
+    <string name="restore_device_unknown">未命名的裝置</string>
+    <string name="restore_platform_android">Android</string>
+    <string name="restore_platform_ios">iOS</string>
+    <string name="restore_when">%1$s %2$s</string>
+    <string name="restore_join">%1$s · %2$s</string>
+    <string name="restore_damaged">這份備份有部分損壞，無法還原</string>
+    <string name="restore_needs_update">請更新 App 以還原這份備份</string>
+    <string name="restore_empty_title">雲端硬碟上還沒有備份</string>
+    <string name="restore_empty_body">這部裝置的備份會顯示在這裡。</string>
+    <string name="restore_list_failed">無法讀取備份</string>
+    <string name="restore_list_failed_auth">Google 帳戶已中斷連結，請到「備份」畫面重新連結。</string>
+    <string name="restore_go_backup">前往備份</string>
+    <string name="restore_list_failed_body">請檢查網路連線後再試一次。</string>
+    <string name="restore_retry">再試一次</string>
+    <string name="restore_update_in_store">到商店更新</string>
+    <string name="restore_preview_top">還原</string>
+    <string name="restore_preview_title">合併這份備份</string>
+    <string name="restore_preview_title_nothing">這份備份的內容都已經在這裡了</string>
+    <string name="restore_preview_body">這是%1$s %2$s的備份。\n這部裝置上的日記會保留，並合併備份內容。</string>
+    <string name="restore_value_added">要新增的日記</string>
+    <string name="restore_value_updated">更新為較新版本的日記</string>
+    <string name="restore_value_both">保留兩個版本的日記</string>
+    <string name="restore_value_photos">要下載的照片</string>
+    <string name="restore_settings_note">字型、日記文字大小、外觀、列表顯示和提醒設定，也會改成備份中的設定。</string>
+    <string name="restore_no_space">照片還需要%1$s的空間，請釋放這部裝置的空間後再試一次。</string>
+    <string name="restore_merge">合併</string>
+    <string name="restore_size_gb">%1$s GB</string>
+    <string name="restore_size_mb">%1$s MB</string>
+    <string name="restore_size_kb">%1$s KB</string>
+    <string name="restore_running_title">正在還原日記</string>
+    <string name="restore_waiting_body">備份完成後就會開始。</string>
+    <string name="restore_merging_body">正在合併日記。</string>
+    <string name="restore_fetching_body">日記已合併完成，下載照片期間也能閱讀。</string>
+    <string name="restore_value_entries">日記</string>
+    <string name="restore_value_merged">%1$s · 已合併</string>
+    <string name="restore_value_photo">照片</string>
+    <string name="restore_photo_progress">%1$s / %2$s</string>
+    <string name="restore_running_note">離開 App 也會繼續進行，完成後會通知你。即使 App 關閉，也只會下載剩下的照片。</string>
+    <string name="restore_running_note_quiet">離開 App 也會繼續進行。即使 App 關閉，也只會下載剩下的照片。</string>
+    <string name="restore_running_note_open">App 開啟時才會進行。離開後會暫停，回來時只會下載剩下的照片。</string>
+    <string name="restore_see_entries">先看日記</string>
+    <string name="restore_done_nothing">已合併備份</string>
+    <string name="restore_done_body">這部裝置上的日記會保留。</string>
+    <string name="restore_note_both_body">這些日記曾在兩個地方編輯，已在列表中標示。</string>
+    <string name="restore_note_original_body">這些照片還沒有備份。請在原本的裝置上再備份一次，就能在這裡看到。</string>
+    <string name="restore_note_pending_body">下次開啟 App 時會下載完成。</string>
+    <string name="restore_note_pending_file_body">檔案中沒有這些照片。如果已備份到雲端硬碟，連結後就會下載。</string>
+    <string name="restore_note_pending_space_body">裝置空間不足。請釋放空間後再開啟 App 完成下載。</string>
+    <string name="restore_wait_running">正在下載照片。</string>
+    <string name="restore_wait_network">恢復連線後會下載完成。</string>
+    <string name="restore_wait_wifi">連上 Wi-Fi 後會下載完成。若要使用行動數據，請點「立即下載」。</string>
+    <string name="restore_wait_account">Google 雲端硬碟已中斷連結，請重新連結以完成下載。</string>
+    <string name="restore_wait_other_account">這些照片在 %1$s 的 Google 雲端硬碟中，連結該帳戶即可下載。</string>
+    <string name="restore_wait_other_account_unnamed">這些照片在你還原時使用的 Google 雲端硬碟中，連結該帳戶即可下載。</string>
+    <string name="restore_wait_file">請再次選擇還原時使用的檔案，以取得剩下的照片。</string>
+    <string name="restore_wait_now">立即下載</string>
+    <string name="restore_wait_pick">選擇檔案</string>
+    <string name="restore_note_missing_body">下載的檔案不一致，因此標示為找不到。</string>
+    <string name="restore_lock_title">重新設定鎖定</string>
+    <string name="restore_lock_body">備份時鎖定為開啟，但密碼不會備份。</string>
+    <string name="restore_lock_action">設定</string>
+    <string name="restore_start">完成</string>
+    <string name="restore_failed_busy_title">請在還原完成後再試一次</string>
+    <string name="restore_failed_busy_body">正在還原中，完成後就能選擇其他備份。</string>
+    <string name="restore_failed_mismatch_title">無法驗證備份</string>
+    <string name="restore_failed_mismatch_body">下載的檔案和備份不一致，因此已停止。這部裝置上的內容都沒有變更。</string>
+    <string name="restore_failed_other_title">無法還原</string>
+    <string name="restore_failed_other_body">請稍後再試一次。這部裝置上的內容都沒有變更。</string>
+    <string name="restore_needs_update_body">請到商店更新 App 後再試一次。這部裝置上的內容都沒有變更。</string>
+    <string name="restore_pick_other">選擇其他備份</string>
+    <string name="restore_found_title">Google 雲端硬碟上有備份</string>
+    <string name="restore_found_body">這部裝置上的日記會保留，並合併備份內容。</string>
+    <string name="restore_found_later">稍後</string>
+    <string name="restore_found_action">還原</string>
+    <plurals name="restore_count_entries"><item quantity="other">%1$s篇日記</item></plurals>
+    <plurals name="restore_count_photos"><item quantity="other">%1$s張照片</item></plurals>
+    <plurals name="restore_unit_entries"><item quantity="other">%1$s篇</item></plurals>
+    <plurals name="restore_unit_photos"><item quantity="other">%1$s張</item></plurals>
+    <plurals name="restore_done_added"><item quantity="other">已新增%1$s篇日記</item></plurals>
+    <plurals name="restore_done_trash"><item quantity="other">已將%1$s篇日記還原到垃圾桶</item></plurals>
+    <plurals name="restore_to_trash"><item quantity="other">%1$s篇日記會還原到垃圾桶。</item></plurals>
+    <plurals name="restore_done_updated"><item quantity="other">已更新%1$s篇日記</item></plurals>
+    <plurals name="restore_done_photos"><item quantity="other">%1$s張照片也都回來了。</item></plurals>
+    <plurals name="restore_note_both"><item quantity="other">%1$s篇日記保留了兩個版本</item></plurals>
+    <plurals name="restore_note_original"><item quantity="other">%1$s張照片在原本的裝置上</item></plurals>
+    <plurals name="restore_note_pending"><item quantity="other">還有%1$s張照片要下載</item></plurals>
+    <plurals name="restore_note_missing"><item quantity="other">%1$s張照片無法驗證</item></plurals>
+    <plurals name="restore_not_in_backup"><item quantity="other">這份備份中沒有%1$s張照片，它們在原本的裝置上。</item></plurals>
+    <string name="restore_group_legacy">舊版 App 的備份</string>
+    <string name="restore_legacy_row">來自舊版 App · 不含照片</string>
+    <plurals name="restore_more_backups"><item quantity="other">顯示%1$s個較舊的備份</item></plurals>
+    <string name="restore_legacy_title">還原舊版 App 的備份</string>
+    <string name="restore_legacy_body">這是舊版 App 在%1$s上傳的備份。\n這部裝置上的日記會保留，並合併備份內容。</string>
+    <string name="restore_legacy_no_photos">這些備份不含照片</string>
+    <string name="restore_legacy_no_photos_body">會還原文字、心情、天氣、地點和收藏。</string>
+    <string name="restore_legacy_recent">之後寫的日記可能不在其中。</string>
+    <string name="restore_legacy_recent_body">這份備份只包含舊版 App 最後一次備份前的日記。</string>
+    <string name="restore_value_existing">這部裝置上已有的日記</string>
+    <string name="restore_value_unreadable">無法讀取的日記</string>
+    <string name="restore_legacy_action">還原</string>
+    <string name="restore_legacy_same_time_body">日期和時間相同但內容不同，兩篇都會保留並加上標示。</string>
+    <string name="restore_legacy_gaps_body">這些備份不含照片，因此標示為找不到。</string>
+    <plurals name="restore_legacy_same_time"><item quantity="other">%1$s篇內容不同的日記</item></plurals>
+    <plurals name="restore_legacy_gaps"><item quantity="other">%1$s張遺失的照片</item></plurals>
+    <string name="backup_alert_title">已經7天無法備份</string>
+    <string name="backup_alert_auth">Google 帳戶已中斷連結，點一下即可重新連結。</string>
+    <string name="backup_alert_space">雲端硬碟空間不足，點一下查看。</string>
+    <string name="backup_alert_offline">目前沒有網路連線，連線後會繼續備份。</string>
+    <string name="backup_alert_other">請開啟 App 查看備份狀態。</string>
+    <string name="backup_channel">備份</string>
+    <string name="backup_nudge_entries_photos">%1$s和%2$s只存在這部裝置上</string>
+    <plurals name="backup_nudge_entries"><item quantity="other">%1$s篇日記只存在這部裝置上</item></plurals>
+    <string name="backup_nudge_body">備份到 Google 雲端硬碟，換裝置也不怕遺失。</string>
+    <string name="backup_nudge_action">開啟備份</string>
+    <string name="backup_nudge_later">稍後</string>
+    <string name="restore_replace_entry">改用這份備份取代</string>
+    <string name="restore_replace_title">要用這份備份取代嗎？</string>
+    <string name="restore_replace_action">取代</string>
+    <string name="restore_failed_space_title">這部裝置空間不足</string>
+    <string name="restore_failed_space_body">沒有空間保留目前日記的副本，因此已停止。這部裝置上的內容都沒有變更。</string>
+    <string name="backup_folder_title">已建立新的備份資料夾</string>
+    <string name="backup_folder_body">刪除的資料夾可在30天內從雲端硬碟的垃圾桶還原。</string>
+    <string name="backup_folder_ok">確定</string>
+    <string name="rollback_title">已用這份備份取代</string>
+    <string name="rollback_until">%1$s前都可以復原。</string>
+    <string name="rollback_tomorrow">明天前都可以復原。</string>
+    <string name="rollback_action">復原</string>
+    <string name="rollback_waiting_title">等待復原中</string>
+    <string name="rollback_waiting_body">還原完成後會復原取代前的內容。</string>
+    <string name="rollback_running_title">正在復原取代前的內容</string>
+    <string name="rollback_running_body">馬上就好。</string>
+    <string name="rollback_failed_title">無法復原取代前的內容</string>
+    <string name="rollback_failed_body">沒有刪除任何日記，請再試一次。</string>
+    <string name="rollback_ask_title">要復原取代前的內容嗎？</string>
+    <string name="rollback_ask_body">取代前的%1$s篇日記會回來。</string>
+    <string name="rollback_ask_after">取代前的%1$s篇日記會回來，取代後寫的%2$s篇日記會保留。</string>
+    <plurals name="restore_replace_body"><item quantity="other">這部裝置上的%1$s篇日記會被這份備份取代。7天內可以復原。</item></plurals>
+    <string name="file_top">備份到檔案</string>
+    <string name="file_row_body">不用雲端硬碟，把全部內容存成一個檔案。</string>
+    <string name="file_title">將日記存成一個檔案</string>
+    <string name="file_body">不用雲端硬碟，也能把%1$s和%2$s存成檔案。預估大小：%3$s。</string>
+    <string name="file_body_empty">還沒有可儲存的日記。你可以在下方從備份檔案還原。</string>
+    <string name="file_place_title">存在你想要的地方</string>
+    <string name="file_place_body">可選擇裝置儲存空間或其他雲端 App。</string>
+    <string name="file_move_title">自行移到新裝置</string>
+    <string name="file_move_body">可透過電腦或雲端 App 複製。照片很多時，檔案可能太大，無法用通訊 App 傳送。</string>
+    <string name="file_trust_title">存放在可信任的地方</string>
+    <string name="file_trust_body">檔案中包含原樣的日記和照片。</string>
+    <string name="file_restore">從檔案還原</string>
+    <string name="file_restore_body">選擇備份檔案，與日記合併。</string>
+    <string name="file_action">建立檔案</string>
+    <string name="file_writing">正在建立檔案</string>
+    <string name="file_write_failed">無法完成檔案。請到儲存位置刪除檔案後重新建立。這部裝置上的內容都沒有變更。</string>
+    <string name="file_reading">正在檢查檔案</string>
+    <string name="file_write_failed_removed">無法完成檔案，因此已將它刪除。這部裝置上的內容都沒有變更。</string>
+    <string name="file_stop_title">要停止建立檔案嗎？</string>
+    <string name="file_stop_body">現在離開的話，未完成的檔案會被刪除。這部裝置上的內容不會變更。</string>
+    <string name="file_stop_action">停止</string>
+    <string name="file_stopped_notice">備份檔案沒有完成，因此無法使用。</string>
+    <string name="file_read_failed">這不是備份檔案，或有部分已損壞。這部裝置上的內容都沒有變更。</string>
+    <string name="file_read_no_space">空間不足，無法開啟這個檔案。請釋放%1$s空間後再試一次。</string>
+    <string name="file_read_no_space_plain">空間不足，無法開啟這個檔案。請釋放一些空間後再試一次。</string>
+    <string name="file_read_needs_update">請更新 App 以還原這份備份。</string>
+    <string name="file_saved_title">已儲存檔案</string>
+    <string name="file_saved_body">移到新裝置後，請點「從檔案還原」。</string>
+    <string name="file_done">確定</string>
+    <string name="file_name">1日1日記-備份-%1$s</string>
+    <string name="backup_group_backup">備份</string>
+    <string name="backup_group_restore">還原</string>
+    <string name="restore_replaced_title">已用這份備份取代</string>
+    <string name="restore_replaced_body">7天內可以復原。</string>
+    <string name="backup_space_text">雲端硬碟還需要%1$s空間才能備份日記。</string>
+    <string name="backup_space_manage">管理 Google 儲存空間</string>
+    <string name="backup_space_trash">清空雲端硬碟的垃圾桶</string>
+    <string name="backup_space_note">沒有備份的照片仍在這部裝置上。</string>
+    <string name="backup_space_retry">重新備份</string>
+    <plurals name="backup_space_photos"><item quantity="other">日記已備份。剩下的%1$s張照片還需要雲端硬碟%2$s的空間。</item></plurals>
+    <string name="restore_contact">聯絡我們</string>
+    <string name="backup_interrupted_body">已上傳的照片都安全無虞。點「立即備份」即可繼續。</string>
+    <string name="backup_restored_title">已從%1$s的備份還原</string>
+    <string name="backup_restored_body">立即備份，把這部裝置的日記也存起來。</string>
+    <string name="backup_done_title">備份完成</string>
+    <string name="backup_done_body">日記和照片都已存到雲端硬碟。</string>
+    <string name="backup_done_left">剩下的%1$s張照片會在連上 Wi-Fi 時上傳。</string>
+    <plurals name="backup_done_left_space"><item quantity="other">雲端硬碟空間不足，有%1$s張照片沒有上傳。</item></plurals>
+    <string name="backup_stopped_title">備份未完成</string>
+    <string name="restore_stopped_title">無法完成還原</string>
+    <string name="restore_see_result">查看</string>
+    <string name="restore_notice_title">還原完成</string>
+    <string name="restore_notice_body">所有日記和照片都回來了。</string>
+    <string name="restore_notice_stopped_title">部分照片仍在下載中</string>
+    <string name="restore_notice_some">部分照片無法還原，請開啟 App 查看。</string>
+    <string name="restore_notice_left">請開啟 App 取得剩下的照片。</string>
+    <string name="backup_failed_offline">沒有連上網路。連線後請點「立即備份」。</string>
+    <string name="backup_failed_drive">Google 雲端硬碟沒有回應。請稍候再點「立即備份」。</string>
+    <string name="backup_failed_local">無法讀寫這部裝置上的檔案。請檢查儲存空間後再點「立即備份」。</string>
+    <string name="backup_line_failed">備份未完成</string>
+    <string name="backup_status_failed">無法載入備份狀態</string>
+    <string name="backup_skip_empty">還沒有可備份的日記</string>
+    <string name="backup_skip_busy">正在進行其他作業，完成後請再試一次。</string>
+    <string name="backup_skip_not_checked">無法確認 Google 雲端硬碟上的備份，請稍後再點「立即備份」。</string>
+    <string name="backup_connect_failed_title">無法連結 Google 雲端硬碟</string>
+    <string name="backup_connect_failed_offline">請檢查網路連線後再試一次。</string>
+    <string name="backup_connect_failed_auth">無法驗證 Google 帳戶，請稍後再試一次。</string>
+    <string name="backup_connect_failed_no_drive">請在 Google 畫面中勾選 Google 雲端硬碟項目以連結。</string>
+    <string name="backup_connect_failed_other">請稍後再試一次。</string>
+    <string name="backup_connect_failed_close">確定</string>
+    <string name="restore_no_mail">找不到郵件 App，請寄信至%1$s。</string>
+</resources>

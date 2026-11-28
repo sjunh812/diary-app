@@ -1,0 +1,6 @@
+"CFBundleDisplayName" = "1日1日記";
+"CFBundleName" = "1日1日記";
+"NSFaceIDUsageDescription" = "使用 Face ID 解鎖日記。";
+"NSLocationWhenInUseUsageDescription" = "只有在你點「使用我的位置」時才會讀取位置，用來找出所在地區的名稱。";
+"NSCameraUsageDescription" = "只有在將拍攝的照片加入日記時才會使用相機。";
+"NSUserTrackingUsageDescription" = "允許後，你會看到符合興趣的廣告。日記內容絕不會用於廣告。";

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="trash_title">Papelera</string>
+    <string name="trash_empty">Vaciar</string>
+    <string name="trash_notice">Las entradas se eliminan definitivamente a los 30 días.</string>
+    <string name="trash_empty_title">La papelera está vacía</string>
+    <string name="trash_empty_body">Aquí puedes restaurar las entradas eliminadas durante 30 días.</string>
+    <string name="trash_restore">Restaurar</string>
+    <string name="trash_delete_forever">Eliminar definitivamente</string>
+    <string name="trash_restored">Restaurada</string>
+    <string name="trash_confirm_title">¿Eliminar definitivamente?</string>
+    <string name="trash_confirm_delete">Eliminar</string>
+    <string name="trash_confirm_body_one">Esta entrada se eliminará y no podrás restaurarla.</string>
+    <string name="trash_row_when">%1$s %2$s</string>
+    <plurals name="trash_days_left">
+        <item quantity="one">Queda %1$d día</item>
+        <item quantity="other">Quedan %1$d días</item>
+    </plurals>
+    <plurals name="trash_confirm_body_all">
+        <item quantity="one">%1$s entrada de la papelera se eliminará y no podrás restaurarla.</item>
+        <item quantity="other">%1$s entradas de la papelera se eliminarán y no podrás restaurarlas.</item>
+    </plurals>
+</resources>

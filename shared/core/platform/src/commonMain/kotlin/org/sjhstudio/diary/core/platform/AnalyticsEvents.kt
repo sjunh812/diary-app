@@ -8,6 +8,7 @@ import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.MigrationFailureKind
 import org.sjhstudio.diary.core.model.MigrationStep
+import org.sjhstudio.diary.core.model.MoodTheme
 import org.sjhstudio.diary.core.model.RelockAfter
 import org.sjhstudio.diary.core.model.ThemeColor
 import org.sjhstudio.diary.core.model.ThemeMode
@@ -42,6 +43,8 @@ object AnalyticsEvents {
             "FontSettingsKey",
             "TextSizeSettingsKey",
             "ThemeSettingsKey",
+            "MoodThemeSettingsKey",
+            "ClayLookSettingsKey",
             "LockSettingsKey",
             "ReminderSettingsKey",
             "MigrationReportKey",
@@ -95,6 +98,8 @@ object AnalyticsEvents {
             "theme" to ThemeMode.entries.map { it.id }.toSet(),
             // 직접 고른 색 값은 보내지 않고 "custom"만(스펙 010)
             "theme_color" to ThemeColor.entries.map { it.id }.toSet(),
+            // 테마 id만. 기분 기록은 보내지 않음(스펙 013, 헌법 II)
+            "mood_theme" to MoodTheme.entries.map { it.id }.toSet(),
             "reminder" to BOOLEAN,
             "lock" to BOOLEAN,
             "biometric" to BOOLEAN,

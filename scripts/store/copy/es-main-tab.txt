@@ -1,0 +1,7 @@
+phone|home|[Una línea]\ny listo por hoy|Un diario fácil incluso en días ocupados
+phone|calendar|Tu ánimo\nen el [calendario]|Todo el mes de un vistazo
+stack|cal-shape=Formas/cal-clay=Caras de arcilla · Plus/cal-veggie=Frutas y verduras · Plus|Cambia tu\n[tema de ánimo]|9 temas con mucha personalidad
+phone|detail|Guarda tu día\ncon [fotos]|Hasta 10 fotos en cada entrada
+phone|insight|[Repasa]\ncómo te sentiste|Por semana, mes o año
+phone|theme-rose|Ponle\ntu [color]|Elige entre 7 colores de tema
+phone|backup|Respalda tus fotos\nen tu propio [Drive]|Sin registro. Automático, una vez al día.

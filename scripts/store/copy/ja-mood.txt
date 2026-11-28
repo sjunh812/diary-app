@@ -1,0 +1,7 @@
+phone|home|[1行]で\n今日の日記は完了|忙しい日でも書きやすい日記帳
+phone|mood-sheet|その日の[気分]も\n一緒に残せます|15種類の気分から選べます
+phone|calendar|その日の気分が\n[カレンダー]に|1か月分の気分がひと目でわかります
+phone|insight|どんな気分が多かったか\n[ふり返れます]|週・月・年ごとに見られます
+phone|theme-list|[気分テーマ]を\n好みに変えられます|個性豊かな9つのテーマから選べます
+stack|cal-bubble=シャボン玉 · Plus/cal-veggie=やさい・くだもの · Plus/cal-clay=ねんど · Plus|[Plus]のテーマで\nもっと多彩に|シャボン玉、らくがき、やさい・くだもの、ねんど
+phone|clay-custom|自分に似た顔に\n[カスタマイズ]|Plusのねんどは髪型・肌の色・メガネまで

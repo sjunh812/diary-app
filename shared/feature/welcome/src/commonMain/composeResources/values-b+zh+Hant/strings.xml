@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="letter_arrived">你有一封信 💌</string>
+    <string name="letter_open">打開信件</string>
+    <string name="letter_title">開發者的一封信</string>
+    <string name="letter_hello">您好，我是\n1日1日記的開發者 👋</string>
+    <string name="letter_short">我知道這個 App 曾讓您感到不便，所以將它**從頭**重新打造。**現在照片也能一起備份**，也加入了實用的新功能。\n\n為了能持續更新，我加入了廣告和付費功能。相對地，我向您做出兩個承諾。</string>
+    <string name="letter_sign">SeoJuNyang 敬上</string>
+    <string name="letter_start">繼續</string>
+    <string name="onboarding_backup_title">照片也能一起備份</string>
+    <string name="onboarding_backup_body">開啟自動備份後，每天會將日記備份到你的 Google 雲端硬碟一次。\n換了裝置，日記和照片也都還在。</string>
+    <string name="onboarding_write_title">一天一行就夠了</string>
+    <string name="onboarding_write_body">選個心情，隨手寫幾行。</string>
+    <string name="onboarding_own_title">只存在你的裝置和雲端硬碟</string>
+    <string name="onboarding_own_body">不用註冊。連同照片\n備份到你自己的 Google 雲端硬碟。</string>
+    <string name="onboarding_next">下一步</string>
+    <string name="onboarding_start">開始使用</string>
+    <string name="onboarding_skip">略過</string>
+    <plurals name="letter_moved"><item quantity="other">至今您已寫下**%1$s篇日記**。\n衷心感謝您一直使用這個還不完美的 App。</item></plurals>
+    <string name="letter_promise_free">您一直在用的功能將繼續免費</string>
+    <string name="letter_promise_ads">閱讀或撰寫日記時不會顯示廣告</string>
+    <string name="letter_close">懇請您繼續支持 🙇‍♂️</string>
+    <string name="onboarding_style_title">讓文字更有變化</string>
+    <string name="onboarding_style_body">試試粗體、文字顏色、螢光筆和清單。\n寫的時候會自動儲存草稿。</string>
+    <string name="onboarding_trash_title">不小心刪除了？沒關係</string>
+    <string name="onboarding_trash_body">30天內都能從垃圾桶還原日記。</string>
+    <string name="letter_to">致所有使用1日1日記的您</string>
+    <string name="letter_feedback_invite">如果有想要的功能，歡迎告訴我們。</string>
+    <string name="letter_feedback">提供意見</string>
+    <string name="onboarding_find_title">搜尋和統計更方便</string>
+    <string name="onboarding_find_body">依心情、天氣或日期範圍找日記，\n還能看每週、每月或每年的心情。</string>
+    <string name="onboarding_tablet_title">平板上空間更大</string>
+    <string name="onboarding_tablet_body">列表和日記並排顯示，\n接上鍵盤就能馬上寫。</string>
+    <string name="onboarding_look_back_title">回顧過去的日子</string>
+    <string name="onboarding_look_back_body">一眼看出心情的變化，\n還能依心情、天氣或日期範圍找日記。</string>
+</resources>

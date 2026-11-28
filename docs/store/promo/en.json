@@ -1,0 +1,41 @@
+{
+ "assets": "docs/store/promo/assets",
+ "font": "shared/core/designsystem/src/commonMain/composeResources/font/changwon_round_regular.otf",
+ "icon": "iosApp/iosApp/Assets.xcassets/AppIcon.appiconset/app-icon-1024.png",
+ "previewAt": [],
+ "out": "docs/store/promo/promo-en.mp4",
+ "home": "docs/store/promo/assets/home-dark-en.jpg",
+ "capScale": 0.92,
+ "copy": {
+  "line": "Busy day?\nOne line is enough",
+  "lineHl": "One line",
+  "mood": "Pick the mood\nof your day",
+  "moodHl": "mood",
+  "top": "Top mood this month:\nLaughing",
+  "topHl": "Laughing",
+  "photo": "Add photos\nto your day",
+  "photoHl": "photos",
+  "chips": [
+   "No sign-up",
+   "Lock it, keep it private",
+   "Photos back up to your Drive"
+  ],
+  "typed": "The sunset on my way home was so pretty 🌇",
+  "placeholder": "How was your day?",
+  "cardDate": "Sunday, November 8",
+  "cardText": [
+   "Drove out to the sea.",
+   "Walked for an hour by the waves."
+  ],
+  "name": "1 Day 1 Diary",
+  "stores": "App Store · Google Play",
+  "hero": [
+   "One line a day,",
+   "a diary you'll",
+   "actually keep."
+  ],
+  "heroHl": "actually keep"
+ },
+ "writeEmpty": "docs/store/promo/assets/ew-empty.jpg",
+ "writeDone": "docs/store/promo/assets/ew-done.jpg"
+}

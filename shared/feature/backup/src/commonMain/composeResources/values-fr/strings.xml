@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="backup_title">Sauvegarde</string>
+    <string name="backup_now">Sauvegarder</string>
+    <string name="backup_auto">Sauvegarde auto</string>
+    <string name="backup_auto_body">Une fois par jour, seulement les changements.</string>
+    <string name="backup_options">Options de sauvegarde</string>
+    <string name="backup_connect">Connecter Google Drive</string>
+    <string name="backup_intro_title">Sauvegarder sur Google Drive</string>
+    <string name="backup_intro_body">Gardez vos entrées et vos photos dans votre propre Google Drive. Restaurez tout quand vous changez d’appareil.</string>
+    <string name="backup_intro_photos_title">Les photos aussi sont sauvegardées</string>
+    <string name="backup_intro_photos_body">Entrées, humeurs, météo, lieux et photos : tout est envoyé.</string>
+    <string name="backup_intro_folder_title">Uniquement dans votre Drive</string>
+    <string name="backup_intro_folder_body">Enregistré dans le dossier 1일 1일기 백업. Nous ne regardons jamais vos autres fichiers.</string>
+    <string name="backup_intro_free_title">C’est gratuit</string>
+    <string name="backup_intro_free_body">La sauvegarde auto est gratuite aussi. Elle utilise l’espace de votre propre Google Drive.</string>
+    <string name="backup_running">Sauvegarde en cours</string>
+    <string name="backup_running_body">Elle continue si vous quittez l’app. Nous vous préviendrons quand elle sera terminée.</string>
+    <string name="backup_running_body_open">Elle s’exécute tant que l’app est ouverte. Si vous la quittez, elle se met en pause et reprend à votre retour.</string>
+    <string name="backup_running_body_quiet">Elle continue si vous quittez l’app.</string>
+    <string name="backup_running_photos">Photos %1$s / %2$s</string>
+    <string name="backup_reconnect">Reconnecter</string>
+    <string name="backup_reconnect_title">Compte Google déconnecté</string>
+    <string name="backup_reconnect_body">Reconnectez-vous pour continuer. Vos sauvegardes sur Drive ne risquent rien.</string>
+    <string name="backup_no_space_title">Espace Drive insuffisant</string>
+    <string name="backup_upload_cellular">Envoyer avec les données mobiles</string>
+    <string name="backup_all_done">Tout est sauvegardé, photos comprises.</string>
+    <string name="backup_finding_title">Recherche de sauvegardes</string>
+    <string name="backup_finding_body">Recherche de sauvegardes dans votre Google Drive.</string>
+    <string name="backup_first_title">Pas encore de sauvegarde</string>
+    <string name="backup_first_body">Touchez « Sauvegarder » pour envoyer vos entrées et vos photos.</string>
+    <string name="backup_last">Dernière sauvegarde : %1$s</string>
+    <string name="backup_when_day_time">%1$s %2$s</string>
+    <string name="backup_group_account">Compte</string>
+    <string name="backup_account">Compte Google</string>
+    <string name="backup_account_busy">Vous pourrez changer de compte une fois la sauvegarde ou la restauration terminée.</string>
+    <string name="backup_group_upload">Envoi</string>
+    <string name="backup_wifi_only">Photos en Wi-Fi uniquement</string>
+    <string name="backup_wifi_only_body">Désactivez pour envoyer aussi les photos avec les données mobiles.</string>
+    <string name="backup_group_connection">Connexion</string>
+    <string name="backup_disconnect">Déconnecter</string>
+    <string name="backup_disconnect_body">Les sauvegardes sur Drive restent où elles sont.</string>
+    <string name="backup_disconnect_title">Déconnecter ?</string>
+    <string name="backup_disconnect_message">La sauvegarde auto s’arrête. Les sauvegardes sur Drive ne sont pas supprimées.</string>
+    <string name="backup_readme_body">Ce dossier contient les sauvegardes de l’app 1 Day 1 Diary. Le supprimer efface vos sauvegardes.\n\nThis folder holds backups from the 1 Day 1 Diary app. Deleting it removes your backups.</string>
+    <string name="backup_line_off">Sauvegarde désactivée</string>
+    <string name="backup_line_on">Activer</string>
+    <string name="backup_line_reconnect">Reconnexion requise</string>
+    <string name="backup_line_receiving">Réception des photos · %1$s/%2$s</string>
+    <string name="backup_line_running">Sauvegarde · Photos %1$s/%2$s</string>
+    <string name="backup_line_running_plain">Sauvegarde en cours</string>
+    <string name="backup_line_at">Sauvegardé %1$s · %2$s</string>
+    <string name="backup_line_all">photos comprises</string>
+    <string name="backup_line_waiting">photos en attente : %1$s</string>
+    <string name="backup_line_days">Dernière sauvegarde il y a %1$d jours</string>
+    <string name="backup_line_today">aujourd’hui à %1$s</string>
+    <string name="backup_line_yesterday">hier à %1$s</string>
+    <plurals name="backup_photos_unusable">
+        <item quantity="one">%1$s photo introuvable n’a pas été sauvegardée.</item>
+        <item quantity="other">%1$s photos introuvables n’ont pas été sauvegardées.</item>
+    </plurals>
+    <plurals name="backup_photos_waiting"><item quantity="one">%1$s photo sera envoyée en Wi-Fi.</item><item quantity="other">%1$s photos seront envoyées en Wi-Fi.</item></plurals>
+    <plurals name="backup_photos_next"><item quantity="one">%1$s photo sera envoyée à la prochaine sauvegarde.</item><item quantity="other">%1$s photos seront envoyées à la prochaine sauvegarde.</item></plurals>
+    <string name="restore_row">Restaurer depuis Google Drive</string>
+    <string name="restore_row_body">Fusionnez une sauvegarde d’un autre appareil ou de l’ancienne version.</string>
+    <string name="restore_keep_note">Les entrées de cet appareil sont conservées.</string>
+    <string name="restore_device_group">%1$s · %2$s</string>
+    <string name="restore_device_unknown">Appareil sans nom</string>
+    <string name="restore_platform_android">Android</string>
+    <string name="restore_platform_ios">iOS</string>
+    <string name="restore_when">%1$s %2$s</string>
+    <string name="restore_join">%1$s · %2$s</string>
+    <string name="restore_damaged">Une partie de cette sauvegarde est endommagée, elle ne peut pas être restaurée</string>
+    <string name="restore_needs_update">Mettez l’app à jour pour restaurer cette sauvegarde</string>
+    <string name="restore_empty_title">Aucune sauvegarde sur Drive</string>
+    <string name="restore_empty_body">Les sauvegardes de cet appareil apparaîtront ici.</string>
+    <string name="restore_list_failed">Impossible de lire vos sauvegardes</string>
+    <string name="restore_list_failed_auth">Votre compte Google a été déconnecté. Reconnectez-le depuis l’écran Sauvegarde.</string>
+    <string name="restore_go_backup">Aller à Sauvegarde</string>
+    <string name="restore_list_failed_body">Vérifiez votre connexion et réessayez.</string>
+    <string name="restore_retry">Réessayer</string>
+    <string name="restore_update_in_store">Mettre à jour</string>
+    <string name="restore_preview_top">Restaurer</string>
+    <string name="restore_preview_title">Fusionner cette sauvegarde</string>
+    <string name="restore_preview_title_nothing">Tout le contenu de cette sauvegarde est déjà là</string>
+    <string name="restore_preview_body">Sauvegarde de %1$s, %2$s.\nLes entrées de cet appareil sont conservées et la sauvegarde y est fusionnée.</string>
+    <string name="restore_value_added">Entrées à ajouter</string>
+    <string name="restore_value_updated">Entrées mises à jour vers la version récente</string>
+    <string name="restore_value_both">Entrées gardées en deux versions</string>
+    <string name="restore_value_photos">Photos à télécharger</string>
+    <string name="restore_settings_note">Votre police, la taille du texte, l’apparence, l’affichage de la liste et le rappel prennent aussi les réglages de la sauvegarde.</string>
+    <string name="restore_no_space">Il vous faut %1$s de plus pour les photos. Libérez de l’espace sur cet appareil et réessayez.</string>
+    <string name="restore_merge">Fusionner</string>
+    <string name="restore_size_gb">%1$s Go</string>
+    <string name="restore_size_mb">%1$s Mo</string>
+    <string name="restore_size_kb">%1$s Ko</string>
+    <string name="restore_running_title">Restauration du journal</string>
+    <string name="restore_waiting_body">Nous commencerons à la fin de la sauvegarde.</string>
+    <string name="restore_merging_body">Fusion de vos entrées.</string>
+    <string name="restore_fetching_body">Vos entrées sont fusionnées. Vous pouvez les lire pendant le téléchargement des photos.</string>
+    <string name="restore_value_entries">Entrées</string>
+    <string name="restore_value_merged">%1$s · fusionnées</string>
+    <string name="restore_value_photo">Photos</string>
+    <string name="restore_photo_progress">%1$s / %2$s</string>
+    <string name="restore_running_note">Elle continue si vous quittez l’app, et nous vous préviendrons quand elle sera terminée. Si l’app se ferme, seules les photos restantes seront téléchargées.</string>
+    <string name="restore_running_note_quiet">Elle continue si vous quittez l’app. Si l’app se ferme, seules les photos restantes seront téléchargées.</string>
+    <string name="restore_running_note_open">Elle s’exécute tant que l’app est ouverte. Si vous la quittez, elle se met en pause, et seules les photos restantes seront téléchargées à votre retour.</string>
+    <string name="restore_see_entries">Voir les entrées</string>
+    <string name="restore_done_nothing">Sauvegarde fusionnée</string>
+    <string name="restore_done_body">Les entrées de cet appareil sont conservées.</string>
+    <string name="restore_note_both_body">Elles ont été modifiées à deux endroits. Elles sont signalées dans votre liste.</string>
+    <string name="restore_note_original_body">Ces photos ne sont pas encore sauvegardées. Sauvegardez à nouveau sur l’appareil d’origine pour les voir ici.</string>
+    <string name="restore_note_pending_body">Leur téléchargement se terminera à la prochaine ouverture de l’app.</string>
+    <string name="restore_note_pending_file_body">Ces photos ne sont pas dans le fichier. Si elles sont sauvegardées sur Drive, elles seront téléchargées une fois connecté.</string>
+    <string name="restore_note_pending_space_body">Votre appareil manque d’espace. Libérez de l’espace et rouvrez l’app pour terminer.</string>
+    <string name="restore_wait_running">Téléchargement de vos photos.</string>
+    <string name="restore_wait_network">Le téléchargement se terminera quand vous serez de nouveau en ligne.</string>
+    <string name="restore_wait_wifi">Le téléchargement se terminera en Wi-Fi. Pour utiliser les données mobiles, touchez « Télécharger ».</string>
+    <string name="restore_wait_account">Google Drive a été déconnecté. Reconnectez-le pour terminer le téléchargement.</string>
+    <string name="restore_wait_other_account">Ces photos sont dans le Google Drive de %1$s. Connectez ce compte pour les télécharger.</string>
+    <string name="restore_wait_other_account_unnamed">Ces photos sont dans le Google Drive d’où vous avez restauré. Connectez ce compte pour les télécharger.</string>
+    <string name="restore_wait_file">Choisissez à nouveau le fichier restauré pour récupérer les photos restantes.</string>
+    <string name="restore_wait_now">Télécharger</string>
+    <string name="restore_wait_pick">Choisir</string>
+    <string name="restore_note_missing_body">Les fichiers téléchargés ne correspondaient pas, ils sont donc signalés comme introuvables.</string>
+    <string name="restore_lock_title">Réactivez le verrouillage</string>
+    <string name="restore_lock_body">Le verrouillage était activé lors de cette sauvegarde. Les codes ne sont pas sauvegardés.</string>
+    <string name="restore_lock_action">Configurer</string>
+    <string name="restore_start">OK</string>
+    <string name="restore_failed_busy_title">Réessayez après la restauration</string>
+    <string name="restore_failed_busy_body">Une restauration est en cours. Vous pourrez choisir une autre sauvegarde ensuite.</string>
+    <string name="restore_failed_mismatch_title">Impossible de vérifier la sauvegarde</string>
+    <string name="restore_failed_mismatch_body">Le fichier téléchargé ne correspond pas à la sauvegarde, nous avons donc arrêté. Rien n’a changé sur cet appareil.</string>
+    <string name="restore_failed_other_title">Restauration impossible</string>
+    <string name="restore_failed_other_body">Réessayez dans un moment. Rien n’a changé sur cet appareil.</string>
+    <string name="restore_needs_update_body">Mettez l’app à jour depuis le store, puis réessayez. Rien n’a changé sur cet appareil.</string>
+    <string name="restore_pick_other">Choisir une autre sauvegarde</string>
+    <string name="restore_found_title">Une sauvegarde existe sur Google Drive</string>
+    <string name="restore_found_body">Les entrées de cet appareil sont conservées et la sauvegarde y est fusionnée.</string>
+    <string name="restore_found_later">Plus tard</string>
+    <string name="restore_found_action">Restaurer</string>
+    <plurals name="restore_count_entries"><item quantity="one">%1$s entrée</item><item quantity="other">%1$s entrées</item></plurals>
+    <plurals name="restore_count_photos"><item quantity="one">%1$s photo</item><item quantity="other">%1$s photos</item></plurals>
+    <plurals name="restore_unit_entries"><item quantity="one">%1$s</item><item quantity="other">%1$s</item></plurals>
+    <plurals name="restore_unit_photos"><item quantity="one">%1$s</item><item quantity="other">%1$s</item></plurals>
+    <plurals name="restore_done_added"><item quantity="one">%1$s entrée ajoutée</item><item quantity="other">%1$s entrées ajoutées</item></plurals>
+    <plurals name="restore_done_trash"><item quantity="one">%1$s entrée restaurée dans la corbeille</item><item quantity="other">%1$s entrées restaurées dans la corbeille</item></plurals>
+    <plurals name="restore_to_trash"><item quantity="one">%1$s entrée sera restaurée dans la corbeille.</item><item quantity="other">%1$s entrées seront restaurées dans la corbeille.</item></plurals>
+    <plurals name="restore_done_updated"><item quantity="one">%1$s entrée mise à jour</item><item quantity="other">%1$s entrées mises à jour</item></plurals>
+    <plurals name="restore_done_photos"><item quantity="one">La photo est revenue aussi.</item><item quantity="other">Les %1$s photos sont revenues aussi.</item></plurals>
+    <plurals name="restore_note_both"><item quantity="one">%1$s entrée gardée en deux versions</item><item quantity="other">%1$s entrées gardées en deux versions</item></plurals>
+    <plurals name="restore_note_original"><item quantity="one">%1$s photo sur l’appareil d’origine</item><item quantity="other">%1$s photos sur l’appareil d’origine</item></plurals>
+    <plurals name="restore_note_pending"><item quantity="one">%1$s photo encore à télécharger</item><item quantity="other">%1$s photos encore à télécharger</item></plurals>
+    <plurals name="restore_note_missing"><item quantity="one">%1$s photo non vérifiée</item><item quantity="other">%1$s photos non vérifiées</item></plurals>
+    <plurals name="restore_not_in_backup"><item quantity="one">%1$s photo n’est pas dans cette sauvegarde. Elle est sur l’appareil d’origine.</item><item quantity="other">%1$s photos ne sont pas dans cette sauvegarde. Elles sont sur l’appareil d’origine.</item></plurals>
+    <string name="restore_group_legacy">Sauvegardes de l’ancienne version</string>
+    <string name="restore_legacy_row">De l’ancienne version · Sans photos</string>
+    <plurals name="restore_more_backups"><item quantity="one">Afficher %1$s sauvegarde plus ancienne</item><item quantity="other">Afficher %1$s sauvegardes plus anciennes</item></plurals>
+    <string name="restore_legacy_title">Restaurer une sauvegarde de l’ancienne version</string>
+    <string name="restore_legacy_body">Envoyée par l’ancienne version le %1$s.\nLes entrées de cet appareil sont conservées et la sauvegarde y est fusionnée.</string>
+    <string name="restore_legacy_no_photos">Ces sauvegardes ne contiennent pas de photos</string>
+    <string name="restore_legacy_no_photos_body">Le texte, l’humeur, la météo, le lieu et les favoris seront restaurés.</string>
+    <string name="restore_legacy_recent">Des entrées écrites après peuvent manquer.</string>
+    <string name="restore_legacy_recent_body">Cette sauvegarde ne contient que les entrées jusqu’à la dernière sauvegarde de l’ancienne version.</string>
+    <string name="restore_value_existing">Entrées déjà sur cet appareil</string>
+    <string name="restore_value_unreadable">Entrées illisibles</string>
+    <string name="restore_legacy_action">Restaurer</string>
+    <string name="restore_legacy_same_time_body">Même date et même heure, mais texte différent. Les deux sont gardées et signalées.</string>
+    <string name="restore_legacy_gaps_body">Ces sauvegardes n’ont pas de photos, elles sont donc signalées comme introuvables.</string>
+    <plurals name="restore_legacy_same_time"><item quantity="one">%1$s entrée au texte différent</item><item quantity="other">%1$s entrées au texte différent</item></plurals>
+    <plurals name="restore_legacy_gaps"><item quantity="one">%1$s photo manquante</item><item quantity="other">%1$s photos manquantes</item></plurals>
+    <string name="backup_alert_title">Aucune sauvegarde depuis 7 jours</string>
+    <string name="backup_alert_auth">Votre compte Google est déconnecté. Touchez pour le reconnecter.</string>
+    <string name="backup_alert_space">Votre Drive est plein. Touchez pour vérifier.</string>
+    <string name="backup_alert_offline">Vous êtes hors ligne. La sauvegarde reprendra une fois connecté.</string>
+    <string name="backup_alert_other">Ouvrez l’app pour vérifier votre sauvegarde.</string>
+    <string name="backup_channel">Sauvegarde</string>
+    <string name="backup_nudge_entries_photos">%1$s et %2$s ne sont que sur cet appareil</string>
+    <plurals name="backup_nudge_entries"><item quantity="one">%1$s entrée n’est que sur cet appareil</item><item quantity="other">%1$s entrées ne sont que sur cet appareil</item></plurals>
+    <string name="backup_nudge_body">Sauvegardez sur Google Drive pour les garder quand vous changez d’appareil.</string>
+    <string name="backup_nudge_action">Activer la sauvegarde</string>
+    <string name="backup_nudge_later">Plus tard</string>
+    <string name="restore_replace_entry">Remplacer plutôt par cette sauvegarde</string>
+    <string name="restore_replace_title">Remplacer par cette sauvegarde ?</string>
+    <string name="restore_replace_action">Remplacer</string>
+    <string name="restore_failed_space_title">Espace insuffisant sur cet appareil</string>
+    <string name="restore_failed_space_body">Pas assez d’espace pour garder une copie de vos entrées actuelles, nous avons donc arrêté. Rien n’a changé sur cet appareil.</string>
+    <string name="backup_folder_title">Nouveau dossier de sauvegarde créé</string>
+    <string name="backup_folder_body">Vous pouvez restaurer le dossier supprimé depuis la corbeille de Drive pendant 30 jours.</string>
+    <string name="backup_folder_ok">OK</string>
+    <string name="rollback_title">Remplacé par cette sauvegarde</string>
+    <string name="rollback_until">Vous pouvez annuler jusqu’au %1$s.</string>
+    <string name="rollback_tomorrow">Vous pouvez annuler jusqu’à demain.</string>
+    <string name="rollback_action">Annuler</string>
+    <string name="rollback_waiting_title">Annulation en attente</string>
+    <string name="rollback_waiting_body">Le remplacement sera annulé à la fin de la restauration.</string>
+    <string name="rollback_running_title">Annulation du remplacement</string>
+    <string name="rollback_running_body">Cela ne prendra qu’un instant.</string>
+    <string name="rollback_failed_title">Impossible d’annuler le remplacement</string>
+    <string name="rollback_failed_body">Aucune entrée n’a été supprimée. Réessayez.</string>
+    <string name="rollback_ask_title">Annuler le remplacement ?</string>
+    <string name="rollback_ask_body">Vos entrées précédentes (%1$s) reviendront.</string>
+    <string name="rollback_ask_after">Vos entrées précédentes (%1$s) reviendront. Les entrées écrites depuis (%2$s) resteront.</string>
+    <plurals name="restore_replace_body"><item quantity="one">%1$s entrée de cet appareil sera remplacée par cette sauvegarde. Vous pouvez annuler pendant 7 jours.</item><item quantity="other">%1$s entrées de cet appareil seront remplacées par cette sauvegarde. Vous pouvez annuler pendant 7 jours.</item></plurals>
+    <string name="file_top">Sauvegarder dans un fichier</string>
+    <string name="file_row_body">Gardez tout dans un seul fichier, sans Drive.</string>
+    <string name="file_title">Enregistrer votre journal dans un fichier</string>
+    <string name="file_body">Gardez %1$s et %2$s dans un fichier, sans Drive. Taille estimée : %3$s.</string>
+    <string name="file_body_empty">Vous n’avez encore aucune entrée à enregistrer. Vous pouvez restaurer un fichier de sauvegarde ci-dessous.</string>
+    <string name="file_place_title">Enregistrez-le où vous voulez</string>
+    <string name="file_place_body">Choisissez le stockage de l’appareil ou une autre app cloud.</string>
+    <string name="file_move_title">Transférez-le vous-même sur le nouvel appareil</string>
+    <string name="file_move_body">Copiez-le via un ordinateur ou une app cloud. Avec beaucoup de photos, il peut être trop lourd pour les messageries.</string>
+    <string name="file_trust_title">Gardez-le en lieu sûr</string>
+    <string name="file_trust_body">Le fichier contient vos entrées et vos photos telles quelles.</string>
+    <string name="file_restore">Restaurer depuis un fichier</string>
+    <string name="file_restore_body">Choisissez un fichier de sauvegarde et fusionnez-le avec votre journal.</string>
+    <string name="file_action">Créer le fichier</string>
+    <string name="file_writing">Création du fichier</string>
+    <string name="file_write_failed">Impossible de terminer le fichier. Supprimez-le de l’endroit où vous l’avez enregistré et créez-en un nouveau. Rien n’a changé sur cet appareil.</string>
+    <string name="file_reading">Vérification du fichier</string>
+    <string name="file_write_failed_removed">Impossible de terminer le fichier, nous l’avons donc supprimé. Rien n’a changé sur cet appareil.</string>
+    <string name="file_stop_title">Arrêter la création du fichier ?</string>
+    <string name="file_stop_body">Si vous quittez maintenant, le fichier inachevé sera supprimé. Rien ne change sur cet appareil.</string>
+    <string name="file_stop_action">Arrêter</string>
+    <string name="file_stopped_notice">Le fichier de sauvegarde n’a pas été terminé, il est donc inutilisable.</string>
+    <string name="file_read_failed">Ce n’est pas un fichier de sauvegarde, ou une partie est endommagée. Rien n’a changé sur cet appareil.</string>
+    <string name="file_read_no_space">Espace insuffisant pour ouvrir ce fichier. Libérez %1$s et réessayez.</string>
+    <string name="file_read_no_space_plain">Espace insuffisant pour ouvrir ce fichier. Libérez de l’espace et réessayez.</string>
+    <string name="file_read_needs_update">Mettez l’app à jour pour restaurer cette sauvegarde.</string>
+    <string name="file_saved_title">Fichier enregistré</string>
+    <string name="file_saved_body">Transférez-le sur votre nouvel appareil, puis touchez « Restaurer depuis un fichier ».</string>
+    <string name="file_done">OK</string>
+    <string name="file_name">1Day1Diary-sauvegarde-%1$s</string>
+    <string name="backup_group_backup">Sauvegarde</string>
+    <string name="backup_group_restore">Restauration</string>
+    <string name="restore_replaced_title">Remplacé par cette sauvegarde</string>
+    <string name="restore_replaced_body">Vous pouvez annuler pendant 7 jours.</string>
+    <string name="backup_space_text">Il vous faut %1$s de plus sur Drive pour sauvegarder vos entrées.</string>
+    <string name="backup_space_manage">Gérer le stockage Google</string>
+    <string name="backup_space_trash">Vider la corbeille de Drive</string>
+    <string name="backup_space_note">Les photos non sauvegardées sont toujours sur cet appareil.</string>
+    <string name="backup_space_retry">Sauvegarder à nouveau</string>
+    <plurals name="backup_space_photos"><item quantity="one">Vos entrées sont sauvegardées. Il vous faut %2$s de plus sur Drive pour la photo restante.</item><item quantity="other">Vos entrées sont sauvegardées. Il vous faut %2$s de plus sur Drive pour les %1$s photos restantes.</item></plurals>
+    <string name="restore_contact">Nous contacter</string>
+    <string name="backup_interrupted_body">Les photos envoyées ne risquent rien. Touchez « Sauvegarder » pour continuer.</string>
+    <string name="backup_restored_title">Restauré depuis la sauvegarde du %1$s</string>
+    <string name="backup_restored_body">Sauvegardez maintenant pour enregistrer aussi les entrées de cet appareil.</string>
+    <string name="backup_done_title">Sauvegarde terminée</string>
+    <string name="backup_done_body">Vos entrées et vos photos sont toutes sur Drive.</string>
+    <string name="backup_done_left">Les photos restantes seront envoyées en Wi-Fi (%1$s).</string>
+    <plurals name="backup_done_left_space"><item quantity="one">%1$s photo n’a pas été envoyée, car Drive est plein.</item><item quantity="other">%1$s photos n’ont pas été envoyées, car Drive est plein.</item></plurals>
+    <string name="backup_stopped_title">Sauvegarde inachevée</string>
+    <string name="restore_stopped_title">Impossible de terminer la restauration</string>
+    <string name="restore_see_result">Voir</string>
+    <string name="restore_notice_title">Restauration terminée</string>
+    <string name="restore_notice_body">Toutes vos entrées et vos photos sont revenues.</string>
+    <string name="restore_notice_stopped_title">Des photos sont encore en téléchargement</string>
+    <string name="restore_notice_some">Certaines photos n’ont pas pu être restaurées. Ouvrez l’app pour vérifier.</string>
+    <string name="restore_notice_left">Ouvrez l’app pour récupérer les photos restantes.</string>
+    <string name="backup_failed_offline">Vous n’êtes pas connecté à Internet. Connectez-vous, puis touchez « Sauvegarder ».</string>
+    <string name="backup_failed_drive">Google Drive ne répond pas. Patientez un moment, puis touchez « Sauvegarder ».</string>
+    <string name="backup_failed_local">Impossible de lire ou d’écrire des fichiers sur cet appareil. Vérifiez le stockage, puis touchez « Sauvegarder ».</string>
+    <string name="backup_line_failed">Sauvegarde inachevée</string>
+    <string name="backup_status_failed">État de la sauvegarde indisponible</string>
+    <string name="backup_skip_empty">Aucune entrée à sauvegarder</string>
+    <string name="backup_skip_busy">Une autre tâche est en cours. Réessayez quand elle sera terminée.</string>
+    <string name="backup_skip_not_checked">Impossible de vérifier les sauvegardes sur Google Drive. Touchez « Sauvegarder » dans un moment.</string>
+    <string name="backup_connect_failed_title">Connexion à Google Drive impossible</string>
+    <string name="backup_connect_failed_offline">Vérifiez votre connexion Internet et réessayez.</string>
+    <string name="backup_connect_failed_auth">Impossible de vérifier votre compte Google. Réessayez dans un moment.</string>
+    <string name="backup_connect_failed_no_drive">Cochez Google Drive sur l’écran Google pour vous connecter.</string>
+    <string name="backup_connect_failed_other">Réessayez dans un moment.</string>
+    <string name="backup_connect_failed_close">OK</string>
+    <string name="restore_no_mail">Aucune app de messagerie trouvée. Écrivez-nous à %1$s.</string>
+</resources>

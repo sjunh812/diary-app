@@ -1,0 +1,40 @@
+{
+ "assets": "docs/store/promo/assets",
+ "font": "shared/core/designsystem/src/commonMain/composeResources/font/changwon_round_regular.otf",
+ "icon": "iosApp/iosApp/Assets.xcassets/AppIcon.appiconset/app-icon-1024.png",
+ "previewAt": [],
+ "out": "docs/store/promo/promo-ko.mp4",
+ "home": "docs/store/promo/assets/home-dark-ko.jpg",
+ "copy": {
+  "line": "바쁜 날엔\n한 줄이면 충분해요",
+  "lineHl": "한 줄이면",
+  "mood": "그날의 기분을\n골라봐요",
+  "moodHl": "기분을",
+  "top": "이번 달엔 웃음이\n가장 많았어요",
+  "topHl": "웃음이",
+  "photo": "사진도\n함께 남겨요",
+  "photoHl": "사진도",
+  "chips": [
+   "회원가입 없이",
+   "잠금으로 나만 보기",
+   "사진까지 내 드라이브에 백업"
+  ],
+  "typed": "퇴근길에 본 노을이 너무 예뻤다 🌇",
+  "placeholder": "오늘 하루는 어땠나요?",
+  "cardDate": "11월 8일 일요일",
+  "cardText": [
+   "오랜만에 바다를 보러 갔다.",
+   "파도 소리를 들으며 한참 걸었다."
+  ],
+  "name": "1일 1일기",
+  "stores": "App Store · Google Play",
+  "hero": [
+   "하루 한 줄로",
+   "꾸준히 쓰는",
+   "일기장"
+  ],
+  "heroHl": "꾸준히"
+ },
+ "writeEmpty": "docs/store/promo/assets/kw-empty.jpg",
+ "writeDone": "docs/store/promo/assets/kw-done.jpg"
+}

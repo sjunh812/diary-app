@@ -95,11 +95,12 @@ internal object DateSkeleton {
 /**
  * 형식에 쓸 언어 태그
  * 기기 언어가 화면 언어와 같으면 기기 지역까지 따르고(영국 영어의 날짜 순서), 다르면 화면 언어만 씀
- * 프랑스어 기기에서 영어 화면이 보이면 날짜도 영어
+ * 이탈리아어 기기에서 영어 화면이 보이면 날짜도 영어
+ * 언어 태그가 "zh-Hant"처럼 문자 체계를 달고 있어 앞 부분끼리 견줌
  */
 internal fun formatLocaleTag(language: String, deviceTag: String): String {
     val device = languageTag(deviceTag)
-    return if (device.substringBefore('-').equals(language, ignoreCase = true)) device else language
+    return if (device.substringBefore('-').equals(language.substringBefore('-'), ignoreCase = true)) device else language
 }
 
 /**

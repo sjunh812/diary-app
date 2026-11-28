@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Lock screen (L1) -->
+    <string name="lock_title">Code eingeben</string>
+    <plurals name="lock_wrong">
+        <item quantity="one">Falscher Code · noch %1$d Versuch</item>
+        <item quantity="other">Falscher Code · noch %1$d Versuche</item>
+    </plurals>
+    <string name="lock_wait_title">Bitte kurz warten</string>
+    <plurals name="lock_wait_body">
+        <item quantity="one">Neuer Versuch in %1$d Sekunde</item>
+        <item quantity="other">Neuer Versuch in %1$d Sekunden</item>
+    </plurals>
+    <string name="lock_forgot">Code vergessen?</string>
+    <string name="lock_biometric">Mit Biometrie entsperren</string>
+    <string name="lock_biometric_locked">Biometrie gesperrt. Nutze deinen Code.</string>
+    <string name="lock_biometric_prompt_title">Mit Biometrie bestätigen</string>
+    <string name="lock_biometric_prompt_reason">Bestätige, dass du es bist, um dein Tagebuch zu öffnen</string>
+    <string name="lock_biometric_prompt_cancel">Code verwenden</string>
+
+    <!-- Set passcode (L2) -->
+    <string name="pin_setup_title">Neuen 4-stelligen Code wählen</string>
+    <string name="pin_setup_again">Noch einmal eingeben</string>
+    <string name="pin_setup_mismatch">Die Codes stimmen nicht überein. Fang noch einmal an.</string>
+    <string name="pin_setup_note">Wenn du den Code vergisst, kannst du dich mit der Displaysperre deines Geräts bestätigen und einen neuen festlegen. Wer die Displaysperre kennt, kann so auch dein Tagebuch öffnen.</string>
+
+    <!-- Forgot passcode (L3) -->
+    <string name="forgot_title">Mit der Displaysperre bestätigen</string>
+    <string name="forgot_body">Nachdem du dich mit der Displaysperre deines Geräts bestätigt hast, kannst du einen neuen Code festlegen. Dein Tagebuch bleibt unverändert.</string>
+    <string name="forgot_confirm">Bestätigen</string>
+    <string name="forgot_prompt_title">Neuen Code festlegen</string>
+    <string name="forgot_no_device_lock_title">Dein Gerät hat keine Displaysperre</string>
+    <string name="forgot_no_device_lock_body">Ohne Displaysperre kannst du keinen neuen Code festlegen. Wenn du ein Backup hast, installiere die App neu und stelle dein Tagebuch daraus wieder her.</string>
+    <string name="lock_turned_off">Dein Gerät hat keine Displaysperre, deshalb ist die Tagebuchsperre jetzt aus. Lege in den Einstellungen einen neuen Code fest.</string>
+
+    <!-- Lock settings (L4) -->
+    <string name="lock_settings_title">Sperre</string>
+    <string name="lock_settings_enable">Tagebuch sperren</string>
+    <string name="lock_settings_change">Code ändern</string>
+    <string name="lock_settings_biometric_unavailable">Biometrie ist auf diesem Gerät gerade nicht verfügbar.</string>
+    <string name="lock_settings_biometric_none_enrolled">Richte in der Einstellungen-App Biometrie ein, um das zu nutzen.</string>
+    <string name="lock_settings_biometric_not_allowed">Erlaube Face ID für diese App in der Einstellungen-App.</string>
+    <string name="lock_settings_biometric_locked_out">Biometrie ist nach zu vielen Versuchen gesperrt. Entsperre dein Gerät mit dem Gerätecode, um sie wieder zu nutzen.</string>
+    <string name="lock_settings_relock">Automatisch sperren</string>
+    <string name="lock_settings_relock_body">Dein Tagebuch wird wieder gesperrt, wenn du nach der gewählten Zeit aus einer anderen App zurückkommst.</string>
+    <string name="relock_immediately">Sofort</string>
+    <string name="relock_one_minute">Nach 1 Minute</string>
+    <string name="relock_five_minutes">Nach 5 Minuten</string>
+    <string name="relock_cold_start">Nur beim Neustart der App</string>
+    <string name="lock_settings_note">Wenn du den Code vergisst, kannst du dich mit der Displaysperre deines Geräts bestätigen und einen neuen festlegen.</string>
+    <string name="lock_note_no_device_lock">Dein Gerät hat keine Displaysperre. Wenn du den Code vergisst, kannst du keinen neuen festlegen.</string>
+    <string name="lock_confirm_title">Aktuellen Code eingeben</string>
+    <string name="lock_settings_method">Sperrmethode</string>
+    <string name="pin_setup_save_failed">Code konnte nicht gespeichert werden. Prüfe deinen Speicher und gib ihn erneut ein.</string>
+    <string name="lock_key_unavailable">Der Code kann gerade nicht geprüft werden. Versuch es gleich noch einmal.</string>
+    <string name="lock_off_failed">Sperre konnte nicht ausgeschaltet werden. Prüfe deinen Speicher und versuch es noch einmal.</string>
+</resources>

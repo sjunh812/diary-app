@@ -26,6 +26,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.app.gate.toastBottomOverApp
 import org.sjhstudio.diary.app.navigation.BackupOptionsKey
 import org.sjhstudio.diary.app.navigation.BackupSettingsKey
+import org.sjhstudio.diary.app.navigation.ClayLookSettingsKey
 import org.sjhstudio.diary.app.navigation.FileBackupKey
 import org.sjhstudio.diary.app.navigation.FontLicenseKey
 import org.sjhstudio.diary.app.navigation.FontSettingsKey
@@ -36,6 +37,7 @@ import org.sjhstudio.diary.app.navigation.LicensesKey
 import org.sjhstudio.diary.app.navigation.ListStyleSettingsKey
 import org.sjhstudio.diary.app.navigation.LockSettingsKey
 import org.sjhstudio.diary.app.navigation.MigrationReportKey
+import org.sjhstudio.diary.app.navigation.MoodThemeSettingsKey
 import org.sjhstudio.diary.app.navigation.PlusKey
 import org.sjhstudio.diary.app.navigation.ReminderSettingsKey
 import org.sjhstudio.diary.app.navigation.RestoreListKey
@@ -51,10 +53,12 @@ import org.sjhstudio.diary.app.navigation.tabRoot
 import org.sjhstudio.diary.app.scaffold.FeedbackCardViewModel
 import org.sjhstudio.diary.app.scaffold.UpdateCardViewModel
 import org.sjhstudio.diary.core.backup.BackupAppInfo
+import org.sjhstudio.diary.core.data.AdPrivacy
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.diaryLanguage
 import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
 import org.sjhstudio.diary.core.platform.DevMenu
 import org.sjhstudio.diary.core.platform.deviceInfo
@@ -79,6 +83,7 @@ import org.sjhstudio.diary.feature.migration.SupportAttachSheet
 import org.sjhstudio.diary.feature.migration.rememberMigrationActions
 import org.sjhstudio.diary.feature.plus.PlusBenefit
 import org.sjhstudio.diary.feature.plus.PlusRoute
+import org.sjhstudio.diary.feature.settings.ClayLookSettingsScreen
 import org.sjhstudio.diary.feature.settings.FEATURE_SURVEY_URL
 import org.sjhstudio.diary.feature.settings.FontLicenseRoute
 import org.sjhstudio.diary.feature.settings.FontSettingsRoute
@@ -87,6 +92,8 @@ import org.sjhstudio.diary.feature.settings.LicensesRoute
 import org.sjhstudio.diary.feature.settings.ListStyleSettingsScreen
 import org.sjhstudio.diary.feature.settings.MigrationReportScreen
 import org.sjhstudio.diary.feature.settings.MigrationReportViewModel
+import org.sjhstudio.diary.feature.settings.MoodThemeSettingsScreen
+import org.sjhstudio.diary.feature.settings.MoodThemeViewModel
 import org.sjhstudio.diary.feature.settings.ReminderSettingsRoute
 import org.sjhstudio.diary.feature.settings.SettingsPane
 import org.sjhstudio.diary.feature.settings.SettingsScreen
@@ -124,7 +131,12 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         val device = remember { deviceInfo() }
         val feedback = rememberFeedbackLink(app.versionName, device.os, device.model)
         val openLink = rememberOpenLink()
+        val language = diaryLanguage()
         val updates = koinViewModel<UpdateCardViewModel>()
+        val adPrivacy = koinInject<AdPrivacy>()
+        // 개발 빌드에만 있음
+        val koin = getKoin()
+        val devMenu = remember(koin) { koin.getOrNull<DevMenu>() }
         val update by updates.notice.collectAsStateWithLifecycle()
         Box(Modifier.fillMaxSize()) {
             SettingsScreen(
@@ -137,10 +149,11 @@ fun EntryProviderScope<NavKey>.settingsEntries(
                     if (!openLink(feedback.url)) scope.launch { toast.show(feedback.noMail) }
                 },
                 onRate = storeReviewUrl(app.platform)?.let { url -> { openWeb(url) } },
-                onDevMode = getKoin().getOrNull<DevMenu>()?.let { menu -> menu::open },
+                onDevMode = devMenu?.let { menu -> menu::open },
                 onFont = { open(FontSettingsKey) },
                 onTextSize = { open(TextSizeSettingsKey) },
                 onTheme = { open(ThemeSettingsKey) },
+                onMoodTheme = { open(MoodThemeSettingsKey) },
                 onReminder = { open(ReminderSettingsKey) },
                 onLock = { open(LockSettingsKey) },
                 onMigrationReport = { open(MigrationReportKey) },
@@ -150,8 +163,9 @@ fun EntryProviderScope<NavKey>.settingsEntries(
                 onBackup = { open(BackupSettingsKey) },
                 backupValue = state.lastBackupAt?.let { settingsBackupValue(it) },
                 onLetter = { push(LetterKey) },
-                onTerms = { openWeb(LegalLinks.TERMS) },
-                onPrivacy = { openWeb(LegalLinks.PRIVACY) },
+                onTerms = { openWeb(LegalLinks.terms(language)) },
+                onPrivacy = { openWeb(LegalLinks.privacy(language)) },
+                onAdPrivacy = adPrivacy::showChoices,
                 onPlus = { push(PlusKey()) },
                 selected = opened()?.let(::settingsPane)
             )
@@ -186,7 +200,9 @@ fun EntryProviderScope<NavKey>.settingsEntries(
     }
     entry<RestoreProgressKey> { RestoreProgressRoute(onHome = home, onLock = { push(LockSettingsKey) }, onPickOther = pop) }
     entry<TrashKey>(metadata = SettingsDetailPane) { TrashRoute(onBack = pop) }
-    entry<PlusKey>(metadata = FullScreenEntry) { key -> PlusRoute(onClose = pop, from = key.from) }
+    entry<PlusKey>(metadata = FullScreenEntry) { key ->
+        PlusRoute(onClose = pop, from = key.from, appVersion = koinInject<BackupAppInfo>().versionName)
+    }
     entry<LetterKey> {
         val letter by koinViewModel<LetterViewModel>().letter.collectAsStateWithLifecycle()
         val app = koinInject<BackupAppInfo>()
@@ -267,6 +283,10 @@ fun EntryProviderScope<NavKey>.settingsEntries(
             onBack = pop
         )
     }
+    entry<MoodThemeSettingsKey>(metadata = SettingsDetailPane) {
+        MoodThemeSettingsPage(onClayLook = { push(ClayLookSettingsKey) }, onPlus = { push(PlusKey(PlusBenefit.MOOD_THEME)) }, onBack = pop)
+    }
+    entry<ClayLookSettingsKey>(metadata = SettingsDetailPane) { ClayLookSettingsPage(onBack = pop) }
     entry<FontSettingsKey>(metadata = SettingsDetailPane) { FontSettingsRoute(onBack = pop) }
     entry<ReminderSettingsKey>(metadata = SettingsDetailPane) { ReminderSettingsRoute(onBack = pop) }
     entry<LockSettingsKey>(metadata = SettingsDetailPane) { LockSettingsRoute(onBack = pop) }
@@ -276,6 +296,36 @@ fun EntryProviderScope<NavKey>.settingsEntries(
     }
     entry<FontLicenseKey>(metadata = SettingsDetailPane) { key -> FontLicenseRoute(key.fontId, onBack = pop) }
     entry<LibraryLicenseKey>(metadata = SettingsDetailPane) { key -> LibraryLicenseRoute(key.libraryId, onBack = pop) }
+}
+
+/** 설정 > 기분 테마. 읽기 전의 기본값을 고른 것으로 보이지 않게 기다림 */
+@Composable
+private fun MoodThemeSettingsPage(onClayLook: () -> Unit, onPlus: () -> Unit, onBack: () -> Unit) {
+    val viewModel = koinViewModel<MoodThemeViewModel>()
+    val state = viewModel.state.collectAsStateWithLifecycle().value ?: return
+    MoodThemeSettingsScreen(
+        look = state.look,
+        canPlus = state.canPlus,
+        onTheme = viewModel::setTheme,
+        onSticker = viewModel::setSticker,
+        onClayLook = onClayLook,
+        onPlus = onPlus,
+        onBack = onBack
+    )
+}
+
+/** 설정 > 기분 테마 > 클레이 꾸미기 */
+@Composable
+private fun ClayLookSettingsPage(onBack: () -> Unit) {
+    val viewModel = koinViewModel<MoodThemeViewModel>()
+    val state = viewModel.state.collectAsStateWithLifecycle().value ?: return
+    ClayLookSettingsScreen(
+        look = state.look,
+        onHair = viewModel::setHair,
+        onSkin = viewModel::setSkin,
+        onGlasses = viewModel::setGlasses,
+        onBack = onBack
+    )
 }
 
 /**
@@ -326,6 +376,7 @@ private fun settingsPane(key: NavKey): SettingsPane? = when (key) {
     FontSettingsKey -> SettingsPane.FONT
     TextSizeSettingsKey -> SettingsPane.TEXT_SIZE
     ThemeSettingsKey -> SettingsPane.THEME
+    MoodThemeSettingsKey, ClayLookSettingsKey -> SettingsPane.MOOD_THEME
     ListStyleSettingsKey -> SettingsPane.LIST_STYLE
     ReminderSettingsKey -> SettingsPane.REMINDER
     LockSettingsKey -> SettingsPane.LOCK

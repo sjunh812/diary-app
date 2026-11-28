@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lock_title">Digite sua senha</string>
+    <plurals name="lock_wrong">
+        <item quantity="one">Senha incorreta · resta %1$d tentativa</item>
+        <item quantity="other">Senha incorreta · restam %1$d tentativas</item>
+    </plurals>
+    <string name="lock_wait_title">Aguarde um momento</string>
+    <plurals name="lock_wait_body">
+        <item quantity="one">Você pode tentar de novo em %1$d segundo</item>
+        <item quantity="other">Você pode tentar de novo em %1$d segundos</item>
+    </plurals>
+    <string name="lock_forgot">Esqueceu a senha?</string>
+    <string name="lock_biometric">Desbloquear com biometria</string>
+    <string name="lock_biometric_locked">Biometria bloqueada. Use sua senha.</string>
+    <string name="lock_biometric_prompt_title">Confirme com biometria</string>
+    <string name="lock_biometric_prompt_reason">Confirme que é você para abrir seu diário</string>
+    <string name="lock_biometric_prompt_cancel">Usar senha</string>
+
+    <string name="pin_setup_title">Crie uma nova senha de 4 dígitos</string>
+    <string name="pin_setup_again">Digite de novo</string>
+    <string name="pin_setup_mismatch">As senhas não são iguais. Comece de novo.</string>
+    <string name="pin_setup_note">Se esquecer a senha, você pode confirmar com o bloqueio de tela do dispositivo e criar uma nova. Quem souber o bloqueio de tela do seu dispositivo também poderá abrir seu diário assim.</string>
+
+    <string name="forgot_title">Confirme com o bloqueio de tela do dispositivo</string>
+    <string name="forgot_body">Depois de confirmar que é você com o bloqueio de tela do dispositivo, você pode criar uma nova senha. Seu diário não é afetado.</string>
+    <string name="forgot_confirm">Confirmar</string>
+    <string name="forgot_prompt_title">Criar uma nova senha</string>
+    <string name="forgot_no_device_lock_title">Seu dispositivo não tem bloqueio de tela</string>
+    <string name="forgot_no_device_lock_body">Sem bloqueio de tela, não é possível criar uma nova senha. Se você tiver um backup, reinstale o app e restaure seu diário a partir dele.</string>
+    <string name="lock_turned_off">Seu dispositivo não tem bloqueio de tela, então o bloqueio do diário foi desativado. Crie uma nova senha nas Configurações.</string>
+
+    <string name="lock_settings_title">Bloqueio</string>
+    <string name="lock_settings_enable">Bloquear diário</string>
+    <string name="lock_settings_change">Alterar senha</string>
+    <string name="lock_settings_biometric_unavailable">A biometria não está disponível neste dispositivo agora.</string>
+    <string name="lock_settings_biometric_none_enrolled">Configure a biometria nas configurações do dispositivo para usar isso.</string>
+    <string name="lock_settings_biometric_not_allowed">Permita o Face ID para este app no app Ajustes.</string>
+    <string name="lock_settings_biometric_locked_out">A biometria foi bloqueada após muitas tentativas. Desbloqueie o dispositivo com a senha dele para usar de novo.</string>
+    <string name="lock_settings_relock">Bloqueio automático</string>
+    <string name="lock_settings_relock_body">Seu diário é bloqueado de novo quando você volta de outro app depois do tempo escolhido.</string>
+    <string name="relock_immediately">Imediatamente</string>
+    <string name="relock_one_minute">Após 1 minuto</string>
+    <string name="relock_five_minutes">Após 5 minutos</string>
+    <string name="relock_cold_start">Só quando o app reiniciar</string>
+    <string name="lock_settings_note">Se esquecer a senha, você pode confirmar com o bloqueio de tela do dispositivo e criar uma nova.</string>
+    <string name="lock_note_no_device_lock">Seu dispositivo não tem bloqueio de tela, então, se esquecer a senha, não poderá criar uma nova.</string>
+    <string name="lock_confirm_title">Digite sua senha atual</string>
+    <string name="lock_settings_method">Forma de bloqueio</string>
+    <string name="pin_setup_save_failed">Não foi possível salvar a senha. Verifique o armazenamento e digite de novo.</string>
+    <string name="lock_key_unavailable">Não é possível verificar sua senha agora. Tente de novo em instantes.</string>
+    <string name="lock_off_failed">Não foi possível desativar o bloqueio. Verifique o armazenamento e tente de novo.</string>
+</resources>

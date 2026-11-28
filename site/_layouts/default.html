@@ -151,6 +151,8 @@ html[lang=ja] .hero h1{font-size:60px}
 .more{padding:140px 0 0}
 .more-list{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:0;padding:0;list-style:none}
 .more-list li{padding:28px;border-radius:24px;background:var(--card)}
+/* 아이콘은 꾸밈이 아니라 훑어볼 때 길잡이. 중립색, 믿음 아이콘과 같은 24px·선 1.75 */
+.more-icon{display:block;width:24px;height:24px;margin-bottom:12px;color:var(--text2)}
 .more-list h3{margin:0 0 8px;font-size:19px;line-height:1.4}
 .more-list p{margin:0;font-size:16px;line-height:1.6;color:var(--text2)}
 
@@ -245,13 +247,22 @@ footer .langs a[aria-current]{color:var(--text);font-weight:600}
   .tablet{margin-top:36px;padding:6px;border-radius:22px}
   .tablet img{border-radius:16px}
   .trust,.faq,.more{padding-top:96px}
-  .more-list{grid-template-columns:1fr;gap:12px}
-  .more-list li{padding:20px 24px;border-radius:20px}
-  .more-list h3{font-size:17px;margin-bottom:4px}
+  /* 작은 기능은 칸 여섯 개 대신 한 묶음 목록(설정 화면처럼). 상자가 줄어 덜 무겁고 짧음 */
+  /* 위아래 여백(6+18)을 양옆 24와 같게 */
+  .more-list{grid-template-columns:1fr;gap:0;padding:6px 24px;border-radius:24px;background:var(--card)}
+  .more-list li{display:grid;grid-template-columns:20px 1fr;column-gap:14px;padding:18px 0;border-radius:0;background:none}
+  /* 제목 17px에 맞춰 20px, 제목 첫 줄(줄 높이 23.8) 가운데에. 줄어든 만큼 선을 2로 두어 굵기 유지 */
+  .more-icon{grid-row:span 2;width:20px;height:20px;margin:2px 0 0;stroke-width:2}
+  .more-list li+li{border-top:1px solid var(--divider)}
+  .more-list h3{font-size:17px;margin-bottom:2px}
   .more-list p{font-size:15px}
   .section-title{margin-bottom:36px}
-  .trust-list{grid-template-columns:1fr;gap:36px}
-  .trust-list h3{margin-top:16px;font-size:18px}
+  /* 믿음 세 가지는 왼쪽 아이콘 줄로. 가운데 정렬 여러 줄보다 훑어 읽기 쉬움 */
+  .trust-list{grid-template-columns:1fr;gap:28px;text-align:left}
+  .trust-list li{display:grid;grid-template-columns:48px 1fr;column-gap:16px;align-items:start}
+  .trust-icon{grid-row:span 2;width:48px;height:48px}
+  .trust-list h3{margin:2px 0 4px;font-size:18px}
+  .trust-list p{max-width:none;margin:0}
   .faq summary{min-height:64px;padding:18px 8px;font-size:17px}
   .faq .answer{padding:0 8px 20px;font-size:16px}
   .cta{margin-top:96px;padding:56px 16px;border-radius:28px}
@@ -276,7 +287,7 @@ footer .langs a[aria-current]{color:var(--text);font-weight:600}
 {{ content }}
 </div>{% endif %}</main>
 <footer><div class="wrap{% if page.home %} wide{% endif %}">
-<nav><a href="/1day1diary/privacy/">{{ t.privacy }}</a><a href="/1day1diary/terms/">{{ t.terms }}</a><a href="mailto:sjunh812@naver.com" data-copy="sjunh812@naver.com" data-done="{{ t.copied }}" data-fail="{{ t.mail }}">{{ t.contact }}</a></nav>
+<nav><a href="{{ t.privacy_url | default: '/1day1diary/privacy/' }}">{{ t.privacy }}</a><a href="{{ t.terms_url | default: '/1day1diary/terms/' }}">{{ t.terms }}</a><a href="mailto:sjunh812@naver.com" data-copy="sjunh812@naver.com" data-done="{{ t.copied }}" data-fail="{{ t.mail }}">{{ t.contact }}</a></nav>
 {% if page.home %}<nav class="langs" aria-label="{{ t.language }}">{% for l in site.data.i18n %}<a href="{{ l[1].home }}" hreflang="{{ l[0] }}" lang="{{ l[0] }}" data-lang="{{ l[0] }}"{% if l[0] == lang %} aria-current="page"{% endif %}>{% case l[0] %}{% when 'ko' %}한국어{% when 'en' %}English{% when 'ja' %}日本語{% endcase %}</a>{% endfor %}</nav>{% endif %}
 <span class="copy">© 서주냥</span>
 </div></footer>

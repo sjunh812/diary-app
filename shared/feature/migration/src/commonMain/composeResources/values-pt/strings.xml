@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="migration_preparing_title">Preparando a transferência do seu diário</string>
+    <string name="migration_preparing_body">Suas entradas estão sendo transferidas para a nova versão. Seu diário original não é alterado.</string>
+
+    <string name="migration_progress_title">Transferindo suas entradas</string>
+    <string name="migration_progress_body">A tela fica ligada até terminar.</string>
+    <string name="migration_progress_entries">Entradas</string>
+    <string name="migration_progress_entries_value">%1$s / %2$s</string>
+    <string name="migration_progress_photos">Fotos</string>
+    <string name="migration_progress_photos_value">%1$s / %2$s</string>
+    <string name="migration_progress_note">Se o app fechar no meio, a transferência recomeça. Seu diário original não é alterado.</string>
+
+    <plurals name="migration_done_title">
+        <item quantity="one">%1$s entrada transferida 🎉</item>
+        <item quantity="other">Todas as %1$s entradas transferidas 🎉</item>
+    </plurals>
+    <plurals name="migration_done_photos">
+        <item quantity="one">%1$s foto também foi transferida.</item>
+        <item quantity="other">%1$s fotos também foram transferidas.</item>
+    </plurals>
+    <plurals name="migration_missing_photos_title">
+        <item quantity="one">%1$s foto não foi encontrada</item>
+        <item quantity="other">%1$s fotos não foram encontradas</item>
+    </plurals>
+    <string name="migration_missing_photos_body">A versão anterior guardava essas fotos em um armazenamento temporário, e elas foram apagadas. O lugar delas fica salvo nas entradas.</string>
+    <string name="migration_missing_photos_body_short">O lugar delas fica salvo nas entradas.</string>
+    <plurals name="migration_date_fixed_title">
+        <item quantity="one">Data corrigida em %1$s entrada</item>
+        <item quantity="other">Datas corrigidas em %1$s entradas</item>
+    </plurals>
+    <string name="migration_date_fixed_body">Por um erro, a versão anterior mostrava essas entradas com um dia de atraso. Agora elas estão na data que você escolheu ao escrever.</string>
+    <string name="migration_start">Começar</string>
+
+    <string name="migration_partial_title">Só algumas entradas foram transferidas</string>
+    <plurals name="migration_partial_body">
+        <item quantity="one">%1$s entrada foi transferida, mas não foi possível ler %2$s porque o arquivo original está danificado. O app vai tentar de novo após a próxima atualização. Seu diário original não é alterado.</item>
+        <item quantity="other">%1$s entradas foram transferidas, mas não foi possível ler %2$s porque o arquivo original está danificado. O app vai tentar de novo após a próxima atualização. Seu diário original não é alterado.</item>
+    </plurals>
+    <string name="migration_partial_footnote">Você pode ver isto de novo em Configurações > Resultado da transferência.</string>
+    <string name="migration_export_original">Exportar arquivos originais</string>
+    <string name="migration_contact">Fale conosco</string>
+
+    <string name="migration_skip">Começar com uma nova entrada</string>
+    <string name="migration_failed_title">Não foi possível transferir seu diário</string>
+    <string name="migration_failed_body_mismatch">Algo deu errado ao verificar as entradas transferidas. Seu diário original não é alterado.</string>
+    <string name="migration_failed_body_snapshot">A transferência parou porque não foi possível copiar seu diário original. Ele não foi alterado.</string>
+    <string name="migration_failed_body_read">A transferência parou porque não foi possível ler os arquivos da versão anterior. Seu diário original não é alterado.</string>
+    <string name="migration_failed_body_write">A transferência parou porque não foi possível salvar as entradas na nova versão. Seu diário original não é alterado.</string>
+    <string name="migration_failed_body_unknown">A transferência parou porque algo deu errado. Seu diário original não é alterado.</string>
+    <string name="migration_view_legacy">Ver entradas antigas</string>
+    <string name="migration_retry">Tentar de novo</string>
+    <string name="migration_no_space_title">Armazenamento quase cheio</string>
+    <string name="migration_no_space_body">A transferência precisa de mais %1$s de espaço no dispositivo. Exclua fotos ou apps que você não usa e verifique de novo. Seu diário original não é alterado.</string>
+    <string name="migration_check_again">Verificar de novo</string>
+
+    <plurals name="migration_entries_recovered">
+        <item quantity="one">%1$s entrada que não podia ser lida antes foi transferida</item>
+        <item quantity="other">%1$s entradas que não podiam ser lidas antes foram transferidas</item>
+    </plurals>
+    <plurals name="migration_photos_found">
+        <item quantity="one">%1$s foto que faltava foi encontrada</item>
+        <item quantity="other">%1$s fotos que faltavam foram encontradas</item>
+    </plurals>
+
+    <string name="legacy_reader_title">Entradas antigas</string>
+    <string name="legacy_reader_notice">Você só pode ler estas entradas. Tente de novo para transferi-las para a nova versão.</string>
+    <string name="legacy_reader_empty">Nenhuma entrada antiga para ler</string>
+
+    <string name="migration_export_file_name">1Day1Diary-original-%1$s.zip</string>
+    <string name="migration_export_done">Arquivos originais salvos</string>
+    <string name="migration_export_failed">Não foi possível salvar os arquivos originais. Escolha de novo onde salvá-los.</string>
+    <string name="migration_export_failed_left">Não foi possível salvar os arquivos originais. Exclua o arquivo incompleto no local onde você salvou.</string>
+    <string name="migration_mail_missing">Nenhum app de e-mail encontrado. Escreva para %1$s.</string>
+    <string name="migration_mail_subject">[1 Day 1 Diary] Ajuda com a transferência de entradas</string>
+    <string name="migration_mail_body">Os dados abaixo são usados apenas para encontrar e corrigir o problema. Suas entradas não estão incluídas.\n\nVersão do app: %1$s\nDispositivo: %2$s\nParou em: %3$s\nTipo de problema: %4$s\nTentativas: %5$s\nEntradas: %6$s\nFotos: %7$s\nEntradas ilegíveis: %8$s\n\nConte o que aconteceu ou o que você gostaria de perguntar.\n</string>
+    <string name="migration_readme">Estes são os arquivos originais do 1 Day 1 Diary.\n\nEles contêm o diário usado pela versão anterior (1.7.x), exatamente como estava antes da transferência para a nova versão.\n\n- legacy-snapshot: o arquivo do diário (note.db) e as configurações, sem a sua senha\n- media: fotos transferidas da versão anterior\n\nSe quiser que suas entradas sejam recuperadas, guarde este arquivo e escreva para sjunh812@naver.com.\n</string>
+    <string name="support_sheet_title">Podemos corrigir entradas danificadas</string>
+    <string name="support_sheet_body">Anexe o arquivo do seu diário a um e-mail, e nós o corrigiremos para que possa ser lido e o enviaremos de volta.</string>
+    <string name="support_sheet_contains">Suas entradas estão no arquivo como estão. Fotos e sua senha ficam de fora.</string>
+    <string name="support_sheet_deleted">Excluímos o arquivo logo depois de enviar a versão corrigida.</string>
+    <string name="support_sheet_restore">Use Restaurar de um arquivo para mesclar o arquivo que você receber.</string>
+    <string name="support_without">E-mail sem arquivo</string>
+    <string name="support_with">E-mail com arquivo</string>
+    <string name="support_file_name">1Day1Diary-support-%1$s.zip</string>
+    <string name="support_failed">Não foi possível preparar o arquivo. Entre em contato sem ele.</string>
+    <string name="support_mail_subject">[1 Day 1 Diary] Ajuda com entradas danificadas</string>
+    <string name="support_mail_body">Excluímos o arquivo anexado logo depois de enviar a versão corrigida. Ele contém apenas o arquivo do seu diário, sem fotos nem a sua senha.\n\nVersão do app: %1$s\nDispositivo: %2$s\nEntradas ilegíveis: %3$s\n\nConte o que aconteceu ou o que você gostaria de perguntar.\n</string>
+    <string name="legacy_reader_failed">Não foi possível ler suas entradas antigas</string>
+</resources>

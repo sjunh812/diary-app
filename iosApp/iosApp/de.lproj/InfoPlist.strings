@@ -1,0 +1,6 @@
+"CFBundleDisplayName" = "1 Day 1 Diary";
+"CFBundleName" = "1 Day 1 Diary";
+"NSFaceIDUsageDescription" = "Mit Face ID entsperrst du dein Tagebuch.";
+"NSLocationWhenInUseUsageDescription" = "Dein Standort wird nur verwendet, wenn du auf „Meinen Standort nutzen“ tippst, um den Namen deiner Gegend zu finden.";
+"NSCameraUsageDescription" = "Die Kamera wird nur verwendet, um ein aufgenommenes Foto deinem Tagebuch hinzuzufügen.";
+"NSUserTrackingUsageDescription" = "Wenn du es erlaubst, siehst du Werbung, die zu deinen Interessen passt. Deine Tagebucheinträge werden nie für Werbung verwendet.";

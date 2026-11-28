@@ -1,0 +1,8 @@
+phone|home|[Uma linha]\ne pronto por hoje|Um diário fácil até nos dias corridos
+phone|mood-sheet|Escolha seu\n[humor] de hoje|Escolha entre 15 humores
+phone|calendar|Seu humor\nno [calendário]|O mês inteiro de relance
+stack|cal-shape=Formas/cal-clay=Rostos de massinha · Plus/cal-veggie=Frutas e legumes · Plus|Troque o\n[tema de humor]|9 temas cheios de personalidade
+phone|detail|Guarde seu dia\ncom [fotos]|Até 10 fotos em cada registro
+phone|insight|[Reveja]\nseu humor|Por semana, mês ou ano
+phone|theme-rose|Deixe com\na sua [cor]|Escolha entre 7 cores de tema
+phone|backup|Backup das fotos\nno seu próprio [Drive]|Sem cadastro. Automático, uma vez por dia.

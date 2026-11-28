@@ -142,6 +142,7 @@ internal fun CatalogColors() {
             "mood.angry" to c.mood.angry,
             "toneGood" to c.toneGood,
             "toneHard" to c.toneHard,
+            "toneNeutral" to c.toneNeutral,
             "mood.cool" to c.mood.cool,
             "mood.sad" to c.mood.sad,
             "mood.sick" to c.mood.sick,

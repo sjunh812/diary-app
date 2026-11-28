@@ -1,0 +1,4 @@
+phone|home|[Une ligne],\net la journée est écrite|Un journal simple, même les jours chargés
+phone|detail|Gardez votre journée\nen [photos]|Jusqu’à 10 photos par entrée
+phone|home-grid|Revoyez vos journées\nen [photos]|Affichez la liste en grille de photos
+phone|backup|Sauvegardez vos photos\ndans votre [Drive]|Sans inscription. Automatique, une fois par jour.

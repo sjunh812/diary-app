@@ -1,6 +1,6 @@
-# 백업 형식 v2
+# 백업 형식 v3
 
-드라이브 폴더와 묶음 파일(zip)에 무엇을 어떤 이름으로 두는지 정한다. 설계 배경은 `docs/backup.md` "백업 형식 v2", 근거는 [research.md](../research.md) R5~R10이다.
+드라이브 폴더와 묶음 파일(zip)에 무엇을 어떤 이름으로 두는지 정한다. 설계 배경은 `docs/backup.md` "백업 형식 v3", 근거는 [research.md](../research.md) R5~R10이다.
 이 형식을 바꾸면 `formatVersion`을 올리고, 새 앱이 옛 버전을 읽는 시험을 같은 커밋에 더한다(FR-035).
 
 ## 드라이브 폴더
@@ -11,8 +11,8 @@
 1일 1일기 백업/                                   appProperties diary.kind=root
   README.txt                                      이 폴더가 무엇인지, 지우면 백업이 사라진다는 안내(FR-003)
   snapshots/                                      diary.kind=snapshots
-    2026-12-31_21-30-00_Galaxy-S24_ab12.db        스냅샷   diary.kind=snapshot, diary.device=<기기 ID>
-    2026-12-31_21-30-00_Galaxy-S24_ab12.json      목록 파일 diary.kind=manifest, diary.device=<기기 ID>, diary.format=2
+    2026-12-31_21-30-00_Galaxy-S24_ab12.db.gz     스냅샷   diary.kind=snapshot, diary.device=<기기 ID>
+    2026-12-31_21-30-00_Galaxy-S24_ab12.json      목록 파일 diary.kind=manifest, diary.device=<기기 ID>, diary.format=3
   media/                                          diary.kind=media
     3f9a…c1.jpg                                   사진     diary.kind=photo (정리 대상이면 diary.unrefSince=<epoch 밀리초>)
 ```
@@ -24,12 +24,18 @@
 - 사진 이름: `<sha256 소문자 hex>.<확장자>`. 기기 `media/`의 파일 이름과 같다. 같은 사진은 한 번만 있다(FR-006).
 - `README.txt` 글은 문자열 리소스(`backup_readme_body`)에서 만든다. 한국어와 영어 두 단락이다.
 
-## 스냅샷 (`.db`)
+## 스냅샷 (`.db.gz`)
 
 1. 열린 DB에서 `VACUUM INTO 'backup/outgoing/<이름>.db'`로 한 파일을 뜬다(번들 SQLite, WAL 문제 없음).
 2. 사본을 열어 기기 것인 표(`backup_media`, `sync_base`, `merge_mark`, `draft`, `draft_media`)를 비우고 `VACUUM`한다.
 3. 사본의 일기 수와 사진 줄 수를 센다. 사본의 SHA-256을 잰다. 이 값들이 목록 파일에 들어간다.
 4. 스냅샷 DB의 버전은 Room 스키마 버전(R1 출시 때 1)이다.
+5. 형식 3(2026-11-25)부터 드라이브에는 사본을 gzip으로 줄인 `<이름>.db.gz`를 올린다. 목록 파일의 `snapshot.byteSize`·`sha256`은 올린 `.db.gz`의 값이라
+   드라이브 확인값과 그대로 견주고, `snapshot.encoding`은 `"gzip"`이다. 일기 글이 잘 줄어 올리는 양과 쌓이는 양이 함께 준다(편당 300자 1만 편 20.6MB가 실험 글로 1.9MB).
+6. 복원은 받은 `.db.gz`의 SHA-256을 먼저 보고, 맞으면 풀어서(끝의 CRC와 길이 확인) 연다. 풀리지 않으면 깨진 백업으로 보고 받은 파일을 남기지 않는다.
+7. 형식 2(2.2.0까지)의 `<이름>.db`(`encoding` 없음)도 그대로 읽는다. 옛 백업은 바꾸거나 다시 올리지 않고, 보관 규칙에 따라 새 백업과 함께 밀려난다.
+8. 형식 2까지만 아는 앱(2.2.0 이하)은 형식 3 목록 파일을 "앱을 업데이트하면 복원할 수 있어요"로 보이고 열지 않는다. 모르는 `encoding` 값도 같다.
+9. 형식 4(스펙 013)는 1.7.4에 없던 기분 id(`excited`, `proud`, `calm`, `bored`, `anxious`, `annoyed`)가 든 일기가 사본에 있을 때만 쓴다. 드라이브와 파일로 내보내기 모두 4이고, 없으면 드라이브 3·파일 2다. 드라이브 속성 `diary.format`도 같은 번호다. 이 판의 앱은 4까지 읽는다.
 
 ## 목록 파일 (`.json`, 완료 표시)
 
@@ -38,12 +44,12 @@
 ```json
 {
   "format": "org.sjhstudio.diary.backup",
-  "formatVersion": 2,
+  "formatVersion": 3,
   "createdAt": 1798720200000,
   "timeZone": "Asia/Seoul",
   "app": { "versionName": "2.0.0", "versionCode": 37, "platform": "android" },
   "device": { "id": "2f1c…", "name": "Galaxy S24" },
-  "snapshot": { "fileName": "2026-12-31_21-30-00_Galaxy-S24_ab12.db", "byteSize": 5242880, "sha256": "…", "dbVersion": 1 },
+  "snapshot": { "fileName": "2026-12-31_21-30-00_Galaxy-S24_ab12.db.gz", "byteSize": 1048576, "sha256": "…", "dbVersion": 1, "encoding": "gzip" },
   "counts": { "entries": 1204, "entriesInTrash": 3, "mediaRows": 862, "mediaMissing": 2, "mediaPending": 0 },
   "media": [
     { "sha256": "3f9a…c1", "ext": "jpg", "byteSize": 812345, "inBackup": true }
@@ -99,7 +105,9 @@
 ## 보관과 정리 (FR-010)
 
 - 기기마다 자기 백업만 정리한다. 다른 기기의 백업은 지우지 않는다.
-- 이 기기의 끝까지 된 백업 중 최근 5개와, 그보다 옛것은 달(기기 현지 시각)마다 가장 늦은 1개를 남긴다. 나머지는 목록 파일 → 스냅샷 순서로 드라이브 휴지통에 넣는다.
+- 이 기기의 끝까지 된 백업 중 최근 5개와, 그보다 옛것은 백업이 있는 최근 12개 달(기기 현지 시각)마다 가장 늦은 1개를 남긴다(2026-11-25부터, 그 전에는 달 수 제한 없음).
+  한 기기에 많아야 17개다. 달 수는 달력이 아니라 백업이 있는 달로 세어, 한동안 쉬었다 다시 써도 되돌아갈 시점이 남는다.
+  나머지는 목록 파일 → 스냅샷 순서로 드라이브 휴지통에 넣는다. 스냅샷은 형식 2(`.db`)와 3(`.db.gz`) 모두 같은 이름의 목록 파일을 따라간다.
 - 목록 파일 없이 7일 넘게 남은 이 기기의 스냅샷은 휴지통에 넣는다(끊긴 백업).
 - 사진: 모든 기기의 남은 목록 파일에서 `inBackup=true`로 가리키는 해시를 모은다. 어디에서도 가리키지 않는 사진에는 `diary.unrefSince`를 적고,
   그 뒤 30일이 지나도 여전히 가리키지 않으면 휴지통에 넣는다. 다시 가리키면 `diary.unrefSince`를 지운다.
@@ -118,6 +126,7 @@
 ```
 
 - 압축하지 않고(STORE) 담는다. 사진은 이미 JPEG로 줄어 있다. 4GB가 넘으면 ZIP64로 쓴다(research R18).
+- 묶음 파일의 `manifest.json`은 형식 2(`encoding` 없음, `snapshot.db` 그대로)로 둔다. 옛 앱도 파일에서 복원할 수 있다. `encoding`이 있는 묶음 파일은 받지 않는다.
 - 불러올 때는 `manifest.json`을 먼저 읽고, 스냅샷과 사진을 하나씩 꺼내며 확인값을 맞춘다. 맞지 않는 사진만 `missing`으로 두고 나머지는 합친다.
 - 파일 이름의 날짜는 기기 현지 날짜다.
 - 앱은 휴대폰 저장소에서 백업 파일을 찾지 않는다. 저장소 전체를 읽는 권한을 받지 않고(헌법 II), 사용자가 시스템 파일 고르기 창으로 직접 고른다.

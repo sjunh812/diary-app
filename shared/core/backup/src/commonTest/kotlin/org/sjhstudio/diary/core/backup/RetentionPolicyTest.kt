@@ -24,4 +24,16 @@ class RetentionPolicyTest {
 
         assertEquals(setOf("b1", "b2"), RetentionPolicy.toDelete(backups))
     }
+
+    /** 달마다 하나는 백업이 있는 최근 12개 달까지만. 한 기기에 많아야 17개 */
+    @Test
+    fun monthly_backups_stop_at_twelve_months() {
+        val months = (1..20).map { "m${it.toString().padStart(2, '0')}" }
+        val backups = months.mapIndexed { i, month -> backup(i.toLong() + 1, month) } + (21L..25).map { backup(it, "now") }
+
+        val deleted = RetentionPolicy.toDelete(backups)
+
+        assertEquals(17, backups.size - deleted.size)
+        assertEquals((1L..8).map { "b$it" }.toSet(), deleted)
+    }
 }

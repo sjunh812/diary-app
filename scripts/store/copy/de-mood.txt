@@ -1,0 +1,7 @@
+phone|home|[Eine Zeile],\nund der Tag ist notiert|Leicht zu schreiben, auch an vollen Tagen
+phone|mood-sheet|Halte auch deine\n[Stimmung] fest|Aus 15 Stimmungen wählen
+phone|calendar|Deine Stimmung\nim [Kalender]|Den ganzen Monat auf einen Blick
+phone|insight|[Blick zurück]\nauf deine Stimmung|Nach Woche, Monat oder Jahr
+phone|theme-list|Wähle dein\n[Stimmungsthema]|9 Themen mit viel Persönlichkeit
+stack|cal-bubble=Seifenblasen · Plus/cal-veggie=Obst & Gemüse · Plus/cal-clay=Knetgesichter · Plus|Mehr Vielfalt mit\n[Plus]-Themen|Seifenblasen, Kritzelfreunde, Obst & Gemüse, Knetgesichter
+phone|clay-custom|Ein Gesicht,\ndas [dir] ähnelt|Plus-Knetgesichter: Frisur, Hautton und Brille

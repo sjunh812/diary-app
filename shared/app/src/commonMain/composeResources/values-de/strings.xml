@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tab_home">Start</string>
+    <string name="tab_calendar">Kalender</string>
+    <string name="tab_insight">Rückblick</string>
+    <string name="tab_settings">Einstellungen</string>
+    <string name="write_new">Neuer Eintrag</string>
+    <string name="write_saved">Gespeichert</string>
+    <string name="write_draft_kept">Entwurf gespeichert</string>
+    <string name="detail_trashed">In den Papierkorb verschoben</string>
+    <string name="detail_trashed_undo">Rückgängig</string>
+    <string name="detail_pick_hint">Kein Eintrag ausgewählt</string>
+    <string name="detail_pick_body">Tippe in der Liste auf einen Eintrag, um ihn hier zu lesen.</string>
+    <string name="settings_pick_hint">Keine Einstellung ausgewählt</string>
+    <string name="settings_pick_body">Tippe in der Liste auf eine Einstellung, um sie hier zu sehen.</string>
+    <string name="ad_label">Anzeige</string>
+    <string name="reward_title">Einen Tag ohne Werbung</string>
+    <string name="reward_body">Schau dir ein kurzes Video bis zum Ende an, dann siehst du 24 Stunden lang keine andere Werbung.</string>
+    <string name="reward_watch">Video ansehen</string>
+    <string name="reward_close">Schließen</string>
+    <string name="reward_failed_title">Werbefreier Tag nicht erhalten</string>
+    <string name="reward_failed_body">Die Anzeige wurde nicht geladen oder nicht bis zum Ende angesehen. Versuch es bitte später noch einmal.</string>
+    <string name="reward_not_saved">Dein Gerät hat zu wenig Speicher. Beim nächsten Öffnen der App kann wieder Werbung erscheinen.</string>
+    <string name="ad_close">Werbung entfernen</string>
+    <string name="ad_notice_title">Vollbildwerbung einmal am Tag</string>
+    <string name="ad_notice_body">Sie erscheint kurz und nur, nachdem du einen Eintrag gespeichert hast.</string>
+    <string name="ad_notice_ok">OK</string>
+    <string name="write_failed">Speichern fehlgeschlagen. Prüfe den Speicher deines Geräts.</string>
+</resources>

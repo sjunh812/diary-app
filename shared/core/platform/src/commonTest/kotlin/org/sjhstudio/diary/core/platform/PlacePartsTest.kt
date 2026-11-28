@@ -47,9 +47,28 @@ class PlacePartsTest {
     }
 
     @Test
-    fun abroad_uses_two_small_areas() {
-        assertEquals("Manhattan, New York", PlaceParts("US", "New York", "New York", "Manhattan", "West 34th Street").label())
+    fun abroad_uses_city_and_state() {
         assertEquals("Chiyoda City, Tokyo", PlaceParts("JP", "Tokyo", "Chiyoda City", null, "1-chōme").label())
+        assertEquals("San Francisco, California", PlaceParts("US", "California", "San Francisco", "SoMa", "Market Street").label())
+    }
+
+    // 아래는 iOS 지오코더가 한국어로 돌려준 값
+    @Test
+    fun ios_county_is_not_placed_before_the_city() {
+        assertEquals("쿠퍼티노, CA", PlaceParts("US", "CA", "쿠퍼티노", "산타클라라", null).label())
+        assertEquals("신이구, 타이베이시", PlaceParts("TW", "타이베이시", "신이구", "타이베이시", "西村里").label())
+        assertEquals("상 파울루, SP", PlaceParts("BR", "SP", "상 파울루", "São Paulo", "Se").label())
+    }
+
+    @Test
+    fun abroad_same_city_and_state_is_one_name() {
+        assertEquals("베를린", PlaceParts("DE", "베를린", "베를린", "베를린", "City Centre").label())
+        assertEquals("싱가포르", PlaceParts("SG", "SG", "싱가포르", null, "다운타운 코어").label())
+    }
+
+    @Test
+    fun abroad_without_city_uses_the_district() {
+        assertEquals("Santa Clara County, CA", PlaceParts("US", "CA", null, "Santa Clara County", null).label())
     }
 
     @Test

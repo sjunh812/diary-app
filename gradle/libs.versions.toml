@@ -55,6 +55,8 @@ androidxUiautomator = "2.4.0"
 coil = "3.6.3"
 compottie = "2.3.3"
 playServicesAds = "25.5.0"
+# 광고 동의 창(EEA·영국·스위스). 무료
+userMessagingPlatform = "4.0.0"
 filekit = "0.17.0"
 # 서식 편집기. Apache-2.0, 무료.
 richEditor = "1.2.1"
@@ -144,6 +146,7 @@ firebase-config = { module = "com.google.firebase:firebase-config" }
 revenuecat-purchases = { module = "com.revenuecat.purchases:purchases", version.ref = "revenuecat" }
 revenuecat-kmp-core = { module = "com.revenuecat.purchases:purchases-kmp-core", version.ref = "revenuecatKmp" }
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
+user-messaging-platform = { module = "com.google.android.ump:user-messaging-platform", version.ref = "userMessagingPlatform" }
 rich-editor = { module = "com.mohamedrejeb.richeditor:richeditor-compose", version.ref = "richEditor" }
 filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
 

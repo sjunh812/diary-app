@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mood_angry">Enojado</string>
+    <string name="mood_cool">Genial</string>
+    <string name="mood_sad">Triste</string>
+    <string name="mood_sick">Enfermo</string>
+    <string name="mood_laugh">Riendo</string>
+    <string name="mood_meh">Normal</string>
+    <string name="mood_bad">Mal</string>
+    <string name="mood_good">Bien</string>
+    <string name="mood_tired">Cansado</string>
+    <string name="mood_excited">Ilusionado</string>
+    <string name="mood_proud">Orgulloso</string>
+    <string name="mood_calm">En calma</string>
+    <string name="mood_bored">Aburrido</string>
+    <string name="mood_anxious">Ansioso</string>
+    <string name="mood_annoyed">Molesto</string>
+    <string name="weather_sunny">Soleado</string>
+    <string name="weather_partly_cloudy">Parcialmente nublado</string>
+    <string name="weather_mostly_cloudy">Mayormente nublado</string>
+    <string name="weather_cloudy">Cubierto</string>
+    <string name="weather_rain">Lluvia</string>
+    <string name="weather_sleet">Aguanieve</string>
+    <string name="weather_snow">Nieve</string>
+    <string name="entry_kept_both">Dos versiones</string>
+    <string name="tip_close">Cerrar</string>
+    <string name="checklist_check">Marcar %1$s</string>
+    <string name="checklist_uncheck">Desmarcar %1$s</string>
+    <string name="entry_menu_edit">Editar</string>
+    <string name="entry_menu_favorite">Favorito</string>
+    <string name="entry_menu_unfavorite">Quitar de favoritos</string>
+    <string name="entry_menu_share">Compartir</string>
+    <string name="entry_menu_trash">Mover a la papelera</string>
+    <string name="ui_previous_year">Año anterior</string>
+    <string name="ui_next_year">Año siguiente</string>
+    <string name="ui_previous_month">Mes anterior</string>
+    <string name="ui_next_month">Mes siguiente</string>
+    <string name="share_when">%2$s, %1$s, %3$s</string>
+    <string name="load_failed_title">No se pudieron cargar tus entradas</string>
+    <string name="load_failed_body">Vuelve a intentarlo en un momento.</string>
+    <string name="load_failed_retry">Reintentar</string>
+    <string name="link_no_browser">No se encontró ninguna app de navegador.</string>
+    <string name="mood_group_good">Me sentí bien</string>
+    <string name="mood_group_mind">Me pesó el ánimo</string>
+    <string name="mood_group_body">Me pesó el cuerpo</string>
+    <string name="mood_group_neutral">Sin más</string>
+</resources>

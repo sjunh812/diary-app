@@ -9,9 +9,9 @@
 | --- | --- | --- |
 | 디시 마이너 갤러리 공통 운영원칙(`gall.dcinside.com/ajax/minor_ajax/minor_guide`, 직접 읽음) | 이용제한 사유 4번이 "도배, 스팸, 상업적 홍보 및 광고 활동"이고 하위에 "홍보성 타 사이트 링크 포함 및 광고 게시물"이 있다. 8번은 갤러리 주제와 동떨어진 글. 위반하면 글 노출 제한, 이용 정지(일시·영구) | 스토어 링크를 본문에 넣으면 걸릴 수 있다. 무료+광고+구독 앱이라 상업 활동으로 볼 여지도 있다. 일기 갤러리에는 주제 문제도 겹친다. **링크는 뺐다.** 그래도 위험은 남는다 |
 | 디시 일기·개발자 갤러리 공지 | 일기 갤러리 공지에는 홍보 규칙이 없다. 개발자 갤러리는 공지가 없다. 매니저가 개인 판단으로 지울 수 있다 | 개발자 갤러리에는 "앱 만들었는데 피드백 부탁" 글이 실제로 올라와 있다(11-09 그림일기 앱 글 등). 다만 그 글들이 남아 있다고 규칙에 걸리지 않는다는 뜻은 아니다 |
-| 긱뉴스 Show GN(`news.hada.io/blog/show`, 검색으로 확인) | 앱이 대상이다. 직접 만든 것이어야 한다. 글 종류를 Show로 고른다. 지인에게 추천·댓글 부탁 금지, 버전마다 반복 등록 금지, 짧은 기간 재등록 제한. 완성도가 높을 필요는 없다 | **가장 안전하고 맞는 곳.** 아래 초안 추가 |
+| 긱뉴스 Show GN(`news.hada.io/blog/show`, 검색으로 확인) | 앱이 대상이다. 직접 만든 것이어야 한다. 글 종류를 Show로 고른다. 지인에게 추천·댓글 부탁 금지, 버전마다 반복 등록 금지, 짧은 기간 재등록 제한. 완성도가 높을 필요는 없다 | **가장 안전하고 맞는 곳.** 2026-11-26 올림(아래 2-1) |
 | Product Hunt(공식 도움말, 검색으로 확인) | 모바일 전용 규칙은 없다. 추천(업보트) 부탁 금지, 돈 주고 사기 금지, 업보트 대가 경품 금지. 개인 계정으로. 올리면 검토 후 공개 | 초안에 "upvote 부탁"은 없다. 피드백만 구한다 |
-| Show HN | 공식 규칙 원문은 읽지 못했다. 검색된 글들은 스토어 링크를 올리는 게 흔하고, 가입·유료 장벽에는 불만이 붙었다 | 올리기 전에 `news.ycombinator.com/showhn.html`을 직접 읽는다 |
+| Show HN | 2026-11-26에 원문을 읽었다(아래 2-2). 이전 기록: 공식 규칙 원문은 읽지 못했다. 검색된 글들은 스토어 링크를 올리는 게 흔하고, 가입·유료 장벽에는 불만이 붙었다 | 올리기 전에 `news.ycombinator.com/showhn.html`을 직접 읽는다 |
 | Reddit r/journaling | 미러에서 확인: 손글씨 일기 중심이고 자기 홍보 금지. 앱 이야기는 r/digitaljournaling으로 보낸다. r/digitaljournaling은 2026-03 모더레이터 공지로 글과 댓글의 홍보를 금지한다 | **올리지 않는다.** 아래 영어 Reddit 초안은 쓰지 않는 쪽으로 정한다 |
 | 클리앙·블라인드·네이버 카페·에브리타임 | 이번에도 읽지 못했다. 클리앙은 앞서 읽은 이용규칙대로 직접홍보 게시판만 가능 | 미확인이라 올리지 않는다 |
 
@@ -170,41 +170,99 @@ Kotlin + Compose Multiplatform이라 화면 코드 하나로 두 플랫폼 돌�
 
 ## 2-1. 긱뉴스 Show GN
 
-글 종류를 Show로 고른다. 제목 앞에 "Show GN:"이 자동으로 붙는다. 지인에게 추천이나 댓글을 부탁하지 않는다. 버전마다 다시 올리지 않는다.
+**2026-11-26에 올렸다: https://news.hada.io/topic?id=37882** (사용자가 직접 올림). 아래는 올라간 글 그대로다. 버전마다 다시 올리지 않는다. 지인에게 추천이나 댓글을 부탁하지 않는다.
+
+- 처음에는 일반 글(id=37881)로 올라가 Show 목록에 없었다. 지우고 Show로 다시 올렸다. Show를 고르면 제목 앞에 "Show GN:"이 저절로 붙는다.
+- 초안은 Show 목록의 실제 글(인사, 만든 이유, 주요 기능, 만들면서 겪은 일)을 보고 썼고, 사용자가 문장을 다듬어 올렸다. 소개 영상은 GitHub이 13MB 파일을 미리 보여 주지 않아 링크를 뺐다.
+- 초안에 있던 광고·Plus 안내 문단은 올린 글에서 빠졌다. 광고를 묻는 댓글이 달리면 "일기 쓰는 화면에는 광고가 없고, 저장하고 나올 때 하루 한 번만 뜬다. 광고 제거는 Plus(연 구독)"로 답한다.
+- 띄어쓰기 네 곳("'여유'라는 게", "임시 저장되어", "보이는 데", "해야 했기")은 사용자가 올린 글에서 고쳤다(2026-11-26). 아래 본문은 처음 올린 그대로다.
 
 **제목**
 
 ```text
-Show GN: 기분 고르고 몇 줄만 쓰는 일기 앱, Compose Multiplatform으로 다시 만들었습니다
+Show GN: 1일 1일기 - 바쁜 날에도 쓰기 쉽게 꼭 필요한 것만 담은 일기 앱 (Android·iOS)
 ```
+
+**URL 칸**: https://sjunh812.pages.dev/1day1diary/
 
 **본문**
 
 ```text
-혼자 만든 일기 앱 "1일 1일기"를 Kotlin과 Compose Multiplatform으로 다시 만들어 안드로이드와 iOS에 냈습니다.
+안녕하세요!
+저는 몇 년째 혼자 운영해 온 안드로이드 일기 앱을 Compose Multiplatform(CMP)으로 새로 만들어, 이번에 iOS로도 처음 출시하게 된 1인 개발자입니다.
+남녀노소 상관없이 누구나 쉽게 쓸 수 있고 일기 습관을 들이기 좋은 앱이라, 직접 소개해 드리고 싶어 글을 쓰게 되었습니다.
 
-왜 만들었나
-일기를 쓰다 포기하는 이유는 대부분 바쁜 날 빈 화면을 마주하는 부담이었습니다. 그래서 기분을 먼저 고르고 몇 줄만 쓰면 오늘 일기가 끝나게 했습니다.
+왜 만들었나요?
 
-만든 방식
-- 회원가입도 제 서버도 없습니다. 일기와 사진은 기기에 저장됩니다.
-- 백업은 사용자 본인의 구글 드라이브 또는 파일 하나로만 갑니다. 사진도 백업에 들어갑니다.
-- 복원은 기존 기록을 지우지 않고 합칩니다.
-- 비밀번호와 생체 인증 잠금이 있습니다.
-- 안드로이드와 iOS가 같은 Compose 화면 코드를 씁니다. DB는 Room 3, 설정은 DataStore입니다.
+AI 시대가 되면서 일은 더 바빠지고, 받아들여야 할 정보의 양도 훨씬 많아졌습니다.
+그러다 보니 '여유' 라는게 점점 사라진 것 같아, 하루를 일기로 정리해 보면 어떨까 하는 생각으로 시작하게 되었습니다.
+그런데 일기는 꾸준히 써야 의미가 있는데, 막상 해보면 작심삼일로 끝나기 쉬웠습니다.
+그래서 누구나 부담 없이 시작하고, 질리지 않게 계속 쓸 수 있는 일기장을 직접 만들게 됐습니다.
 
-솔직하게
-- 무료이고 광고가 있습니다. 쓰기와 상세 화면에는 없고, 저장 후 목록으로 돌아올 때 하루 한 번만 나옵니다.
-- 광고 제거와 사진 30장 등은 Plus(연 구독)입니다. 기본 기능은 그대로 무료입니다.
+주요 기능
 
-링크
-Google Play: https://play.google.com/store/apps/details?id=org.sjhstudio.diary
+- 기분만 골라도, 한 줄만 써도, 또는 사진 한 장만 올려도 그날의 일기가 작성돼요.
+- 쓰다가 앱이 꺼져도 임시 저장 되어 있고, 실수로 지운 일기는 휴지통에서 복원할 수 있어요.
+- 달력에 그날 그날의 기분이 쌓이고, 이번 주·이번 달·올해에 어떤 기분이 많았는지도 확인할 수 있어요.
+- 회원가입이 없고, 서버도 따로 두지 않아, 일기는 나만 볼 수 있어요.
+- 사진까지 내 구글 드라이브에 백업돼요. 복원할 때도 지금 쓰던 일기는 지우지 않고 합쳐줘요.
+- 비밀번호나 생체인증으로 잠글 수 있고, 다크 모드도 지원해요.
+- 테마 색 7가지, 글꼴 10가지 중에 골라 쓸 수도 있어요.
+- 태블릿이나 폴더블처럼 넓은 화면에서는 목록과 일기를 나란히 보여줘요.
+
+개발 포인트
+
+- 안드로이드와 iOS의 화면과 로직을 대부분 공통으로 처리해요. 플랫폼별로 따로 둔 건 결제, 광고, 드라이브 로그인, 그리고 생체인증 정도예요.
+- 최근 다양해지는 디바이스 화면들에서 일관된 디자인으로 보이는데 치중했어요. 이를 위해 화면 코드에 색 HEX 값이나 숫자 dp(px)를 직접 사용하게 되면 빌드가 깨지도록 Gradle 검사를 따로 만들어 뒀어요.
+- 개발하는 시간은 공유 로직을 작성하는 부분보단 에디터와 iOS 키보드 처리에서 많이 들었어요. 결국 다른 멀티플랫폼으로 개발했기 때문에 각 플랫폼에서 동일한 화면으로 보이도록 해야했기 때문이에요.
+- 안드로이드의 경우, 리뉴얼 업데이트이기 때문에 예전 버전에서 쓴 일기를 하나도 잃지 않고 마이그레이션될 수 있도록 심혈을 기울였어요. 원본 DB는 끝까지 건드리지 않았고, 사본을 새 DB로 옮긴 뒤 일기마다 원본과 내용이 같은지 해시로 맞춰 보고, 하나라도 다르면 새 DB를 버리도록 했어요.
+
 App Store: https://apps.apple.com/kr/app/id6835116731
+Google Play: https://play.google.com/store/apps/details?id=org.sjhstudio.diary
 
-기분 고르기, 백업과 복원이 믿을 만한지, 처음 열었을 때 막히는 곳이 있는지 의견 부탁드립니다.
+꼭 한번 사용해 보시고 불편한 점이나 개선할 점, 이외 CMP 관련해서 궁금한 점 있으면 편하게 남겨 주세요.
+
+감사합니다.
 ```
 
-긱뉴스는 개발 이야기가 중심이라 기술 항목을 앞쪽에 두었다.
+---
+
+## 2-2. Show HN
+
+아직 올라가지 않았다. 2026-11-26 사용자 계정으로 올리려 하자 HN이 "Show HN 임시 제한" 화면(`/showlim`)을 띄웠다. 사이트에 익숙하지 않은 새 사용자의 Show HN이 몰려 막아 둔 것이고, 커뮤니티에서 먼저 활동한 뒤 가끔 올리라고 안내한다. 계정이 댓글 등으로 자리를 잡은 뒤 다시 올린다. 제한을 피하려고 "Show HN" 없이 일반 링크로 올리지 않는다. 규칙(`news.ycombinator.com/showhn.html`, 2026-11-26에 읽음): 직접 만들어 써 볼 수 있는 것이어야 하고, 소개 페이지(landing page)는 올리지 않는다. 그래서 URL 칸에는 소개 사이트 대신 App Store 주소를 넣는다. 가입 없이 써 볼 수 있어야 하고, 만든 까닭과 방법을 적는다. 지인에게 추천이나 댓글을 부탁하지 않는다.
+
+- 광고·Plus는 먼저 밝혔다. HN은 숨긴 수익 모델에 날카롭다.
+- 댓글에 답할 거리: CMP에서 iOS 키보드·한글 입력 문제, 레거시 DB를 Room 대신 날 SQL로 읽은 까닭, 서버 없이 드라이브 `drive.file` 권한만 쓰는 백업.
+
+**제목** (80자 한도, 73자)
+
+```text
+Show HN: 1 Day 1 Diary – a diary app I rebuilt with Compose Multiplatform
+```
+
+**URL 칸**: https://apps.apple.com/app/id6835116731
+
+**본문**
+
+```text
+Hi HN. I've been running a small Android diary app on my own since 2022. This year I rebuilt it from scratch in Kotlin with Compose Multiplatform, and it's now on iOS too.
+
+The idea is simple: most people who start a journal stop within a few weeks, so the app asks for very little. One line, a mood, or a single photo counts as the day's entry. No account, no server. Entries and photos stay on the phone, and backups go to the user's own Google Drive.
+
+A few things that might be interesting here:
+
+- Nearly all UI and logic is shared between Android and iOS. The platform-specific parts are billing, ads, Google sign-in for Drive, and biometric lock.
+- The hardest part was the Android migration. The old app stored everything in its own SQLite file, and losing even one entry wasn't acceptable. The new app never touches the original. It copies the database (with its WAL files), reads the copy with raw SQL into a new Room database, then compares every entry against the original by SHA-256. If any entry differs, the new database is thrown away and the migration starts over on the next launch.
+- To keep the design consistent across phones, foldables and tablets, a Gradle check fails the build if a feature module uses a raw color hex or a literal dp/sp value instead of a design token.
+- Surprisingly, shared logic was the easy part. Most of my time went into the rich-text editor and the iOS keyboard, including Korean input composition on hardware keyboards.
+- Backup has no server behind it. The app only uses the drive.file scope, so it can see the files it created and nothing else in the user's Drive.
+
+It's free with ads (a small card in the list and at most one full-screen ad a day, after saving an entry, never while writing). A yearly subscription removes them. The UI is in English, Korean and Japanese.
+
+Google Play: https://play.google.com/store/apps/details?id=org.sjhstudio.diary
+
+I'd love feedback on the app, and I'm happy to answer questions about Compose Multiplatform on iOS.
+```
 
 ---
 

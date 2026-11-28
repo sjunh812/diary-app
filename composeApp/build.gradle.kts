@@ -86,14 +86,14 @@ android {
     }
 
     androidResources {
-        // 앱별 언어 설정(Android 13 이상)에 세 언어를 올림(docs/design.md 여러 언어)
+        // 앱별 언어 설정(Android 13 이상)에 화면 언어를 모두 올림(docs/design.md 여러 언어)
         generateLocaleConfig = true
         // 라이브러리에 든 다른 언어 문구를 빼서 화면이 한 언어로 보이게 함
-        localeFilters += listOf("en", "ko", "ja")
+        localeFilters += listOf("en", "ko", "ja", "b+zh+Hant", "es", "pt", "de", "fr")
     }
 
     // 언어별로 나누면 기기 언어 조각만 깔려, 앱 언어를 따로 고른 사람의 알림·앱 이름이 기기 언어로 나옴
-    // 세 언어뿐이라 함께 넣음
+    // 문구가 작아 모든 언어를 함께 넣음
     bundle {
         language {
             enableSplit = false

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">1 Day 1 Diary</string>
+    <string name="reminder_channel">Lembrete diário</string>
+    <string name="reminder_body">Como foi o seu dia? ✍️ Escreva só uma linha.</string>
+    <string name="font_module_title">Fonte do diário</string>
+</resources>

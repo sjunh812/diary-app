@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="insight_title">回顧</string>
+    <string name="insight_tab_week">週</string>
+    <string name="insight_tab_month">月</string>
+    <string name="insight_tab_year">年</string>
+    <string name="insight_tab_all">全部</string>
+    <string name="insight_previous">上一個期間</string>
+    <string name="insight_next">下一個期間</string>
+    <string name="insight_period_sheet_title">選擇期間</string>
+    <string name="insight_empty">這段期間沒有日記</string>
+    <string name="insight_write">寫日記</string>
+    <string name="insight_no_moods">這段期間沒有記錄心情</string>
+    <string name="insight_top_week">本週最常見的心情：%1$s</string>
+    <string name="insight_top_month">本月最常見的心情：%1$s</string>
+    <string name="insight_top_year">今年最常見的心情：%1$s</string>
+    <string name="insight_top_all">至今最常見的心情：%1$s</string>
+    <string name="insight_top_past">這段期間最常見的心情：%1$s</string>
+    <string name="insight_top_even">各種心情的次數差不多</string>
+    <string name="insight_mood_join">%1$s、%2$s</string>
+    <string name="insight_summary_counts">%1$s · %2$s</string>
+    <string name="insight_count_percent">%1$s篇 · %2$d%</string>
+    <string name="insight_year_map">%1$d年每天的心情</string>
+    <string name="insight_flow_week">每天的心情</string>
+    <string name="insight_flow_month">每週最常見的心情</string>
+    <string name="insight_flow_all">每年最常見的心情</string>
+    <string name="insight_flow_year">每月最常見的心情</string>
+    <string name="insight_week_number">第%1$d週</string>
+    <plurals name="insight_entry_count">
+        <item quantity="other">%1$s篇</item>
+    </plurals>
+    <plurals name="insight_no_mood_count">
+        <item quantity="other">%1$s篇沒有心情</item>
+    </plurals>
+    <string name="insight_adv_title">進階統計</string>
+    <string name="insight_adv_wd_sun">星期日</string>
+    <string name="insight_adv_wd_mon">星期一</string>
+    <string name="insight_adv_wd_tue">星期二</string>
+    <string name="insight_adv_wd_wed">星期三</string>
+    <string name="insight_adv_wd_thu">星期四</string>
+    <string name="insight_adv_wd_fri">星期五</string>
+    <string name="insight_adv_wd_sat">星期六</string>
+    <string name="insight_adv_day_dawn">深夜</string>
+    <string name="insight_adv_day_morning">早上</string>
+    <string name="insight_adv_day_afternoon">下午</string>
+    <string name="insight_adv_day_evening">晚上</string>
+    <string name="insight_adv_range_recent">最近30天</string>
+    <string name="insight_adv_range_year">今年</string>
+    <string name="insight_adv_range_all">全部</string>
+    <plurals name="insight_adv_not_enough">
+        <item quantity="other">再寫%1$s篇日記就會出現。</item>
+    </plurals>
+    <string name="insight_adv_change_recent">和前30天相比</string>
+    <string name="insight_adv_change_year">和去年同期相比</string>
+    <string name="insight_adv_change_good">正面心情</string>
+    <string name="insight_adv_when">不同情況下的心情</string>
+    <string name="insight_adv_tab_weekday">星期</string>
+    <string name="insight_adv_tab_part">時段</string>
+    <string name="insight_adv_tab_weather">天氣</string>
+    <string name="insight_adv_tab_place">地點</string>
+    <string name="insight_adv_share">%1$d%</string>
+    <string name="insight_adv_when_empty">日記還不夠多。</string>
+    <string name="insight_adv_when_good_time">正面心情最多：%1$s</string>
+    <string name="insight_adv_when_hard_time">負面心情最多：%1$s</string>
+    <string name="insight_adv_when_good_weather">正面心情最多：%1$s</string>
+    <string name="insight_adv_when_hard_weather">負面心情最多：%1$s</string>
+    <string name="insight_adv_when_good_place">正面心情最多：%1$s</string>
+    <string name="insight_adv_when_hard_place">負面心情最多：%1$s</string>
+    <string name="insight_adv_company">各心情的天氣、星期與地點</string>
+    <string name="insight_adv_habit">日記數據</string>
+    <string name="insight_adv_habit_entries">日記</string>
+    <string name="insight_adv_habit_days">寫日記的天數</string>
+    <string name="insight_adv_habit_run">最長連續天數</string>
+    <string name="insight_adv_habit_characters">字數</string>
+    <string name="insight_adv_habit_photos">照片</string>
+    <string name="insight_adv_habit_part">最常寫的時段</string>
+    <plurals name="insight_adv_company_title">
+        <item quantity="other">%1$s · %2$s篇</item>
+    </plurals>
+    <plurals name="insight_adv_habit_entries_value">
+        <item quantity="other">%1$s篇</item>
+    </plurals>
+    <plurals name="insight_adv_habit_days_value">
+        <item quantity="other">%1$s天</item>
+    </plurals>
+    <plurals name="insight_adv_habit_characters_value">
+        <item quantity="other">%1$s字</item>
+    </plurals>
+    <plurals name="insight_adv_habit_photos_value">
+        <item quantity="other">%1$s張</item>
+    </plurals>
+    <string name="insight_section_days">每天的心情</string>
+    <string name="insight_map_hint">每個方格代表一天，顏色是當天的心情。</string>
+    <string name="tip_insight_open">點一下心情，就能一次查看那些日記。</string>
+    <string name="insight_section_moods">最常見的心情</string>
+    <string name="insight_adv_no_moods">有心情的日記還不夠多</string>
+    <plurals name="insight_adv_no_moods_body">
+        <item quantity="other">再為%1$s篇日記選擇心情，就能幫你找出差異。</item>
+    </plurals>
+    <string name="insight_adv_recent_better">最近好日子變多了 ☀️</string>
+    <string name="insight_adv_recent_harder">最近過得不太輕鬆 ☁️</string>
+    <string name="insight_adv_recent_steady">最近和之前差不多 ⛅</string>
+    <string name="insight_adv_recent_steady_body">和前30天沒有太大差別。</string>
+    <string name="insight_adv_recent_good_up">正面心情比前30天多。%1$d% → %2$d%</string>
+    <string name="insight_adv_recent_good_down">正面心情比前30天少。%1$d% → %2$d%</string>
+    <string name="insight_adv_recent_hard_up">負面心情比前30天多。%1$d% → %2$d%</string>
+    <string name="insight_adv_recent_hard_down">負面心情比前30天少。%1$d% → %2$d%</string>
+    <string name="insight_adv_change_hard">負面心情</string>
+    <string name="insight_adv_change_top">最常見的心情</string>
+    <string name="insight_adv_change_before">%1$s →</string>
+    <string name="insight_adv_unit_small">10000</string>
+    <string name="insight_adv_unit_big">100000000</string>
+    <string name="insight_adv_characters_small">%1$s萬字</string>
+    <string name="insight_adv_characters_big">%1$s億字</string>
+    <string name="insight_adv_tone_info">心情的分類方式</string>
+    <string name="insight_adv_tone_sheet_body">在有選擇心情的日記中，顯示選了正面或負面心情的比例。其他心情是長條中的灰色部分。</string>
+    <string name="insight_adv_tone_neutral">其他心情</string>
+    <string name="insight_adv_tone_ok">確定</string>
+</resources>

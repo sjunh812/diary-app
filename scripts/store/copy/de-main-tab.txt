@@ -1,0 +1,7 @@
+phone|home|[Eine Zeile],\nund der Tag ist notiert|Leicht zu schreiben, auch an vollen Tagen
+phone|calendar|Deine Stimmung\nim [Kalender]|Den ganzen Monat auf einen Blick
+stack|cal-shape=Formen/cal-clay=Knetgesichter · Plus/cal-veggie=Obst & Gemüse · Plus|Wähle dein\n[Stimmungsthema]|9 Themen mit viel Persönlichkeit
+phone|detail|Halte deinen Tag\nmit [Fotos] fest|Bis zu 10 Fotos pro Eintrag
+phone|insight|[Blick zurück]\nauf deine Stimmung|Nach Woche, Monat oder Jahr
+phone|theme-rose|Mach es\nin deiner [Farbe]|Wähle aus 7 Designfarben
+phone|backup|Fotos sichern\nin deinem [Drive]|Ohne Konto. Automatisch, einmal am Tag.

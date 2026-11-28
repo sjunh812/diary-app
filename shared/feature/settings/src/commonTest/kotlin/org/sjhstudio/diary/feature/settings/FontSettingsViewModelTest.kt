@@ -22,6 +22,7 @@ import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.platform.FontInstallState
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
+import org.sjhstudio.diary.core.testing.TestTelemetry
 
 // 글꼴(G1): 앱에 있는 글꼴은 바로, 받는 글꼴은 받은 뒤에 바뀜
 // 받지 못하면 쓰던 글꼴 그대로(docs/design.md 일기 본문 글꼴 10종)
@@ -39,7 +40,7 @@ class FontSettingsViewModelTest {
 
     @Test
     fun bundled_font_changes_right_away() = runTest(dispatcher) {
-        val vm = FontSettingsViewModel(settings, installer, io = dispatcher)
+        val vm = FontSettingsViewModel(settings, installer, io = dispatcher, telemetry = TestTelemetry)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
 
         vm.select(DiaryFont.HAKGYOANSIM_BADASSEUGI)
@@ -52,7 +53,7 @@ class FontSettingsViewModelTest {
     @Test
     fun downloaded_fonts_are_checked_off_the_screen_thread() = runTest(dispatcher) {
         installer.downloaded["sejong_geulggot"] = "/fonts/sejong_geulggot.ttf"
-        val vm = FontSettingsViewModel(settings, installer, io = dispatcher)
+        val vm = FontSettingsViewModel(settings, installer, io = dispatcher, telemetry = TestTelemetry)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
         assertEquals(0, installer.fileChecks, "만들 때 파일을 읽지 않음")
 
@@ -62,7 +63,7 @@ class FontSettingsViewModelTest {
 
     @Test
     fun downloaded_font_changes_after_it_is_installed() = runTest(dispatcher) {
-        val vm = FontSettingsViewModel(settings, installer, io = dispatcher)
+        val vm = FontSettingsViewModel(settings, installer, io = dispatcher, telemetry = TestTelemetry)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
 
         vm.select(DiaryFont.SEJONG_GEULGGOT)
@@ -82,7 +83,7 @@ class FontSettingsViewModelTest {
     /** 받는 동안 다른 글꼴을 고르면 받기가 끝나도 그 글꼴을 둠. 고른 것을 말없이 바꾸지 않음 */
     @Test
     fun a_finished_download_does_not_replace_a_font_picked_later() = runTest(dispatcher) {
-        val vm = FontSettingsViewModel(settings, installer, io = dispatcher)
+        val vm = FontSettingsViewModel(settings, installer, io = dispatcher, telemetry = TestTelemetry)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
 
         vm.select(DiaryFont.SEJONG_GEULGGOT)
@@ -98,7 +99,7 @@ class FontSettingsViewModelTest {
 
     @Test
     fun offline_keeps_the_current_font_and_tells_once() = runTest(dispatcher) {
-        val vm = FontSettingsViewModel(settings, installer, io = dispatcher)
+        val vm = FontSettingsViewModel(settings, installer, io = dispatcher, telemetry = TestTelemetry)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
         val notices = mutableListOf<FontNotice>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.notice.collect { notices += it } }
@@ -115,7 +116,7 @@ class FontSettingsViewModelTest {
     /** 공간이 차 받지 못하면 그렇다고 알림. 다시 시도해도 같아서 일반 실패와 나눔 */
     @Test
     fun a_full_device_says_storage_is_short() = runTest(dispatcher) {
-        val vm = FontSettingsViewModel(settings, installer, io = dispatcher)
+        val vm = FontSettingsViewModel(settings, installer, io = dispatcher, telemetry = TestTelemetry)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
         val notices = mutableListOf<FontNotice>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.notice.collect { notices += it } }
@@ -132,7 +133,7 @@ class FontSettingsViewModelTest {
     /** Play에서 설치하지 않은 앱은 다시 해도 못 받아 일반 실패와 나눔 */
     @Test
     fun an_app_not_from_the_store_says_where_to_install() = runTest(dispatcher) {
-        val vm = FontSettingsViewModel(settings, installer, io = dispatcher)
+        val vm = FontSettingsViewModel(settings, installer, io = dispatcher, telemetry = TestTelemetry)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
         val notices = mutableListOf<FontNotice>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.notice.collect { notices += it } }

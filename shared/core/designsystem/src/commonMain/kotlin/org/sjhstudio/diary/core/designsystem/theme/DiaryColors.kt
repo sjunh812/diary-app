@@ -54,10 +54,15 @@ data class DiaryColors(
     val toneGood: Color,
     /**
      * 고급 통계의 부정적인 기분 막대와 범례 점. 푸른 회색
-     * 옅은 회색은 "세지 않는 기분"(`lineStrong`)과 비슷해 부정적인 기분이 무시되는 듯 보임
+     * 옅은 회색은 그 밖의 기분([toneNeutral])과 비슷해 부정적인 기분이 무시되는 듯 보임
      * 차가운 쪽이 부정인 Apple 마음 상태 색과도 맞음
      */
     val toneHard: Color,
+    /**
+     * 고급 통계의 그 밖의 기분 점과 막대 빈칸
+     * 다크는 `lineStrong`이면 바탕에 묻혀 한 단계 밝게. [toneHard]와 대비는 라이트와 비슷하게
+     */
+    val toneNeutral: Color,
     /** 지우기, 실패 */
     val danger: Color,
     /** danger 위 글자 */
@@ -99,7 +104,13 @@ data class DiaryMoodColors(
     val meh: Color,
     val bad: Color,
     val good: Color,
-    val tired: Color
+    val tired: Color,
+    val excited: Color,
+    val proud: Color,
+    val calm: Color,
+    val bored: Color,
+    val anxious: Color,
+    val annoyed: Color
 )
 
 @Immutable
@@ -134,6 +145,7 @@ internal val LightDiaryColors =
         accentText = Color(0xFF6550B9),
         toneGood = Color(0xFF6550B9),
         toneHard = Color(0xFF8F9BB3),
+        toneNeutral = Color(0xFFDCDEE3),
         onAccent = Color(0xFFFFFFFF),
         textPrimary = Color(0xFF1A1C20),
         textSecondary = Color(0xFF555D6D),
@@ -150,15 +162,21 @@ internal val LightDiaryColors =
         shadow = Color(0x29000000),
         mood =
             DiaryMoodColors(
-                angry = Color(0xFFFFAFB0),
-                cool = Color(0xFFAEE4FF),
-                sad = Color(0xFFC4F4FE),
-                sick = Color(0xFFBEE9B4),
-                laugh = Color(0xFFFDFA87),
-                meh = Color(0xFFDFD4E4),
-                bad = Color(0xFF808080),
-                good = Color(0xFFFFD4A8),
-                tired = Color(0xFFFCC6F7)
+                angry = Color(0xFFDC776D),
+                cool = Color(0xFF90DCDB),
+                sad = Color(0xFF7EA7DD),
+                sick = Color(0xFFC8E5A5),
+                laugh = Color(0xFFFCE694),
+                meh = Color(0xFFD6CEBF),
+                bad = Color(0xFF717A8D),
+                good = Color(0xFFFBD4B6),
+                tired = Color(0xFFC4E6F4),
+                excited = Color(0xFFF9B6CF),
+                proud = Color(0xFF8ED5AF),
+                calm = Color(0xFFCDC0F0),
+                bored = Color(0xFFBBC0C5),
+                anxious = Color(0xFFCEA0D4),
+                annoyed = Color(0xFFF7AA83)
             ),
         ink =
             DiaryInkColors(
@@ -198,6 +216,7 @@ internal val DarkDiaryColors =
         accentText = Color(0xFFBAA7FF),
         toneGood = Color(0xFFBAA7FF),
         toneHard = Color(0xFF7D879C),
+        toneNeutral = Color(0xFF4D525C),
         onAccent = Color(0xFFFFFFFF),
         textPrimary = Color(0xFFF3F4F5),
         textSecondary = Color(0xFFDCDEE3),
@@ -214,15 +233,21 @@ internal val DarkDiaryColors =
         shadow = Color(0x66000000),
         mood =
             DiaryMoodColors(
-                angry = Color(0xFFFFAFB0),
-                cool = Color(0xFFAEE4FF),
-                sad = Color(0xFFC4F4FE),
-                sick = Color(0xFFBEE9B4),
-                laugh = Color(0xFFFDFA87),
-                meh = Color(0xFFDFD4E4),
-                bad = Color(0xFF808080),
-                good = Color(0xFFFFD4A8),
-                tired = Color(0xFFFCC6F7)
+                angry = Color(0xFFDC776D),
+                cool = Color(0xFF90DCDB),
+                sad = Color(0xFF7EA7DD),
+                sick = Color(0xFFC8E5A5),
+                laugh = Color(0xFFFCE694),
+                meh = Color(0xFFD6CEBF),
+                bad = Color(0xFF717A8D),
+                good = Color(0xFFFBD4B6),
+                tired = Color(0xFFC4E6F4),
+                excited = Color(0xFFF9B6CF),
+                proud = Color(0xFF8ED5AF),
+                calm = Color(0xFFCDC0F0),
+                bored = Color(0xFFBBC0C5),
+                anxious = Color(0xFFCEA0D4),
+                annoyed = Color(0xFFF7AA83)
             ),
         ink =
             DiaryInkColors(
@@ -263,3 +288,19 @@ internal fun DiaryColors.withBrand(brand: BrandTokens): DiaryColors = copy(
 /** 화면 모드와 테마 색으로 정한 색 토큰. 테마 화면의 작은 홈 그림처럼 지금 모드와 다른 색이 필요할 때 씀 */
 fun diaryColors(dark: Boolean, brand: DiaryBrand = DiaryBrand.Lavender): DiaryColors =
     (if (dark) DarkDiaryColors else LightDiaryColors).withBrand(brand.tokens(dark))
+
+/**
+ * 클레이 얼굴 피부톤 여섯 단계(Figma "9-옵션" 피부톤, 밝은 쪽부터)
+ * 얼굴과 코 색을 한 단계씩 짝지어 둠. 라이트·다크 같은 값
+ */
+object DiaryClaySkin {
+    val veryLight = DiaryClayTone(face = Color(0xFFFBE5D6), nose = Color(0xFFFCBCB7))
+    val light = DiaryClayTone(face = Color(0xFFF5CFB3), nose = Color(0xFFF9ADA0))
+    val lightMedium = DiaryClayTone(face = Color(0xFFE8B690), nose = Color(0xFFF09D8A))
+    val medium = DiaryClayTone(face = Color(0xFFD09A72), nose = Color(0xFFE08B76))
+    val mediumDark = DiaryClayTone(face = Color(0xFFA56C4B), nose = Color(0xFFC56D5D))
+    val dark = DiaryClayTone(face = Color(0xFF6C432E), nose = Color(0xFF9F524A))
+}
+
+/** 피부톤 한 단계의 얼굴과 코 색 */
+data class DiaryClayTone(val face: Color, val nose: Color)

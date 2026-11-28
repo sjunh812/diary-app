@@ -31,6 +31,7 @@ import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.Pin
 import org.sjhstudio.diary.core.testing.FakePinKeyStore
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
+import org.sjhstudio.diary.core.testing.TestTelemetry
 
 // 잠금 화면과 비밀번호 정하기의 입력 흐름(스펙 001 T061)
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -56,7 +57,7 @@ class LockViewModelTest {
     @Test
     fun right_pin_unlocks_and_wrong_pin_shows_remaining() = runTest(dispatcher) {
         repository.setPin(checkNotNull(Pin.of("0427")))
-        val vm = LockViewModel(repository, clock())
+        val vm = LockViewModel(repository, clock(), TestTelemetry)
         val events = mutableListOf<LockEvent>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.events.toList(events) }
 
@@ -78,7 +79,7 @@ class LockViewModelTest {
     @Test
     fun a_locked_biometric_stays_noted_until_the_pin_opens() = runTest(dispatcher) {
         repository.setPin(checkNotNull(Pin.of("0427")))
-        val vm = LockViewModel(repository, clock())
+        val vm = LockViewModel(repository, clock(), TestTelemetry)
 
         vm.onBiometricLockedOut()
         assertTrue(vm.state.value.biometricLocked)
@@ -97,7 +98,7 @@ class LockViewModelTest {
     fun a_locked_biometric_survives_every_fresh_entry() = runTest(dispatcher) {
         repository.setPin(checkNotNull(Pin.of("0427")))
         keys.failMac = true
-        val vm = LockViewModel(repository, clock())
+        val vm = LockViewModel(repository, clock(), TestTelemetry)
         vm.onBiometricLockedOut()
 
         vm.type("0427")
@@ -126,7 +127,7 @@ class LockViewModelTest {
     @Test
     fun fifth_wrong_blocks_input_for_thirty_seconds() = runTest(dispatcher) {
         repository.setPin(checkNotNull(Pin.of("0427")))
-        val vm = LockViewModel(repository, clock())
+        val vm = LockViewModel(repository, clock(), TestTelemetry)
         repeat(5) {
             vm.type("1111")
             testScheduler.runCurrent()
@@ -160,7 +161,7 @@ class LockViewModelTest {
         "2580".forEach(vm::onDigit)
         advanceUntilIdle()
         assertEquals(1, done)
-        val lock = LockViewModel(repository, clock())
+        val lock = LockViewModel(repository, clock(), TestTelemetry)
         lock.type("2580")
         advanceUntilIdle()
         assertEquals(LockUiState(), lock.state.value)
@@ -216,7 +217,7 @@ class LockViewModelTest {
     fun a_keystore_crash_goes_to_recovery_and_never_unlocks() = runTest(dispatcher) {
         repository.setPin(checkNotNull(Pin.of("0427")))
         keys.failMac = true
-        val vm = LockViewModel(repository, clock())
+        val vm = LockViewModel(repository, clock(), TestTelemetry)
         val events = mutableListOf<LockEvent>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.events.toList(events) }
 
@@ -234,7 +235,7 @@ class LockViewModelTest {
             object : LockRepository by repository {
                 override suspend fun verify(pin: Pin, now: Instant): VerifyResult = error("읽을 수 없음")
             }
-        val vm = LockViewModel(broken, clock())
+        val vm = LockViewModel(broken, clock(), telemetry = TestTelemetry)
         val events = mutableListOf<LockEvent>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.events.toList(events) }
 
@@ -249,7 +250,7 @@ class LockViewModelTest {
     fun wrong_pin_on_a_full_disk_keeps_counting() = runTest(dispatcher) {
         repository.setPin(checkNotNull(Pin.of("0427")))
         dataStore.failWrites = true
-        val vm = LockViewModel(repository, clock())
+        val vm = LockViewModel(repository, clock(), TestTelemetry)
 
         vm.type("1111")
         advanceUntilIdle()
@@ -261,7 +262,7 @@ class LockViewModelTest {
     fun turning_off_that_cannot_be_saved_says_so() = runTest(dispatcher) {
         repository.setPin(checkNotNull(Pin.of("0427")))
         dataStore.failWrites = true
-        val vm = LockViewModel(repository, clock())
+        val vm = LockViewModel(repository, clock(), TestTelemetry)
         val events = mutableListOf<LockEvent>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.events.toList(events) }
         vm.start(PinCheck.Disable)
@@ -278,7 +279,7 @@ class LockViewModelTest {
     fun a_lock_that_cannot_be_turned_off_stays_locked_and_says_so() = runTest(dispatcher) {
         repository.setPin(checkNotNull(Pin.of("0427")))
         keys.failMac = true
-        val vm = LockViewModel(repository, clock())
+        val vm = LockViewModel(repository, clock(), TestTelemetry)
 
         assertEquals(false, vm.turnOffWithoutPin())
         assertEquals(LockMessage.KeyUnavailable, vm.state.value.message)
@@ -289,7 +290,7 @@ class LockViewModelTest {
         repository.setPin(checkNotNull(Pin.of("0427")))
         keys.lose(LockSettings.DEFAULT_KEY_ALIAS)
         dataStore.failWrites = true
-        val vm = LockViewModel(repository, clock())
+        val vm = LockViewModel(repository, clock(), TestTelemetry)
 
         assertEquals(false, vm.turnOffWithoutPin())
         assertEquals(LockMessage.KeyUnavailable, vm.state.value.message)

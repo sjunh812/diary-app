@@ -37,7 +37,7 @@ class FirebaseRemote(context: Context) {
     private fun defaults(): Map<String, Any> {
         val update =
             listOf(AppUpdateRepository.KEY_MIN_VERSION, AppUpdateRepository.KEY_NOTE_VERSION) +
-                AppUpdateRepository.NOTE_LANGUAGES.map { AppUpdateRepository.KEY_NOTE_PREFIX + it }
+                AppUpdateRepository.NOTE_LANGUAGES.map(AppUpdateRepository::noteKey)
         return mapOf(INTERSTITIAL to true) + update.associateWith { "" }
     }
 }

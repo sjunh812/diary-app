@@ -104,6 +104,7 @@ class AppUpdateRepository(
      * 홈 맨 위 카드. 없으면 null
      * 처음 확인을 마친 뒤부터 알림. 그 전에는 백업 안내처럼 읽는 중
      * [나중에]로 닫은 버전은 꼭 필요하지 않으면 숨김. 받는 중·받음은 사용자가 시작한 일이라 닫았어도 보임
+     * 새 버전 알림은 업데이트 요약을 넣은 버전만. 꼭 필요한 업데이트와 받기 진행은 요약 없이도 보임
      * [notice]는 한 박자 늦게 따라와 원래 값에서 바로 정함. 늦은 값을 섞으면 빈칸이 먼저 그려짐
      */
     val homeCard: Flow<UpdateNotice?> =
@@ -115,9 +116,11 @@ class AppUpdateRepository(
                         UpdateNotice.None -> null
 
                         // 받다 실패한 것도 사용자가 시작한 일이라 닫은 버전이어도 알림
+                        // 그 밖에는 업데이트 요약을 넣은 버전만. 설명·이름만 바꾼 판에 기본 문장("오류를 수정")이 나가지 않게
                         is UpdateNotice.Available -> notice.takeIf {
                             val id = (state.check as? StoreCheck.Available)?.id
-                            notice.required || notice.failed || (id != prefs.updateDismissed && id != state.dismissed)
+                            notice.required || notice.failed ||
+                                (notice.note != null && id != prefs.updateDismissed && id != state.dismissed)
                         }
 
                         is UpdateNotice.Downloaded -> notice.takeUnless { later && !notice.required }
@@ -197,12 +200,12 @@ class AppUpdateRepository(
     private fun readExtras(): Extras {
         val minimum = remote.string(KEY_MIN_VERSION)
         val noteVersion = remote.string(KEY_NOTE_VERSION)
-        val texts = NOTE_LANGUAGES.associateWith { remote.string(KEY_NOTE_PREFIX + it).trim() }.filterValues(String::isNotEmpty)
+        val texts = NOTE_LANGUAGES.associateWith { remote.string(noteKey(it)).trim() }.filterValues(String::isNotEmpty)
         return Extras(
             required = minimum.isNotBlank() && AppVersion.isNewer(minimum, versionName),
             note = ReleaseNote(texts).takeIf {
                 noteVersion.isNotBlank() && AppVersion.isNewer(noteVersion, versionName) &&
-                    texts.isNotEmpty()
+                    ReleaseNote.FALLBACK_LANGUAGE in texts
             }
         )
     }
@@ -262,7 +265,10 @@ class AppUpdateRepository(
         /** 업데이트 요약이 가리키는 버전. 지금 앱보다 높을 때만 씀 */
         const val KEY_NOTE_VERSION = "update_note_version"
         const val KEY_NOTE_PREFIX = "update_note_"
-        val NOTE_LANGUAGES = listOf("ko", "en", "ja")
+        val NOTE_LANGUAGES = listOf("ko", "en", "ja", "zh-Hant", "es", "pt", "de", "fr")
+
+        /** 화면 언어의 요약 키. 원격 설정 키에 하이픈을 쓸 수 없어 밑줄로(update_note_zh_Hant) */
+        fun noteKey(language: String): String = KEY_NOTE_PREFIX + language.replace('-', '_')
 
         private val CHECK_TIMEOUT = 10.seconds
     }

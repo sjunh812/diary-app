@@ -1,0 +1,6 @@
+"CFBundleDisplayName" = "1 Day 1 Diary";
+"CFBundleName" = "1 Day 1 Diary";
+"NSFaceIDUsageDescription" = "Use o Face ID para desbloquear seu diário.";
+"NSLocationWhenInUseUsageDescription" = "Sua localização é usada só quando você toca em Usar minha localização, para encontrar o nome do seu bairro.";
+"NSCameraUsageDescription" = "A câmera é usada só para adicionar ao diário uma foto que você tirar.";
+"NSUserTrackingUsageDescription" = "Se você permitir, verá anúncios de acordo com seus interesses. Suas entradas do diário nunca são usadas para anúncios.";

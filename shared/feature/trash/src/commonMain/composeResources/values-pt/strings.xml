@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="trash_title">Lixeira</string>
+    <string name="trash_empty">Esvaziar</string>
+    <string name="trash_notice">As entradas são excluídas de vez após 30 dias.</string>
+    <string name="trash_empty_title">A lixeira está vazia</string>
+    <string name="trash_empty_body">Você pode restaurar entradas excluídas aqui por 30 dias.</string>
+    <string name="trash_restore">Restaurar</string>
+    <string name="trash_delete_forever">Excluir de vez</string>
+    <string name="trash_restored">Restaurado</string>
+    <string name="trash_confirm_title">Excluir de vez?</string>
+    <string name="trash_confirm_delete">Excluir</string>
+    <string name="trash_confirm_body_one">Esta entrada será apagada e não poderá ser restaurada.</string>
+    <string name="trash_row_when">%1$s %2$s</string>
+    <plurals name="trash_days_left">
+        <item quantity="one">Falta %1$d dia</item>
+        <item quantity="other">Faltam %1$d dias</item>
+    </plurals>
+    <plurals name="trash_confirm_body_all">
+        <item quantity="one">%1$s entrada na lixeira será apagada e não poderá ser restaurada.</item>
+        <item quantity="other">%1$s entradas na lixeira serão apagadas e não poderão ser restauradas.</item>
+    </plurals>
+</resources>

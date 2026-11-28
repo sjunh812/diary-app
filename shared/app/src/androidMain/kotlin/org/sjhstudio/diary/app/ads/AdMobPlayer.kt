@@ -72,7 +72,7 @@ class AdUnits(context: Context) {
  * AdMob 구현
  * 광고 요청에 일기 내용을 넣지 않음(헌법 II)
  */
-class AdMobPlayer(context: Context, val units: AdUnits, private val current: CurrentActivity) : AdPlayer {
+class AdMobPlayer(context: Context, val units: AdUnits, private val current: CurrentActivity, internal val consent: AdConsent) : AdPlayer {
     private val app = context.applicationContext as Application
     private var interstitial: InterstitialAd? = null
 
@@ -107,9 +107,10 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
      */
     private val nativeOrder = ArrayDeque<String>()
 
+    /** 동의 전이면 받지 않고 끝남. 동의 창은 자리가 화면에 있을 때 [AdConsent.gate]가 띄움 */
     fun loadNative(key: String) {
         if (!available || key in natives || !loading.add(key)) return
-        whenReady { requestNative(key) }
+        whenReady(onFailed = { loading -= key }) { requestNative(key) }
     }
 
     private fun requestNative(key: String) {
@@ -147,7 +148,7 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
     }
 
     /**
-     * 처음 광고를 부를 때 한 번 켬
+     * 동의를 받을 수 있으면 SDK를 한 번 켬
      * 유료 사용자는 켜지지 않음
      * 초기화는 디스크를 읽어 Google 안내대로 뒤 스레드에서. 등급 설정은 첫 요청보다 먼저라 바로 둠
      */
@@ -178,15 +179,20 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
         }
     }
 
-    /** 화면 스레드에서 부름. 초기화가 끝났으면 바로, 아니면 끝난 뒤에. 초기화를 못 하면 [onFailed] */
+    /** 화면 스레드에서 부름. 광고를 받을 수 있으면 초기화 뒤에 [request], 아니면 [onFailed] */
     private fun whenReady(onFailed: () -> Unit = {}, request: () -> Unit) {
         if (failed) return onFailed()
-        start()
-        if (ready) request() else waiting += request to onFailed
+        consent.afterUpdate {
+            if (!consent.canRequestAds) return@afterUpdate onFailed()
+            start()
+            if (ready) request() else waiting += request to onFailed
+        }
     }
 
     override fun warmUp() {
-        if (available) start()
+        if (!available) return
+        // 앱 시작 단계(뒤 스레드)에서 불러 화면 스레드로 옮김. 지난번 답이 있으면 바로 켬
+        main.post { consent.afterUpdate { if (consent.canRequestAds) start() } }
     }
 
     override fun prepareInterstitial() {
@@ -198,6 +204,7 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
         if (!available || loadingInterstitial || interstitialFresh()) return
         interstitial = null
         loadingInterstitial = true
+        // 작성 화면을 열 때 받으므로 동의 창은 띄우지 않음
         whenReady(onFailed = { loadingInterstitial = false }) {
             InterstitialAd.load(
                 app,
@@ -243,6 +250,9 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
 
     override suspend fun loadRewarded(): ReadyReward? = withContext(Dispatchers.Main.immediate) {
         if (!available) return@withContext null
+        // 사용자가 눌러 부르는 자리라 아직 답하지 않았으면 바로 물음
+        suspendCancellableCoroutine { result -> consent.afterUpdate { if (result.isActive) result.resume(Unit) } }
+        if (!consent.canRequestAds) consent.gate.answer()
         // 받는 동안 취소되면 늦게 온 광고는 버려짐(아래 isActive)
         val ad = requestRewardedAd()
         ad?.let {

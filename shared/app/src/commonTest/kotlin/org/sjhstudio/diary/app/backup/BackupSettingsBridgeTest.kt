@@ -9,6 +9,7 @@ import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.ListPreferences
 import org.sjhstudio.diary.core.model.ListStyle
+import org.sjhstudio.diary.core.model.MoodLook
 import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.core.model.ThemeChoice
 import org.sjhstudio.diary.core.model.ThemeColor
@@ -77,6 +78,39 @@ class BackupSettingsBridgeTest {
 
         assertEquals(ThemeColor.CUSTOM, to.settings.value.theme.color)
         assertEquals(0x2A9D8F, to.settings.value.theme.customRgb)
+    }
+
+    /** 기분 테마와 클레이 꼴이 새 기기로 그대로 옴(스펙 013) */
+    @Test
+    fun mood_look_round_trips() = runTest {
+        val look = MoodLook(themeId = "clay", clayHair = "curly", claySkin = "skin4", clayGlasses = true, shapeSticker = true)
+        val written = BackupSettingsBridge(FakeSettingsRepository(AppSettings(moodLook = look)), { false }, {}).current()
+        val to = FakeSettingsRepository()
+
+        BackupSettingsBridge(to, { false }, {}).apply(written)
+
+        assertEquals(look, to.settings.value.moodLook)
+    }
+
+    /** 고른 적이 없어도 기본 테마를 적음. 다른 기기에 복원하면 기본으로 돌아오게 */
+    @Test
+    fun the_default_mood_theme_is_written() = runTest {
+        val written = BackupSettingsBridge(FakeSettingsRepository(), { false }, {}).current()
+        assertEquals("basic", written.moodTheme)
+    }
+
+    /** 옛 백업(칸 없음)과 모르는 테마·머리·피부톤은 그 칸만 기기 값 그대로 */
+    @Test
+    fun missing_or_unknown_mood_look_keeps_the_device_values() = runTest {
+        val device = MoodLook(themeId = "dot", clayHair = "bob", claySkin = "skin2", clayGlasses = false)
+        val to = FakeSettingsRepository(AppSettings(moodLook = device))
+        val bridge = BackupSettingsBridge(to, { false }, {})
+
+        bridge.apply(ManifestSettings())
+        assertEquals(device, to.settings.value.moodLook)
+
+        bridge.apply(ManifestSettings(moodTheme = "galaxy", clayHair = "mohawk", claySkin = "skin9", clayGlasses = true))
+        assertEquals(device.copy(clayGlasses = true), to.settings.value.moodLook)
     }
 
     /** 옛 백업(칸 없음)과 모르는 값은 기기 테마를 덮지 않음 */

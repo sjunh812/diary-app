@@ -54,6 +54,7 @@ import org.sjhstudio.diary.feature.settings.resources.list_value
 import org.sjhstudio.diary.feature.settings.resources.migration_report_title
 import org.sjhstudio.diary.feature.settings.resources.reminder_value_blocked
 import org.sjhstudio.diary.feature.settings.resources.reminder_value_off
+import org.sjhstudio.diary.feature.settings.resources.settings_ad_privacy
 import org.sjhstudio.diary.feature.settings.resources.settings_backup
 import org.sjhstudio.diary.feature.settings.resources.settings_dev_mode
 import org.sjhstudio.diary.feature.settings.resources.settings_feedback
@@ -67,6 +68,7 @@ import org.sjhstudio.diary.feature.settings.resources.settings_letter
 import org.sjhstudio.diary.feature.settings.resources.settings_licenses
 import org.sjhstudio.diary.feature.settings.resources.settings_list_style
 import org.sjhstudio.diary.feature.settings.resources.settings_lock
+import org.sjhstudio.diary.feature.settings.resources.settings_mood_theme
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_action
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_badge
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_body
@@ -106,10 +108,12 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     onListStyle: () -> Unit = {},
     onTrash: () -> Unit = {},
+    onMoodTheme: () -> Unit = {},
     onBackup: () -> Unit = {},
     onLetter: () -> Unit = {},
     onTerms: () -> Unit = {},
     onPrivacy: () -> Unit = {},
+    onAdPrivacy: () -> Unit = {},
     onPlus: () -> Unit = {},
     onDevMode: (() -> Unit)? = null,
     backupValue: String? = null,
@@ -204,6 +208,12 @@ fun SettingsScreen(
                     null
                 }
             )
+            DiarySettingsRow(
+                stringResource(Res.string.settings_mood_theme),
+                onClick = onMoodTheme,
+                selected = selected == SettingsPane.MOOD_THEME,
+                value = if (state.loaded) stringResource(state.settings.moodLook.shownTheme(state.canMoodTheme == true).label()) else null
+            )
             DiarySettingsHeader(stringResource(Res.string.settings_group_style), gapAbove = true)
             DiarySettingsRow(
                 stringResource(Res.string.settings_font),
@@ -284,6 +294,7 @@ fun SettingsScreen(
             )
             DiarySettingsRow(stringResource(Res.string.settings_terms), onClick = onTerms)
             DiarySettingsRow(stringResource(Res.string.settings_privacy), onClick = onPrivacy)
+            if (state.showsAdPrivacy) DiarySettingsRow(stringResource(Res.string.settings_ad_privacy), onClick = onAdPrivacy)
             if (state.showsMigrationReport) {
                 DiarySettingsRow(
                     stringResource(Res.string.migration_report_title),

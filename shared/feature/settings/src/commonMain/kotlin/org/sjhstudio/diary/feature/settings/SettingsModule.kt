@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.datetime.TimeZone
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
+import org.sjhstudio.diary.core.data.AdPrivacy
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.diary.TrashRepository
 import org.sjhstudio.diary.core.migration.MigrationFollowUp
@@ -26,9 +27,11 @@ val settingsFeatureModule =
                 fonts = get(),
                 notifications = get(),
                 lastBackupAt = get<BackupRepository>().status.map { it.lastSuccessAt }.distinctUntilChanged(),
+                adPrivacyRequired = get<AdPrivacy>().choicesRequired,
                 telemetry = get()
             )
         }
+        viewModel { MoodThemeViewModel(get(), get(), telemetry = get()) }
         viewModel { ReminderSettingsViewModel(get(), get(), get(), get()) }
         viewModel { FontSettingsViewModel(get(), get(), get()) }
         viewModel { LicensesViewModel() }

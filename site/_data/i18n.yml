@@ -80,8 +80,10 @@ en:
   description: A simple diary for busy people. One line, and today's entry is done.
   og: Today's entry, in one line. Short entries add up to a record of your own.
   get: Download
-  privacy: Privacy Policy (Korean)
-  terms: Terms (Korean)
+  privacy: Privacy Policy
+  terms: Terms
+  privacy_url: /en/1day1diary/privacy/
+  terms_url: /en/1day1diary/terms/
   contact: Contact
   copied: copied
   mail: "Email:"
@@ -150,8 +152,10 @@ ja:
   description: 忙しい人のためのかんたん日記帳。1行書けば、今日の日記は完了。
   og: 1行で今日の日記は完了。短くても、毎日つづければ自分だけの記録になります。
   get: ダウンロード
-  privacy: プライバシーポリシー（韓国語）
-  terms: 利用規約（韓国語）
+  privacy: プライバシーポリシー（英語）
+  terms: 利用規約（英語）
+  privacy_url: /en/1day1diary/privacy/
+  terms_url: /en/1day1diary/terms/
   contact: お問い合わせ
   copied: をコピーしました
   mail: "メールアドレス:"

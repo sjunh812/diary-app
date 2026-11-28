@@ -16,10 +16,10 @@ Google Play 2.0.0 기준이다. 스크린샷은 `docs/store/screens/`(폰 `phone
 Play는 2026-11-24에 아래 간단한 설명을 게시했다. 같은 날 자세한 설명 첫머리를 두 줄로 바꿔 기본·맞춤 등록정보 여섯 곳을 검토에 보냈다. 관리형 게시가 꺼져 있어 승인되면 바로 게시된다. App Store 설명은 Play와 같은 글을 2.2.0 버전에 세 언어로 넣었다(2026-11-25, 심사 전. 출시된 버전은 설명을 고칠 수 없다).
 
 - 한국어: 한 줄이면 오늘 일기 끝. 짧게 써도 매일 쌓이면 나만의 기록이 돼요.
-- 영어: Today's entry in one line. Short entries add up to a record of your own.
+- 영어: Today's diary entry in one line. Short entries add up to a record of your own.
 - 일본어: 1行で今日の日記は完了。短くても、毎日つづければ自分だけの記録になります。
 
-짧은 칸에는 앱을 쓰는 까닭만 둔다. 드라이브 백업은 줄여 쓰면 무엇이 어디로 가는지 흐려져 자세한 설명에서 다룬다. 이름의 "바쁜 현대인을 위한 간편한 일기장"과 설명 첫 줄을 되풀이하지 않고, App Store 홍보 문구 앞 두 줄과 같은 말을 쓴다. 기분은 고르지 않아도 되므로 첫머리에 기분을 앞세우지 않는다(2026-11-24 사용자 지적, 소개 사이트와 같은 말).
+영어는 이름 밖에서 "diary"를 한 번 더 쓰려고 2026-11-28에 diary를 넣었다. 짧은 칸에는 앱을 쓰는 까닭만 둔다. 드라이브 백업은 줄여 쓰면 무엇이 어디로 가는지 흐려져 자세한 설명에서 다룬다. 이름의 "바쁜 현대인을 위한 간편한 일기장"과 설명 첫 줄을 되풀이하지 않고, App Store 홍보 문구 앞 두 줄과 같은 말을 쓴다. 기분은 고르지 않아도 되므로 첫머리에 기분을 앞세우지 않는다(2026-11-24 사용자 지적, 소개 사이트와 같은 말).
 
 ## 자세한 설명
 
@@ -32,8 +32,8 @@ Play는 목록 태그를 받지 않아 줄머리표(•)로 쓰고 묶음 제목
 매일 한 편씩 쓰는 습관을 만들어 보세요.
 
 <b>일기 쓰기</b>
-• 사진, 날씨, 장소를 함께 담아요. 사진은 한 편에 10장까지예요.
-• 9가지 기분으로 그날의 감정을 기록할 수 있어요.
+• 사진, 날씨, 장소를 함께 담아 사진 일기로 남겨요. 사진은 한 편에 10장까지예요.
+• 9가지 기분으로 그날의 감정을 남기면 감정 일기가 돼요.
 • 글자 색과 형광펜으로 중요한 부분을 표시해요.
 • 쓰는 동안 자동으로 임시 저장돼요.
 
@@ -45,7 +45,7 @@ Play는 목록 태그를 받지 않아 줄머리표(•)로 쓰고 묶음 제목
 
 <b>백업과 잠금</b>
 • 일기와 사진을 내 구글 드라이브에 백업해요. 드라이브 없이 파일 하나로 보관할 수도 있어요.
-• 비밀번호와 생체인증으로 나만 볼 수 있게 잠가요.
+• 비밀번호와 생체인증으로 잠가 나만 보는 비밀 일기로 써요.
 
 <b>글꼴과 화면</b>
 • 글꼴 10종, 본문 글자 크기, 다크 모드를 원하는 대로 골라요.
@@ -68,8 +68,8 @@ A diary with just what you need, so it's easy to write even on busy days.
 Build a habit of writing one entry a day.
 
 <b>Write</b>
-• Add photos, weather, and place. Up to 10 photos per entry.
-• Mark the day with one of nine moods.
+• Add photos, weather, and place to keep a photo diary. Up to 10 photos per entry.
+• Mark the day with one of nine moods to keep a simple mood journal.
 • Mark what matters with text color and highlights.
 • Your draft is saved automatically as you write.
 
@@ -81,7 +81,7 @@ Build a habit of writing one entry a day.
 
 <b>Backup and lock</b>
 • Back up entries and photos to your own Google Drive, or keep them in a single file without Drive.
-• Lock the app with a passcode or biometrics so only you can read it.
+• Lock it with a passcode or biometrics and keep a private diary only you can read.
 
 <b>Fonts and display</b>
 • Choose from 10 fonts, body text size, and dark mode.
@@ -104,8 +104,8 @@ Contact: sjunh812@naver.com
 毎日1つずつ書く習慣をつくってみましょう。
 
 <b>日記を書く</b>
-• 写真、天気、場所を一緒に残せます。写真は1件に10枚までです。
-• 9種類の気分で、その日を記録できます。
+• 写真、天気、場所を一緒に残して、写真日記にできます。写真は1件に10枚までです。
+• 9種類の気分でその日の感情を記録して、気分日記としても使えます。
 • 文字色やマーカーで、大事なところを目立たせられます。
 • 書いている間は自動で下書き保存されます。
 
@@ -117,7 +117,7 @@ Contact: sjunh812@naver.com
 
 <b>バックアップとロック</b>
 • 日記と写真を自分のGoogleドライブにバックアップできます。ドライブを使わずに1つのファイルで保管することもできます。
-• パスコードと生体認証で、自分だけが見られるようにロックできます。
+• パスコードと生体認証でロックして、自分だけの鍵付き日記にできます。
 
 <b>フォントと画面</b>
 • フォント10種類、本文の文字サイズ、ダークモードを好みに合わせて選べます。
@@ -145,8 +145,8 @@ App Store는 `<b>`를 그리지 않아 묶음 제목을 그대로 두고, "태�
 매일 한 편씩 쓰는 습관을 만들어 보세요.
 
 일기 쓰기
-• 사진, 날씨, 장소를 함께 담아요. 사진은 한 편에 10장까지예요.
-• 9가지 기분으로 그날의 감정을 기록할 수 있어요.
+• 사진, 날씨, 장소를 함께 담아 사진 일기로 남겨요. 사진은 한 편에 10장까지예요.
+• 9가지 기분으로 그날의 감정을 남기면 감정 일기가 돼요.
 • 글자 색과 형광펜으로 중요한 부분을 표시해요.
 • 쓰는 동안 자동으로 임시 저장돼요.
 
@@ -158,7 +158,7 @@ App Store는 `<b>`를 그리지 않아 묶음 제목을 그대로 두고, "태�
 
 백업과 잠금
 • 일기와 사진을 내 구글 드라이브에 백업해요. 드라이브 없이 파일 하나로 보관할 수도 있어요.
-• 비밀번호와 생체인증으로 나만 볼 수 있게 잠가요.
+• 비밀번호와 생체인증으로 잠가 나만 보는 비밀 일기로 써요.
 
 글꼴과 화면
 • 글꼴 10종, 본문 글자 크기, 다크 모드를 원하는 대로 골라요.
@@ -188,8 +188,8 @@ A diary with just what you need, so it's easy to write even on busy days.
 Build a habit of writing one entry a day.
 
 Write
-• Add photos, weather, and place. Up to 10 photos per entry.
-• Mark the day with one of nine moods.
+• Add photos, weather, and place to keep a photo diary. Up to 10 photos per entry.
+• Mark the day with one of nine moods to keep a simple mood journal.
 • Mark what matters with text color and highlights.
 • Your draft is saved automatically as you write.
 
@@ -201,7 +201,7 @@ Look back
 
 Backup and lock
 • Back up entries and photos to your own Google Drive, or keep them in a single file without Drive.
-• Lock the app with a passcode or biometrics so only you can read it.
+• Lock it with a passcode or biometrics and keep a private diary only you can read.
 
 Fonts and display
 • Choose from 10 fonts, body text size, and dark mode.
@@ -220,8 +220,8 @@ About Plus
 • Renews automatically every year unless canceled at least 24 hours before the renewal date.
 • Manage or cancel in Settings > Apple Account > Subscriptions.
 
-Terms of Use: https://sjunh812.pages.dev/1day1diary/terms/
-Privacy Policy: https://sjunh812.pages.dev/1day1diary/privacy/
+Terms of Use: https://sjunh812.pages.dev/en/1day1diary/terms/
+Privacy Policy: https://sjunh812.pages.dev/en/1day1diary/privacy/
 ```
 
 ### 일본어
@@ -231,8 +231,8 @@ Privacy Policy: https://sjunh812.pages.dev/1day1diary/privacy/
 毎日1つずつ書く習慣をつくってみましょう。
 
 日記を書く
-• 写真、天気、場所を一緒に残せます。写真は1件に10枚までです。
-• 9種類の気分で、その日を記録できます。
+• 写真、天気、場所を一緒に残して、写真日記にできます。写真は1件に10枚までです。
+• 9種類の気分でその日を記録して、気分日記としても使えます。
 • 文字色やマーカーで、大事なところを目立たせられます。
 • 書いている間は自動で下書き保存されます。
 
@@ -244,7 +244,7 @@ Privacy Policy: https://sjunh812.pages.dev/1day1diary/privacy/
 
 バックアップとロック
 • 日記と写真を自分のGoogleドライブにバックアップできます。ドライブを使わずに1つのファイルで保管することもできます。
-• パスコードと生体認証で、自分だけが見られるようにロックできます。
+• パスコードと生体認証でロックして、自分だけの鍵付き日記にできます。
 
 フォントと画面
 • フォント10種類、本文の文字サイズ、ダークモードを好みに合わせて選べます。
@@ -263,8 +263,8 @@ Plusについて
 • 更新日の24時間前までに解約しない限り、1年ごとに自動更新されます。
 • 管理と解約は「設定」>「Apple アカウント」>「サブスクリプション」から行えます。
 
-利用規約: https://sjunh812.pages.dev/1day1diary/terms/
-プライバシーポリシー: https://sjunh812.pages.dev/1day1diary/privacy/
+利用規約: https://sjunh812.pages.dev/en/1day1diary/terms/
+プライバシーポリシー: https://sjunh812.pages.dev/en/1day1diary/privacy/
 ```
 
 ## App Store 이름·부제·홍보 문구·키워드
@@ -275,6 +275,18 @@ App Store에만 있는 칸이다. 2026-11-16 App Store Connect에 넣은 값이�
 | --- | --- | --- | --- |
 | 이름(30자) | 1일 1일기 | 1Day1Diary - Everyday Diary | 1日1日記 - 毎日つける日記 |
 | 부제(30자) | 바쁜 현대인을 위한 간편한 일기장 | A simple diary for busy people | 忙しい人のためのかんたん日記 |
+
+2.2.1(2026-11-26)부터 이름을 Play와 맞췄다. "일기장"을 가장 센 칸인 이름에 두려는 것이다. 한국 App Store에서 "일기장" 검색이 200위 밖이었다. 부제는 일기 습관을 들이는 내용으로, 이름과 겹치지 않는 낱말(습관, 매일, 한 줄)을 쓴다(사용자 결정).
+
+| 칸 | 한국어 | 영어(미국) | 영어(영국) | 일본어 |
+| --- | --- | --- | --- | --- |
+| 이름 | 1일 1일기 - 바쁜 현대인을 위한 간편한 일기장 | 1Day1Diary - Simple Journal | 1Day1Diary: Simple Journal | 1日1日記 - 忙しい人のためのかんたん日記帳 |
+| 부제 | 하루 한 줄, 매일 쓰는 습관 | Build a daily journaling habit | Build a daily journaling habit | 1日1行、毎日つづく日記習慣 |
+
+- 영국 영어 현지화를 더했다. 싱가포르·홍콩·말레이시아·인도·필리핀·남아공·UAE·이스라엘·나이지리아·케냐·파키스탄의 기본 언어이고, 호주·뉴질랜드·한국의 추가 언어다. 전에는 홍콩이 맞는 현지화가 없어 한국어 페이지로 떴다. 근거: Apple "App Store localizations" 표.
+- App Store는 한 앱 안에서도 현지화마다 이름이 달라야 한다. 영국 영어에 미국 영어와 같은 이름을 넣으면 "이미 사용 중"으로 거절해 쌍점 꼴로 바꿨다. 호주·캐나다 영어도 같은 까닭으로 넣지 않았다. 호주·뉴질랜드는 영국 영어를 함께 보고, 캐나다는 미국 영어로 보인다(lookup으로 확인).
+- 영국 영어의 설명·홍보 문구·URL은 미국 영어와 같고, 스크린샷은 미국 영어 그림을 이어받는다.
+- 검색 결과 그림(3:2)은 세 언어 모두 뺐다(2026-11-26). 검색 결과에 미리보기가 안 보인다는 말이 있었고, 빼면 스크린샷이 뜬다.
 
 App Store 이름은 Play와 다르다. 한국어 부제는 1.7.4부터 쓰던 한 줄 소개다(사용자 결정). 영어 "1 Day 1 Diary"와 일본어 「1日1日記」는 다른 앱이 이미 써서 넣을 수 없었다. 그래서 "브랜드 - 한 줄 소개" 꼴로 이름을 늘렸다(`docs/DECISIONS.md` 2026-11-16).
 
@@ -300,19 +312,27 @@ Your entries and photos stay on your device and your own Google Drive.
 
 홍보 문구와 설명 첫 줄이 화면에 이어 보여 같은 말이 두 번 나오지 않게 했다. 설명 첫머리의 "회원가입은 필요 없어요"는 세 문장의 말끝이 매번 바뀌어 어색해 뺐다(2026-11-24 사용자 결정).
 
-키워드(100자). 한국어는 이름의 "일기"와 부제의 "일기장"을 되풀이하지 않는다. 붙여 쓴 검색어(기분일기 등)는 남긴다(2026-11-16)
+키워드(100자). 2026-11-28 2.3.0(제출 전)에 여덟 언어를 다시 넣었다. 이름·부제에 있는 낱말은 되풀이하지 않는다. App Store는 이름·부제·키워드 낱말을 합쳐 검색하므로 "일기장"은 이름에서 잡힌다([Apple 검색 안내](https://developer.apple.com/app-store/search/)). 이름의 "1일기"와 "1Day1Diary"는 한 덩어리라 "일기"와 "diary"는 키워드에 둔다. 붙여 쓴 검색어(한줄일기, 비밀일기장 등)는 낱말을 합쳐 잡아 준다는 보장이 없어 따로 넣는다. 캘린더·백업처럼 일기를 찾는 사람이 잘 치지 않는 말은 뺐다. 글자 수는 글자로 센다(한국어 215바이트가 통과).
 
 ```text
-다이어리,감정,기분,무드,하루,기록,사진,한줄,메모,잠금,비밀,백업,캘린더,감사,습관,회고,일상,마음,데일리,기분일기,감정일기,하루일기,비밀일기,사진일기
+일기,다이어리,일기앱,한줄일기,감정일기,기분일기,사진일기,비밀일기,감사일기,하루일기,일기쓰기,감정기록,기분기록,잠금일기,비밀일기장,감정,기분,기록,사진,한줄,잠금,비밀,메모,감사
 ```
 
 ```text
-mood,daily,log,feelings,journal,photo,private,lock,backup,calendar,gratitude,notes,memories,reflect
+diary,mood,tracker,log,feelings,emotions,photo,private,secret,lock,gratitude,notes,memories,reflect
+```
+
+영국 영어. 한국·대만·홍콩·멕시코·브라질·독일·프랑스·호주에서 그 나라 언어와 함께 검색되는 유일한 영어 칸이라 핵심 낱말을 넣는다. 미국 영어와 영국 영어를 함께 검색하는 나라는 없어 겹쳐도 손해가 없다(2.2.1의 "미국 영어와 겹치지 않게"를 바꿈, [App Store 현지화 표](https://developer.apple.com/help/app-store-connect/reference/app-store-localizations)).
+
+```text
+diary,mood,tracker,log,feelings,emotions,photo,private,secret,lock,gratitude,notes,memories,writing
 ```
 
 ```text
-ダイアリー,気分,感情,記録,写真,一行,メモ,ロック,バックアップ,カレンダー,感謝,習慣,ライフログ,振り返り,日常,デイリー
+ダイアリー,日記アプリ,気分日記,感情日記,一行日記,写真日記,鍵付き日記,感謝日記,絵日記,気分,感情,記録,写真,一行,メモ,ロック,感謝,振り返り,日常,手帳,ライフログ,バックアップ
 ```
+
+2.2.1 출시 뒤 한국 순위(iTunes 검색 API, 2026-11-28): 일기장 57, 한줄일기 52, 비밀일기 112, 감정일기 139, 사진일기 157, 일기·다이어리·기분일기·일기앱·감정기록은 200위 밖. 2.3.0 출시 뒤 다시 잰다.
 
 ## App Store 헤더·검색 결과 그림
 
@@ -323,39 +343,74 @@ App Store 상품 페이지 맨 위 헤더(21:9, 3840×1646)와 검색 결과 카
 
 ## App Store 맞춤형 제품 페이지
 
-검색어에 맞는 화면을 먼저 보여 주는 페이지다. 키워드 칸의 낱말을 페이지에 이어 두면 그 낱말로 검색한 사람에게 이 페이지가 뜬다(앱마다 70개, 이름·부제 낱말은 못 씀, [Apple](https://developer.apple.com/app-store/custom-product-pages/), [Phiture](https://phiture.com/blog/keyword-based-custom-product-pages-cpps-arrive-in-app-store-connect/)). 바꿀 수 있는 것은 스크린샷, 앱 미리보기, 홍보 문구다. 설명은 기본 페이지를 그대로 쓴다.
+검색어에 맞는 화면을 먼저 보여 주는 페이지다. 그 키워드로 검색한 사람에게 기본 페이지 대신 뜨므로, 페이지끼리 같은 장이 겹쳐도 된다.
 
-두 페이지 모두 기본 페이지를 복사한 뒤 스크린샷을 새로 찍어 바꿨다(2026-11-16 초안, 심사 전). 헤더와 검색 결과 그림은 언어별 기본 그림이다. 스크린샷은 `docs/store/screens/ios/<언어>/{mood,photo}`, 원본 캡처는 `docs/store/source/ios/<언어>/{mood,photo}`와 `tablet/{mood,photo}`다.
+- Apple 규칙([Apple](https://developer.apple.com/app-store/custom-product-pages/), 뉴스 2025-10-29):
+  - 앱마다 70개까지 만들 수 있다.
+  - 바꿀 수 있는 것은 스크린샷, 앱 미리보기, 홍보 문구다. 설명은 기본 페이지를 쓴다.
+  - 키워드는 승인된 최신 버전의 키워드 칸에서 고른다. 같은 키워드 조합은 한 페이지에만 이을 수 있다.
+  - 앱 업데이트와 따로 심사받는다.
+- 첫 장은 어느 페이지든 기본 페이지 1장("한 줄이면 오늘 일기 끝" 목록)으로 둔다(사용자 결정 2026-11-28).
+- iPad는 기분 고르기 장을 뺀다. iPad 쓰기 화면은 기분이 옆 칸에 작게 놓여 빈 화면처럼 보인다.
+- 2026-11-28에 세 페이지를 여덟 언어(한국어·영어 미국·일본어·중국어 번체·스페인어 멕시코·포르투갈어 브라질·독일어·프랑스어), iPhone·iPad로 채웠다. 영국 영어는 기본 페이지를 쓴다. 모두 제출 전 초안이다. 키워드는 2.3.0이 승인된 뒤에 잇고 심사에 낸다.
+- 그림은 `docs/store/screens/ios/<언어>/{mood,photo,secret}`, 문구 표는 `scripts/store/copy/<언어>-{mood,photo,secret}[-tab].txt`다.
 
-- 만드는 법: `seed_ios.py <UDID> <언어> <그림 폴더> mood`는 1월부터 일기를 채워 한 해 기분이 보이게 하고, `photo`는 사진 붙은 일기를 늘린다. 홈 목록은 사진 격자로 찍는다. 합성은 `make_screens.swift <캡처> <결과> <글꼴> <태블릿 캡처> <언어> mood|photo`.
-- iPad는 쓰기 화면을 뺀다. 기분이 옆 칸에 작게 놓여 빈 화면처럼 보인다.
+| 페이지 | 이을 키워드(한국어) | iPhone 장 | iPad 장 |
+| --- | --- | --- | --- |
+| 감정 일기(예전 "기분 일기") | 감정일기, 기분일기, 감정기록, 기분기록, 감정, 기분 | 7 | 6 |
+| 사진 일기 | 사진일기, 사진 | 4 | 4 |
+| 비밀 일기 | 비밀일기, 잠금일기, 비밀일기장, 잠금, 비밀 | 3 | 3 |
 
-"기분 일기" 머리말: 한 해 기분이 한눈에 보여요 / 그날 기분이 달력에 남아요 / 자주 고른 기분을 돌아봐요 / 아홉 가지 기분 중 하나를 골라요(iPhone만). 영어 A year of moods at a glance / Every day's mood on your calendar / See which moods came up most / Pick one of nine moods, 일본어 1年の気分がひと目でわかる / その日の気分がカレンダーに残る / よく選んだ気分をふりかえる / 9つの気分からひとつ選ぶ(원어민 검수 전).
+감정 일기 장:
+1. 한 줄 목록
+2. 기분 고르기: "그날의 기분도 함께 남겨요". 기분은 고르지 않아도 써지므로 고르는 것이 조건처럼 읽히는 말은 쓰지 않는다(사용자 지적).
+3. 달력
+4. 돌아보기
+5. 기분 테마 목록: "기분 테마를 취향대로 바꿔요"
+6. Plus 테마 달력 세 장(비눗방울·채소·과일·클레이 얼굴): "Plus 테마로 더 다채롭게". 설명 줄에 말랑 낙서 친구까지 네 가지를 적는다.
+7. 클레이 꾸미기: "나를 닮은 얼굴로 꾸며보세요"
+
+사진 일기는 한 줄 목록 → 사진 상세 → 사진 격자 → 백업, 비밀 일기는 한 줄 목록 → 잠금 화면("비밀번호 잠금으로 나만 안전하게 봐요") → 백업("회원가입 없이 내 드라이브에 백업해요")이다.
+
+홍보 문구(한국어 말고는 원어민 검수 전):
 
 ```text
-기분을 고르고 한 줄만 써도 오늘 일기 끝.
-한 달 기분을 달력으로 봐요.
-어떤 기분이 많았는지 돌아봐요.
+그날의 기분도 함께 남겨요. 기분은 15가지 중에서 골라요.
+한 달 치 기분을 달력으로 보고, 어떤 기분이 많았는지 돌아봐요.
+기분 테마 9가지로 취향대로 바꿔요.
+```
+
+```text
+Save how you felt that day, from 15 moods.
+See your month on a calendar and look back on which moods came up most.
+Make it your own with 9 mood themes.
+```
+
+```text
+その日の気分も一緒に残せます。気分は15種類から選べます。
+1か月分の気分をカレンダーで見て、どんな気分が多かったかふり返れます。
+9つの気分テーマで好みに変えられます。
+```
+
+```text
+비밀번호 잠금으로 나만 안전하게 봐요.
+회원가입이 없어요.
 일기와 사진은 내 기기와 내 구글 드라이브에만 남아요.
 ```
 
 ```text
-Pick a mood, write one line, done.
-See your moods on a calendar and which ones came up most.
-Your entries and photos stay on your device and Google Drive.
+Lock your diary with a passcode and keep it safe.
+No sign-up.
+Your entries and photos stay on your device and your own Google Drive.
 ```
 
 ```text
-気分を選んで1行書けば、今日の日記は完了。
-1か月の気分をカレンダーで見られます。
-どんな気分が多かったかをふりかえれます。
+パスコードでロックして、安心して使えます。
+会員登録は不要です。
 日記と写真は、自分の端末と自分のGoogleドライブだけに残ります。
 ```
 
-- 키워드 잇기 칸은 아직 화면에 없다. 앱이 출시되기 전이라 그런 것으로 보이며 Apple 문서로 확인하지 못했다. 칸이 생기면 이을 낱말: 한국어 기분일기·감정일기·기분·감정·무드, 영어 mood·feelings, 일본어 気分·感情.
-- 심사는 키워드를 이은 다음 넣는다. 맞춤형 제품 페이지는 앱 업데이트와 따로 심사받는다.
-
-"사진 일기" 머리말: 사진으로 지난 일기를 봐요 / 한 편에 사진을 여러 장 담아요 / 사진까지 드라이브에 백업해요. 영어 Look back through photos / Add several photos to one entry / Back up photos to your Drive, 일본어 写真で日記をふりかえる / 1つの日記に写真を何枚も / 写真までドライブにバックアップ(원어민 검수 전).
+사진 일기 홍보 문구는 2026-11-16 초안 그대로다.
 
 ```text
 한 편에 사진을 여러 장 담아요.
@@ -363,19 +418,103 @@ Your entries and photos stay on your device and Google Drive.
 일기와 사진은 내 기기와 내 구글 드라이브에만 남아요.
 ```
 
+다섯 언어 홍보 문구(중국어 번체·스페인어·포르투갈어·독일어·프랑스어 차례):
+
+감정 일기:
+
 ```text
-Add several photos to one entry.
-Look back through your entries by photo.
-Your entries and photos stay on your device and Google Drive.
+也能留下當天的心情，從15種心情中挑選。
+用月曆看一整個月的心情，回顧哪種心情最多。
+用9種心情主題換成喜歡的樣子。
 ```
 
 ```text
-1つの日記に写真を何枚も残せます。
-写真で日記をふりかえれます。
-日記と写真は、自分の端末と自分のGoogleドライブだけに残ります。
+Guarda también cómo te sentiste, entre 15 estados de ánimo.
+Mira tu mes en el calendario y repasa qué ánimos se repitieron más.
+Personalízalo con 9 temas de ánimo.
 ```
 
-- 이을 낱말: 한국어 사진일기·사진·백업, 영어 photo·backup, 일본어 写真·バックアップ.
+```text
+Guarde também como você se sentiu, entre 15 humores.
+Veja seu mês no calendário e reveja quais humores apareceram mais.
+Deixe do seu jeito com 9 temas de humor.
+```
+
+```text
+Halte auch deine Stimmung fest, aus 15 Stimmungen.
+Sieh deinen Monat im Kalender und blick zurück, welche Stimmung am häufigsten war.
+Mach es mit 9 Stimmungsthemen zu deinem.
+```
+
+```text
+Notez aussi votre humeur, parmi 15 humeurs.
+Voyez votre mois sur le calendrier et revoyez les humeurs qui reviennent le plus.
+Personnalisez-le avec 9 thèmes d’humeur.
+```
+
+사진 일기:
+
+```text
+一篇日記可以放好幾張照片。
+用照片回顧過去的日記。
+日記和照片只會留在自己的裝置和自己的Google雲端硬碟。
+```
+
+```text
+Agrega varias fotos a una entrada.
+Repasa tus entradas por foto.
+Tus entradas y fotos quedan en tu dispositivo y en tu propio Google Drive.
+```
+
+```text
+Coloque várias fotos em um registro.
+Reveja seus registros pelas fotos.
+Seus registros e fotos ficam no seu aparelho e no seu próprio Google Drive.
+```
+
+```text
+Füge mehrere Fotos zu einem Eintrag hinzu.
+Blick über Fotos auf frühere Einträge zurück.
+Einträge und Fotos bleiben auf deinem Gerät und in deinem eigenen Google Drive.
+```
+
+```text
+Ajoutez plusieurs photos à une entrée.
+Revoyez vos entrées en photos.
+Vos entrées et photos restent sur votre appareil et dans votre propre Google Drive.
+```
+
+비밀 일기:
+
+```text
+用密碼鎖定，安心使用。
+不需要註冊。
+日記和照片只會留在自己的裝置和自己的Google雲端硬碟。
+```
+
+```text
+Protege tu diario con contraseña.
+Sin registro.
+Tus entradas y fotos quedan en tu dispositivo y en tu propio Google Drive.
+```
+
+```text
+Proteja seu diário com senha.
+Sem cadastro.
+Seus registros e fotos ficam no seu aparelho e no seu próprio Google Drive.
+```
+
+```text
+Sperre dein Tagebuch sicher mit einem Code.
+Ohne Konto.
+Einträge und Fotos bleiben auf deinem Gerät und in deinem eigenen Google Drive.
+```
+
+```text
+Protégez votre journal par un code.
+Sans inscription.
+Vos entrées et photos restent sur votre appareil et dans votre propre Google Drive.
+```
 
 ## App Store 앱 내 이벤트
 
@@ -386,11 +525,34 @@ Your entries and photos stay on your device and Google Drive.
 
 ## 맞춤 스토어 등록정보
 
-"1일 1일기"(검색 키워드 대상). 문구와 그래픽은 기본 등록정보를 그대로 물려받는다(그룹 애셋 상속). 검색 키워드는 일기, 일기장, 다이어리, 일기 앱, 감정 일기, 기분 일기, 하루 일기, 사진 일기, 비밀 일기다(2026-11-12).
+"1일 1일기"(검색 키워드 대상). 문구와 그래픽은 기본 등록정보를 그대로 물려받는다(그룹 애셋 상속). 검색 키워드는 일기, 일기장, 다이어리, 일기 앱, 감정 일기, 기분 일기, 하루 일기, 사진 일기, 비밀 일기다(2026-11-12). 2026-11-28에는 한국어·영어·일본어로 62개다. 이 등록정보에는 영어·일본어 번역이 있어 두 언어 검색어도 여기에 둔다. 그날 더한 15개: 한줄 일기, 잠금 일기, 무드 트래커, 비밀 일기장, 감정 일기장, diary app, journal app, mood journal, private diary, secret diary, gratitude journal, simple diary, ダイアリー, 一行日記, 感謝日記. 설명 변경과 함께 검토에 보냈다.
 
 - 영어(en-US)·일본어(ja-JP)를 더했다(2026-11-13). 같은 날 앱 콘텐츠 신고 5건과 함께 검토에 들어갔고, 관리형 게시라 승인 뒤 직접 게시해야 한다. 두 언어는 그룹을 물려받지 못해 기본 등록정보와 같은 것을 직접 넣었다: 위 이름·간단한 설명·자세한 설명, 아이콘 `play-512.png`, 피처 그래픽 `feature.png`(한국어 그림, 기본 등록정보와 같음), 휴대폰 `{en,ja}-phone-1~4`, 7·10인치 태블릿 `{en,ja}-tablet-1~4`.
 - 한국어는 그룹을 물려받는데, 그룹이 아직 1.7.4 시절 글과 그림을 보여 준다. 기본 등록정보 초안을 게시하면 함께 바뀌는지 게시 뒤에 확인한다.
 - 기본 등록정보의 문구나 그림을 바꾸면 여기 영어·일본어도 함께 바꾼다.
+- 2026-11-28에 언어별로 나눴다(사용자 결정). "1일 1일기"에는 한국어 검색어 38개만 남기고, 영어 14개는 `1Day1Diary en`, 일본어 10개는 `1Day1Diary ja`로 옮겼다. 이름 "1일 1일기"는 게시된 등록정보라 바꿀 수 없어 그대로 두었다. 세 개 모두 문구·그림은 그룹 애셋을 물려받는다(지금은 영어·일본어도 직접 넣은 것 없이 상속). 저장만 했고 2.3.0과 함께 검토에 보낸다.
+  - en: diary, journal, diary app, journal app, daily journal, simple diary, private diary, secret diary, diary with lock, mood journal, mood tracker, mood diary, photo diary, gratitude journal
+  - ja: 日記, 日記帳, 日記アプリ, ダイアリー, 一行日記, 感謝日記, 気分 日記, 感情 日記, 写真 日記, 鍵付き 日記
+  - 日記·一行日記는 zh-TW 등록정보에도 있다. 콘솔이 막지 않았고, 어느 쪽이 걸려도 사용자는 자기 언어 글과 그림을 본다.
+
+### 다섯 언어 검색어 맞춤 등록정보 (2026-11-28 만듦, 검토 전송 대기)
+
+2026-11-28에 다섯 개를 기본 등록정보 그룹 안에 만들었다. 참조 이름은 `1Day1Diary zh-TW`·`es-419`·`pt-BR`·`de-DE`·`fr-FR`이다.
+
+- 출시 100%, 종료일 없음이다. 문구·그림은 그룹 애셋을 물려받는다. 아홉 언어가 다 들어 있어 사용자는 자기 언어 글을 본다.
+- 검색 키워드는 zh-TW 17개, es-419 16개, pt-BR·de-DE·fr-FR 15개씩이고, 아래 목록 그대로다.
+- 상태는 "검토를 위해 전송 준비 완료"다. 2.3.0 스크린샷 변경과 함께 검토에 보낸다.
+- 만들기 전 확인: 다섯 언어 기본 등록정보는 11-28 게시 뒤 그룹에 들어와 있었고, 게시 개요 대기 목록에도 없었다.
+- 콘솔 확인(2026-11-28, 2.3.0 스크린샷 저장 뒤): 다섯 개와 `en`·`ja` 모두 애셋 단계에서 각 언어를 고르면 그 언어의 이름·간단한 설명과 새 스크린샷(폰 `<언어>-phone-1~8-mt.png` 8장, 태블릿 7장)이 보였다. zh-TW 등록정보는 여덟 언어를 모두 넘겨 보았다. 콘솔이 그리는 것은 저장한 초안이라, 실제 Play에는 검토를 지나야 나온다.
+
+
+언어마다 따로 만든다. 지금 것(한국어)에 다른 언어 검색어를 넣으면 그 언어 사용자에게 한국어 글이 보인다. 새 맞춤 등록정보는 기본 등록정보 그룹의 언어를 물려받는데, 다섯 언어가 그룹에 들어오는 것은 기본 등록정보 검토가 끝난 뒤라 그다음에 만든다(2026-11-27 검토 제출). 만들 때 참조 이름 `1Day1Diary <언어 코드>`, 출시 100%, 기간 종료일 없음, 잠재고객 검색 키워드(일괄 추가), 문구·그림은 그룹 애셋 상속.
+
+- zh-TW: 日記, 日記本, 日記app, 寫日記, 心情日記, 情緒日記, 日誌, 手帳, 每日日記, 私密日記, 照片日記, 心情紀錄, 感恩日記, 記事本, 一行日記, 日記軟體, 生活紀錄
+- es-419: diario, diario personal, diario íntimo, mi diario, diario secreto, diario con fotos, diario de emociones, diario de ánimo, diario de gratitud, diario con contraseña, app de diario, journal, notas personales, escribir diario, bitácora personal, diario simple
+- pt-BR: diário, diário pessoal, meu diário, diário secreto, diário com fotos, diário de emoções, diário de humor, diário de gratidão, diário com senha, app de diário, journal, anotações pessoais, escrever diário, diário simples, agenda pessoal
+- de-DE: Tagebuch, Tagebuch App, persönliches Tagebuch, geheimes Tagebuch, Tagebuch mit Passwort, Fototagebuch, Stimmungstagebuch, Gefühlstagebuch, Dankbarkeitstagebuch, Journal, Journal App, Notizen, Tagebuch schreiben, einfaches Tagebuch, Stimmung Tracker
+- fr-FR: journal intime, journal, journal personnel, mon journal, journal secret, journal avec photos, journal d'humeur, journal des émotions, journal de gratitude, journal avec mot de passe, carnet, carnet intime, notes personnelles, écrire un journal, journal simple
 
 ## 인앱 상품 이름
 
@@ -411,6 +573,77 @@ App Store는 상품 설명 칸이 짧아(비소모품 45자, 구독 55자 안팎
 | `plus_yearly` 설명 | 광고 없이 쓰기 · 한 편에 사진 30장 · 체크리스트 · 고급 통계 | No ads · 30 photos/entry · Checklists · Advanced stats | 広告なしで書く · 1件に写真30枚 · チェックリスト · 詳しい統計 |
 
 ## 새로운 기능
+
+### 2.3.0 (52) — 초안, 확인 전
+
+두 스토어 모두 이 노트를 쓴다. 2.2.0과 같은 꼴이다(버전 줄 아래 세 줄, 해요체, 마침표). 기분 테마는 무료 테마(도형·과슈 붓·테두리·도트)가 있어 Plus를 따로 적지 않는다.
+다섯 언어는 원어민 검수 전이다. 낱말은 앱 화면 문구(`write_mood`, `settings_mood_theme`)에 맞췄다.
+
+```text
+<ko-KR>
+[버전 2.3.0]
+• 고를 수 있는 기분이 15가지로 늘어났어요.
+• 기분 테마로 기분 얼굴을 바꿀 수 있어요.
+• 앱 안정성을 개선했어요.
+</ko-KR>
+<en-US>
+[Version 2.3.0]
+• You can now choose from 15 moods.
+• Change your mood faces with mood themes.
+• Improved app stability.
+</en-US>
+<ja-JP>
+[バージョン 2.3.0]
+• 選べる気分が15種類に増えました。
+• 気分テーマで気分の顔を変えられます。
+• アプリの安定性を改善しました。
+</ja-JP>
+<zh-TW>
+[版本 2.3.0]
+• 可選的心情增加到 15 種。
+• 可用心情主題更換心情表情。
+• 改善了 App 的穩定性。
+</zh-TW>
+<es-419>
+[Versión 2.3.0]
+• Ahora puedes elegir entre 15 estados de ánimo.
+• Cambia las caritas de ánimo con los temas de ánimo.
+• Mejoramos la estabilidad de la app.
+</es-419>
+<pt-BR>
+[Versão 2.3.0]
+• Agora você pode escolher entre 15 humores.
+• Mude as carinhas de humor com os temas de humor.
+• Melhoramos a estabilidade do app.
+</pt-BR>
+<de-DE>
+[Version 2.3.0]
+• Jetzt kannst du aus 15 Stimmungen wählen.
+• Ändere die Stimmungsgesichter mit Stimmungsthemen.
+• Die Stabilität der App wurde verbessert.
+</de-DE>
+<fr-FR>
+[Version 2.3.0]
+• Vous pouvez désormais choisir parmi 15 humeurs.
+• Changez les visages d’humeur avec les thèmes d’humeur.
+• Amélioration de la stabilité de l’app.
+</fr-FR>
+```
+
+Remote Config 업데이트 요약 초안(새 버전이 스토어에 열린 뒤 넣는다). 홈 카드 "새 버전이 나왔어요" 아래에 두 줄로 둔다(사용자 결정 2026-11-28). 첫 줄은 출시 노트 첫 줄과 같은 뜻이다.
+이 값은 이미 설치된 2.1.0·2.2.0 앱이 읽으므로, 콘솔 값에 **실제 줄바꿈**을 넣는다. `\n`을 글자로 적으면 옛 앱에 "\n"이 그대로 보인다. 아래 표의 ⏎ 자리가 줄바꿈이다.
+
+| 키 | 값 |
+| --- | --- |
+| `update_note_version` | 2.3.0 |
+| `update_note_ko` | 고를 수 있는 기분이 15가지로 늘었어요. ⏎ 개성 넘치는 기분 테마를 고를 수 있어요. |
+| `update_note_en` | You can now choose from 15 moods. ⏎ Pick a mood theme full of character. |
+| `update_note_ja` | 選べる気分が15種類に増えました。 ⏎ 個性あふれる気分テーマを選べます。 |
+| `update_note_zh_Hant` | 可選的心情增加到 15 種。 ⏎ 可以挑選個性十足的心情主題。 |
+| `update_note_es` | Ahora hay 15 estados de ánimo. ⏎ Elige un tema de ánimo con personalidad. |
+| `update_note_pt` | Agora são 15 humores para escolher. ⏎ Escolha um tema de humor cheio de personalidade. |
+| `update_note_de` | Jetzt gibt es 15 Stimmungen. ⏎ Wähle ein Stimmungsthema mit Charakter. |
+| `update_note_fr` | Choisissez parmi 15 humeurs. ⏎ Optez pour un thème d’humeur plein de caractère. |
 
 ### 2.2.0 (49)
 
@@ -577,11 +810,50 @@ Plusが登場しました
 
 ## 스크린샷 머리말
 
-2026-11-24에 새 틀로 바꿨다. 아주 연한 라벤더 바탕, 굵은 두 줄 제목과 연한 설명 한 줄, 상태바를 자른 앱 화면 전체를 얇고 밝은 틀에 담는다. 장마다 같은 꼴이고 꾸밈 그림은 넣지 않는다(사용자 지적: 잘라 낸 카드와 아이콘은 어색하다). 레퍼런스는 Toss, Day One, Things의 스토어 화면이다. 글꼴은 창원단감둥근체(일본어는 시스템 글꼴), 목록은 피드형, 백업은 켜 둔 상태로 찍는다.
+### 2.3.0 (2026-11-28, 기분 15종·기분 테마)
+
+- 틀: 2.2.0과 같다. 옅은 라벤더 바탕, 두 줄 제목과 설명 한 줄, 흰 몸체에 옅은 테두리 틀이다. 상태바를 잘라 같은 그림을 App Store와 Play에 함께 쓴다.
+- 바뀐 점:
+  - 제목의 낱말 하나만 브랜드 글자색 #6550B9로 강조한다(사용자 요청). 문구 표에서 `[ ]`로 감싼 곳이다.
+  - 장을 6장에서 8장으로 늘렸다(Play 폰 최대 8장).
+  - 띄운 패널·기울인 카드 같은 연출은 쓰지 않는다(사용자 확인).
+- 근거: 한국 App Store 상위 9개 앱(토스·당근·배민·하루콩·몽글하루·Day One·꼬박일기·DAILY NOTE·MOODA)을 비교했다. 평균 7.6장이고, 기분 일기 상위권은 2장 안에 기분 고르기나 기분 달력을 보여 준다.
+- 화면: develop 개발 빌드를 견본 전용 시뮬레이터(iPhone 17 Pro Max, iPad Pro 13")에서 찍었다. 견본은 `seed_ios.py … mood` 뒤에 `seed_extra.py`를 돌린다. 백업 켜짐은 `seed_backup_prefs.py`로 넣고, Plus 테마는 실행 인자 `-diaryPlan PLUS`로 연다.
+- 올림(2026-11-28):
+  - App Store: 2.3.0 버전에 iPhone 8장(1206×2622)과 iPad 7장(2064×2752)을 넣었다. 처음 세 언어(한국어·영어 미국·영국·일본어)에 이어 같은 날 다섯 언어(중국어 번체·스페인어·포르투갈어·독일어·프랑스어)까지 아홉 곳 모두 넣었다. 6.9" 칸은 어느 언어에도 없어 6.1" 그림이 큰 iPhone에도 쓰인다. 2.3.0 출시 때 함께 나간다.
+  - Play: 기본 등록정보 여덟 언어(en·ko·ja·zh-TW·es-419·pt-BR·de-DE·fr-FR)에 폰 8장, 7·10인치 태블릿 7장씩을 저장만 했다. 맞춤 등록정보는 모두 그룹 애셋을 물려받아 따로 올리지 않았다. 관리형 게시가 꺼져 있어 2.3.0을 낼 때 함께 검토에 보낸다.
+- 남은 것:
+  - 다섯 언어 글은 원어민 검수 전이다. 문구 표는 `scripts/store/copy/{zh-Hant,es,pt,de,fr}-*.txt`, 글꼴은 중국어 PingFang TC, 나머지 넷은 Pretendard다.
+  - 다섯 언어의 옛 6.9" 그림(`iphone-large-*`, 2.2.0)은 어느 스토어에도 쓰지 않아 지웠다.
+  - 그래픽 이미지와 App Store 헤더·검색 결과 그림은 바꾸지 않았다.
+
+| # | 화면 | 한국어 | 영어 | 일본어 |
+| --- | --- | --- | --- | --- |
+| 1 | 목록 | **한 줄**이면 / 오늘 일기 끝 — 바쁜 날에도 쓰기 쉬운 일기장 | One line, and today is done | 1行で今日の日記は完了 |
+| 2 | 기분 고르기(iPad 없음) | 오늘 **기분**을 / 골라보세요 — 15가지 기분 중에서 골라요 | Pick today's mood | 今日の気分を選べます |
+| 3 | 달력 | 그날의 기분이 / **달력**에 남아요 — 한 달 치 기분을 한눈에 봐요 | Your moods on a calendar | その日の気分がカレンダーに |
+| 4 | 달력 세 장(도형 / 클레이 얼굴 · Plus / 채소·과일 · Plus) | **기분 테마**를 / 취향대로 바꿔요 — 개성 넘치는 테마 9가지를 만나보세요 | Make your mood theme your own | 気分テーマを好みに変えられます |
+| 5 | 사진 일기 | **사진**과 함께 / 남겨요 — 한 편에 사진 10장까지 넣을 수 있어요 | Keep your day with photos | 写真と一緒に残せます |
+| 6 | 돌아보기 | 어떤 기분이 많았는지 / **돌아봐요** — 주별·월별·연별로 나눠볼 수 있어요 | Look back on your moods | どんな気分が多かったかふり返れます |
+| 7 | 테마 색 | 좋아하는 **색**으로 / 바꿔보세요 — 테마 색 7가지 중에서 골라요 | Make it your color | 好きな色に変えられます |
+| 8 | 백업 | 사진까지 / 내 **드라이브**에 백업해요 — 회원가입 없이 하루 한 번 자동으로 올려요 | Back up photos to your own Drive | 写真まで自分のドライブに |
+
+- Plus 테마에는 이름표에 "· Plus"를 붙인다. 따로 결제해야 하는 것을 스크린샷에서 알리라는 App Store 심사 지침 2.3.2 때문이다.
+- 4장 카드는 이름표와 카드 사이를 카드끼리 사이보다 좁게 둔다(사용자 지적). Play 가로 태블릿은 세 장을 나란히 놓는다.
+
+만드는 법:
+1. 캡처: `sh scripts/store/store_shots.sh phone|ipad <UDID> <언어> [land] <결과 폴더>`. 원본은 `docs/store/source/ios/<언어>/2.3.0/{phone,ipad,ipad-land}`에 있다.
+2. 합성: `swift scripts/store/compose_screens.swift <캡처> <결과> <언어> <폭> <높이> <앞이름> scripts/store/copy/<언어>-main.txt`. iPad와 Play 태블릿은 `TABLET=port|land`와 `-tab.txt` 표를 쓴다.
+
+### 2.2.0 (2026-11-24)
+
+2026-11-24에 새 틀로 바꿨다. 아주 연한 라벤더 바탕, 굵은 두 줄 제목과 연한 설명 한 줄, 상태바를 자른 앱 화면 전체를 얇고 밝은 틀에 담는다. 장마다 같은 꼴이고 꾸밈 그림은 넣지 않는다(사용자 지적: 잘라 낸 카드와 아이콘은 어색하다). 레퍼런스는 Toss, Day One, Things의 스토어 화면이다. 글꼴은 창원단감둥근체(일본어는 시스템 글꼴)이고, 한국어·영어는 앱 설정 글꼴도 창원단감둥근체로 바꿔 제목과 앱 화면을 한 벌로 찍는다(2026-11-25 사용자 요청). 일본어는 이 글꼴에 가나가 없어 앱 화면도 시스템 글꼴로 둔다. 목록은 피드형, 백업은 켜 둔 상태로 찍는다.
 
 2026-11-25에 두 스토어에 올렸다.
 
-- Play: 기본 등록정보 세 언어와 맞춤 등록정보 영어·일본어에 그래픽 이미지, 폰 6장, 7·10인치 태블릿 6장씩. 저장만 했고 검토 전송은 2.2.0 프로덕션 출시 때 함께 한다.
+- Play: 기본 등록정보 세 언어와 맞춤 등록정보 영어·일본어에 그래픽 이미지, 폰 6장, 7·10인치 태블릿 6장씩. 2.2.0 프로덕션 출시 때 함께 검토에 냈다.
+- Play 태블릿은 같은 날 가로로 바꿔 다시 검토에 냈다. iPad 세로 캡처를 9:16 틀에 넣으니 화면이 작고 어색했다(사용자 지적). 제목은 한 줄로 두고, 일본어는 띄어 쓰지 않는다. App Store iPad는 세로 그대로다.
+- 같은 날 허용 범위 안에서 가장 크게 다시 만들었다. Play 폰 1620×2880, 태블릿 3840×2160, App Store iPhone 6.9" 1320×2868이다. 작게 만든 그림은 큰 화면에서 늘어나 흐려 보였다(사용자 지적). 폰 캡처는 iPhone 17 Pro Max(1320×2868, `source/ios/<언어>/promax/`)라 앱 화면이 거의 원래 크기로 들어간다. 그래픽 이미지(1024×500)와 아이콘(512×512)은 크기가 정해져 있다.
 - App Store: 2.2.0 버전 세 언어에 헤더, 검색 결과, iPhone 6장, iPad 6장. 빌드를 붙여 심사에 낼 때 함께 나간다.
 
 1. 목록: 한 줄이면 / 오늘 일기 끝 — 바쁜 날에도 쓰기 쉬운 일기장
@@ -594,5 +866,567 @@ Plusが登場しました
 영어(원어민 검수 전): One line, and today is done / Keep your day with photos / Your moods on a calendar / Look back on your moods / Make it your color / Back up photos to your own Drive.
 일본어(원어민 검수 전): 1行で今日の日記は完了 / 写真と一緒に残せます / その日の気分がカレンダーに / どんな気分が多かったかふり返れます / 好きな色に変えられます / 写真まで自分のドライブに.
 
-그래픽 이미지·App Store 헤더·검색 결과 그림은 1번 제목과 설명에 목록 화면을 둔다. 가로 그림은 제목의 낱말 하나("한 줄", "One line", "1行")만 브랜드색 #6550B9로 강조하고, 글자는 화면보다 무겁지 않게 줄였다(사용자 요청 2026-11-24). 헤더는 Apple 안전 영역(가운데 1646×661)에 글만 두고, 넓은 화면에서만 보이는 양옆에 화면을 둔다.
-만드는 법: 폰·태블릿 `swift scripts/store/make_store_screens.swift <캡처> <결과> <언어> <폭> <높이> <앞이름> [tablet]`, 가로 그림 `swift scripts/store/make_banner.swift <캡처> <결과> <언어> feature|header|search`. 캡처는 `docs/store/source/ios/<언어>/`(iPhone 17 Pro)와 `ipad/`(iPad Pro 13" 세로)다.
+다섯 언어(2026-11-27, 원어민 검수 전, 아직 어느 스토어에도 올리지 않음). 같은 틀과 같은 여섯 장이고, 스크린샷 폴더 이름은 `zh-Hant`, `es`, `pt`, `de`, `fr`이다.
+
+- 번체 중국어: 一行 就寫完今天的日記 / 和照片一起 留下今天 / 每天的心情 留在月曆上 / 回顧哪種心情 最多 / 換成 喜歡的顏色 / 連照片都備份到 自己的雲端硬碟
+- 스페인어: Una línea y listo por hoy / Guarda tu día con fotos / Tu ánimo en el calendario / Repasa cómo te sentiste / Ponle tu color / Respalda tus fotos en tu propio Drive
+- 포르투갈어: Uma linha e pronto por hoje / Guarde seu dia com fotos / Seu humor no calendário / Reveja seu humor / Deixe com a sua cor / Backup das fotos no seu próprio Drive
+- 독일어: Eine Zeile, und der Tag ist notiert / Halte deinen Tag mit Fotos fest / Deine Stimmung im Kalender / Blick zurück auf deine Stimmung / Mach es in deiner Farbe / Fotos sichern in deinem Drive
+- 프랑스어: Une ligne, et la journée est écrite / Gardez votre journée en photos / Votre humeur sur le calendrier / Revoyez vos humeurs / À vos couleurs / Sauvegardez vos photos dans votre Drive
+- 가로 그림의 강조 낱말: 一行, Una línea, Uma linha, Eine Zeile, Une ligne.
+- 글꼴: 창원단감둥근체에 악센트 글자(á, ç, ü, é 등)와 한자가 없다. 그래서 중국어는 시스템 글꼴(평팡 번체), 유럽 네 언어는 앱 기본 글꼴 Pretendard로 제목과 앱 화면을 함께 찍었다. 앱에서 창원단감둥근체를 고르면 악센트 글자만 다른 글꼴로 섞여 보인다.
+
+그래픽 이미지·App Store 헤더·검색 결과 그림은 1번 제목과 설명에 목록 화면을 둔다. 가로 그림은 제목의 낱말 하나("한 줄", "One line", "1行")만 브랜드색 #6550B9로 강조하고, 글자는 화면보다 무겁지 않게 줄였다(사용자 요청 2026-11-24). 헤더는 Apple 안전 영역(가운데 1646×661)에 글만 두고, 넓은 화면에서만 보이는 양옆에 화면을 둔다. 그래픽 이미지와 검색 결과 그림은 글과 화면을 한 묶음으로 가로 가운데에 두고, 글과 화면 모두 세로 가운데에 맞춘다. 글 폭은 언어마다 재서 사이 간격만 바꾼다(2026-11-25 사용자 지적: 글과 폰 대칭).
+만드는 법: 폰·태블릿 `swift scripts/store/make_store_screens.swift <캡처> <결과> <언어> <폭> <높이> <앞이름> [tablet|landscape]`(Play 태블릿은 `3840 2160 tablet landscape`, Play 폰은 Pro Max 캡처로 `1620 2880 phone`), 가로 그림 `swift scripts/store/make_banner.swift <캡처> <결과> <언어> feature|header|search`. 캡처는 `docs/store/source/ios/<언어>/`(iPhone 17 Pro), `ipad/`(iPad Pro 13" 세로), `ipad-land/`(iPad Pro 13" 가로, Play 태블릿)다.
+
+## 소개 영상
+
+Threads·Reddit·릴스에 올릴 세로 영상이다(1080×1920, 60fps, 7.5Mbps, 17.3초, 효과음과 배경음 포함). `docs/store/promo/promo-ko.mp4`, `promo-en.mp4`이고 2026-11-26에 확정했다.
+
+휴대폰 화면 녹화를 틀에 넣지 않고 앱 부품을 꺼내 움직인다. 처음 만든 녹화판은 "스크린샷을 그냥 틀어 준 느낌"이라 버렸다(사용자 지적). 레퍼런스는 How We Feel(색 점과 화면 전체 색 덮기), Granola(떠 있는 입력 카드), Bevel(숫자 하나 크게), Superlist(낱말 하나씩 뜨는 자막)다. 처음에 넣었던 색 테마 장면과 달력 장면은 전하는 바가 흐려 뺐다(사용자 지적). 쓰기 카드는 앱에 없는 한 줄 입력창이 아니라 실제 쓰기 화면을 잘라 쓴다(사용자 지적).
+
+0. 첫 제목 카드(2.3초): 앱 이름, "하루 한 줄로 / 꾸준히 쓰는 / 일기장"(형광펜 "꾸준히"), 아래에서 올라오는 웃음·좋음 얼굴과 오른쪽 가장자리에서 빼꼼 내미는 쿨 얼굴. 요미네코 소개 영상처럼 기능 전에 앱부터 알린다(사용자 제안)
+1. 바쁜 날엔 / 한 줄이면 충분해요: 실제 쓰기 화면 카드에 "퇴근길에 본 노을이 너무 예뻤다 🌇"가 쳐진다
+2. 그날의 기분을 / 골라봐요: 기분 시트처럼 5개·4개 두 줄로 얼굴이 뜨고, 웃음을 고르면 칩이 "웃음"으로 바뀐다
+3. 이번 달엔 웃음이 / 가장 많았어요: 고른 웃음 얼굴이 그대로 날아가 36% 옆에 앉고 기분 막대가 자란다
+4. 사진도 / 함께 남겨요: 사진 세 장이 일기 카드 위로 날아온다
+5. 회원가입 없이 · 잠금으로 나만 보기 · 사진까지 내 드라이브에 백업: 밝은 바탕에 다크 홈 화면과 흰 칩
+6. 아이콘, 이름, App Store · Google Play(밝은 바탕)
+
+영어: Busy day? / One line is enough, Pick the mood / of your day, Top mood this month: / Laughing, Add photos / to your day, No sign-up · Lock it, keep it private · Photos back up to your Drive.
+
+장면마다 자막을 다 읽을 시간을 둔다(사용자 지적: 기분 고르기·웃음 고른 뒤·약속 칩이 빨랐다). 통계 숫자는 시연용이다. 소리는 남의 음원 없이 스크립트에서 합성한다. 첫 제목 카드는 배경음만 둔다(사용자 지적). 자막은 모두 1.5초 넘게 머문다. 저장소는 파일 하나를 15MB까지만 받아(저장소 위생 검사) 7.5Mbps로 뽑는다. 올릴 때는 비트레이트만 20Mbps로 바꿔 따로 뽑은 고화질판을 쓴다.
+
+- 배경음: 둥근 펠트 피아노가 가운데 음역에서 반 박마다 움직이는 장조 아르페지오(Cadd9-G6-Fmaj9-G7, 한 마디 2초)이고 박마다 낮은 뿌리음이 받친다. 처음 칼림바판은 음역이 높았고, 더 차분한 두 후보는 너무 처졌다(사용자 지적). 그 사이로 골랐다.
+- 효과음: 실로폰 같은 얇은 소리가 거슬리고 끝이 웅장하다는 지적(사용자)에 방울 소리와 나무 실로폰(마림바) 소리로 바꿨다. 귀엽고 높지 않게, 배경음보다 조금 위 음역이다. 기분이 뜰 때 방울 셋, 웃음을 고르면 "뿅"과 시-레-솔, 착지, 퍼센트가 오르는 만큼 음계를 따라 오르는 톡, 사진 세 번, 칩 세 음, 로고가 뜰 때 미-솔-도다.
+- 어울림: 효과음의 끝음은 그 순간 배경음 화음의 음이다(Fmaj9 → G7 → C → G → Fmaj9, 마지막 G7은 로고의 도로 풀림). 장면 시각을 바꾸면 효과음 음도 다시 맞춘다. 고르기와 로고 소리에만 배경음을 0.4초 낮추고, 작은 소리는 낮추지 않는다(사진 소리가 과하다는 지적).
+
+만드는 법: 문구와 시간은 `docs/store/promo/<언어>.json`, 재료는 `docs/store/promo/assets/`다. 저장소 맨 위에서 `swiftc -O scripts/store/promo/make_promo.swift -o /tmp/make_promo` 뒤 `/tmp/make_promo docs/store/promo/ko.json`. 기분 얼굴은 앱의 벡터 경로(`DiaryMoodFace`)와 기분 색을 그대로 옮겨 그려 크게 키워도 선명하다. 쓰기 카드와 다크 홈은 시뮬레이터 녹화에서 `grab_frame.swift`로 뽑았다.
+
+## 다섯 언어 등록정보 (2026-11-27)
+
+원어민 검수 전 글이다. 2026-11-27에 두 스토어에 넣었다.
+
+- Play: 기본 등록정보에 zh-TW, es-419, pt-BR, de-DE, fr-FR을 더해 이름·간단한 설명·자세한 설명과 그림(그래픽 이미지, 휴대폰 6장, 7·10인치 태블릿 6장씩)을 넣고 검토에 보냈다.
+- App Store: 2.3.0 버전(제출 전)에 중국어(번체)·스페인어(멕시코)·포르투갈어(브라질)·독일어·프랑스어(프랑스)로 이름·부제(앱 정보), 홍보 문구·설명·키워드(버전), iPhone 6.3" 6장, iPad 13" 6장, 헤더, 검색 결과 그림을 넣었다. "이 버전에서 업그레이드된 사항"은 한국어를 복사한 채라 출시 노트를 확정한 뒤 바꾼다.
+- 설명 끝 약관·처리방침 주소는 한국어만 한국어 페이지, 나머지 언어(영어·일본어 포함)는 영어 번역본(`/en/1day1diary/terms/`, `/privacy/`)이다(2026-11-27, App Store 영어·영국 영어·일본어 설명도 함께 바꿈).
+
+- 기능 범위는 위 영어 원문과 같다. 화면 낱말은 앱 문자열(`values-{b+zh+Hant,es,pt,de,fr}`)을 따른다. 예: 돌아보기 回顧·Resumen·Insights·Rückblick·Bilan, 휴지통 垃圾桶·papelera·lixeira·Papierkorb·corbeille.
+- App Store 이름은 다섯 언어끼리, 그리고 기존 이름(영어 두 가지, 한국어, 일본어, 2.2.0까지 쓴 "1Day1Diary - Everyday Diary")과 모두 다르다. 브랜드는 "1Day1Diary", 중국어는 「1日1日記」다.
+- 키워드는 이름·부제 낱말을 되풀이하지 않는다. App Store는 이름·부제·키워드 낱말을 섞어 검색에 쓰므로, 프랑스어 "journal intime"은 이름의 journal과 키워드의 intime으로, 중국어 「心情日記」는 붙여 쓴 검색어로 남긴다(한국어 기분일기와 같은 꼴).
+- 글자 수는 Play·App Store 모두 글자 기준, 키워드는 UTF-8 바이트다. 기존 한국어(215바이트)·일본어(175바이트) 키워드가 통과한 것을 보면 App Store는 글자로 세는 것으로 보인다. 그래도 이 초안은 100바이트 안에 맞췄다. 글자 기준이면 중국어는 낱말을 더 넣을 수 있다.
+- App Store 설명은 Play 설명에서 `<b>`를 빼고 태블릿 줄을 iPad로 바꾼 뒤 구독 안내와 약관 줄을 붙였다.
+- 언어 코드: Play는 zh-TW, es-419, pt-BR, de-DE, fr-FR. App Store는 중국어(번체), 스페인어(멕시코), 포르투갈어(브라질), 독일어, 프랑스어.
+
+### 한눈에 보기
+
+| 언어 | Play 이름 | App Store 이름 | App Store 부제 |
+| --- | --- | --- | --- |
+| 번체 중국어(대만, zh-TW) | 1日1日記 - 給忙碌的人的簡單日記本 (19자) | 1日1日記 - 簡單日記本 (13자) | 每天一句，養成寫日記的習慣 (13자) |
+| 스페인어(중남미 중립, es-MX·es-419, tú) | 1 Day 1 Diary - Diario simple (29자) | 1Day1Diary - Diario simple (26자) | Crea el hábito de escribir (26자) |
+| 브라질 포르투갈어(pt-BR, você) | 1 Day 1 Diary - Diário simples (30자) | 1Day1Diary - Diário simples (27자) | Crie o hábito de escrever (25자) |
+| 독일어(de-DE, du) | 1 Day 1 Diary - Tagebuch (24자) | 1Day1Diary: Einfaches Tagebuch (30자) | Jeden Tag eine Zeile schreiben (30자) |
+| 프랑스어(fr-FR, vous) | 1 Day 1 Diary - Journal intime (30자) | 1Day1Diary - Journal simple (27자) | Prenez l’habitude d’écrire (26자) |
+
+### 번체 중국어(대만, zh-TW)
+
+- Play 이름: 1日1日記 - 給忙碌的人的簡單日記本 (19자)
+- Play 간단한 설명: 一行就寫完今天的日記。短短幾句，每天累積，就是屬於你的紀錄。 (30자)
+- App Store 이름: 1日1日記 - 簡單日記本 (13자)
+- App Store 부제: 每天一句，養成寫日記的習慣 (13자)
+- App Store 키워드 (83자, 2026-11-28 다시 넣음):
+
+```text
+寫日記,心情日記,情緒日記,照片日記,私密日記,感恩日記,一行日記,每日日記,日誌,手帳,記事本,心情,情緒,紀錄,照片,私密,密碼,上鎖,備份,感恩,回顧,生活紀錄
+```
+
+App Store 홍보 문구 (63자)
+
+```text
+一行就寫完今天的日記。
+短短幾句，每天累積，就是屬於你的紀錄。
+日記和照片只會留在你的裝置和你自己的 Google 雲端硬碟。
+```
+
+Play 자세한 설명 (483자)
+
+```text
+一本只放必要功能的日記，忙碌的日子也能輕鬆寫。
+養成每天寫一篇的習慣吧。
+
+<b>寫日記</b>
+• 加入照片、天氣和地點。每篇最多10張照片。
+• 從9種心情中選一種，記下這一天。
+• 用文字顏色和螢光筆標出重點。
+• 書寫時會自動儲存草稿。
+
+<b>回顧過去</b>
+• 用列表或月曆，一眼看到過去的日記。
+• 用搜尋和收藏，快速找到想看的日記。
+• 看看每週、每月、每年哪種心情最多。
+• 不小心刪除了日記？30天內都能從垃圾桶還原。
+
+<b>備份與鎖定</b>
+• 把日記和照片備份到你自己的 Google 雲端硬碟，也可以不用雲端硬碟，存成一個檔案。
+• 用密碼或生物辨識鎖定，只有你能看。
+
+<b>字型與畫面</b>
+• 可選擇10種字型、內文文字大小和深色模式。
+• 列表可用動態、卡片、照片格狀三種方式檢視。
+• 在平板上，列表和日記會並排顯示。
+
+<b>Plus（年訂閱）</b>
+• 無廣告寫日記。
+• 每篇最多加入30張照片。
+• 可使用核取清單和進階統計。
+• 只想移除廣告？也有一次性購買。
+
+聯絡我們：sjunh812@naver.com
+```
+
+App Store 설명 (627자)
+
+```text
+一本只放必要功能的日記，忙碌的日子也能輕鬆寫。
+養成每天寫一篇的習慣吧。
+
+寫日記
+• 加入照片、天氣和地點。每篇最多10張照片。
+• 從9種心情中選一種，記下這一天。
+• 用文字顏色和螢光筆標出重點。
+• 書寫時會自動儲存草稿。
+
+回顧過去
+• 用列表或月曆，一眼看到過去的日記。
+• 用搜尋和收藏，快速找到想看的日記。
+• 看看每週、每月、每年哪種心情最多。
+• 不小心刪除了日記？30天內都能從垃圾桶還原。
+
+備份與鎖定
+• 把日記和照片備份到你自己的 Google 雲端硬碟，也可以不用雲端硬碟，存成一個檔案。
+• 用密碼或生物辨識鎖定，只有你能看。
+
+字型與畫面
+• 可選擇10種字型、內文文字大小和深色模式。
+• 列表可用動態、卡片、照片格狀三種方式檢視。
+• 在 iPad 上，列表和日記會並排顯示。
+
+Plus（年訂閱）
+• 無廣告寫日記。
+• 每篇最多加入30張照片。
+• 可使用核取清單和進階統計。
+• 只想移除廣告？也有一次性購買。
+
+聯絡我們：sjunh812@naver.com
+
+關於 Plus
+• 除非在續訂日至少24小時前取消，否則每年會自動續訂。
+• 可在「設定」>「Apple 帳號」>「訂閱項目」管理或取消。
+
+使用條款：https://sjunh812.pages.dev/en/1day1diary/terms/
+隱私權政策：https://sjunh812.pages.dev/en/1day1diary/privacy/
+```
+
+### 스페인어(중남미 중립, es-MX·es-419, tú)
+
+- Play 이름: 1 Day 1 Diary - Diario simple (29자)
+- Play 간단한 설명: Tu entrada de hoy en una línea. Las entradas cortas se vuelven tu registro. (75자)
+- App Store 이름: 1Day1Diary - Diario simple (26자)
+- App Store 부제: Crea el hábito de escribir (26자)
+- App Store 키워드 (97자, 2026-11-28 다시 넣음):
+
+```text
+personal,íntimo,journal,ánimo,emociones,notas,fotos,privado,secreto,contraseña,gratitud,recuerdos
+```
+
+App Store 홍보 문구 (161자)
+
+```text
+Tu entrada de hoy, en una línea.
+Las entradas cortas se vuelven tu propio registro.
+Tus entradas y fotos se quedan en tu dispositivo y en tu propio Google Drive.
+```
+
+Play 자세한 설명 (1381자)
+
+```text
+Un diario con solo lo que necesitas, para que escribir sea fácil incluso en los días ocupados.
+Crea el hábito de escribir una entrada al día.
+
+<b>Escribe</b>
+• Agrega fotos, clima y lugar. Hasta 10 fotos por entrada.
+• Marca el día con uno de 9 estados de ánimo.
+• Destaca lo importante con color del texto y resaltado.
+• Tu borrador se guarda automáticamente mientras escribes.
+
+<b>Mira atrás</b>
+• Ve tus entradas pasadas de un vistazo, en una lista o en un calendario.
+• Encuentra cualquier entrada rápido con la búsqueda y los favoritos.
+• Descubre qué estados de ánimo predominaron cada semana, mes y año.
+• ¿Borraste una entrada por error? Restáurala desde la papelera en un plazo de 30 días.
+
+<b>Copia de seguridad y bloqueo</b>
+• Haz una copia de seguridad de tus entradas y fotos en tu propio Google Drive, o guárdalas en un solo archivo sin Drive.
+• Bloquea la app con un código o biometría para que solo tú puedas leerla.
+
+<b>Fuentes y pantalla</b>
+• Elige entre 10 fuentes, el tamaño del texto y el modo oscuro.
+• Ve tu lista como feed, tarjetas o cuadrícula de fotos.
+• En tablets, la lista y la entrada se muestran lado a lado.
+
+<b>Plus (suscripción anual)</b>
+• Escribe sin anuncios.
+• Agrega hasta 30 fotos por entrada.
+• Usa listas de tareas y estadísticas avanzadas.
+• ¿Solo quieres quitar los anuncios? También hay una compra única.
+
+Contacto: sjunh812@naver.com
+```
+
+App Store 설명 (1684자)
+
+```text
+Un diario con solo lo que necesitas, para que escribir sea fácil incluso en los días ocupados.
+Crea el hábito de escribir una entrada al día.
+
+Escribe
+• Agrega fotos, clima y lugar. Hasta 10 fotos por entrada.
+• Marca el día con uno de 9 estados de ánimo.
+• Destaca lo importante con color del texto y resaltado.
+• Tu borrador se guarda automáticamente mientras escribes.
+
+Mira atrás
+• Ve tus entradas pasadas de un vistazo, en una lista o en un calendario.
+• Encuentra cualquier entrada rápido con la búsqueda y los favoritos.
+• Descubre qué estados de ánimo predominaron cada semana, mes y año.
+• ¿Borraste una entrada por error? Restáurala desde la papelera en un plazo de 30 días.
+
+Copia de seguridad y bloqueo
+• Haz una copia de seguridad de tus entradas y fotos en tu propio Google Drive, o guárdalas en un solo archivo sin Drive.
+• Bloquea la app con un código o biometría para que solo tú puedas leerla.
+
+Fuentes y pantalla
+• Elige entre 10 fuentes, el tamaño del texto y el modo oscuro.
+• Ve tu lista como feed, tarjetas o cuadrícula de fotos.
+• En iPad, la lista y la entrada se muestran lado a lado.
+
+Plus (suscripción anual)
+• Escribe sin anuncios.
+• Agrega hasta 30 fotos por entrada.
+• Usa listas de tareas y estadísticas avanzadas.
+• ¿Solo quieres quitar los anuncios? También hay una compra única.
+
+Contacto: sjunh812@naver.com
+
+Acerca de Plus
+• Se renueva automáticamente cada año, salvo que la canceles al menos 24 horas antes de la fecha de renovación.
+• Adminístrala o cancélala en Configuración > Cuenta de Apple > Suscripciones.
+
+Términos de uso: https://sjunh812.pages.dev/en/1day1diary/terms/
+Política de privacidad: https://sjunh812.pages.dev/en/1day1diary/privacy/
+```
+
+### 브라질 포르투갈어(pt-BR, você)
+
+- Play 이름: 1 Day 1 Diary - Diário simples (30자)
+- Play 간단한 설명: A entrada de hoje em uma linha. Entradas curtas viram um registro só seu. (73자)
+- App Store 이름: 1Day1Diary - Diário simples (27자)
+- App Store 부제: Crie o hábito de escrever (25자)
+- App Store 키워드 (88자, 2026-11-28 다시 넣음):
+
+```text
+pessoal,journal,humor,emoções,notas,fotos,privado,secreto,senha,gratidão,memórias,rotina
+```
+
+App Store 홍보 문구 (160자)
+
+```text
+A entrada de hoje, em uma linha.
+Entradas curtas se somam e viram um registro só seu.
+Suas entradas e fotos ficam no seu aparelho e no seu próprio Google Drive.
+```
+
+Play 자세한 설명 (1263자)
+
+```text
+Um diário só com o que você precisa, para escrever com facilidade até nos dias corridos.
+Crie o hábito de escrever uma entrada por dia.
+
+<b>Escreva</b>
+• Adicione fotos, clima e local. Até 10 fotos por entrada.
+• Marque o dia com um dos 9 humores.
+• Realce o que importa com cor do texto e destaque.
+• Seu rascunho é salvo automaticamente enquanto você escreve.
+
+<b>Relembre</b>
+• Veja entradas antigas num relance, em lista ou no calendário.
+• Encontre qualquer entrada rápido com a busca e os favoritos.
+• Veja quais humores mais apareceram em cada semana, mês e ano.
+• Apagou uma entrada sem querer? Restaure da lixeira em até 30 dias.
+
+<b>Backup e bloqueio</b>
+• Faça backup das entradas e fotos no seu próprio Google Drive, ou guarde tudo em um único arquivo, sem o Drive.
+• Bloqueie o app com senha ou biometria para que só você possa ler.
+
+<b>Fontes e tela</b>
+• Escolha entre 10 fontes, o tamanho do texto e o modo escuro.
+• Veja a lista como feed, cartões ou grade de fotos.
+• Em tablets, a lista e a entrada aparecem lado a lado.
+
+<b>Plus (assinatura anual)</b>
+• Escreva sem anúncios.
+• Adicione até 30 fotos por entrada.
+• Use checklists e estatísticas avançadas.
+• Só quer remover os anúncios? Também há uma compra única.
+
+Contato: sjunh812@naver.com
+```
+
+App Store 설명 (1561자)
+
+```text
+Um diário só com o que você precisa, para escrever com facilidade até nos dias corridos.
+Crie o hábito de escrever uma entrada por dia.
+
+Escreva
+• Adicione fotos, clima e local. Até 10 fotos por entrada.
+• Marque o dia com um dos 9 humores.
+• Realce o que importa com cor do texto e destaque.
+• Seu rascunho é salvo automaticamente enquanto você escreve.
+
+Relembre
+• Veja entradas antigas num relance, em lista ou no calendário.
+• Encontre qualquer entrada rápido com a busca e os favoritos.
+• Veja quais humores mais apareceram em cada semana, mês e ano.
+• Apagou uma entrada sem querer? Restaure da lixeira em até 30 dias.
+
+Backup e bloqueio
+• Faça backup das entradas e fotos no seu próprio Google Drive, ou guarde tudo em um único arquivo, sem o Drive.
+• Bloqueie o app com senha ou biometria para que só você possa ler.
+
+Fontes e tela
+• Escolha entre 10 fontes, o tamanho do texto e o modo escuro.
+• Veja a lista como feed, cartões ou grade de fotos.
+• No iPad, a lista e a entrada aparecem lado a lado.
+
+Plus (assinatura anual)
+• Escreva sem anúncios.
+• Adicione até 30 fotos por entrada.
+• Use checklists e estatísticas avançadas.
+• Só quer remover os anúncios? Também há uma compra única.
+
+Contato: sjunh812@naver.com
+
+Sobre o Plus
+• A assinatura é renovada automaticamente todo ano, a menos que seja cancelada pelo menos 24 horas antes da data de renovação.
+• Gerencie ou cancele em Ajustes > Conta Apple > Assinaturas.
+
+Termos de Uso: https://sjunh812.pages.dev/en/1day1diary/terms/
+Política de Privacidade: https://sjunh812.pages.dev/en/1day1diary/privacy/
+```
+
+### 독일어(de-DE, du)
+
+- Play 이름: 1 Day 1 Diary - Tagebuch (24자)
+- Play 간단한 설명: Dein Eintrag für heute in einer Zeile. Kurze Einträge werden zu deiner Chronik. (79자)
+- App Store 이름: 1Day1Diary: Einfaches Tagebuch (30자)
+- App Store 부제: Jeden Tag eine Zeile schreiben (30자)
+- App Store 키워드 (92자, 2026-11-28 다시 넣음):
+
+```text
+journal,stimmung,gefühle,notizen,fotos,privat,geheim,passwort,dankbarkeit,tracker,persönlich
+```
+
+App Store 홍보 문구 (160자)
+
+```text
+Dein Eintrag für heute, in einer Zeile.
+Kurze Einträge werden zu deiner eigenen Chronik.
+Einträge und Fotos bleiben auf deinem Gerät und in deinem Google Drive.
+```
+
+Play 자세한 설명 (1372자)
+
+```text
+Ein Tagebuch mit genau dem, was du brauchst, damit das Schreiben auch an vollen Tagen leichtfällt.
+Gewöhn dir an, jeden Tag einen Eintrag zu schreiben.
+
+<b>Schreiben</b>
+• Füge Fotos, Wetter und Ort hinzu. Bis zu 10 Fotos pro Eintrag.
+• Halte den Tag mit einer von 9 Stimmungen fest.
+• Hebe Wichtiges mit Textfarbe und Markierung hervor.
+• Dein Entwurf wird beim Schreiben automatisch gespeichert.
+
+<b>Zurückblicken</b>
+• Sieh frühere Einträge auf einen Blick, als Liste oder im Kalender.
+• Finde jeden Eintrag schnell über die Suche und deine Favoriten.
+• Sieh, welche Stimmungen pro Woche, Monat und Jahr am häufigsten waren.
+• Aus Versehen gelöscht? Hol den Eintrag innerhalb von 30 Tagen aus dem Papierkorb zurück.
+
+<b>Backup und Sperre</b>
+• Sichere Einträge und Fotos in deinem eigenen Google Drive oder bewahre sie ohne Drive in einer einzigen Datei auf.
+• Sperre die App mit Code oder Biometrie, damit nur du sie lesen kannst.
+
+<b>Schrift und Anzeige</b>
+• Wähle aus 10 Schriften, die Textgröße und den dunklen Modus.
+• Zeige deine Liste als Feed, Karten oder Fotoraster an.
+• Auf Tablets stehen Liste und Eintrag nebeneinander.
+
+<b>Plus (Jahresabo)</b>
+• Schreib ohne Werbung.
+• Füge bis zu 30 Fotos pro Eintrag hinzu.
+• Nutze Checklisten und die erweiterte Statistik.
+• Nur die Werbung loswerden? Dafür gibt es auch einen Einmalkauf.
+
+Kontakt: sjunh812@naver.com
+```
+
+App Store 설명 (1698자)
+
+```text
+Ein Tagebuch mit genau dem, was du brauchst, damit das Schreiben auch an vollen Tagen leichtfällt.
+Gewöhn dir an, jeden Tag einen Eintrag zu schreiben.
+
+Schreiben
+• Füge Fotos, Wetter und Ort hinzu. Bis zu 10 Fotos pro Eintrag.
+• Halte den Tag mit einer von 9 Stimmungen fest.
+• Hebe Wichtiges mit Textfarbe und Markierung hervor.
+• Dein Entwurf wird beim Schreiben automatisch gespeichert.
+
+Zurückblicken
+• Sieh frühere Einträge auf einen Blick, als Liste oder im Kalender.
+• Finde jeden Eintrag schnell über die Suche und deine Favoriten.
+• Sieh, welche Stimmungen pro Woche, Monat und Jahr am häufigsten waren.
+• Aus Versehen gelöscht? Hol den Eintrag innerhalb von 30 Tagen aus dem Papierkorb zurück.
+
+Backup und Sperre
+• Sichere Einträge und Fotos in deinem eigenen Google Drive oder bewahre sie ohne Drive in einer einzigen Datei auf.
+• Sperre die App mit Code oder Biometrie, damit nur du sie lesen kannst.
+
+Schrift und Anzeige
+• Wähle aus 10 Schriften, die Textgröße und den dunklen Modus.
+• Zeige deine Liste als Feed, Karten oder Fotoraster an.
+• Auf dem iPad stehen Liste und Eintrag nebeneinander.
+
+Plus (Jahresabo)
+• Schreib ohne Werbung.
+• Füge bis zu 30 Fotos pro Eintrag hinzu.
+• Nutze Checklisten und die erweiterte Statistik.
+• Nur die Werbung loswerden? Dafür gibt es auch einen Einmalkauf.
+
+Kontakt: sjunh812@naver.com
+
+Über Plus
+• Das Abo verlängert sich jedes Jahr automatisch, wenn du nicht mindestens 24 Stunden vor dem Verlängerungsdatum kündigst.
+• Verwalten oder kündigen kannst du es unter Einstellungen > Apple Account > Abonnements.
+
+Nutzungsbedingungen: https://sjunh812.pages.dev/en/1day1diary/terms/
+Datenschutzerklärung: https://sjunh812.pages.dev/en/1day1diary/privacy/
+```
+
+### 프랑스어(fr-FR, vous)
+
+- Play 이름: 1 Day 1 Diary - Journal intime (30자)
+- Play 간단한 설명: L’entrée du jour en une ligne. Peu à peu, vos entrées forment votre journal. (76자)
+- App Store 이름: 1Day1Diary - Journal simple (27자)
+- App Store 부제: Prenez l’habitude d’écrire (26자)
+- App Store 키워드 (92자, 2026-11-28 다시 넣음):
+
+```text
+intime,carnet,humeur,émotions,notes,photos,privé,secret,verrou,gratitude,personnel,souvenirs
+```
+
+App Store 홍보 문구 (164자)
+
+```text
+L’entrée du jour, en une ligne.
+Peu à peu, vos courtes entrées forment votre journal.
+Vos entrées et photos restent sur votre appareil et votre propre Google Drive.
+```
+
+Play 자세한 설명 (1436자)
+
+```text
+Un journal avec l’essentiel, pour écrire facilement même les jours chargés.
+Prenez l’habitude d’écrire une entrée par jour.
+
+<b>Écrire</b>
+• Ajoutez photos, météo et lieu. Jusqu’à 10 photos par entrée.
+• Notez votre journée avec l’une des 9 humeurs.
+• Faites ressortir ce qui compte avec la couleur du texte et le surlignage.
+• Votre brouillon est enregistré automatiquement pendant que vous écrivez.
+
+<b>Revoir</b>
+• Retrouvez vos entrées passées d’un coup d’œil, en liste ou dans le calendrier.
+• Trouvez vite une entrée grâce à la recherche et aux favoris.
+• Voyez quelles humeurs reviennent le plus chaque semaine, mois et année.
+• Une entrée supprimée par erreur ? Restaurez-la depuis la corbeille pendant 30 jours.
+
+<b>Sauvegarde et verrouillage</b>
+• Sauvegardez vos entrées et photos sur votre propre Google Drive, ou gardez-les dans un seul fichier, sans Drive.
+• Verrouillez l’app avec un code ou la biométrie pour qu’elle reste rien qu’à vous.
+
+<b>Polices et affichage</b>
+• Choisissez parmi 10 polices, la taille du texte et le mode sombre.
+• Affichez votre liste en fil, en cartes ou en grille de photos.
+• Sur tablette, la liste et l’entrée s’affichent côte à côte.
+
+<b>Plus (abonnement annuel)</b>
+• Écrivez sans pub.
+• Ajoutez jusqu’à 30 photos par entrée.
+• Utilisez les listes à cocher et les statistiques avancées.
+• Vous voulez seulement retirer les pubs ? Un achat unique existe aussi.
+
+Contact : sjunh812@naver.com
+```
+
+App Store 설명 (1764자)
+
+```text
+Un journal avec l’essentiel, pour écrire facilement même les jours chargés.
+Prenez l’habitude d’écrire une entrée par jour.
+
+Écrire
+• Ajoutez photos, météo et lieu. Jusqu’à 10 photos par entrée.
+• Notez votre journée avec l’une des 9 humeurs.
+• Faites ressortir ce qui compte avec la couleur du texte et le surlignage.
+• Votre brouillon est enregistré automatiquement pendant que vous écrivez.
+
+Revoir
+• Retrouvez vos entrées passées d’un coup d’œil, en liste ou dans le calendrier.
+• Trouvez vite une entrée grâce à la recherche et aux favoris.
+• Voyez quelles humeurs reviennent le plus chaque semaine, mois et année.
+• Une entrée supprimée par erreur ? Restaurez-la depuis la corbeille pendant 30 jours.
+
+Sauvegarde et verrouillage
+• Sauvegardez vos entrées et photos sur votre propre Google Drive, ou gardez-les dans un seul fichier, sans Drive.
+• Verrouillez l’app avec un code ou la biométrie pour qu’elle reste rien qu’à vous.
+
+Polices et affichage
+• Choisissez parmi 10 polices, la taille du texte et le mode sombre.
+• Affichez votre liste en fil, en cartes ou en grille de photos.
+• Sur iPad, la liste et l’entrée s’affichent côte à côte.
+
+Plus (abonnement annuel)
+• Écrivez sans pub.
+• Ajoutez jusqu’à 30 photos par entrée.
+• Utilisez les listes à cocher et les statistiques avancées.
+• Vous voulez seulement retirer les pubs ? Un achat unique existe aussi.
+
+Contact : sjunh812@naver.com
+
+À propos de Plus
+• L’abonnement se renouvelle automatiquement chaque année, sauf résiliation au moins 24 heures avant la date de renouvellement.
+• Gérez-le ou résiliez-le dans Réglages > Compte Apple > Abonnements.
+
+Conditions d’utilisation : https://sjunh812.pages.dev/en/1day1diary/terms/
+Politique de confidentialité : https://sjunh812.pages.dev/en/1day1diary/privacy/
+```
+
+### 검수 때 볼 것
+
+- 중국어 이름 「簡單日記本」과 Play 이름은 대만에서 이미 쓰는 앱 이름과 겹치는지 App Store Connect에 넣어 봐야 안다. 거절되면 「1日1日記 - 簡單好寫的日記本」처럼 늘린다.
+- 스페인어는 중남미 기준이라 iOS 설정 앱 이름을 "Configuración"으로 썼다. 스페인 iOS는 "Ajustes"다.
+- 독일어 iOS의 "Apple Account"가 그대로 영어인지, 프랑스어 "Compte Apple"·포르투갈어 "Conta Apple"·중국어 「Apple 帳號」「訂閱項目」이 지금 iOS 표기와 같은지 기기에서 본다.
+- 독일어 Play 이름은 30자에 맞추려고 "1 Day 1 Diary - Tagebuch"로 줄였다. App Store 이름 "1Day1Diary: Einfaches Tagebuch"는 30자 꽉 찬다.
+- 프랑스어 이름 "1Day1Diary - Journal simple"은 영어 "1Day1Diary - Simple Journal"과 낱말 순서만 다르다. 다른 이름으로 받아 주는지 넣어 봐야 안다.

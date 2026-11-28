@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lock_title">Saisissez votre code</string>
+    <plurals name="lock_wrong">
+        <item quantity="one">Code incorrect · %1$d essai restant</item>
+        <item quantity="other">Code incorrect · %1$d essais restants</item>
+    </plurals>
+    <string name="lock_wait_title">Patientez un instant</string>
+    <plurals name="lock_wait_body">
+        <item quantity="one">Vous pourrez réessayer dans %1$d seconde</item>
+        <item quantity="other">Vous pourrez réessayer dans %1$d secondes</item>
+    </plurals>
+    <string name="lock_forgot">Code oublié ?</string>
+    <string name="lock_biometric">Déverrouiller par biométrie</string>
+    <string name="lock_biometric_locked">Biométrie bloquée. Utilisez votre code.</string>
+    <string name="lock_biometric_prompt_title">Vérification biométrique</string>
+    <string name="lock_biometric_prompt_reason">Confirmez votre identité pour ouvrir votre journal</string>
+    <string name="lock_biometric_prompt_cancel">Utiliser le code</string>
+
+    <string name="pin_setup_title">Choisissez un nouveau code à 4 chiffres</string>
+    <string name="pin_setup_again">Saisissez-le à nouveau</string>
+    <string name="pin_setup_mismatch">Les codes ne correspondent pas. Recommencez.</string>
+    <string name="pin_setup_note">Si vous oubliez votre code, vous pourrez confirmer votre identité avec le verrouillage de l’écran de votre appareil et en choisir un nouveau. Toute personne qui connaît ce verrouillage peut aussi ouvrir votre journal de cette façon.</string>
+
+    <string name="forgot_title">Confirmez avec le verrouillage de l’écran</string>
+    <string name="forgot_body">Après avoir confirmé votre identité avec le verrouillage de l’écran de votre appareil, vous pourrez choisir un nouveau code. Votre journal n’est pas touché.</string>
+    <string name="forgot_confirm">Confirmer</string>
+    <string name="forgot_prompt_title">Choisir un nouveau code</string>
+    <string name="forgot_no_device_lock_title">Aucun verrouillage de l’écran</string>
+    <string name="forgot_no_device_lock_body">Sans verrouillage de l’écran, vous ne pouvez pas choisir de nouveau code. Si vous avez une sauvegarde, réinstallez l’app et restaurez-y votre journal.</string>
+    <string name="lock_turned_off">Votre appareil n’a pas de verrouillage de l’écran, le verrouillage du journal est donc désactivé. Choisissez un nouveau code dans Paramètres.</string>
+
+    <string name="lock_settings_title">Verrouillage</string>
+    <string name="lock_settings_enable">Verrouiller le journal</string>
+    <string name="lock_settings_change">Modifier le code</string>
+    <string name="lock_settings_biometric_unavailable">La biométrie n’est pas disponible sur cet appareil pour le moment.</string>
+    <string name="lock_settings_biometric_none_enrolled">Configurez la biométrie dans les réglages de l’appareil pour l’utiliser.</string>
+    <string name="lock_settings_biometric_not_allowed">Autorisez Face ID pour cette app dans Réglages.</string>
+    <string name="lock_settings_biometric_locked_out">Biométrie bloquée après trop d’essais. Déverrouillez votre appareil avec son code pour la réutiliser.</string>
+    <string name="lock_settings_relock">Verrouillage auto</string>
+    <string name="lock_settings_relock_body">Votre journal se verrouille à nouveau quand vous revenez d’une autre app après le délai choisi.</string>
+    <string name="relock_immediately">Immédiatement</string>
+    <string name="relock_one_minute">Après 1 minute</string>
+    <string name="relock_five_minutes">Après 5 minutes</string>
+    <string name="relock_cold_start">Au redémarrage de l’app</string>
+    <string name="lock_settings_note">Si vous oubliez votre code, vous pourrez confirmer votre identité avec le verrouillage de l’écran de votre appareil et en choisir un nouveau.</string>
+    <string name="lock_note_no_device_lock">Votre appareil n’a pas de verrouillage de l’écran : si vous oubliez votre code, vous ne pourrez pas en choisir un nouveau.</string>
+    <string name="lock_confirm_title">Saisissez votre code actuel</string>
+    <string name="lock_settings_method">Mode de verrouillage</string>
+    <string name="pin_setup_save_failed">Impossible d’enregistrer le code. Vérifiez le stockage et saisissez-le à nouveau.</string>
+    <string name="lock_key_unavailable">Impossible de vérifier votre code pour le moment. Réessayez dans un moment.</string>
+    <string name="lock_off_failed">Impossible de désactiver le verrouillage. Vérifiez le stockage et réessayez.</string>
+</resources>

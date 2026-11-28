@@ -222,7 +222,7 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
     val adRemoval = koinViewModel<AdRemovalViewModel>()
     RewardNotSavedNotice(adRemoval, toast)
     val actions = remember(shell, adRemoval) {
-        ShellActions(shell.plan, shell::screenShown, shell::saved, shell::restoreTrashed, adRemoval::open)
+        ShellActions(shell.plan, shell.showAds, shell::screenShown, shell::saved, shell::restoreTrashed, adRemoval::open)
     }
     AdRemovalSheets(adRemoval)
     FirstAdNotice(shell)
@@ -417,6 +417,7 @@ private val LocalRootChrome = compositionLocalOf<(@Composable BoxScope.(TabScree
 @Immutable
 private class ShellActions(
     val plan: StateFlow<Plan?>,
+    val showAds: StateFlow<Boolean>,
     val onScreen: (NavKey) -> Unit,
     val onSaved: (entryId: String) -> Unit,
     val onRestore: (String) -> Unit,
@@ -577,7 +578,7 @@ private fun Content(
                         // 한 칸은 상세가 목록을 덮어 따지지 않음. 따지면 일기를 누르는 순간 광고가 빠져 넘어가는 동안 목록이 들썩임
                         adSlot = { order, slot ->
                             if (!splitWindow || homeStack.none { it is EntryDetailKey }) {
-                                AdSlot("home-$order", if (order == 0) AdShape.Row else AdShape.Card, shell.onAdClose, slot)
+                                AdSlot("home-$order", if (order == 0) AdShape.Row else AdShape.Card, shell.showAds, shell.onAdClose, slot)
                             }
                         }
                     )
@@ -628,7 +629,7 @@ private fun Content(
                         onPlus = { nav.push(PlusKey()) },
                         onAdvanced = { nav.push(AdvancedStatsKey) },
                         onWrite = onWrite,
-                        adSlot = { AdSlot("insight", AdShape.Card, shell.onAdClose) }
+                        adSlot = { AdSlot("insight", AdShape.Card, shell.showAds, shell.onAdClose) }
                     )
                 }
                 entry<AdvancedStatsKey> {

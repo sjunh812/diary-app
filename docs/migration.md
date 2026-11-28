@@ -104,7 +104,7 @@
 | `create_date` | `Entry.date`(LocalDate), `Entry.time`(LocalTime), `Entry.legacyCreateDate` | 이전하는 기기의 시간대로 해석한다. 원문 문자열을 함께 남긴다. 날짜를 골라 쓴 일기는 시각을 `HH:mm:SS`(S는 밀리초)로 만들어 초 자리가 `05`~`999`일 수 있다(`Utils.timeFormat2`, `WriteFragment` 저장). 그래서 날짜는 앞 10글자(`yyyy-MM-dd`, 사용자가 고른 날)를 그대로 쓰고 시각은 시와 분만 쓴다. 옛 앱은 이 값을 느슨하게 읽어 23시 5x분 일기를 다음 날로 보였을 수 있다. 앞 10글자와 느슨한 해석의 날짜가 다른 줄은 이전 보고에 수를 센다 |
 | `modify_date` | `Entry.updatedAt` | 파싱 실패하면 `create_date` |
 | `contents` | `Entry.bodyHtml`(제한된 HTML), `Entry.plainText` | `plainText`에는 원문을 그대로 넣는다. `bodyHtml`은 원문을 HTML 이스케이프하고 줄바꿈을 문단·줄바꿈 태그로 바꿔 넣는다. 보이는 글은 원문과 한 글자도 달라지면 안 되므로, `bodyHtml`을 다시 평문으로 바꾼 값이 `plainText`와 같은지 검증 지문에 넣는다 |
-| `mood` | `Entry.mood` | 위 표의 0~8을 안정된 문자열 ID(`angry`, `cool`, `sad`, `sick`, `laugh`, `meh`, `bad`, `good`, `tired`)로. -1은 null |
+| `mood` | `Entry.mood` | 위 표의 0~8을 안정된 문자열 ID(`angry`, `cool`, `sad`, `sick`, `laugh`, `meh`, `bad`, `good`, `tired`)로. -1은 null. 스펙 013에서 더한 6종(`excited` 등)은 레거시 번호가 없어 이전에서 나오지 않는다 |
 | `weather` | `Entry.weather` | 0~6을 문자열 ID(`sunny`, `partly_cloudy`, `mostly_cloudy`, `cloudy`, `rain`, `sleet`, `snow`)로. -1은 null |
 | `address` | `Entry.placeName` | 빈 문자열은 null |
 | `star` | `Entry.isFavorite` | NULL은 false |

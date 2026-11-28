@@ -30,7 +30,6 @@ import org.sjhstudio.diary.core.model.withCustom
 import org.sjhstudio.diary.core.model.withPreset
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.FontInstaller
-import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.WhileUiSubscribed
@@ -62,6 +61,10 @@ data class SettingsUiState(
     val canFormat: Boolean? = null,
     /** 테마 색을 직접 고를 수 있음(스펙 010). 요금제를 아직 모르면 null */
     val canCustomTheme: Boolean? = null,
+    /** Plus 기분 테마를 쓸 수 있음(스펙 013). 요금제를 아직 모르면 null */
+    val canMoodTheme: Boolean? = null,
+    /** 광고 동의가 필요한 지역이라 "광고 개인정보 설정" 줄이 있음 */
+    val showsAdPrivacy: Boolean = false,
     /**
      * 설정을 읽었음
      * 읽기 전 기본값(잠금 꺼짐 등)을 그리면 켜 둔 것이 잠깐 꺼진 것으로 보임
@@ -81,7 +84,8 @@ class SettingsViewModel(
     fonts: FontInstaller,
     private val notifications: NotificationAllowance,
     lastBackupAt: Flow<Instant?> = flowOf(null),
-    private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
+    adPrivacyRequired: Flow<Boolean> = flowOf(false),
+    private val telemetry: Telemetry
 ) : ViewModel() {
     /** 본문 글자 크기 견본이 고른 글꼴(받은 글꼴 포함)로 그림 */
     val look: StateFlow<BodyLook> = settings.bodyLookIn(viewModelScope, fonts)
@@ -121,8 +125,9 @@ class SettingsViewModel(
                 state.copy(reminderBlocked = if (state.settings.reminderEnabled) allowed?.not() else false)
             }
             .combine(settledPlan) { state, plan ->
-                state.copy(canFormat = plan?.listFormatting, canCustomTheme = plan?.customTheme)
+                state.copy(canFormat = plan?.listFormatting, canCustomTheme = plan?.customTheme, canMoodTheme = plan?.moodThemes)
             }
+            .combine(adPrivacyRequired) { state, required -> state.copy(showsAdPrivacy = required) }
             // 요금제는 기기에 남긴 값이라 바로 앎. 첫 화면부터 Plus 카드를 그려 늦게 끼어들지 않게
             .stateInSafely(viewModelScope, WhileUiSubscribed, SettingsUiState(plan = plans.confirmedNow))
 

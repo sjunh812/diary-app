@@ -5,11 +5,10 @@
 A simple diary for busy days: pick a mood, write a few lines, and the day is saved.
 No sign-up. Your entries and photos are backed up only to your own Google Drive.
 
-[Get it on Google Play](https://play.google.com/store/apps/details?id=org.sjhstudio.diary)
+[Get it on Google Play](https://play.google.com/store/apps/details?id=org.sjhstudio.diary) · [Download on the App Store](https://apps.apple.com/app/id6835116731)
 
-The version on Google Play today is 1.7.4, built with Java/Kotlin Views.
-This repository is 2.0, a full rewrite in Compose Multiplatform.
-2.0.0 ships as an update on Google Play, and the iOS version follows on the App Store in the next phase.
+2.0 rewrote the 1.7.x Java/Kotlin View app in Compose Multiplatform.
+Android and iOS share one codebase and have the same features.
 The app itself is in Korean, English, and Japanese.
 
 <p>
@@ -27,10 +26,10 @@ The app itself is in Korean, English, and Japanese.
 | Write | Text, photos, 9 moods, 7 weather types, and a place in one entry. Bold, underline, text color, highlight, and lists. Drafts survive the app being closed. |
 | Look back | Find past entries by list, calendar, search, or favorites. Shared entries include the date and mood. |
 | Insights | See which moods came up most by week, month, or year. |
-| Backup and restore | Backs up entries and photos to your Google Drive once a day. Restoring merges with the entries already on the phone instead of erasing them. You can also move everything as a single file, without Drive. |
+| Backup and restore | Backs up entries and photos to your Google Drive once a day, on Android and iOS alike. Restoring merges with the entries already on the phone instead of erasing them. You can also move everything as a single file, without Drive. |
 | Migration from 1.7.x | Moves existing entries, photos, and settings as they are. The original data is never changed or deleted. |
 | Lock and trash | Lock with a PIN or biometrics. Deleted entries stay in the trash for 30 days. |
-| Personalize | 10 diary fonts, body text size, dark mode, and list styles. Tablets show the list and the entry side by side. |
+| Personalize | 7 app theme colors, 10 diary fonts, body text size, dark mode, and list styles. Tablets show the list and the entry side by side. |
 
 Everything that was free in 1.7.4, including backups with photos, stays free in 2.0.
 2.0 adds ads, but never on the writing and reading screens, lock, backup, or settings.
@@ -39,7 +38,7 @@ There are two paid options.
 | Product | Price | What you get |
 | --- | --- | --- |
 | Remove ads | ₩9,900, one-time | No ads |
-| Plus | ₩14,900 per year | No ads, 30 photos per entry (10 on free), checklists, advanced insights |
+| Plus | ₩14,900 per year | No ads, 30 photos per entry (10 on free), checklists, advanced insights, a theme color of your own |
 
 ## Principles
 
@@ -60,11 +59,11 @@ All work follows the [constitution](.specify/memory/constitution.md). In short:
 | Data | Room 3 + `BundledSQLiteDriver` (FTS5, `VACUUM INTO`), DataStore, Paging |
 | Editor and media | compose-rich-editor, Coil 3, FileKit, Compottie (Lottie) |
 | Backup | Google Drive REST (Ktor), WorkManager, iOS BGTask, okio |
-| Payments and ads | RevenueCat (Android), AdMob, Firebase Remote Config |
+| Payments and ads | RevenueCat (Android SDK, KMP SDK on iOS), AdMob, Firebase Remote Config |
 | Operations | Firebase Analytics, Crashlytics |
 | Build and checks | AGP 9.3, Spotless (ktlint), detekt, Android Lint, Baseline Profile, GitHub Actions |
 
-iOS payments and home screen widgets come in phase 2.
+Home screen widgets come later.
 Exact versions are in [`gradle/libs.versions.toml`](gradle/libs.versions.toml).
 
 ## Project structure
@@ -112,10 +111,10 @@ You need the Android SDK. Gradle downloads JDK 17 on its own.
 ANDROID_SERIAL=emulator-5554 ./gradlew :composeApp:installDebug
 ```
 
-The same checks as CI: formatting, design tokens, coroutine safety, string resources, detekt, Android Lint, tests on both platforms, and the build.
+The same checks as CI: formatting, design tokens, coroutine safety, string resources, unused imports, detekt, Android Lint, tests on both platforms, and the build.
 
 ```bash
-./gradlew spotlessCheck designTokenCheck coroutineSafetyCheck stringResourceCheck detekt :composeApp:lint allTests assembleDebug
+./gradlew spotlessCheck designTokenCheck coroutineSafetyCheck stringResourceCheck unusedImportCheck detekt :composeApp:lint allTests assembleDebug
 ```
 
 iOS needs Xcode and xcodegen.

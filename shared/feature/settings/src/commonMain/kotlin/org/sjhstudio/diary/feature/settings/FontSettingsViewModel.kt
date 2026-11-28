@@ -19,7 +19,6 @@ import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.FontInstallState
 import org.sjhstudio.diary.core.platform.FontInstaller
-import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.ui.BUNDLED_DIARY_FONTS
 import org.sjhstudio.diary.core.ui.WhileUiSubscribed
@@ -52,7 +51,7 @@ enum class FontNotice { Offline, NoSpace, NotFromStore, Failed }
 class FontSettingsViewModel(
     private val settings: SettingsRepository,
     private val installer: FontInstaller,
-    private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true),
+    private val telemetry: Telemetry,
     io: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
     // 처음엔 확인해 둔 경로로 그리고, 파일 확인은 화면 스레드 밖에서

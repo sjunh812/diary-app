@@ -68,10 +68,10 @@ private fun Slot(
     val shape = DiaryShapes.r12
     Column(
         modifier
+            .diaryPress(interaction, colors.textPrimary, shape)
             .clip(shape)
             .background(if (active) colors.surface else colors.sunken)
             .then(if (active) Modifier.border(ACTIVE_BORDER, colors.accentIcon, shape) else Modifier)
-            .diaryPress(interaction, colors.textPrimary, shape)
             .semantics { selected = active }
             .clickable(enabled = onClick != null, interactionSource = interaction, indication = null, role = Role.Button) {
                 onClick?.invoke()

@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -34,6 +35,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.YearMonth
@@ -53,6 +56,7 @@ import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.component.rememberCalendarWheelRows
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.DiaryMotion
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -95,7 +99,7 @@ import org.sjhstudio.diary.feature.write.resources.write_weather_title
 /** 같은 칸을 다시 누르면 풀림 */
 @Composable
 internal fun MoodGrid(selected: Mood?, onSelect: (Mood) -> Unit, modifier: Modifier = Modifier) {
-    DiaryMoodGrid({ it == selected }, onSelect, modifier)
+    DiaryMoodGrid({ it == selected }, onSelect, modifier, popOnSelect = true)
 }
 
 @Composable
@@ -115,12 +119,25 @@ private fun ClearButton(onClick: () -> Unit) {
  */
 @Composable
 internal fun MoodSheet(mood: Mood?, onMood: (Mood) -> Unit, onClear: () -> Unit, onDismiss: () -> Unit) {
+    val scope = rememberCoroutineScope()
+    // 한 번 고르면 시트가 닫히는 중. 그사이 또 눌러 같은 기분이 풀리지 않게 받지 않음
+    var closing by remember { mutableStateOf(false) }
     DiaryBottomSheet(
         onDismiss = onDismiss,
         title = stringResource(Res.string.write_mood_title),
         description = stringResource(Res.string.write_mood_body)
     ) {
-        MoodGrid(mood, onMood)
+        MoodGrid(mood, { picked ->
+            if (!closing) {
+                closing = true
+                onMood(picked)
+                // 칸이 커지는 순간을 본 뒤 닫음
+                scope.launch {
+                    delay(DiaryMotion.EXIT_MILLIS.toLong())
+                    onDismiss()
+                }
+            }
+        })
         if (mood != null) ClearButton(onClear)
     }
 }

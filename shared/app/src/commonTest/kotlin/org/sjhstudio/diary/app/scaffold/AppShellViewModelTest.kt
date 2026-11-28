@@ -89,6 +89,18 @@ class AppShellViewModelTest {
     }
 
     @Test
+    fun ad_visibility_is_known_before_an_ad_slot_reads_it() = runTest(dispatcher) {
+        // 광고 자리는 화면에 돌아올 때마다 새로 그려짐. 처음 값이 거짓이면 자리가 비었다 생겨 스크롤이 맨 위로 감
+        val showAds = MutableStateFlow(true)
+        val shell = AppShellViewModel(FakeEntryRepository(), FakePlanRepository(), Ads(), removal, locked, showAds, askReview = {}) {}
+        advanceUntilIdle()
+        assertTrue(shell.showAds.value)
+        showAds.value = false
+        advanceUntilIdle()
+        assertFalse(shell.showAds.value)
+    }
+
+    @Test
     fun opening_write_prepares_and_saving_shows_right_away() = runTest(dispatcher) {
         val ads = Ads()
         val shell = shell(ads = ads)

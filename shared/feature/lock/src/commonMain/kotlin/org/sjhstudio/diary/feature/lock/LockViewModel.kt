@@ -21,7 +21,6 @@ import org.sjhstudio.diary.core.data.lock.LockRepository
 import org.sjhstudio.diary.core.data.lock.VerifyResult
 import org.sjhstudio.diary.core.model.Pin
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
-import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.ui.launchSafely
 
@@ -82,7 +81,7 @@ class LockViewModel(
      * 결과(`ok`·`wrong`·`waiting`)만 보냄
      * 비밀번호와 횟수는 보내지 않음(contracts/lock.md)
      */
-    private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
+    private val telemetry: Telemetry
 ) : ViewModel() {
     private val digits = CharArray(Pin.LENGTH)
     private var count = 0

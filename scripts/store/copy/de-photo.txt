@@ -1,0 +1,4 @@
+phone|home|[Eine Zeile],\nund der Tag ist notiert|Leicht zu schreiben, auch an vollen Tagen
+phone|detail|Halte deinen Tag\nmit [Fotos] fest|Bis zu 10 Fotos pro Eintrag
+phone|home-grid|Blick zurück\nin [Fotos]|Liste als Fotoraster ansehen
+phone|backup|Fotos sichern\nin deinem [Drive]|Ohne Konto. Automatisch, einmal am Tag.

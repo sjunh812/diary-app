@@ -14,9 +14,9 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.w3c.dom.Element
 
-// 화면 문구가 세 언어에 다 있는지 검사(docs/design.md 여러 언어, research R18)
-// values(영어) 기준으로 values-ko, values-ja의 이름·꼴·%1$s 자리가 같은지 비교
-// 개수 문구는 영어 one·other, 한국어·일본어 other가 있어야 함
+// 화면 문구가 모든 언어에 다 있는지 검사(docs/design.md 여러 언어, research R18)
+// values(영어) 기준으로 values-<언어>의 이름·꼴·%1$s 자리가 같은지 비교
+// 개수 문구는 언어마다 쓰는 꼴(LOCALES)이 모두 있어야 함
 // Compose 리소스는 \' 와 \" 를 풀지 않아 역슬래시가 화면에 그대로 보여 막음
 @CacheableTask
 abstract class StringResourceCheckTask : DefaultTask() {
@@ -40,12 +40,12 @@ abstract class StringResourceCheckTask : DefaultTask() {
                 val where = english.relativeTo(base).invariantSeparatorsPath
                 val ownProblems = reference.plurals("one", where) + reference.plurals("other", where) + reference.escapes(where)
                 ownProblems +
-                    LOCALES.flatMap { locale ->
+                    LOCALES.flatMap { (locale, quantities) ->
                         val file = File(english.parentFile.parentFile, "values-$locale/${english.name}")
                         if (!file.exists()) {
                             listOf("$where: values-$locale/${english.name}이 없다")
                         } else {
-                            compare(reference, parse(file), file.relativeTo(base).invariantSeparatorsPath)
+                            compare(reference, parse(file), file.relativeTo(base).invariantSeparatorsPath, quantities)
                         }
                     }
             }
@@ -55,7 +55,7 @@ abstract class StringResourceCheckTask : DefaultTask() {
         }
     }
 
-    private fun compare(reference: Strings, translated: Strings, where: String): List<String> = buildList {
+    private fun compare(reference: Strings, translated: Strings, where: String, quantities: List<String>): List<String> = buildList {
         (reference.entries.keys - translated.entries.keys).forEach { add("$where: $it 이 없다") }
         (translated.entries.keys - reference.entries.keys).forEach { add("$where: $it 은 영어(values)에 없다") }
         reference.entries.forEach { (name, english) ->
@@ -65,7 +65,7 @@ abstract class StringResourceCheckTask : DefaultTask() {
                 add("$where: $name 의 자리 ${other.placeholders.sorted()}가 영어 ${english.placeholders.sorted()}와 다르다")
             }
         }
-        addAll(translated.plurals("other", where))
+        quantities.forEach { addAll(translated.plurals(it, where)) }
         addAll(translated.escapes(where))
     }
 
@@ -108,7 +108,17 @@ abstract class StringResourceCheckTask : DefaultTask() {
     private class Entry(val kind: String, val placeholders: Set<String>, val quantities: Set<String>, val escaped: Boolean)
 
     private companion object {
-        val LOCALES = listOf("ko", "ja")
+        // 한중일은 other 하나, 유럽 언어는 one·other
+        val LOCALES =
+            mapOf(
+                "ko" to listOf("other"),
+                "ja" to listOf("other"),
+                "b+zh+Hant" to listOf("other"),
+                "es" to listOf("one", "other"),
+                "pt" to listOf("one", "other"),
+                "de" to listOf("one", "other"),
+                "fr" to listOf("one", "other")
+            )
         val PLACEHOLDER = Regex("""%\d+\$[sd]""")
         val ESCAPED = Regex("""\\['"]""")
     }

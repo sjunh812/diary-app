@@ -66,7 +66,6 @@
     <string name="insight_adv_when_hard_weather">부정적인 기분은 날씨가 %1$s일 때 가장 많았어요</string>
     <string name="insight_adv_when_good_place">%1$s에서 긍정적인 기분이 가장 많았어요</string>
     <string name="insight_adv_when_hard_place">부정적인 기분은 %1$s에서 가장 많았어요</string>
-    <string name="insight_adv_legend_neutral">%1$s·%2$s</string>
     <string name="insight_adv_company">기분별 날씨·요일·장소</string>
     <string name="insight_adv_habit">내 기록</string>
     <string name="insight_adv_habit_entries">일기</string>
@@ -114,8 +113,7 @@
     <string name="insight_adv_characters_small">%1$s만 자</string>
     <string name="insight_adv_characters_big">%1$s억 자</string>
     <string name="insight_adv_tone_info">기분을 나눈 기준</string>
-    <string name="insight_adv_tone_sheet_title">긍정적인 기분과 부정적인 기분</string>
-    <string name="insight_adv_tone_sheet_body">기분을 선택한 일기 가운데 긍정적인 기분과 부정적인 기분이 각각 몇 %인지 보여줘요.</string>
-    <string name="insight_adv_tone_neutral">포함하지 않는 기분</string>
+    <string name="insight_adv_tone_sheet_body">기분을 선택한 일기 가운데 긍정적인 기분과 부정적인 기분이 각각 몇 %인지 보여줘요. 그 밖의 기분은 막대의 회색 부분이에요.</string>
+    <string name="insight_adv_tone_neutral">그 밖의 기분</string>
     <string name="insight_adv_tone_ok">확인</string>
 </resources>

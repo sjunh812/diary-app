@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tab_home">Inicio</string>
+    <string name="tab_calendar">Calendario</string>
+    <string name="tab_insight">Resumen</string>
+    <string name="tab_settings">Ajustes</string>
+    <string name="write_new">Nueva entrada</string>
+    <string name="write_saved">Guardado</string>
+    <string name="write_draft_kept">Borrador guardado</string>
+    <string name="detail_trashed">Movida a la papelera</string>
+    <string name="detail_trashed_undo">Deshacer</string>
+    <string name="detail_pick_hint">Ninguna entrada seleccionada</string>
+    <string name="detail_pick_body">Toca una entrada de la lista para leerla aquí.</string>
+    <string name="settings_pick_hint">Ningún ajuste seleccionado</string>
+    <string name="settings_pick_body">Toca un ajuste de la lista para verlo aquí.</string>
+    <string name="ad_label">Anuncio</string>
+    <string name="reward_title">Consigue un día sin anuncios</string>
+    <string name="reward_body">Mira un video corto hasta el final y no verás otros anuncios durante 24 horas.</string>
+    <string name="reward_watch">Ver video</string>
+    <string name="reward_close">Cerrar</string>
+    <string name="reward_failed_title">No se pudo activar tu día sin anuncios</string>
+    <string name="reward_failed_body">El anuncio no cargó o no se vio hasta el final. Vuelve a intentarlo en un rato.</string>
+    <string name="reward_not_saved">Tu dispositivo tiene poco almacenamiento. Es posible que los anuncios vuelvan a aparecer al abrir la app de nuevo.</string>
+    <string name="ad_close">Quitar anuncios</string>
+    <string name="ad_notice_title">Los anuncios de pantalla completa aparecen una vez al día</string>
+    <string name="ad_notice_body">Solo se muestran un momento después de guardar una entrada.</string>
+    <string name="ad_notice_ok">OK</string>
+    <string name="write_failed">No se pudo guardar. Revisa el almacenamiento de tu dispositivo.</string>
+</resources>

@@ -6,6 +6,8 @@ complexity:
   # 화면 함수는 길이와 분기로 나누면 오히려 읽기 어려워진다. 화면 나누기는 리뷰에서 본다.
   CyclomaticComplexMethod:
     ignoreAnnotated: ['Composable']
+    # 기분 15종처럼 enum 값마다 하나씩 잇는 when은 분기가 아니라 표다. 컴파일러가 빠진 값을 잡게 when으로 둔다.
+    ignoreSimpleWhenEntries: true
   LongMethod:
     ignoreAnnotated: ['Composable']
   # 작은 비공개 Composable을 한 파일에 두는 것이 이 저장소의 관례다.
@@ -50,7 +52,7 @@ Compose:
   # 새 CompositionLocal은 여기에 더하기 전에 매개변수로 넘길 수 없는지 본다.
   CompositionLocalAllowlist:
     active: true
-    allowedCompositionLocals: LocalDiaryColors,LocalDiaryTypography,LocalDiaryBrand,LocalInListDetail,LocalTopBarBackHidden,LocalRailWidth,LocalScreenGutter,LocalSheetButtonGap,LocalTabBarHeight,LocalRootChrome,LocalChosenFont
+    allowedCompositionLocals: LocalDiaryColors,LocalDiaryTypography,LocalDiaryBrand,LocalInListDetail,LocalTopBarBackHidden,LocalRailWidth,LocalScreenGutter,LocalSheetButtonGap,LocalTabBarHeight,LocalRootChrome,LocalChosenFont,LocalMoodLook
   CompositionLocalNaming:
     active: true
   ContentEmitterReturningValues:
