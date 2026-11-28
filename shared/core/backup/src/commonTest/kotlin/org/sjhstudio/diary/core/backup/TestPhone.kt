@@ -92,7 +92,7 @@ internal class TestPhone(
 
     fun applier() = MergeApplier(db, { fs.exists(media / it) }, clock)
 
-    fun planner(api: DriveApi = drive) = RestorePlanner(api, applier(), FreeSpace { freeBytes }, fs, work)
+    fun planner(api: DriveApi = drive, files: FileSystem = fs) = RestorePlanner(api, applier(), FreeSpace { freeBytes }, files, work)
 
     fun catalog(api: DriveApi = drive) = RestoreCatalog(api, fs, work)
 
@@ -133,7 +133,7 @@ internal class TestPhone(
     ): RestoreController {
         val applier = lazy { applier() }
         return RestoreController(
-            lazy { catalog(api) }, lazy { planner(api) }, applier, lazy { fetcher(photos, files) },
+            lazy { catalog(api) }, lazy { planner(api, files) }, applier, lazy { fetcher(photos, files) },
             lazy { LegacyBackupImporter(db, api, { _, _, _ -> null }, fs, work, clock, { zone }) },
             lazy { rollback },
             lazy { exporter() },

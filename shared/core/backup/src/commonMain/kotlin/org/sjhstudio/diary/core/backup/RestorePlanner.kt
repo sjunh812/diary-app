@@ -129,11 +129,14 @@ class RestorePlanner(
         throw RestoreMismatch()
     }
 
-    /** 확인값은 맞는데 풀리지 않으면 깨진 백업으로 봄 */
+    /**
+     * 확인값은 맞는데 풀리지 않으면 깨진 백업으로 봄
+     * 쓰다 난 오류는 그대로 올려 부르는 쪽이 공간 부족을 가림
+     */
     private fun unpack(packed: Path, to: Path) {
         try {
             fileSystem.gunzip(packed, to)
-        } catch (_: IOException) {
+        } catch (_: CorruptPack) {
             throw RestoreMismatch()
         }
     }

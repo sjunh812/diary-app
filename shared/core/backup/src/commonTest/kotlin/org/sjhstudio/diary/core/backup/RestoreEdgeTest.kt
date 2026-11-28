@@ -453,7 +453,7 @@ class RestoreEdgeTest {
         a.backUp()
         val stuck = object : okio.ForwardingFileSystem(fs) {
             override fun delete(path: Path, mustExist: Boolean) {
-                if (path.name.endsWith(".db")) throw IOException("지울 수 없다")
+                if (path.name.endsWith(".db") && exists(path)) throw IOException("지울 수 없다")
                 super.delete(path, mustExist)
             }
         }
@@ -480,6 +480,49 @@ class RestoreEdgeTest {
 
         assertIs<RestorePreparation.Failed>(controller.prepare(controller.backups().entriesOrNull!!.first().snapshotName))
 
+        assertEquals(setOf("mine"), b.ids())
+    }
+
+    /** 새 기분이 든 형식 4 백업을 받아도 새 기분 id가 그대로 돌아옴. 일기와 휴지통 모두 */
+    @Test
+    fun new_moods_come_back_from_a_format_4_backup() = runTest {
+        a.db.entryDao().insertAll(
+            listOf(
+                TestPhone.entry("calm").copy(mood = "calm"),
+                TestPhone.entry("anxious", deletedAt = 5).copy(mood = "anxious")
+            )
+        )
+        a.backUp()
+        val controller = b.controller(backgroundScope)
+        controller.ready()
+
+        controller.mergedResult()
+
+        assertEquals(mapOf("anxious" to "anxious", "calm" to "calm"), b.entries().associate { it.id to it.mood })
+    }
+
+    /** 줄인 스냅샷을 풀다 공간이 차면 깨진 백업이 아니라 공간 부족으로 알림. 받은 파일은 남겨 다시 받지 않게 함 */
+    @Test
+    fun a_full_disk_while_unpacking_the_snapshot_says_no_space_and_keeps_the_download() = runTest {
+        threeWithPhotos()
+        a.backUp()
+        b.write("mine")
+        val full = object : okio.ForwardingFileSystem(fs) {
+            override fun sink(file: Path, mustCreate: Boolean): okio.Sink {
+                if (file.name == BundleExporter.SNAPSHOT && file.parent?.name == "incoming") {
+                    return object : okio.Sink by super.sink(file, mustCreate) {
+                        override fun write(source: okio.Buffer, byteCount: Long) = throw IOException("저장 공간이 없다")
+                    }
+                }
+                return super.sink(file, mustCreate)
+            }
+        }
+        val controller = b.controller(backgroundScope, files = full)
+        b.freeBytes = 1
+
+        val result = controller.prepare(controller.backups().entriesOrNull!!.first().snapshotName)
+
+        assertEquals(RestoreFailure.NO_SPACE, assertIs<RestorePreparation.Failed>(result).reason)
         assertEquals(setOf("mine"), b.ids())
     }
 
