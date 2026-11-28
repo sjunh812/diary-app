@@ -450,51 +450,51 @@ App Store는 상품 설명 칸이 짧아(비소모품 45자, 구독 55자 안팎
 ```text
 <ko-KR>
 [버전 2.3.0]
-• 기분을 15가지 중에서 고를 수 있어요.
+• 고를 수 있는 기분이 15가지로 늘어났어요.
 • 기분 테마로 기분 얼굴을 바꿀 수 있어요.
-• 구글 드라이브에 올리는 백업 크기를 줄였어요.
+• 앱 안정성을 개선했어요.
 </ko-KR>
 <en-US>
 [Version 2.3.0]
-• Choose from 15 moods.
+• You can now choose from 15 moods.
 • Change your mood faces with mood themes.
-• Google Drive backups are now smaller.
+• Improved app stability.
 </en-US>
 <ja-JP>
 [バージョン 2.3.0]
-• 15種類の気分から選べるようになりました。
+• 選べる気分が15種類に増えました。
 • 気分テーマで気分の顔を変えられます。
-• Googleドライブに保存するバックアップを小さくしました。
+• アプリの安定性を改善しました。
 </ja-JP>
 <zh-TW>
 [版本 2.3.0]
-• 可從 15 種心情中選擇。
+• 可選的心情增加到 15 種。
 • 可用心情主題更換心情表情。
-• 縮小了上傳到 Google 雲端硬碟的備份大小。
+• 改善了 App 的穩定性。
 </zh-TW>
 <es-419>
 [Versión 2.3.0]
-• Elige entre 15 estados de ánimo.
+• Ahora puedes elegir entre 15 estados de ánimo.
 • Cambia las caritas de ánimo con los temas de ánimo.
-• Las copias de seguridad en Google Drive ahora ocupan menos.
+• Mejoramos la estabilidad de la app.
 </es-419>
 <pt-BR>
 [Versão 2.3.0]
-• Escolha entre 15 humores.
+• Agora você pode escolher entre 15 humores.
 • Mude as carinhas de humor com os temas de humor.
-• Os backups no Google Drive agora ocupam menos espaço.
+• Melhoramos a estabilidade do app.
 </pt-BR>
 <de-DE>
 [Version 2.3.0]
-• Wähle aus 15 Stimmungen.
+• Jetzt kannst du aus 15 Stimmungen wählen.
 • Ändere die Stimmungsgesichter mit Stimmungsthemen.
-• Backups in Google Drive sind jetzt kleiner.
+• Die Stabilität der App wurde verbessert.
 </de-DE>
 <fr-FR>
 [Version 2.3.0]
-• Choisissez parmi 15 humeurs.
+• Vous pouvez désormais choisir parmi 15 humeurs.
 • Changez les visages d’humeur avec les thèmes d’humeur.
-• Les sauvegardes Google Drive prennent moins de place.
+• Amélioration de la stabilité de l’app.
 </fr-FR>
 ```
 
