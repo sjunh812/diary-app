@@ -47,8 +47,8 @@
     <string name="plus_all_title">Beneficios de Plus</string>
     <string name="plus_format_title">Conservar formato</string>
     <string name="plus_format_body">La negrita, el subrayado, el color del texto y el resaltado también se ven en la lista.</string>
-    <string name="plus_theme_title">Colores de tema</string>
+    <string name="plus_theme_title">Color de tema personalizado</string>
     <string name="plus_theme_body">Elige el color que quieras para el tema de la app.</string>
     <string name="plus_mood_theme_title">Temas de ánimo</string>
-    <string name="plus_mood_theme_body">Desbloquea 4 temas más. Personaliza tus Caras de arcilla.</string>
+    <string name="plus_mood_theme_body">Usa temas de ánimo variados y llenos de personalidad. Personaliza tus Caras de arcilla.</string>
 </resources>

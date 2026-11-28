@@ -47,8 +47,8 @@
     <string name="plus_all_title">Vorteile von Plus</string>
     <string name="plus_format_title">Formatierung zeigen</string>
     <string name="plus_format_body">Fett, Unterstrichen, Textfarbe und Markierung werden auch in der Liste angezeigt.</string>
-    <string name="plus_theme_title">Designfarben</string>
+    <string name="plus_theme_title">Eigene Designfarbe</string>
     <string name="plus_theme_body">Wähle für das App-Design jede Farbe, die dir gefällt.</string>
     <string name="plus_mood_theme_title">Stimmungsthemen</string>
-    <string name="plus_mood_theme_body">4 weitere Themen freischalten. Knetgesichter selbst gestalten.</string>
+    <string name="plus_mood_theme_body">Nutze vielfältige Stimmungsthemen mit Charakter. Gestalte deine Knetgesichter selbst.</string>
 </resources>
