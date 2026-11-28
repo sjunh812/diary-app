@@ -70,10 +70,10 @@ import org.sjhstudio.diary.feature.insight.resources.insight_adv_tab_part
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_tab_place
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_tab_weather
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_tab_weekday
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_tone_info
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_tone_neutral
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_tone_ok
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_tone_sheet_body
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_tone_sheet_title
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_wd_fri
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_wd_mon
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_wd_sat
@@ -348,14 +348,14 @@ internal fun ToneBar(good: Float, hard: Float, modifier: Modifier = Modifier) {
 }
 
 /**
- * 좋은 기분과 힘든 기분을 무엇으로 세는지(`docs/design.md` 상황별 기분)
- * 기분의 밝고 어두움(심리학의 정서가)으로 나누고, 애매한 보통과 쿨은 세지 않음
+ * 기분을 나눈 기준(`docs/design.md` 상황별 기분)
+ * 기분의 밝고 어두움(심리학의 정서가)으로 긍정·부정·그 밖의 세 묶음
  */
 @Composable
 internal fun ToneSheet(onDismiss: () -> Unit) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
-    DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.insight_adv_tone_sheet_title)) {
+    DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.insight_adv_tone_info)) {
         PhraseText(stringResource(Res.string.insight_adv_tone_sheet_body), style = typography.body.copy(color = colors.textSecondary))
         // 설명 → 첫 묶음 16, 묶음 사이 20, 마지막 묶음 → 확인 32(시트 기본 사이 12 + 8에 버튼 둘레 여백, 재서 맞춤)
         // 시트 규칙은 글과 버튼 사이 24지만, 여기는 묶음 사이가 20이라 24면 버튼이 내용에 붙어 보임
@@ -392,7 +392,8 @@ internal fun ToneGroup(color: Color, name: String, moods: List<Mood>) {
             Mood.ordered.filter { it in moods }.forEach { mood ->
                 Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5), verticalAlignment = Alignment.CenterVertically) {
                     MoodFace(mood, DiaryIconSize.i24, contentDescription = null)
-                    BasicText(moodName(mood), style = typography.bodyStrong.copy(color = colors.textPrimary))
+                    // 이름이 굵으면 묶음 이름보다 앞서 보여 산만함
+                    BasicText(moodName(mood), style = typography.body.copy(color = colors.textPrimary))
                 }
             }
         }

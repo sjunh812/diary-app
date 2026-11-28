@@ -113,8 +113,7 @@
     <string name="insight_adv_characters_small">%1$s萬字</string>
     <string name="insight_adv_characters_big">%1$s億字</string>
     <string name="insight_adv_tone_info">心情的分類方式</string>
-    <string name="insight_adv_tone_sheet_title">正面與負面心情</string>
-    <string name="insight_adv_tone_sheet_body">在有選擇心情的日記中，顯示選了正面或負面心情的比例。</string>
-    <string name="insight_adv_tone_neutral">中性心情</string>
+    <string name="insight_adv_tone_sheet_body">在有選擇心情的日記中，顯示選了正面或負面心情的比例。其他心情是長條中的灰色部分。</string>
+    <string name="insight_adv_tone_neutral">其他心情</string>
     <string name="insight_adv_tone_ok">確定</string>
 </resources>

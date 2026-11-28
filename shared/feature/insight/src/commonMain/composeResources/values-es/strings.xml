@@ -122,8 +122,7 @@
     <string name="insight_adv_characters_small">%1$s mil caracteres</string>
     <string name="insight_adv_characters_big">%1$s M de caracteres</string>
     <string name="insight_adv_tone_info">Cómo se agrupan los ánimos</string>
-    <string name="insight_adv_tone_sheet_title">Ánimos positivos y negativos</string>
-    <string name="insight_adv_tone_sheet_body">De las entradas con ánimo, muestra qué parte eligió un ánimo positivo o negativo.</string>
-    <string name="insight_adv_tone_neutral">Ánimos neutros</string>
+    <string name="insight_adv_tone_sheet_body">De las entradas con ánimo, muestra qué parte eligió un ánimo positivo o negativo. Los otros ánimos son la parte gris de la barra.</string>
+    <string name="insight_adv_tone_neutral">Otros ánimos</string>
     <string name="insight_adv_tone_ok">OK</string>
 </resources>

@@ -113,8 +113,7 @@
     <string name="insight_adv_characters_small">%1$s万字</string>
     <string name="insight_adv_characters_big">%1$s億字</string>
     <string name="insight_adv_tone_info">気分の分け方</string>
-    <string name="insight_adv_tone_sheet_title">ポジティブな気分とネガティブな気分</string>
-    <string name="insight_adv_tone_sheet_body">気分を選んだ日記のうち、ポジティブな気分とネガティブな気分がそれぞれ何%かを表しています。</string>
-    <string name="insight_adv_tone_neutral">ニュートラルな気分</string>
+    <string name="insight_adv_tone_sheet_body">気分を選んだ日記のうち、ポジティブな気分とネガティブな気分がそれぞれ何%かを表しています。その他の気分は、バーのグレーの部分です。</string>
+    <string name="insight_adv_tone_neutral">その他の気分</string>
     <string name="insight_adv_tone_ok">OK</string>
 </resources>

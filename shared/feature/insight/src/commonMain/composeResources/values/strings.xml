@@ -122,8 +122,7 @@
     <string name="insight_adv_characters_small">%1$sK characters</string>
     <string name="insight_adv_characters_big">%1$sM characters</string>
     <string name="insight_adv_tone_info">How moods are grouped</string>
-    <string name="insight_adv_tone_sheet_title">Positive and negative moods</string>
-    <string name="insight_adv_tone_sheet_body">Out of the entries with a mood, this shows what share picked a positive or a negative mood.</string>
-    <string name="insight_adv_tone_neutral">Neutral moods</string>
+    <string name="insight_adv_tone_sheet_body">Out of the entries with a mood, this shows what share picked a positive or a negative mood. Other moods fill the gray part of the bar.</string>
+    <string name="insight_adv_tone_neutral">Other moods</string>
     <string name="insight_adv_tone_ok">OK</string>
 </resources>

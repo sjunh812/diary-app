@@ -113,8 +113,7 @@
     <string name="insight_adv_characters_small">%1$s만 자</string>
     <string name="insight_adv_characters_big">%1$s억 자</string>
     <string name="insight_adv_tone_info">기분을 나눈 기준</string>
-    <string name="insight_adv_tone_sheet_title">긍정적인 기분과 부정적인 기분</string>
-    <string name="insight_adv_tone_sheet_body">기분을 선택한 일기 가운데 긍정적인 기분과 부정적인 기분이 각각 몇 %인지 보여줘요.</string>
-    <string name="insight_adv_tone_neutral">중립적인 기분</string>
+    <string name="insight_adv_tone_sheet_body">기분을 선택한 일기 가운데 긍정적인 기분과 부정적인 기분이 각각 몇 %인지 보여줘요. 그 밖의 기분은 막대의 회색 부분이에요.</string>
+    <string name="insight_adv_tone_neutral">그 밖의 기분</string>
     <string name="insight_adv_tone_ok">확인</string>
 </resources>

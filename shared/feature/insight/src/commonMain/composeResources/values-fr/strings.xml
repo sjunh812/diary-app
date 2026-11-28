@@ -122,8 +122,7 @@
     <string name="insight_adv_characters_small">%1$s k caractères</string>
     <string name="insight_adv_characters_big">%1$s M de caractères</string>
     <string name="insight_adv_tone_info">Comment les humeurs sont classées</string>
-    <string name="insight_adv_tone_sheet_title">Humeurs positives et négatives</string>
-    <string name="insight_adv_tone_sheet_body">Parmi les entrées avec une humeur, indique la part d’humeurs positives ou négatives.</string>
-    <string name="insight_adv_tone_neutral">Humeurs neutres</string>
+    <string name="insight_adv_tone_sheet_body">Parmi les entrées avec une humeur, indique la part d’humeurs positives ou négatives. Les autres humeurs correspondent à la partie grise de la barre.</string>
+    <string name="insight_adv_tone_neutral">Autres humeurs</string>
     <string name="insight_adv_tone_ok">OK</string>
 </resources>

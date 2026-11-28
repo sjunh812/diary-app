@@ -122,8 +122,7 @@
     <string name="insight_adv_characters_small">%1$s Tsd. Zeichen</string>
     <string name="insight_adv_characters_big">%1$s Mio. Zeichen</string>
     <string name="insight_adv_tone_info">So werden Stimmungen eingeteilt</string>
-    <string name="insight_adv_tone_sheet_title">Positive und negative Stimmungen</string>
-    <string name="insight_adv_tone_sheet_body">Von den Einträgen mit Stimmung zeigt dies den Anteil mit positiver oder negativer Stimmung.</string>
-    <string name="insight_adv_tone_neutral">Neutrale Stimmungen</string>
+    <string name="insight_adv_tone_sheet_body">Von den Einträgen mit Stimmung zeigt dies den Anteil mit positiver oder negativer Stimmung. Andere Stimmungen sind der graue Teil des Balkens.</string>
+    <string name="insight_adv_tone_neutral">Andere Stimmungen</string>
     <string name="insight_adv_tone_ok">OK</string>
 </resources>

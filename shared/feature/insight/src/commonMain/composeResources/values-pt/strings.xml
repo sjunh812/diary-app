@@ -122,8 +122,7 @@
     <string name="insight_adv_characters_small">%1$s mil caracteres</string>
     <string name="insight_adv_characters_big">%1$s mi de caracteres</string>
     <string name="insight_adv_tone_info">Como os humores são agrupados</string>
-    <string name="insight_adv_tone_sheet_title">Humores positivos e negativos</string>
-    <string name="insight_adv_tone_sheet_body">Entre as entradas com humor, mostra a parcela que escolheu um humor positivo ou negativo.</string>
-    <string name="insight_adv_tone_neutral">Humores neutros</string>
+    <string name="insight_adv_tone_sheet_body">Entre as entradas com humor, mostra a parcela que escolheu um humor positivo ou negativo. Os outros humores são a parte cinza da barra.</string>
+    <string name="insight_adv_tone_neutral">Outros humores</string>
     <string name="insight_adv_tone_ok">OK</string>
 </resources>
