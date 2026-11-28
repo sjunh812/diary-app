@@ -23,7 +23,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -32,8 +35,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
@@ -100,7 +105,7 @@ fun DiarySettingsRow(
 ) {
     val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
-    RowFrame(
+    ValueRowFrame(
         modifier =
             modifier
                 .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
@@ -113,14 +118,10 @@ fun DiarySettingsRow(
                 ),
         title = title,
         description = description,
-        leadingIcon = leadingIcon
-    ) {
-        // 값은 화살표에 붙여 둠(Figma 설정 줄 4)
-        Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1), verticalAlignment = Alignment.CenterVertically) {
-            if (value != null || valueAction != null) RowValue(valueText(value, valueAction, colors.accentText))
-            DiaryIcon(DiaryIcons.ChevronRight, contentDescription = null, tint = colors.textTertiary, size = DiaryIconSize.i20)
-        }
-    }
+        leadingIcon = leadingIcon,
+        value = if (value != null || valueAction != null) valueText(value, valueAction, colors.accentText) else null,
+        chevron = true
+    )
 }
 
 /**
@@ -129,9 +130,14 @@ fun DiarySettingsRow(
  */
 @Composable
 fun DiarySettingsValueRow(title: String, value: String, modifier: Modifier = Modifier, valueNote: String? = null) {
-    RowFrame(modifier = modifier, title = title, description = null, leadingIcon = null) {
-        RowValue(valueText(value, valueNote, DiaryTheme.colors.textSecondary))
-    }
+    ValueRowFrame(
+        modifier = modifier,
+        title = title,
+        description = null,
+        leadingIcon = null,
+        value = valueText(value, valueNote, DiaryTheme.colors.textSecondary),
+        chevron = false
+    )
 }
 
 private fun valueText(value: String?, action: String?, actionColor: Color): AnnotatedString = buildAnnotatedString {
@@ -143,26 +149,110 @@ private fun valueText(value: String?, action: String?, actionColor: Color): Anno
 }
 
 /**
- * 줄 오른쪽 값
- * 값이 길어도 이름을 밀어내지 않게 남은 폭의 반까지만 쓰고, 두 줄을 넘으면 말줄임
+ * 값이 있는 줄(이름 · 값 · 화살표)
+ * 값은 남은 폭의 반까지 두 줄 안에 들어가면 화살표 옆에 두고, 넘치면 이름 아래 온 폭으로 내림
+ * 큰 글자에서 값을 말줄임하지 않으려는 것(HIG 값 셀이 큰 글자에서 아래로 내려가는 것과 같음)
  * `weight`로 나누면 짧은 값일 때 이름 칸이 반으로 고정돼 값과 화살표가 줄 가운데에 뜸
  */
 @Composable
-private fun RowValue(value: AnnotatedString) {
-    BasicText(
-        text = value,
-        style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary),
-        // 글자를 크게 키우면 "오늘 오전 12:52" 같은 값이 반 폭에 다 들어가지 않음
-        // 두 줄까지는 줄을 바꿔 다 보이고, 그보다 길 때만 말줄임
-        maxLines = VALUE_MAX_LINES,
-        overflow = TextOverflow.Ellipsis,
-        modifier =
-            Modifier.layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints.copy(maxWidth = (constraints.maxWidth * VALUE_MAX_SHARE).toInt()))
-                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+private fun ValueRowFrame(
+    modifier: Modifier,
+    title: String,
+    description: String?,
+    leadingIcon: ImageVector?,
+    value: AnnotatedString?,
+    chevron: Boolean
+) {
+    val colors = DiaryTheme.colors
+    val valueStyle = DiaryTheme.typography.body.copy(color = colors.textSecondary)
+    val measurer = rememberTextMeasurer(cacheSize = 2)
+    Layout(
+        content = {
+            if (leadingIcon !=
+                null
+            ) {
+                DiaryIcon(leadingIcon, contentDescription = null, tint = colors.textPrimary, Modifier.layoutId(Slot.Leading))
             }
-    )
+            TitleBlock(title, description, badge = null, Modifier.layoutId(Slot.Title))
+            if (value != null) {
+                BasicText(
+                    text = value,
+                    modifier = Modifier.layoutId(Slot.Value),
+                    style = valueStyle,
+                    maxLines = VALUE_MAX_LINES,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            if (chevron) {
+                DiaryIcon(
+                    DiaryIcons.ChevronRight,
+                    contentDescription = null,
+                    tint = colors.textTertiary,
+                    modifier = Modifier.layoutId(Slot.Chevron),
+                    size = DiaryIconSize.i20
+                )
+            }
+        },
+        modifier = modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = LocalScreenGutter.current, vertical = 14.dp)
+    ) { measurables, constraints ->
+        val loose = constraints.copy(minWidth = 0, minHeight = 0)
+        val gap = DiarySpacing.x3.roundToPx()
+        // 값은 화살표에 붙여 둠(Figma 설정 줄 4)
+        val valueGap = DiarySpacing.x1.roundToPx()
+        val lineGap = DiarySpacing.x0_5.roundToPx()
+        val leading = measurables.firstOrNull { it.layoutId == Slot.Leading }?.measure(loose)
+        val arrow = measurables.firstOrNull { it.layoutId == Slot.Chevron }?.measure(loose)
+        val start = leading?.let { it.width + gap } ?: 0
+        val textWidth = (constraints.maxWidth - start).coerceAtLeast(0)
+        val arrowWidth = arrow?.width ?: 0
+        val sideMax = ((textWidth - gap - arrowWidth - (if (arrow != null) valueGap else 0)) * VALUE_MAX_SHARE).toInt().coerceAtLeast(0)
+        val stacked =
+            value != null &&
+                measurer
+                    .measure(
+                        value,
+                        valueStyle,
+                        maxLines = VALUE_MAX_LINES,
+                        constraints = Constraints(maxWidth = sideMax),
+                        layoutDirection = layoutDirection
+                    )
+                    .hasVisualOverflow
+        val valueMeasurable = measurables.firstOrNull { it.layoutId == Slot.Value }
+        val titleMeasurable = measurables.first { it.layoutId == Slot.Title }
+        val arrowSpace = if (arrow != null) gap + arrowWidth else 0
+        val placeValue: Placeable?
+        val title: Placeable
+        if (stacked) {
+            val blockWidth = (textWidth - arrowSpace).coerceAtLeast(0)
+            title = titleMeasurable.measure(loose.copy(maxWidth = blockWidth))
+            placeValue = valueMeasurable?.measure(loose.copy(maxWidth = blockWidth))
+        } else {
+            placeValue = valueMeasurable?.measure(loose.copy(maxWidth = sideMax))
+            val trailing = (placeValue?.width?.plus(if (arrow != null) valueGap else 0) ?: 0) + arrowWidth
+            title = titleMeasurable.measure(loose.copy(maxWidth = (textWidth - (if (trailing > 0) gap + trailing else 0)).coerceAtLeast(0)))
+        }
+        val block = if (stacked) title.height + lineGap + (placeValue?.height ?: 0) else title.height
+        val height =
+            maxOf(block, leading?.height ?: 0, arrow?.height ?: 0, if (stacked) 0 else placeValue?.height ?: 0, constraints.minHeight)
+        val width = constraints.maxWidth
+        layout(width, height) {
+            leading?.placeRelative(0, (height - leading.height) / 2)
+            arrow?.placeRelative(width - arrow.width, (height - arrow.height) / 2)
+            val top = (height - block) / 2
+            title.placeRelative(start, top)
+            if (placeValue != null) {
+                if (stacked) {
+                    placeValue.placeRelative(start, top + title.height + lineGap)
+                } else {
+                    val end = width - (if (arrow != null) arrowWidth + valueGap else 0)
+                    placeValue.placeRelative(end - placeValue.width, (height - placeValue.height) / 2)
+                }
+            }
+        }
+    }
 }
+
+private enum class Slot { Leading, Title, Value, Chevron }
 
 /** 오른쪽에 스위치가 있는 줄. 줄 전체가 누르는 곳 */
 @Composable
@@ -281,23 +371,29 @@ private fun RowFrame(
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (leadingIcon != null) DiaryIcon(leadingIcon, contentDescription = null, tint = colors.textPrimary)
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
-            // 제목 옆 Plus 칩. 제목이 길어도 칩은 밀려나지 않음
-            Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2), verticalAlignment = Alignment.CenterVertically) {
-                BasicText(
-                    text = title,
-                    modifier = Modifier.weight(1f, fill = false),
-                    style = DiaryTheme.typography.reading.copy(color = colors.textPrimary),
-                    maxLines = TITLE_MAX_LINES,
-                    overflow = TextOverflow.Ellipsis
-                )
-                if (badge != null) DiaryPlusChip(badge)
-            }
-            if (description != null) {
-                PhraseText(text = description, style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
-            }
-        }
+        TitleBlock(title, description, badge, Modifier.weight(1f))
         trailing()
+    }
+}
+
+/** 줄 이름과 그 아래 설명. 이름 옆 Plus 칩은 이름이 길어도 밀려나지 않음 */
+@Composable
+private fun TitleBlock(title: String, description: String?, badge: String?, modifier: Modifier = Modifier) {
+    val colors = DiaryTheme.colors
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2), verticalAlignment = Alignment.CenterVertically) {
+            BasicText(
+                text = title,
+                modifier = Modifier.weight(1f, fill = false),
+                style = DiaryTheme.typography.reading.copy(color = colors.textPrimary),
+                maxLines = TITLE_MAX_LINES,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (badge != null) DiaryPlusChip(badge)
+        }
+        if (description != null) {
+            PhraseText(text = description, style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
+        }
     }
 }
 
