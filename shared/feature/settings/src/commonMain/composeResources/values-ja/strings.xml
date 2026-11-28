@@ -145,7 +145,7 @@
     <string name="settings_plus_title">広告なしで、もっと快適に使えます</string>
     <string name="settings_plus_title_ad_free">Plusでもっと便利に</string>
     <string name="settings_dev_mode">開発者モード</string>
-    <string name="settings_plus_body">1件に写真30枚、詳しい統計、テーマカラーを自由に選ぶ機能が使えます。</string>
+    <string name="settings_plus_body">1件に写真30枚、詳しい統計、好きなテーマカラーが使えます。</string>
     <string name="settings_plus_action">Plusを見る</string>
     <string name="settings_terms">利用規約</string>
     <string name="settings_privacy">プライバシーポリシー</string>
