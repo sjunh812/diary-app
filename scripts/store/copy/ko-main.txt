@@ -1,0 +1,8 @@
+phone|home|[한 줄]이면\n오늘 일기 끝|바쁜 날에도 쓰기 쉬운 일기장
+phone|mood-sheet|오늘 [기분]을\n골라보세요|15가지 기분 중에서 골라요
+phone|calendar|그날의 기분이\n[달력]에 남아요|한 달 치 기분을 한눈에 봐요
+stack|cal-shape=도형/cal-clay=클레이 얼굴 · Plus/cal-veggie=채소·과일 · Plus|[기분 테마]를\n취향대로 바꿔요|개성 넘치는 테마 9가지를 만나보세요
+phone|detail|[사진]과 함께\n남겨요|한 편에 사진 10장까지 넣을 수 있어요
+phone|insight|어떤 기분이 많았는지\n[돌아봐요]|주별·월별·연별로 나눠볼 수 있어요
+phone|theme-rose|좋아하는 [색]으로\n바꿔보세요|테마 색 7가지 중에서 골라요
+phone|backup|사진까지\n내 [드라이브]에 백업해요|회원가입 없이 하루 한 번 자동으로 올려요

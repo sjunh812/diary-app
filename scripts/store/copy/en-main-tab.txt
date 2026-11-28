@@ -1,0 +1,7 @@
+phone|home|[One line],\nand today is done|A diary that's easy even on busy days
+phone|calendar|Your moods\non a [calendar]|See your whole month at a glance
+stack|cal-shape=Shapes/cal-clay=Clay Faces · Plus/cal-veggie=Fruit & Veg · Plus|Make your\n[mood theme] your own|Meet 9 themes full of personality
+phone|detail|Keep your day\nwith [photos]|Up to 10 photos in each entry
+phone|insight|[Look back] on\nyour moods|Split by week, month, or year
+phone|theme-rose|Make it\nyour [color]|Pick from 7 theme colors
+phone|backup|Back up photos\nto your own [Drive]|No sign-up. Automatic, once a day.

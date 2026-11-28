@@ -1,0 +1,7 @@
+phone|home|[한 줄]이면\n오늘 일기 끝|바쁜 날에도 쓰기 쉬운 일기장
+phone|mood-sheet|그날의 [기분]도\n함께 남겨요|15가지 기분 중에서 골라요
+phone|calendar|그날의 기분이\n[달력]에 남아요|한 달 치 기분을 한눈에 봐요
+phone|insight|어떤 기분이 많았는지\n[돌아봐요]|주별·월별·연별로 나눠볼 수 있어요
+phone|theme-list|[기분 테마]를\n취향대로 바꿔요|개성 넘치는 테마 9가지를 만나보세요
+stack|cal-bubble=비눗방울 · Plus/cal-veggie=채소·과일 · Plus/cal-clay=클레이 얼굴 · Plus|[Plus] 테마로\n더 다채롭게|비눗방울, 말랑 낙서 친구, 채소·과일, 클레이 얼굴
+phone|clay-custom|나를 닮은 얼굴로\n[꾸며보세요]|Plus 클레이 얼굴은 머리·피부톤·안경까지

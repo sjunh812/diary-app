@@ -1,0 +1,4 @@
+phone|home|[One line],\nand today is done|A diary that's easy even on busy days
+phone|detail|Keep your day\nwith [photos]|Up to 10 photos in each entry
+phone|home-grid|Look back\nthrough [photos]|See your list as a photo grid
+phone|backup|Back up photos\nto your own [Drive]|No sign-up. Automatic, once a day.

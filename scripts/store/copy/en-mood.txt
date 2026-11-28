@@ -1,0 +1,7 @@
+phone|home|[One line],\nand today is done|A diary that's easy even on busy days
+phone|mood-sheet|Save how you\n[felt] that day|Choose from 15 moods
+phone|calendar|Your moods\non a [calendar]|See your whole month at a glance
+phone|insight|[Look back] on\nyour moods|Split by week, month, or year
+phone|theme-list|Make your\n[mood theme] your own|Meet 9 themes full of personality
+stack|cal-bubble=Bubble · Plus/cal-veggie=Fruit & Veg · Plus/cal-clay=Clay Faces · Plus|More variety with\n[Plus] themes|Bubble, Doodle Pals, Fruit & Veg, Clay Faces
+phone|clay-custom|A face that\nlooks like [you]|Plus Clay Faces: hair, skin tone, glasses
