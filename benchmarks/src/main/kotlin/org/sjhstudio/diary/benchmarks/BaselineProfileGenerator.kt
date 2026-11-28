@@ -39,6 +39,7 @@ class BaselineProfileGenerator {
         startActivityAndWait()
         waitForTabs()
         open(SETTINGS_TAB)
+        visit(MOOD_THEME_ROW)
         visit(TEXT_SIZE_ROW)
         visit(THEME_ROW)
         open(CALENDAR_TAB)
@@ -147,6 +148,9 @@ class BaselineProfileGenerator {
         // 줄 화면들에는 없는 설정 목록 줄
         val SETTINGS_LIST_ANCHOR: Pattern = Pattern.compile("글꼴|Font|フォント")
         val THEME_ROW: Pattern = Pattern.compile("테마|Theme|テーマ")
+
+        // 기분 얼굴을 한꺼번에 그리는 화면
+        val MOOD_THEME_ROW: Pattern = Pattern.compile("기분 테마|Mood theme|気分テーマ")
 
         // shared/app write_new, feature/write write_new_entry·write_mood·write_close와 같다
         val WRITE_BUTTON: Pattern = Pattern.compile("일기 쓰기|New entry|日記を書く")
