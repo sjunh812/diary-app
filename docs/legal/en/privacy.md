@@ -113,4 +113,4 @@ In Korea, you can also get advice on privacy violations from these organizations
 If this policy changes, we'll let you know through the app or this page 7 days before the change takes effect.
 
 Announced: November 27, 2026  
-Effective: December 4, 2026
+Effective: November 28, 2026
