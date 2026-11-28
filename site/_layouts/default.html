@@ -220,17 +220,19 @@ html[data-font=sans] .chip[aria-pressed=true]{font-weight:600}
 /* 무료와 Plus: 두 칸을 같은 높이로. Plus 칸만 옅은 브랜드 면 */
 .plans{padding:140px 0 0}
 .plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:880px;margin:0 auto}
-.plan{padding:36px;border-radius:28px;background:var(--card)}
+/* 안쪽 여백(32)이 줄 간격(10)과 제목·목록 사이(20)보다 넓게. 글은 제목 22 > 목록 16 > 설명 15 */
+.plan{padding:32px;border-radius:24px;background:var(--card)}
 .plan.plus{background:var(--selected)}
-.plan h3{margin:0;font-size:26px;line-height:1.3;letter-spacing:-.02em}
-.plan.plus h3{display:flex;align-items:center;gap:8px;color:var(--accentText)}
+.plan h3{margin:0;font-size:22px;line-height:1.35;letter-spacing:-.02em}
+.plan.plus h3{display:flex;align-items:center;gap:6px;color:var(--accentText)}
 /* Plus 표시: 제목과 같은 브랜드 글자색 반짝이만. 원 바탕 없이 */
 .plus-mark{display:inline-flex;line-height:0}
-.plus-mark svg{width:24px;height:24px;fill:currentColor;stroke:currentColor;stroke-width:.6;stroke-linejoin:round}
-.plan-sub{margin:8px 0 24px;font-size:16px;line-height:1.55;color:var(--text2)}
-.plan ul{display:grid;gap:12px;margin:0;padding:0;list-style:none}
-.plan li{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start;font-size:17px;line-height:1.5}
-.check{width:20px;height:20px;margin-top:3px;color:var(--text3)}
+.plus-mark svg{width:18px;height:18px;fill:currentColor;stroke:currentColor;stroke-width:.6;stroke-linejoin:round}
+.plan-sub{margin:6px 0 20px;font-size:15px;line-height:1.55;color:var(--text2)}
+.plan ul{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.plan li{display:grid;grid-template-columns:18px 1fr;gap:10px;align-items:start;font-size:16px;line-height:1.5}
+/* 체크는 글 첫 줄(24px) 가운데에 */
+.check{width:18px;height:18px;margin-top:3px;color:var(--text3)}
 .plan.plus .check{color:var(--accentText)}
 .plan-note{max-width:880px;margin:20px auto 0;text-align:center;font-size:15px;line-height:1.6;color:var(--text3)}
 /* 스크롤로 나타나기: 투명에서 48px 아래 → 제자리 1000ms(투명도 700ms). 레퍼런스를 시간별로 재서 맞춤
@@ -334,9 +336,13 @@ footer .langs a[aria-current]{color:var(--text);font-weight:600}
   .theme-pick .phone{width:220px}
   .plans{padding-top:96px}
   .plan-grid{grid-template-columns:1fr;gap:12px}
-  .plan{padding:28px 24px;border-radius:24px}
-  .plan h3{font-size:22px}
-  .plan li{font-size:16px}
+  .plan{padding:24px;border-radius:20px}
+  .plan h3{font-size:20px}
+  .plan-sub{margin-bottom:16px}
+  .plan ul{gap:8px}
+  .plan li{grid-template-columns:16px 1fr;font-size:15px}
+  .check{width:16px;height:16px;margin-top:3px}
+  .plan-note{font-size:14px}
   .face-row{gap:6px;max-width:312px;margin:0 auto}.face-row .face{width:32px;height:32px}
 }
 @media (max-width:640px){.wrap{padding:0 16px}}
