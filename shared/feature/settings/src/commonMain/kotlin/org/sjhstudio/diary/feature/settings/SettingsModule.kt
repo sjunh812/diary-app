@@ -32,6 +32,7 @@ val settingsFeatureModule =
                 telemetry = get()
             )
         }
+        viewModel { MoodThemeViewModel(get(), get(), telemetry = get()) }
         viewModel { ReminderSettingsViewModel(get(), get(), get(), get()) }
         viewModel { FontSettingsViewModel(get(), get(), get()) }
         viewModel { LicensesViewModel() }

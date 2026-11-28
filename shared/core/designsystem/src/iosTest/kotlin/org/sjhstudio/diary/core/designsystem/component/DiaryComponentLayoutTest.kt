@@ -80,7 +80,7 @@ class DiaryComponentLayoutTest {
     }
 
     @Test
-    fun long_settings_value_leaves_room_for_the_name() = runComposeUiTest {
+    fun long_settings_value_moves_under_the_name() = runComposeUiTest {
         val long = "아주아주아주아주아주아주아주아주아주아주아주아주아주아주아주아주아주아주아주긴값"
         setContent {
             DiaryTheme(darkTheme = false) {
@@ -90,8 +90,9 @@ class DiaryComponentLayoutTest {
         val title = onNodeWithText("계정", useUnmergedTree = true).getBoundsInRoot()
         val value = onNodeWithText(long, useUnmergedTree = true).getBoundsInRoot()
         assertTrue(title.right - title.left > 0.dp)
-        assertTrue(value.left >= title.right)
-        assertEquals(340.dp, value.right)
+        assertTrue(value.top >= title.bottom)
+        assertEquals(title.left, value.left)
+        assertTrue(value.right <= 340.dp)
     }
 
     @Test

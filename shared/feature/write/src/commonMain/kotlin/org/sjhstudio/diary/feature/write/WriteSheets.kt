@@ -95,7 +95,7 @@ import org.sjhstudio.diary.feature.write.resources.write_weather_title
 /** 같은 칸을 다시 누르면 풀림 */
 @Composable
 internal fun MoodGrid(selected: Mood?, onSelect: (Mood) -> Unit, modifier: Modifier = Modifier) {
-    DiaryMoodGrid({ it == selected }, onSelect, modifier)
+    DiaryMoodGrid({ it == selected }, onSelect, modifier, popOnSelect = true)
 }
 
 @Composable

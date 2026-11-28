@@ -417,9 +417,10 @@ class BackupRunner(
     ) {
         step(BackupStep.UploadingManifest)
         val pending = db.backupDao().pendingFiles()
+        val format = Manifest.driveFormat(snapshot.newMoods)
         val manifest =
             manifestOf(
-                Manifest.FORMAT_VERSION,
+                format,
                 packed,
                 now,
                 timeZone(),
@@ -440,7 +441,7 @@ class BackupRunner(
                 manifestPath.name,
                 folders.snapshots,
                 "application/json",
-                deviceProps(DriveLayout.KIND_MANIFEST, deviceId) + (DriveLayout.KEY_FORMAT to "${Manifest.FORMAT_VERSION}")
+                deviceProps(DriveLayout.KIND_MANIFEST, deviceId) + (DriveLayout.KEY_FORMAT to "$format")
             ),
             fileSystem.hashes(manifestPath)
         )

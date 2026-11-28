@@ -62,6 +62,8 @@ data class SettingsUiState(
     val canFormat: Boolean? = null,
     /** 테마 색을 직접 고를 수 있음(스펙 010). 요금제를 아직 모르면 null */
     val canCustomTheme: Boolean? = null,
+    /** Plus 기분 테마를 쓸 수 있음(스펙 013). 요금제를 아직 모르면 null */
+    val canMoodTheme: Boolean? = null,
     /** 광고 동의가 필요한 지역이라 "광고 개인정보 설정" 줄이 있음 */
     val showsAdPrivacy: Boolean = false,
     /**
@@ -124,7 +126,7 @@ class SettingsViewModel(
                 state.copy(reminderBlocked = if (state.settings.reminderEnabled) allowed?.not() else false)
             }
             .combine(settledPlan) { state, plan ->
-                state.copy(canFormat = plan?.listFormatting, canCustomTheme = plan?.customTheme)
+                state.copy(canFormat = plan?.listFormatting, canCustomTheme = plan?.customTheme, canMoodTheme = plan?.moodThemes)
             }
             .combine(adPrivacyRequired) { state, required -> state.copy(showsAdPrivacy = required) }
             // 요금제는 기기에 남긴 값이라 바로 앎. 첫 화면부터 Plus 카드를 그려 늦게 끼어들지 않게

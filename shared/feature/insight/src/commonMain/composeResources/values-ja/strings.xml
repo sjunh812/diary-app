@@ -66,7 +66,6 @@
     <string name="insight_adv_when_hard_weather">ネガティブな気分が最も多かったのは%1$sです</string>
     <string name="insight_adv_when_good_place">ポジティブな気分が最も多かったのは%1$sです</string>
     <string name="insight_adv_when_hard_place">ネガティブな気分が最も多かったのは%1$sです</string>
-    <string name="insight_adv_legend_neutral">%1$s・%2$s</string>
     <string name="insight_adv_company">気分ごとに多い天気・曜日・場所</string>
     <string name="insight_adv_habit">わたしの記録</string>
     <string name="insight_adv_habit_entries">日記</string>
@@ -116,6 +115,6 @@
     <string name="insight_adv_tone_info">気分の分け方</string>
     <string name="insight_adv_tone_sheet_title">ポジティブな気分とネガティブな気分</string>
     <string name="insight_adv_tone_sheet_body">気分を選んだ日記のうち、ポジティブな気分とネガティブな気分がそれぞれ何%かを表しています。</string>
-    <string name="insight_adv_tone_neutral">数えない気分</string>
+    <string name="insight_adv_tone_neutral">ニュートラルな気分</string>
     <string name="insight_adv_tone_ok">OK</string>
 </resources>

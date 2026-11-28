@@ -41,3 +41,19 @@ fun DiaryPlusChip(text: String, modifier: Modifier = Modifier, separator: Color?
 private val CHIP_WIDTH = 30.dp
 private val CHIP_HEIGHT = 14.dp
 private val CHIP_BORDER = DiarySpacing.x0_5
+
+/**
+ * 한 가지를 짚어 주는 회색 꼬리표(클레이 미리보기의 꾸미기)
+ * 강조색은 Plus 칩과 버튼에만 두어 꼬리표는 바탕에 가깝게
+ */
+@Composable
+fun DiaryTag(text: String, modifier: Modifier = Modifier) {
+    val colors = DiaryTheme.colors
+    Box(
+        modifier
+            .background(colors.sunken, DiaryShapes.full)
+            .padding(horizontal = DiarySpacing.x2, vertical = DiarySpacing.x1)
+    ) {
+        BasicText(text, style = DiaryTheme.typography.micro.copy(color = colors.textSecondary))
+    }
+}

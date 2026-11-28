@@ -14,16 +14,16 @@ import kotlin.test.assertFalse
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.DiaryFont
 
-// 기분 칸 이름이 말줄임(…)으로 잘리지 않는지 봄
-// 글자가 놓이는 폭은 태블릿 쓰기 옆 칸이 약 55(360 - 여백 48을 다섯 칸으로), 폰 시트가 약 59
+// 기분 칸 이름이 잘리지 않는지 봄
+// 글자 폭은 칸 68에서 고른 바탕 여백 2씩을 뺀 64, 태블릿 쓰기 옆 칸은 칸이 줄어 약 63. 좁은 쪽보다 조금 더 좁게 봄
 @OptIn(ExperimentalTestApi::class)
-class MoodNameTest {
+class FaceLabelTest {
     private fun overflows(name: String, font: DiaryFont, width: Int = PANEL_CELL, selected: Boolean = false): Boolean {
         val results = mutableListOf<TextLayoutResult>()
         runComposeUiTest {
             setContent {
                 DiaryTheme(darkTheme = false, fontFamily = diaryBodyFontFamily(font) { null }) {
-                    Box(Modifier.width(width.dp)) { MoodName(name, selected) }
+                    Box(Modifier.width(width.dp)) { FaceLabel(name, selected) }
                 }
             }
             onNodeWithText(name).fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
@@ -46,7 +46,24 @@ class MoodNameTest {
         }
     }
 
+    /** 한 낱말 이름은 줄여도 한 줄에 다 들어가야 함. 프랑스어 Enthousiaste가 끝 글자가 잘렸음 */
+    @Test
+    fun one_word_mood_names_fit_in_every_language() {
+        val names =
+            listOf(
+                "Excited", "Laughing", "Annoyed", "Anxious",
+                "Emballé", "Agacé", "Anxieux", "Ennuyé", "Fatigué",
+                "Begeistert", "Entspannt", "Gelangweilt", "Unruhig", "Fröhlich", "Schlecht",
+                "Ilusionado", "Orgulloso", "Aburrido", "Enfermo", "Cansado",
+                "Empolgado", "Orgulhoso", "Entediado", "Tranquilo", "Irritado",
+                "ワクワク", "誇らしい", "イライラ", "不舒服"
+            )
+        for (font in listOf(DiaryFont.PRETENDARD, DiaryFont.CHANGWON_ROUND, DiaryFont.SYSTEM)) {
+            for (name in names) assertFalse(overflows(name, font, selected = true), "$font $name")
+        }
+    }
+
     private companion object {
-        const val PANEL_CELL = 55
+        const val PANEL_CELL = 61
     }
 }

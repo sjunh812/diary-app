@@ -15,9 +15,9 @@ enum class MoodTone { GOOD, NEUTRAL, HARD }
 
 val Mood.tone: MoodTone
     get() = when (this) {
-        Mood.GOOD, Mood.LAUGH -> MoodTone.GOOD
-        Mood.COOL, Mood.MEH -> MoodTone.NEUTRAL
-        Mood.ANGRY, Mood.SAD, Mood.BAD, Mood.SICK, Mood.TIRED -> MoodTone.HARD
+        Mood.GOOD, Mood.LAUGH, Mood.EXCITED, Mood.PROUD, Mood.CALM -> MoodTone.GOOD
+        Mood.COOL, Mood.MEH, Mood.BORED -> MoodTone.NEUTRAL
+        Mood.ANGRY, Mood.SAD, Mood.BAD, Mood.SICK, Mood.TIRED, Mood.ANXIOUS, Mood.ANNOYED -> MoodTone.HARD
     }
 
 /** 고급 통계 기간. [compare]는 견줄 지난 기간이고 전체에는 없음 */

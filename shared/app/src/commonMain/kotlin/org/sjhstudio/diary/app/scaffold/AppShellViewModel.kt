@@ -24,9 +24,9 @@ import org.sjhstudio.diary.app.lock.LockState
 import org.sjhstudio.diary.app.navigation.EntryDetailKey
 import org.sjhstudio.diary.app.navigation.WriteKey
 import org.sjhstudio.diary.core.data.AdRepository
-import org.sjhstudio.diary.core.data.CustomThemeReset
 import org.sjhstudio.diary.core.data.ListStyleTipRule
 import org.sjhstudio.diary.core.data.PlanRepository
+import org.sjhstudio.diary.core.data.PlusLookReset
 import org.sjhstudio.diary.core.data.PromptRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.model.Plan
@@ -186,7 +186,7 @@ class AppShellViewModel(
 val appShellModule =
     module {
         viewModel {
-            AppRootViewModel(get(), get(), get(), get(), get(), get(), CustomThemeReset(get(), get()), ListStyleTipRule(get(), get()))
+            AppRootViewModel(get(), get(), get(), get(), get(), get(), PlusLookReset(get(), get()), ListStyleTipRule(get(), get()))
         }
         viewModel {
             val ads = get<AdRepository>()

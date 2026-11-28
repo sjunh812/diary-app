@@ -69,7 +69,6 @@
     <string name="insight_adv_when_hard_weather">Más ánimos negativos: %1$s</string>
     <string name="insight_adv_when_good_place">Más ánimos positivos: %1$s</string>
     <string name="insight_adv_when_hard_place">Más ánimos negativos: %1$s</string>
-    <string name="insight_adv_legend_neutral">%1$s·%2$s</string>
     <string name="insight_adv_company">Clima, días y lugares según el ánimo</string>
     <string name="insight_adv_habit">En números</string>
     <string name="insight_adv_habit_entries">Entradas</string>
@@ -125,6 +124,6 @@
     <string name="insight_adv_tone_info">Cómo se agrupan los ánimos</string>
     <string name="insight_adv_tone_sheet_title">Ánimos positivos y negativos</string>
     <string name="insight_adv_tone_sheet_body">De las entradas con ánimo, muestra qué parte eligió un ánimo positivo o negativo.</string>
-    <string name="insight_adv_tone_neutral">No se cuenta</string>
+    <string name="insight_adv_tone_neutral">Ánimos neutros</string>
     <string name="insight_adv_tone_ok">OK</string>
 </resources>

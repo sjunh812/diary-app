@@ -95,7 +95,7 @@ object DiaryHomeSize {
 
 /** 돌아보기 크기(Figma "돌아보기 (S5)") */
 object DiaryInsightSize {
-    /** 기분 막대 줄. 아홉 줄이 이어져 화면이 길어지지 않게 HIG 최소 터치 높이 44에 맞춤 */
+    /** 기분 막대 줄. 여러 줄이 이어져 화면이 길어지지 않게 HIG 최소 터치 높이 44에 맞춤 */
     val barRow: Dp = 48.dp
     val barHeight: Dp = 8.dp
     val barFace: Dp = 24.dp
@@ -174,8 +174,24 @@ object DiaryWriteSize {
     /** 위 줄 사진 칸과 더하기 칸 */
     val photo: Dp = 72.dp
 
-    /** 기분 칸(얼굴 44 + 이름). 폭은 다섯 칸으로 고르게 나눔 */
+    /** 기분 칸(얼굴 44 + 이름). 칸이 곧 누르는 곳이라 칸끼리 맞닿음. 폭은 얼굴 44 + 얼굴 사이 24(화면 좌우 여백과 같은 단계) */
+    val moodCellWidth: Dp = 68.dp
     val moodCellHeight: Dp = 84.dp
+
+    /**
+     * 기분 테마 줄의 대표 얼굴 원(Figma "기분 테마 (G5)" 그림 칸 28)
+     * 테마 그림은 얼굴 원의 28/23로 그려져 칸 28을 채움
+     */
+    val moodThemeFace: Dp = 23.dp
+
+    /** Plus 미리보기 시트 얼굴 원(Figma 그림 칸 44) */
+    val moodPreviewFace: Dp = 36.dp
+
+    /** 클레이 꾸미기: 위 미리보기 얼굴 원(그림 칸 56), 머리 스타일 칸 얼굴 원(그림 칸 48), 피부톤 원과 누르는 칸 */
+    val clayPreviewFace: Dp = 46.dp
+    val clayHairFace: Dp = 40.dp
+    val claySkinDot: Dp = 36.dp
+    val claySkinTouch: Dp = 48.dp
     val moodFace: Dp = 44.dp
 
     /** 서식 도구 줄 */

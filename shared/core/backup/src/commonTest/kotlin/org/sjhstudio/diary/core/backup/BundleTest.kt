@@ -209,6 +209,24 @@ class BundleTest {
         assertEquals(2, phoneB.backupDao().allEntries().size)
     }
 
+    /** 새 기분이 없으면 옛 앱도 읽는 2, 있으면 옛 앱이 막는 4이고 이 앱은 둘 다 복원함 */
+    @Test
+    fun bundle_format_follows_new_moods_and_both_come_back() = runTest {
+        val plain = exportFromA()
+        assertEquals(2, ManifestCodec.decode(read(plain, "manifest.json"))?.formatVersion)
+
+        phoneA.entryDao().insertAll(
+            listOf(
+                EntryEntity("calm", "2026-11-01", "21:40", "<p>calm</p>", "calm", "calm", null, null, false, 1, 7, null, null, null, null)
+            )
+        )
+        val zip = dir / "new-moods.zip"
+        exporterA().write({ fs.sink(zip) })
+        assertEquals(4, ManifestCodec.decode(read(zip, "manifest.json"))?.formatVersion)
+
+        planner().prepareBundle(zip)
+    }
+
     @Test
     fun newer_format_is_refused() = runTest {
         val manifest = dir / "m.json"

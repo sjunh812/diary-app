@@ -69,7 +69,6 @@
     <string name="insight_adv_when_hard_weather">Am negativsten: %1$s</string>
     <string name="insight_adv_when_good_place">Am positivsten: %1$s</string>
     <string name="insight_adv_when_hard_place">Am negativsten: %1$s</string>
-    <string name="insight_adv_legend_neutral">%1$s·%2$s</string>
     <string name="insight_adv_company">Wetter, Tage und Orte nach Stimmung</string>
     <string name="insight_adv_habit">In Zahlen</string>
     <string name="insight_adv_habit_entries">Einträge</string>
@@ -125,6 +124,6 @@
     <string name="insight_adv_tone_info">So werden Stimmungen eingeteilt</string>
     <string name="insight_adv_tone_sheet_title">Positive und negative Stimmungen</string>
     <string name="insight_adv_tone_sheet_body">Von den Einträgen mit Stimmung zeigt dies den Anteil mit positiver oder negativer Stimmung.</string>
-    <string name="insight_adv_tone_neutral">Nicht gezählt</string>
+    <string name="insight_adv_tone_neutral">Neutrale Stimmungen</string>
     <string name="insight_adv_tone_ok">OK</string>
 </resources>

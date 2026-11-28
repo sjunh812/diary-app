@@ -101,7 +101,7 @@ private fun RadioMark(selected: Boolean) {
     val modifier = Modifier.size(DiaryIconSize.i24)
     if (selected) {
         Box(modifier.background(colors.accent, DiaryShapes.full), contentAlignment = Alignment.Center) {
-            DiaryIcon(DiaryIcons.Check, contentDescription = null, tint = colors.onAccent, size = DiaryIconSize.i16)
+            DiaryIcon(DiaryIcons.CheckSelected, contentDescription = null, tint = colors.onAccent, size = DiaryIconSize.i16)
         }
     } else {
         Box(modifier.border(RING_WIDTH, colors.lineStrong, DiaryShapes.full))

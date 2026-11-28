@@ -46,8 +46,8 @@ data class EntryDetail(val entry: Entry, val photos: List<EntryPhoto>, val keptB
 }
 
 /**
- * 달력 칸과 기분 흐름. [mood]는 그날 마지막 일기의 기분, [count]는 편수
- * [previousMood]는 바로 앞 일기의 기분으로 달력에서 뒤에 겹쳐 그림
+ * 달력 칸과 기분 흐름. [mood]는 그날 기분을 고른 마지막 일기의 기분, [count]는 편수
+ * [previousMood]는 그 밖에 기분을 고른 마지막 일기의 기분으로 달력에서 뒤에 겹쳐 그림
  * [moods]는 그날 일기의 기분을 시간순으로 모은 것. 통계에 사용
  */
 data class DayMood(

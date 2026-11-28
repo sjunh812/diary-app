@@ -13,7 +13,10 @@ enum class PlusBenefit(internal val core: Boolean) {
     /** 테마 색 직접 고르기(스펙 010) */
     THEME(core = true),
     CHECKLIST(core = false),
-    LIST_FORMATTING(core = false)
+    LIST_FORMATTING(core = false),
+
+    /** Plus 기분 테마(스펙 013) */
+    MOOD_THEME(core = false)
 }
 
 internal val coreBenefits: List<PlusBenefit> = PlusBenefit.entries.filter { it.core }

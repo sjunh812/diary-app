@@ -36,13 +36,13 @@ class SnapshotWriterTest {
         fs.deleteRecursively(dir)
     }
 
-    private fun entry(id: String, deletedAt: Long? = null) = EntryEntity(
+    private fun entry(id: String, deletedAt: Long? = null, mood: String? = null) = EntryEntity(
         id = id,
         date = "2026-10-31",
         time = "21:40",
         bodyHtml = "<p>$id</p>",
         plainText = id,
-        mood = null,
+        mood = mood,
         weather = null,
         placeName = null,
         isFavorite = false,
@@ -118,5 +118,15 @@ class SnapshotWriterTest {
         db.entryDao().insertAll(listOf(entry("d")))
 
         assertEquals(3, count(snapshot.path, "entry"))
+    }
+
+    /** 옛 앱이 새 기분을 "기분 없음"으로 지우지 않게 형식 번호를 고르는 값 */
+    @Test
+    fun counts_entries_with_new_moods_in_the_copy() = runTest {
+        db.entryDao().insertAll(listOf(entry("a", mood = "good"), entry("b"), entry("c", mood = "sad")))
+        assertEquals(0, SnapshotWriter(db, fs).write(dir / "old.db").newMoods)
+
+        db.entryDao().insertAll(listOf(entry("d", mood = "excited"), entry("e", deletedAt = 5, mood = "annoyed")))
+        assertEquals(2, SnapshotWriter(db, fs).write(dir / "new.db").newMoods)
     }
 }

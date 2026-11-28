@@ -73,7 +73,7 @@ fun DiaryThemeSwatch(
                 EmptyCustom()
             } else {
                 Box(Modifier.size(CIRCLE).background(color, DiaryShapes.full), contentAlignment = Alignment.Center) {
-                    if (selected) DiaryIcon(DiaryIcons.Check, contentDescription = null, tint = checkColor)
+                    if (selected) DiaryIcon(DiaryIcons.CheckSelected, contentDescription = null, tint = checkColor)
                 }
             }
             if (plusLabel != null) {

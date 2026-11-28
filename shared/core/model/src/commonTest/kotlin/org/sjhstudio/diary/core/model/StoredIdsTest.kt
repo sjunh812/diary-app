@@ -9,7 +9,23 @@ class StoredIdsTest {
     @Test
     fun mood_ids_and_legacy_codes() {
         assertEquals(
-            listOf("angry" to 0, "cool" to 1, "sad" to 2, "sick" to 3, "laugh" to 4, "meh" to 5, "bad" to 6, "good" to 7, "tired" to 8),
+            listOf(
+                "angry" to 0,
+                "cool" to 1,
+                "sad" to 2,
+                "sick" to 3,
+                "laugh" to 4,
+                "meh" to 5,
+                "bad" to 6,
+                "good" to 7,
+                "tired" to 8,
+                "excited" to null,
+                "proud" to null,
+                "calm" to null,
+                "bored" to null,
+                "anxious" to null,
+                "annoyed" to null
+            ),
             Mood.entries.map { it.id to it.legacyCode }
         )
         assertEquals(null, Mood.fromLegacyCode(-1))
@@ -112,5 +128,19 @@ class StoredIdsTest {
         assertEquals(RelockAfter.ONE_MINUTE, lock.relockAfter)
         assertEquals("diary.pin.v1", lock.keyAlias)
         assertEquals(false, lock.hasPin)
+    }
+
+    /** 설정과 백업에 저장하는 기분 테마·클레이 꼴 id(스펙 013) */
+    @Test
+    fun mood_theme_and_clay_ids() {
+        assertEquals(
+            listOf("basic", "shape", "gouache", "line", "dot", "bubble", "doodle", "veggie", "clay"),
+            MoodTheme.entries.map { it.id }
+        )
+        assertEquals(
+            listOf("bob", "long", "short", "dandy", "part", "bun", "ponytail", "curly", "buzz"),
+            ClayHair.entries.map { it.id }
+        )
+        assertEquals((1..6).map { "skin$it" }, ClaySkin.entries.map { it.id })
     }
 }

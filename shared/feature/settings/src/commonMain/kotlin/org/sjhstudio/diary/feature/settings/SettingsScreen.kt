@@ -68,6 +68,7 @@ import org.sjhstudio.diary.feature.settings.resources.settings_letter
 import org.sjhstudio.diary.feature.settings.resources.settings_licenses
 import org.sjhstudio.diary.feature.settings.resources.settings_list_style
 import org.sjhstudio.diary.feature.settings.resources.settings_lock
+import org.sjhstudio.diary.feature.settings.resources.settings_mood_theme
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_action
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_badge
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_body
@@ -107,6 +108,7 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     onListStyle: () -> Unit = {},
     onTrash: () -> Unit = {},
+    onMoodTheme: () -> Unit = {},
     onBackup: () -> Unit = {},
     onLetter: () -> Unit = {},
     onTerms: () -> Unit = {},
@@ -205,6 +207,12 @@ fun SettingsScreen(
                 } else {
                     null
                 }
+            )
+            DiarySettingsRow(
+                stringResource(Res.string.settings_mood_theme),
+                onClick = onMoodTheme,
+                selected = selected == SettingsPane.MOOD_THEME,
+                value = if (state.loaded) stringResource(state.settings.moodLook.shownTheme(state.canMoodTheme == true).label()) else null
             )
             DiarySettingsHeader(stringResource(Res.string.settings_group_style), gapAbove = true)
             DiarySettingsRow(

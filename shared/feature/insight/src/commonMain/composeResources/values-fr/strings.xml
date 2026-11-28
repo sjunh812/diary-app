@@ -69,7 +69,6 @@
     <string name="insight_adv_when_hard_weather">Le plus d’humeurs négatives : %1$s</string>
     <string name="insight_adv_when_good_place">Le plus d’humeurs positives : %1$s</string>
     <string name="insight_adv_when_hard_place">Le plus d’humeurs négatives : %1$s</string>
-    <string name="insight_adv_legend_neutral">%1$s·%2$s</string>
     <string name="insight_adv_company">Météo, jours et lieux par humeur</string>
     <string name="insight_adv_habit">En chiffres</string>
     <string name="insight_adv_habit_entries">Entrées</string>
@@ -125,6 +124,6 @@
     <string name="insight_adv_tone_info">Comment les humeurs sont classées</string>
     <string name="insight_adv_tone_sheet_title">Humeurs positives et négatives</string>
     <string name="insight_adv_tone_sheet_body">Parmi les entrées avec une humeur, indique la part d’humeurs positives ou négatives.</string>
-    <string name="insight_adv_tone_neutral">Non comptées</string>
+    <string name="insight_adv_tone_neutral">Humeurs neutres</string>
     <string name="insight_adv_tone_ok">OK</string>
 </resources>

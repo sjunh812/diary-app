@@ -28,6 +28,12 @@ class AppUpdateRepositoryTest {
     private val remote = mutableMapOf<String, String>()
     private val dataStore = InMemoryDataStore(emptyPreferences())
 
+    // 홈 카드는 업데이트 요약을 넣은 버전에서만 뜸. 시험 대부분은 요약이 있는 경우
+    init {
+        remote[AppUpdateRepository.KEY_NOTE_VERSION] = "2.0.2"
+        remote[AppUpdateRepository.noteKey("en")] = "Easier to read list."
+    }
+
     private fun TestScope.repo(store: FakeStoreUpdates, scope: CoroutineScope = backgroundScope) = AppUpdateRepository(
         store = store,
         remote = { remote[it].orEmpty() },
@@ -52,20 +58,20 @@ class AppUpdateRepositoryTest {
         val store = FakeStoreUpdates().apply { answer = StoreCheck.Available("45") }
         val repo = repo(store)
         repo.refresh()
-        assertEquals(UpdateNotice.Available(required = false, note = null), repo.homeCard.first())
-        assertEquals(UpdateNotice.Available(required = false, note = null), repo.notice.value)
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE), repo.homeCard.first())
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE), repo.notice.value)
     }
 
     /** 앱 범위는 실제로 한 박자 늦게 돌아 상태가 늦게 따라와도, 카드는 처음부터 새 버전을 알림. 빈칸이 먼저 그려지면 팁이 스침 */
     @Test
     fun the_home_card_never_reads_none_before_the_new_version() = runTest {
         val store = FakeStoreUpdates().apply { answer = StoreCheck.Available("45") }
-        val repo = AppUpdateRepository(store, { "" }, PromptStore(dataStore), "2.0.1", backgroundScope, clock)
+        val repo = AppUpdateRepository(store, { remote[it].orEmpty() }, PromptStore(dataStore), "2.0.1", backgroundScope, clock)
         val seen = mutableListOf<UpdateNotice?>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { repo.homeCard.collect { seen += it } }
         repo.refresh()
         advanceUntilIdle()
-        assertEquals(listOf<UpdateNotice?>(UpdateNotice.Available(required = false, note = null)), seen)
+        assertEquals(listOf<UpdateNotice?>(UpdateNotice.Available(required = false, note = NOTE)), seen)
     }
 
     /** 앱을 다시 열어 "받는 중"으로 안 뒤 Play 알림에서 받기를 취소하면 남은 진행을 보이지 않음 */
@@ -78,7 +84,7 @@ class AppUpdateRepositoryTest {
 
         store.answer = StoreCheck.Available("45")
         store.installs.emit(InstallStep.Canceled)
-        assertEquals(UpdateNotice.Available(required = false, note = null), repo.notice.value)
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE), repo.notice.value)
     }
 
     /** 받다 실패하면 앱을 다시 열어 안 "받는 중"보다 실패가 보임 */
@@ -90,7 +96,7 @@ class AppUpdateRepositoryTest {
 
         store.answer = StoreCheck.Available("45")
         store.installs.emit(InstallStep.Failed)
-        assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.notice.value)
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE, failed = true), repo.notice.value)
     }
 
     /** Play가 알림 없이 받기를 멈춰도 앱으로 돌아와 다시 물으면 "받는 중"이 풀림 */
@@ -103,7 +109,7 @@ class AppUpdateRepositoryTest {
         assertEquals(UpdateNotice.Downloading(0.3f), repo.notice.value)
 
         repo.refresh()
-        assertEquals(UpdateNotice.Available(required = false, note = null), repo.notice.value)
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE), repo.notice.value)
     }
 
     /** 마지막 "받음" 알림을 놓쳐도 돌아와 다시 물으면 [다시 시작하기]가 나옴 */
@@ -127,7 +133,7 @@ class AppUpdateRepositoryTest {
         repo.refresh()
 
         store.installs.emit(InstallStep.Failed)
-        assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.notice.value)
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE, failed = true), repo.notice.value)
         repo.dismiss()
         assertNull(repo.homeCard.first())
     }
@@ -154,7 +160,7 @@ class AppUpdateRepositoryTest {
         store.answer = null
         store.installs.emit(InstallStep.Canceled)
         repo.refresh()
-        assertEquals(UpdateNotice.Available(required = false, note = null), repo.notice.value)
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE), repo.notice.value)
     }
 
     /** 실패한 뒤 다시 묻기까지 실패해도 [나중에]로 닫을 수 있음 */
@@ -167,7 +173,7 @@ class AppUpdateRepositoryTest {
         store.answer = null
         store.installs.emit(InstallStep.Failed)
         repo.refresh()
-        assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.notice.value)
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE, failed = true), repo.notice.value)
         repo.dismiss()
         assertNull(repo.homeCard.first())
     }
@@ -183,7 +189,7 @@ class AppUpdateRepositoryTest {
 
         store.installs.emit(InstallStep.Downloading(0.4f))
         store.installs.emit(InstallStep.Failed)
-        assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.homeCard.first())
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE, failed = true), repo.homeCard.first())
     }
 
     /** 묻는 사이 "받음" 알림이 먼저 오면 늦게 온 "받는 중" 답으로 되돌리지 않음 */
@@ -209,7 +215,7 @@ class AppUpdateRepositoryTest {
         store.answer = StoreCheck.Downloading("45", 0.4f)
         store.duringCheck = { store.installs.emit(InstallStep.Failed) }
         repo.refresh()
-        assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.notice.value)
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE, failed = true), repo.notice.value)
     }
 
     /** 스토어가 끝내 답하지 않아도 처음 확인은 끝나 홈 맨 위 칸이 계속 기다리지 않음 */
@@ -248,7 +254,7 @@ class AppUpdateRepositoryTest {
 
         store.answer = StoreCheck.Available("46")
         repo.refresh()
-        assertEquals(UpdateNotice.Available(required = false, note = null), repo.notice.value)
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE), repo.notice.value)
     }
 
     /** 꼭 필요한 업데이트는 받은 뒤에도 [나중에]로 숨길 수 없음 */
@@ -275,7 +281,7 @@ class AppUpdateRepositoryTest {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { repo.homeCard.collect { seen += it } }
 
         repo.dismiss()
-        assertEquals(listOf<UpdateNotice?>(UpdateNotice.Available(required = false, note = null, failed = true), null), seen)
+        assertEquals(listOf<UpdateNotice?>(UpdateNotice.Available(required = false, note = NOTE, failed = true), null), seen)
     }
 
     /** 닫은 버전의 실패 카드에서 [업데이트]를 눌러도 받기가 시작될 때까지 카드가 사라지지 않음 */
@@ -289,7 +295,7 @@ class AppUpdateRepositoryTest {
         store.installs.emit(InstallStep.Failed)
 
         repo.start()
-        assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.homeCard.first())
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE, failed = true), repo.homeCard.first())
         store.installs.emit(InstallStep.Downloading(0.2f))
         assertEquals(UpdateNotice.Downloading(0.2f), repo.homeCard.first())
     }
@@ -303,7 +309,7 @@ class AppUpdateRepositoryTest {
 
         store.duringCheck = { store.installs.emit(InstallStep.Canceled) }
         repo.refresh()
-        assertEquals(UpdateNotice.Available(required = false, note = null), repo.notice.value)
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE), repo.notice.value)
     }
 
     /** 묻는 사이 실패 알림이 오면 늦게 온 "받음" 답으로 실패를 지우지 않음 */
@@ -315,7 +321,7 @@ class AppUpdateRepositoryTest {
 
         store.duringCheck = { store.installs.emit(InstallStep.Failed) }
         repo.refresh()
-        assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.notice.value)
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE, failed = true), repo.notice.value)
     }
 
     /** 앱을 다시 열어 안 "받는 중"에서 실패 알림이 와도 다른 카드가 한 번도 나가지 않음 */
@@ -329,7 +335,7 @@ class AppUpdateRepositoryTest {
 
         store.installs.emit(InstallStep.Failed)
         assertEquals(
-            listOf<UpdateNotice?>(UpdateNotice.Downloading(0.6f), UpdateNotice.Available(required = false, note = null, failed = true)),
+            listOf<UpdateNotice?>(UpdateNotice.Downloading(0.6f), UpdateNotice.Available(required = false, note = NOTE, failed = true)),
             seen
         )
     }
@@ -344,7 +350,7 @@ class AppUpdateRepositoryTest {
         assertEquals(UpdateNotice.Downloading(0.55f), repo.notice.value)
 
         store.installs.emit(InstallStep.Failed)
-        assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.homeCard.first())
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE, failed = true), repo.homeCard.first())
     }
 
     @Test
@@ -366,7 +372,7 @@ class AppUpdateRepositoryTest {
         repo.refresh()
         store.answer = null
         repo.refresh()
-        assertEquals(UpdateNotice.Available(required = false, note = null), repo.notice.value)
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE), repo.notice.value)
     }
 
     @Test
@@ -377,10 +383,10 @@ class AppUpdateRepositoryTest {
         repo.dismiss()
         assertNull(repo.homeCard.first())
         // 설정 줄은 그대로
-        assertEquals(UpdateNotice.Available(required = false, note = null), repo.notice.value)
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE), repo.notice.value)
         store.answer = StoreCheck.Available("46")
         repo.refresh()
-        assertEquals(UpdateNotice.Available(required = false, note = null), repo.homeCard.first())
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE), repo.homeCard.first())
     }
 
     @Test
@@ -390,7 +396,7 @@ class AppUpdateRepositoryTest {
         val repo = repo(store)
         repo.refresh()
         repo.dismiss()
-        assertEquals(UpdateNotice.Available(required = true, note = null), repo.homeCard.first())
+        assertEquals(UpdateNotice.Available(required = true, note = NOTE), repo.homeCard.first())
     }
 
     @Test
@@ -399,7 +405,7 @@ class AppUpdateRepositoryTest {
         val store = FakeStoreUpdates().apply { answer = StoreCheck.Available("45") }
         val repo = repo(store)
         repo.refresh()
-        assertEquals(UpdateNotice.Available(required = false, note = null), repo.notice.value)
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE), repo.notice.value)
     }
 
     @Test
@@ -419,6 +425,58 @@ class AppUpdateRepositoryTest {
         remote[AppUpdateRepository.KEY_NOTE_VERSION] = "2.0.1"
         repo.refresh()
         assertNull((repo.notice.value as UpdateNotice.Available).note)
+    }
+
+    /** 요약 없이 스토어 버전만 오르면(설명·이름만 바꾼 판) 홈 카드를 띄우지 않음. 설정 줄은 새 버전을 그대로 알림 */
+    @Test
+    fun no_home_card_without_a_note() = runTest {
+        remote.clear()
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Available("45") }
+        val repo = repo(store)
+        repo.refresh()
+        assertNull(repo.homeCard.first())
+        assertEquals(UpdateNotice.Available(required = false, note = null), repo.notice.value)
+    }
+
+    /** 영어 요약이 없으면 다른 언어 화면에 보일 문장이 없어 요약이 없는 것과 같음 */
+    @Test
+    fun no_home_card_when_the_note_has_no_english() = runTest {
+        remote.clear()
+        remote[AppUpdateRepository.KEY_NOTE_VERSION] = "2.0.2"
+        remote["update_note_ko"] = "결제 뒤에도 광고가 보이던 문제를 고쳤어요."
+        val repo = repo(FakeStoreUpdates().apply { answer = StoreCheck.Available("45") })
+        repo.refresh()
+        assertNull(repo.homeCard.first())
+        assertEquals(UpdateNotice.Available(required = false, note = null), repo.notice.value)
+    }
+
+    /** 요약이 이 앱보다 낮은 버전을 가리키면 요약이 없는 것과 같음 */
+    @Test
+    fun no_home_card_when_the_note_is_for_this_or_an_older_version() = runTest {
+        remote[AppUpdateRepository.KEY_NOTE_VERSION] = "2.0.1"
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Available("45") }
+        val repo = repo(store)
+        repo.refresh()
+        assertNull(repo.homeCard.first())
+    }
+
+    /** 꼭 필요한 업데이트와 사용자가 시작한 받기는 요약이 없어도 알림 */
+    @Test
+    fun required_and_user_started_updates_show_without_a_note() = runTest {
+        remote.clear()
+        remote[AppUpdateRepository.KEY_MIN_VERSION] = "2.0.2"
+        val required = repo(FakeStoreUpdates().apply { answer = StoreCheck.Available("45") })
+        required.refresh()
+        assertEquals(UpdateNotice.Available(required = true, note = null), required.homeCard.first())
+
+        remote.clear()
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Available("45") }
+        val repo = repo(store)
+        repo.refresh()
+        store.installs.emit(InstallStep.Failed)
+        assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.homeCard.first())
+        store.installs.emit(InstallStep.Downloading(0.5f))
+        assertEquals(UpdateNotice.Downloading(0.5f), repo.homeCard.first())
     }
 
     @Test
@@ -460,7 +518,7 @@ class AppUpdateRepositoryTest {
         repo.refresh()
         repo.start()
         store.installs.emit(InstallStep.Canceled)
-        assertEquals(UpdateNotice.Available(required = false, note = null), repo.homeCard.first())
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE), repo.homeCard.first())
     }
 
     @Test
@@ -471,10 +529,10 @@ class AppUpdateRepositoryTest {
         store.installs.emit(InstallStep.Downloading(0.1f))
         store.installs.emit(InstallStep.Failed)
         repo.refresh()
-        assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.notice.value)
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE, failed = true), repo.notice.value)
         repo.start()
         // 받기가 실제로 시작될 때 실패 표시가 바뀜
-        assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.notice.value)
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE, failed = true), repo.notice.value)
         store.installs.emit(InstallStep.Downloading(0.05f))
         assertEquals(UpdateNotice.Downloading(0.05f), repo.notice.value)
         assertEquals(1, store.starts)
@@ -497,7 +555,7 @@ class AppUpdateRepositoryTest {
         store.answer = StoreCheck.None
         repo.refresh()
         assertEquals(1, store.checks)
-        assertEquals(UpdateNotice.Available(required = false, note = null), repo.notice.value)
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE), repo.notice.value)
         clock.advance(20.hours)
         repo.refresh()
         assertEquals(2, store.checks)
@@ -512,7 +570,7 @@ class AppUpdateRepositoryTest {
         store.answer = null
         val reopened = repo(store)
         reopened.refresh()
-        assertEquals(UpdateNotice.Available(required = false, note = null), reopened.notice.value)
+        assertEquals(UpdateNotice.Available(required = false, note = NOTE), reopened.notice.value)
     }
 
     @Test
@@ -533,5 +591,9 @@ class AppUpdateRepositoryTest {
         assertEquals(false, repo.start())
         repo.openStorePage()
         assertEquals(1, store.storePages)
+    }
+
+    private companion object {
+        val NOTE = ReleaseNote(mapOf("en" to "Easier to read list."))
     }
 }

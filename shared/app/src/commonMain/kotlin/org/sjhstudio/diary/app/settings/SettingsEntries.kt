@@ -26,6 +26,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.app.gate.toastBottomOverApp
 import org.sjhstudio.diary.app.navigation.BackupOptionsKey
 import org.sjhstudio.diary.app.navigation.BackupSettingsKey
+import org.sjhstudio.diary.app.navigation.ClayLookSettingsKey
 import org.sjhstudio.diary.app.navigation.FileBackupKey
 import org.sjhstudio.diary.app.navigation.FontLicenseKey
 import org.sjhstudio.diary.app.navigation.FontSettingsKey
@@ -36,6 +37,7 @@ import org.sjhstudio.diary.app.navigation.LicensesKey
 import org.sjhstudio.diary.app.navigation.ListStyleSettingsKey
 import org.sjhstudio.diary.app.navigation.LockSettingsKey
 import org.sjhstudio.diary.app.navigation.MigrationReportKey
+import org.sjhstudio.diary.app.navigation.MoodThemeSettingsKey
 import org.sjhstudio.diary.app.navigation.PlusKey
 import org.sjhstudio.diary.app.navigation.ReminderSettingsKey
 import org.sjhstudio.diary.app.navigation.RestoreListKey
@@ -81,6 +83,7 @@ import org.sjhstudio.diary.feature.migration.SupportAttachSheet
 import org.sjhstudio.diary.feature.migration.rememberMigrationActions
 import org.sjhstudio.diary.feature.plus.PlusBenefit
 import org.sjhstudio.diary.feature.plus.PlusRoute
+import org.sjhstudio.diary.feature.settings.ClayLookSettingsScreen
 import org.sjhstudio.diary.feature.settings.FEATURE_SURVEY_URL
 import org.sjhstudio.diary.feature.settings.FontLicenseRoute
 import org.sjhstudio.diary.feature.settings.FontSettingsRoute
@@ -89,6 +92,8 @@ import org.sjhstudio.diary.feature.settings.LicensesRoute
 import org.sjhstudio.diary.feature.settings.ListStyleSettingsScreen
 import org.sjhstudio.diary.feature.settings.MigrationReportScreen
 import org.sjhstudio.diary.feature.settings.MigrationReportViewModel
+import org.sjhstudio.diary.feature.settings.MoodThemeSettingsScreen
+import org.sjhstudio.diary.feature.settings.MoodThemeViewModel
 import org.sjhstudio.diary.feature.settings.ReminderSettingsRoute
 import org.sjhstudio.diary.feature.settings.SettingsPane
 import org.sjhstudio.diary.feature.settings.SettingsScreen
@@ -144,6 +149,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
                 onFont = { open(FontSettingsKey) },
                 onTextSize = { open(TextSizeSettingsKey) },
                 onTheme = { open(ThemeSettingsKey) },
+                onMoodTheme = { open(MoodThemeSettingsKey) },
                 onReminder = { open(ReminderSettingsKey) },
                 onLock = { open(LockSettingsKey) },
                 onMigrationReport = { open(MigrationReportKey) },
@@ -271,6 +277,10 @@ fun EntryProviderScope<NavKey>.settingsEntries(
             onBack = pop
         )
     }
+    entry<MoodThemeSettingsKey>(metadata = SettingsDetailPane) {
+        MoodThemeSettingsPage(onClayLook = { push(ClayLookSettingsKey) }, onPlus = { push(PlusKey(PlusBenefit.MOOD_THEME)) }, onBack = pop)
+    }
+    entry<ClayLookSettingsKey>(metadata = SettingsDetailPane) { ClayLookSettingsPage(onBack = pop) }
     entry<FontSettingsKey>(metadata = SettingsDetailPane) { FontSettingsRoute(onBack = pop) }
     entry<ReminderSettingsKey>(metadata = SettingsDetailPane) { ReminderSettingsRoute(onBack = pop) }
     entry<LockSettingsKey>(metadata = SettingsDetailPane) { LockSettingsRoute(onBack = pop) }
@@ -280,6 +290,36 @@ fun EntryProviderScope<NavKey>.settingsEntries(
     }
     entry<FontLicenseKey>(metadata = SettingsDetailPane) { key -> FontLicenseRoute(key.fontId, onBack = pop) }
     entry<LibraryLicenseKey>(metadata = SettingsDetailPane) { key -> LibraryLicenseRoute(key.libraryId, onBack = pop) }
+}
+
+/** 설정 > 기분 테마. 읽기 전의 기본값을 고른 것으로 보이지 않게 기다림 */
+@Composable
+private fun MoodThemeSettingsPage(onClayLook: () -> Unit, onPlus: () -> Unit, onBack: () -> Unit) {
+    val viewModel = koinViewModel<MoodThemeViewModel>()
+    val state = viewModel.state.collectAsStateWithLifecycle().value ?: return
+    MoodThemeSettingsScreen(
+        look = state.look,
+        canPlus = state.canPlus,
+        onTheme = viewModel::setTheme,
+        onSticker = viewModel::setSticker,
+        onClayLook = onClayLook,
+        onPlus = onPlus,
+        onBack = onBack
+    )
+}
+
+/** 설정 > 기분 테마 > 클레이 꾸미기 */
+@Composable
+private fun ClayLookSettingsPage(onBack: () -> Unit) {
+    val viewModel = koinViewModel<MoodThemeViewModel>()
+    val state = viewModel.state.collectAsStateWithLifecycle().value ?: return
+    ClayLookSettingsScreen(
+        look = state.look,
+        onHair = viewModel::setHair,
+        onSkin = viewModel::setSkin,
+        onGlasses = viewModel::setGlasses,
+        onBack = onBack
+    )
 }
 
 /**
@@ -330,6 +370,7 @@ private fun settingsPane(key: NavKey): SettingsPane? = when (key) {
     FontSettingsKey -> SettingsPane.FONT
     TextSizeSettingsKey -> SettingsPane.TEXT_SIZE
     ThemeSettingsKey -> SettingsPane.THEME
+    MoodThemeSettingsKey, ClayLookSettingsKey -> SettingsPane.MOOD_THEME
     ListStyleSettingsKey -> SettingsPane.LIST_STYLE
     ReminderSettingsKey -> SettingsPane.REMINDER
     LockSettingsKey -> SettingsPane.LOCK

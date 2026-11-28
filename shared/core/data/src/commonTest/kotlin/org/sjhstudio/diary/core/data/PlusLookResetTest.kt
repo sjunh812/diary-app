@@ -6,21 +6,25 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.sjhstudio.diary.core.model.AppSettings
+import org.sjhstudio.diary.core.model.ClayHair
+import org.sjhstudio.diary.core.model.ClaySkin
+import org.sjhstudio.diary.core.model.MoodLook
+import org.sjhstudio.diary.core.model.MoodTheme
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.ThemeChoice
 import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.testing.FakePlanRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
 
-// Plus가 끝나면 직접 고른 색을 지움(스펙 010 US6)
-class CustomThemeResetTest {
+// Plus가 끝나면 직접 고른 색을 지우고(스펙 010 US6) Plus 기분 테마를 기본으로(스펙 013 US4)
+class PlusLookResetTest {
     private val custom = ThemeChoice(colorId = "custom", customHex = "#C2185B")
 
     @Test
     fun ending_plus_clears_the_custom_color_and_goes_back_to_lavender() = runTest {
         val settings = FakeSettingsRepository(AppSettings(theme = custom))
         val plans = FakePlanRepository(Plan.PLUS)
-        backgroundScope.launch { CustomThemeReset(settings, plans).watch() }
+        backgroundScope.launch { PlusLookReset(settings, plans).watch() }
         runCurrent()
         assertEquals(custom, settings.settings.value.theme)
 
@@ -42,7 +46,7 @@ class CustomThemeResetTest {
                     real.updateTheme(transform)
                 }
             }
-        backgroundScope.launch { CustomThemeReset(settings, FakePlanRepository(Plan.FREE)).watch() }
+        backgroundScope.launch { PlusLookReset(settings, FakePlanRepository(Plan.FREE)).watch() }
         runCurrent()
         assertEquals(custom, real.settings.value.theme)
 
@@ -55,7 +59,7 @@ class CustomThemeResetTest {
     @Test
     fun a_preset_stays_but_the_remembered_custom_color_goes() = runTest {
         val settings = FakeSettingsRepository(AppSettings(theme = ThemeChoice(colorId = "sea", customHex = "#C2185B")))
-        backgroundScope.launch { CustomThemeReset(settings, FakePlanRepository(Plan.AD_FREE)).watch() }
+        backgroundScope.launch { PlusLookReset(settings, FakePlanRepository(Plan.AD_FREE)).watch() }
         runCurrent()
 
         assertEquals(ThemeChoice(colorId = "sea"), settings.settings.value.theme)
@@ -65,7 +69,7 @@ class CustomThemeResetTest {
     @Test
     fun custom_color_restored_while_free_is_cleared() = runTest {
         val settings = FakeSettingsRepository(AppSettings(theme = ThemeChoice(colorId = "rose")))
-        backgroundScope.launch { CustomThemeReset(settings, FakePlanRepository(Plan.FREE)).watch() }
+        backgroundScope.launch { PlusLookReset(settings, FakePlanRepository(Plan.FREE)).watch() }
         runCurrent()
 
         settings.updateTheme { custom }
@@ -79,7 +83,7 @@ class CustomThemeResetTest {
     fun unknown_color_name_stays_while_free() = runTest {
         val unknown = ThemeChoice(colorId = "mauve")
         val settings = FakeSettingsRepository(AppSettings(theme = unknown))
-        backgroundScope.launch { CustomThemeReset(settings, FakePlanRepository(Plan.FREE)).watch() }
+        backgroundScope.launch { PlusLookReset(settings, FakePlanRepository(Plan.FREE)).watch() }
         runCurrent()
 
         assertEquals(unknown, settings.settings.value.theme)
@@ -89,9 +93,38 @@ class CustomThemeResetTest {
     @Test
     fun unknown_plan_keeps_the_custom_color() = runTest {
         val settings = FakeSettingsRepository(AppSettings(theme = custom))
-        backgroundScope.launch { CustomThemeReset(settings, FakePlanRepository(Plan.FREE, known = false)).watch() }
+        backgroundScope.launch { PlusLookReset(settings, FakePlanRepository(Plan.FREE, known = false)).watch() }
         runCurrent()
 
         assertEquals(custom, settings.settings.value.theme)
+    }
+
+    @Test
+    fun ending_plus_turns_a_plus_mood_theme_back_to_basic_and_keeps_the_clay_look() = runTest {
+        val clay = MoodLook().withTheme(MoodTheme.CLAY).withClay(ClayHair.CURLY, ClaySkin.SKIN4, glasses = true)
+        val settings = FakeSettingsRepository(AppSettings(moodLook = clay))
+        val plans = FakePlanRepository(Plan.PLUS)
+        backgroundScope.launch { PlusLookReset(settings, plans).watch() }
+        runCurrent()
+        assertEquals(clay, settings.settings.value.moodLook)
+
+        plans.plan.value = Plan.AD_FREE
+        runCurrent()
+
+        assertEquals(clay.copy(themeId = "basic"), settings.settings.value.moodLook)
+    }
+
+    /** 무료 테마는 그대로. 무료 기기에 Plus 테마가 든 백업을 복원하면 기본으로 */
+    @Test
+    fun free_mood_themes_stay_and_restored_plus_themes_go_back() = runTest {
+        val settings = FakeSettingsRepository(AppSettings(moodLook = MoodLook(themeId = "dot")))
+        backgroundScope.launch { PlusLookReset(settings, FakePlanRepository(Plan.FREE)).watch() }
+        runCurrent()
+        assertEquals("dot", settings.settings.value.moodLook.themeId)
+
+        settings.updateMoodLook { it.withTheme(MoodTheme.VEGGIE) }
+        runCurrent()
+
+        assertEquals("basic", settings.settings.value.moodLook.themeId)
     }
 }

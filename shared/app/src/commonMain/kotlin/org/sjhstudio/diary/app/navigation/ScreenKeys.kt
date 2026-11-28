@@ -42,6 +42,12 @@ data object TextSizeSettingsKey : Screen
 data object ThemeSettingsKey : Screen
 
 @Serializable
+data object MoodThemeSettingsKey : Screen
+
+@Serializable
+data object ClayLookSettingsKey : Screen
+
+@Serializable
 data object ReminderSettingsKey : Screen
 
 @Serializable

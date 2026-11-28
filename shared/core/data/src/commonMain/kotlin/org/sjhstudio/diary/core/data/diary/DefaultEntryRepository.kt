@@ -237,17 +237,20 @@ internal fun escapeLike(text: String): String = buildString(text.length) {
 
 /**
  * 시간순 줄을 날짜로 묶음
- * 뒤에 있는 줄이 그날 마지막 일기
+ * 그날 얼굴은 기분을 고른 마지막 일기. 기분 있는 일기가 없으면 없음
+ * 뒤에 겹칠 기분은 그 밖에 기분을 고른 마지막 일기. 기분이 하나뿐이면 없음
  */
 internal fun toDayMoods(rows: List<DayMoodRow>): Map<LocalDate, DayMood> = rows.groupBy { it.date }.entries.associate { (date, day) ->
     val parsed = LocalDate.parse(date)
-    val previous = day.getOrNull(day.lastIndex - 1)
+    val moods = day.map { Mood.fromId(it.mood) }
+    val front = moods.indexOfLast { it != null }
+    val back = moods.indices.lastOrNull { it != front && moods[it] != null }
     parsed to
         DayMood(
             date = parsed,
-            mood = Mood.fromId(day.last().mood),
+            mood = moods.getOrNull(front),
             count = day.size,
-            previousMood = previous?.mood?.let(Mood::fromId),
-            moods = day.mapNotNull { Mood.fromId(it.mood) }
+            previousMood = back?.let { moods[it] },
+            moods = moods.filterNotNull()
         )
 }

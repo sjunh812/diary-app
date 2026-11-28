@@ -4,37 +4,54 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.icon.DiaryMoodFace
 import org.sjhstudio.diary.core.designsystem.icon.moodFaceLine
 import org.sjhstudio.diary.core.designsystem.icon.vector
+import org.sjhstudio.diary.core.designsystem.theme.DiaryClaySkin
 import org.sjhstudio.diary.core.designsystem.theme.DiaryMoodColors
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.Mood
+import org.sjhstudio.diary.core.model.MoodTheme
 import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.ui.resources.Res
 import org.sjhstudio.diary.core.ui.resources.mood_angry
+import org.sjhstudio.diary.core.ui.resources.mood_annoyed
+import org.sjhstudio.diary.core.ui.resources.mood_anxious
 import org.sjhstudio.diary.core.ui.resources.mood_bad
+import org.sjhstudio.diary.core.ui.resources.mood_bored
+import org.sjhstudio.diary.core.ui.resources.mood_calm
 import org.sjhstudio.diary.core.ui.resources.mood_cool
+import org.sjhstudio.diary.core.ui.resources.mood_excited
 import org.sjhstudio.diary.core.ui.resources.mood_good
 import org.sjhstudio.diary.core.ui.resources.mood_laugh
 import org.sjhstudio.diary.core.ui.resources.mood_meh
+import org.sjhstudio.diary.core.ui.resources.mood_proud
 import org.sjhstudio.diary.core.ui.resources.mood_sad
 import org.sjhstudio.diary.core.ui.resources.mood_sick
 import org.sjhstudio.diary.core.ui.resources.mood_tired
@@ -59,6 +76,21 @@ val MoodFaceLine = Color(0xFF1A1C20)
  */
 @Composable
 fun MoodFace(mood: Mood, size: Dp, modifier: Modifier = Modifier, contentDescription: String? = null) {
+    val colors = DiaryTheme.colors
+    val dark = colors.canvas.luminance() < DARK_LUMINANCE
+    val look = LocalMoodLook.current
+    if (look.theme == MoodTheme.CLAY) {
+        ClayFace(look, mood, size, contentDescription, modifier)
+        return
+    }
+    val art = remember(look, mood, dark) { look.art(mood, dark) }
+    if (art != null) {
+        // 그림 칸이 얼굴 칸보다 커서 얼굴 칸 밖으로 고르게 넘침. 자리는 얼굴 칸만 차지
+        Box(modifier.size(size), contentAlignment = Alignment.Center) {
+            Image(painterResource(art), contentDescription, Modifier.requiredSize(size * MOOD_ART_SCALE))
+        }
+        return
+    }
     val face = remember(mood) { mood.face() }
     Box(modifier.size(size).clip(DiaryShapes.full).background(DiaryTheme.colors.mood.of(mood))) {
         Image(
@@ -69,6 +101,95 @@ fun MoodFace(mood: Mood, size: Dp, modifier: Modifier = Modifier, contentDescrip
         )
     }
 }
+
+/** 클레이 얼굴은 겹을 쌓아 그림. 머리는 기분 색, 얼굴과 코는 고른 피부톤을 흰 그림에 곱함 */
+@Composable
+private fun ClayFace(look: ShownMoodLook, mood: Mood, size: Dp, contentDescription: String?, modifier: Modifier = Modifier) {
+    val hair = DiaryTheme.colors.mood.of(mood)
+    val layers = remember(look, mood) { look.clayLayers(mood) }
+    val skinIndex = look.skin.ordinal
+    Box(
+        modifier.size(size).semantics {
+            if (contentDescription !=
+                null
+            ) {
+                this.contentDescription = contentDescription
+            }
+        },
+        contentAlignment = Alignment.Center
+    ) {
+        for (layer in layers) {
+            val tint =
+                when (layer.tint) {
+                    Tint.HAIR -> hair
+                    Tint.SKIN -> DiaryClaySkin.faces[skinIndex]
+                    Tint.NOSE -> DiaryClaySkin.noses[skinIndex]
+                    null -> null
+                }
+            Image(
+                painterResource(layer.art),
+                contentDescription = null,
+                modifier = Modifier.requiredSize(size * MOOD_ART_SCALE),
+                colorFilter = tint?.let { ColorFilter.tint(it, BlendMode.Modulate) }
+            )
+        }
+    }
+}
+
+/**
+ * 기분 얼굴의 실루엣을 [color] 한 색으로. 기본 테마와 기분 없음은 원, 테마 그림은 그 그림 모양
+ * [grow]만큼 둘레를 키워 겹친 얼굴 사이를 띄우는 데 씀(달력 하루 여러 편)
+ */
+@Composable
+fun MoodSilhouette(mood: Mood?, size: Dp, color: Color, modifier: Modifier = Modifier, grow: Dp = Dp.Hairline) {
+    val dark = DiaryTheme.colors.canvas.luminance() < DARK_LUMINANCE
+    val look = LocalMoodLook.current
+    val arts =
+        remember(look, mood, dark) {
+            when {
+                mood == null -> emptyList()
+                look.theme == MoodTheme.CLAY -> look.clayLayers(mood).map { it.art }
+                else -> listOfNotNull(look.art(mood, dark))
+            }
+        }
+    // 겹(클레이)이 겹쳐도 진해지지 않게 투명도는 묶음 전체에 한 번만
+    val solid = color.copy(alpha = 1f)
+    Box(modifier.size(size).graphicsLayer { alpha = color.alpha }, contentAlignment = Alignment.Center) {
+        if (arts.isEmpty()) {
+            Box(Modifier.requiredSize(size + grow * 2).clip(DiaryShapes.full).background(solid))
+        } else {
+            // 반투명 그림(비눗방울)도 속까지 한 색으로 채움
+            val filter = remember(solid) { solidFilter(solid) }
+            for (art in arts) {
+                Image(
+                    painterResource(art),
+                    contentDescription = null,
+                    Modifier.requiredSize(size * MOOD_ART_SCALE + grow * 2),
+                    colorFilter = filter
+                )
+            }
+        }
+    }
+}
+
+/** 그림 알파를 이만큼 키워 가장자리만 부드럽게 남기고 속은 불투명하게 */
+private const val SILHOUETTE_ALPHA_BOOST = 8f
+
+/** 색 행렬의 더하는 값은 0~255 */
+private const val CHANNEL_MAX = 255f
+
+private fun solidFilter(color: Color): ColorFilter = ColorFilter.colorMatrix(
+    ColorMatrix(
+        floatArrayOf(
+            0f, 0f, 0f, 0f, color.red * CHANNEL_MAX,
+            0f, 0f, 0f, 0f, color.green * CHANNEL_MAX,
+            0f, 0f, 0f, 0f, color.blue * CHANNEL_MAX,
+            0f, 0f, 0f, SILHOUETTE_ALPHA_BOOST, 0f
+        )
+    )
+)
+
+private const val DARK_LUMINANCE = 0.5f
 
 /**
  * 기분 없이 글만 쓴 일기
@@ -124,6 +245,12 @@ fun Mood.label(): StringResource = when (this) {
     Mood.BAD -> Res.string.mood_bad
     Mood.GOOD -> Res.string.mood_good
     Mood.TIRED -> Res.string.mood_tired
+    Mood.EXCITED -> Res.string.mood_excited
+    Mood.PROUD -> Res.string.mood_proud
+    Mood.CALM -> Res.string.mood_calm
+    Mood.BORED -> Res.string.mood_bored
+    Mood.ANXIOUS -> Res.string.mood_anxious
+    Mood.ANNOYED -> Res.string.mood_annoyed
 }
 
 fun Weather.label(): StringResource = when (this) {
@@ -152,6 +279,12 @@ private fun Mood.face(): DiaryMoodFace = when (this) {
     Mood.BAD -> DiaryMoodFace.Bad
     Mood.GOOD -> DiaryMoodFace.Good
     Mood.TIRED -> DiaryMoodFace.Tired
+    Mood.EXCITED -> DiaryMoodFace.Excited
+    Mood.PROUD -> DiaryMoodFace.Proud
+    Mood.CALM -> DiaryMoodFace.Calm
+    Mood.BORED -> DiaryMoodFace.Bored
+    Mood.ANXIOUS -> DiaryMoodFace.Anxious
+    Mood.ANNOYED -> DiaryMoodFace.Annoyed
 }
 
 fun Weather.icon(): ImageVector = when (this) {
@@ -181,4 +314,10 @@ private fun DiaryMoodColors.of(mood: Mood): Color = when (mood) {
     Mood.BAD -> bad
     Mood.GOOD -> good
     Mood.TIRED -> tired
+    Mood.EXCITED -> excited
+    Mood.PROUD -> proud
+    Mood.CALM -> calm
+    Mood.BORED -> bored
+    Mood.ANXIOUS -> anxious
+    Mood.ANNOYED -> annoyed
 }

@@ -8,6 +8,7 @@ import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.ListStyle
+import org.sjhstudio.diary.core.model.MoodLook
 import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.core.model.ThemeChoice
 import org.sjhstudio.diary.core.model.ThemeMode
@@ -28,6 +29,8 @@ class FakeSettingsRepository(initial: AppSettings = AppSettings()) : SettingsRep
     override suspend fun setThemeMode(mode: ThemeMode) = state.update { it.copy(themeMode = mode) }
 
     override suspend fun updateTheme(transform: (ThemeChoice) -> ThemeChoice) = state.update { it.copy(theme = transform(it.theme)) }
+
+    override suspend fun updateMoodLook(transform: (MoodLook) -> MoodLook) = state.update { it.copy(moodLook = transform(it.moodLook)) }
 
     override suspend fun setAskLocationAgain(ask: Boolean) = state.update { it.copy(askLocationAgain = ask) }
 

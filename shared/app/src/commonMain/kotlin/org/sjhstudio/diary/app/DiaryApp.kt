@@ -6,6 +6,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.font.FontFamily
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -31,7 +32,9 @@ import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.platform.FontInstaller
+import org.sjhstudio.diary.core.ui.LocalMoodLook
 import org.sjhstudio.diary.core.ui.ProvideDiaryImageLoader
+import org.sjhstudio.diary.core.ui.ShownMoodLook
 import org.sjhstudio.diary.core.ui.diaryBodyFontFamily
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 import org.sjhstudio.diary.core.ui.rememberThemeBrand
@@ -77,7 +80,9 @@ fun DiaryApp() {
     val brand = rememberThemeBrand(settings.theme, customAllowed = plan.customTheme)
     DiaryTheme(darkTheme = darkTheme, fontFamily = chosenFontFamily(settings.font), brand = brand) {
         ApplyPlatformTheme(settings.themeMode, darkTheme)
-        CompositionLocalProvider(LocalChosenFont provides settings.font) {
+        val moodLook = settings.moodLook
+        val shownMood = remember(moodLook, plan.moodThemes) { ShownMoodLook.of(moodLook, plan.moodThemes) }
+        CompositionLocalProvider(LocalChosenFont provides settings.font, LocalMoodLook provides shownMood) {
             ProvideScreenGutter {
                 ProvideTabViewModelStores {
                     LockGate {

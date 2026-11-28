@@ -18,6 +18,7 @@ import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.LegacyBackupLink
 import org.sjhstudio.diary.core.model.ListPreferences
 import org.sjhstudio.diary.core.model.ListStyle
+import org.sjhstudio.diary.core.model.MoodLook
 import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.core.model.ThemeChoice
 import org.sjhstudio.diary.core.model.ThemeMode
@@ -44,6 +45,14 @@ class SettingsStore(private val dataStore: DataStore<Preferences>) {
             bodyTextSize = BodyTextSize.fromId(this[Keys.BODY_TEXT_SIZE]) ?: BodyTextSize.DEFAULT,
             themeMode = ThemeMode.fromId(this[Keys.THEME_MODE]) ?: ThemeMode.DEFAULT,
             theme = ThemeChoice(colorId = this[Keys.THEME_COLOR], customHex = this[Keys.CUSTOM_THEME_COLOR]),
+            moodLook =
+                MoodLook(
+                    themeId = this[Keys.MOOD_THEME],
+                    clayHair = this[Keys.CLAY_HAIR],
+                    claySkin = this[Keys.CLAY_SKIN],
+                    clayGlasses = this[Keys.CLAY_GLASSES],
+                    shapeSticker = this[Keys.SHAPE_STICKER]
+                ),
             askLocationAgain = this[Keys.ASK_LOCATION_AGAIN] ?: true,
             reminderEnabled = this[Keys.REMINDER_ENABLED] ?: false,
             reminderMinuteOfDay =
@@ -76,6 +85,11 @@ class SettingsStore(private val dataStore: DataStore<Preferences>) {
         // 원문 그대로 다시 써 모르는 색 이름이나 깨진 값을 지우지 않음
         setOrRemove(Keys.THEME_COLOR, settings.theme.colorId)
         setOrRemove(Keys.CUSTOM_THEME_COLOR, settings.theme.customHex)
+        setOrRemove(Keys.MOOD_THEME, settings.moodLook.themeId)
+        setOrRemove(Keys.CLAY_HAIR, settings.moodLook.clayHair)
+        setOrRemove(Keys.CLAY_SKIN, settings.moodLook.claySkin)
+        setOrRemove(Keys.CLAY_GLASSES, settings.moodLook.clayGlasses)
+        setOrRemove(Keys.SHAPE_STICKER, settings.moodLook.shapeSticker)
         this[Keys.ASK_LOCATION_AGAIN] = settings.askLocationAgain
         this[Keys.REMINDER_ENABLED] = settings.reminderEnabled
         this[Keys.REMINDER_MINUTE_OF_DAY] = settings.reminderMinuteOfDay
@@ -88,6 +102,11 @@ class SettingsStore(private val dataStore: DataStore<Preferences>) {
         val FONT = stringPreferencesKey("font")
         val THEME_COLOR = stringPreferencesKey("theme_color")
         val CUSTOM_THEME_COLOR = stringPreferencesKey("custom_theme_color")
+        val MOOD_THEME = stringPreferencesKey("mood_theme")
+        val CLAY_HAIR = stringPreferencesKey("clay_hair")
+        val CLAY_SKIN = stringPreferencesKey("clay_skin")
+        val CLAY_GLASSES = booleanPreferencesKey("clay_glasses")
+        val SHAPE_STICKER = booleanPreferencesKey("mood_theme_shape_sticker")
         val LIST_STYLE = stringPreferencesKey("list_style")
         val FAVORITES_ONLY = booleanPreferencesKey("favorites_only")
         val PREVIEW_LENGTH = stringPreferencesKey("preview_length")

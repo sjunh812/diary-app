@@ -4,8 +4,11 @@ import kotlinx.coroutines.flow.first
 import org.sjhstudio.diary.core.backup.ManifestSettings
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.model.BodyTextSize
+import org.sjhstudio.diary.core.model.ClayHair
+import org.sjhstudio.diary.core.model.ClaySkin
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.ListStyle
+import org.sjhstudio.diary.core.model.MoodTheme
 import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.core.model.ThemeChoice
 import org.sjhstudio.diary.core.model.ThemeColor
@@ -37,7 +40,13 @@ class BackupSettingsBridge(
             lockEnabled = lockEnabled(),
             // 한 번도 고르지 않았어도 라벤더를 적음. 다른 기기에 복원하면 라벤더로 돌아오게
             themeColor = now.theme.colorId ?: ThemeColor.DEFAULT.id,
-            customThemeColor = now.theme.customHex
+            customThemeColor = now.theme.customHex,
+            // 기분 테마도 한 번도 고르지 않았으면 기본을 적음
+            moodTheme = now.moodLook.themeId ?: MoodTheme.DEFAULT.id,
+            clayHair = now.moodLook.clayHair,
+            claySkin = now.moodLook.claySkin,
+            clayGlasses = now.moodLook.clayGlasses,
+            shapeSticker = now.moodLook.shapeSticker
         )
     }
 
@@ -47,6 +56,7 @@ class BackupSettingsBridge(
         BodyTextSize.fromId(backup.bodyTextSize)?.let { settings.setBodyTextSize(it) }
         ThemeMode.fromId(backup.themeMode)?.let { settings.setThemeMode(it) }
         applyTheme(backup)
+        applyMoodLook(backup)
         ListStyle.idOrNull(backup.listStyle)?.let { settings.setListStyle(it) }
         PreviewLength.idOrNull(backup.previewLength)?.let { settings.setPreviewLength(it) }
         backup.showListFormatting?.let { settings.setShowListFormatting(it) }
@@ -76,6 +86,26 @@ class BackupSettingsBridge(
                 else -> color.id
             }
             ThemeChoice(colorId = shown, customHex = remembered)
+        }
+    }
+
+    /**
+     * 기분 테마와 클레이 꼴을 한 번에 씀
+     * 아는 값만 바꾸고 옛 백업처럼 칸이 없거나 모르는 값이면 그 칸은 이 기기 값 그대로
+     * Plus가 아닌 기기에 Plus 테마가 와도 그대로 두고, 보이는 테마는 Plus 꾸미기 되돌리기가 정함
+     */
+    private suspend fun applyMoodLook(backup: ManifestSettings) {
+        val theme = MoodTheme.fromId(backup.moodTheme)
+        val hair = ClayHair.fromId(backup.clayHair)
+        val skin = ClaySkin.fromId(backup.claySkin)
+        settings.updateMoodLook { now ->
+            now.copy(
+                themeId = theme?.id ?: now.themeId,
+                clayHair = hair?.id ?: now.clayHair,
+                claySkin = skin?.id ?: now.claySkin,
+                clayGlasses = backup.clayGlasses ?: now.clayGlasses,
+                shapeSticker = backup.shapeSticker ?: now.shapeSticker
+            )
         }
     }
 }
