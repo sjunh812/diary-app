@@ -21,6 +21,7 @@ import org.sjhstudio.diary.core.model.MoodTheme
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.testing.FakePlanRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
+import org.sjhstudio.diary.core.testing.TestTelemetry
 
 // 기분 테마 화면(스펙 013 US3·US4)
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -36,7 +37,7 @@ class MoodThemeViewModelTest {
     @Test
     fun picking_a_theme_and_clay_look_is_saved() = runTest(dispatcher) {
         val settings = FakeSettingsRepository()
-        val vm = MoodThemeViewModel(settings, FakePlanRepository(Plan.PLUS))
+        val vm = MoodThemeViewModel(settings, FakePlanRepository(Plan.PLUS), telemetry = TestTelemetry)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
 
         vm.setTheme(MoodTheme.CLAY)
@@ -56,7 +57,7 @@ class MoodThemeViewModelTest {
     @Test
     fun plus_is_unknown_until_the_plan_is_known() = runTest(dispatcher) {
         val plans = FakePlanRepository(Plan.FREE, known = false)
-        val vm = MoodThemeViewModel(FakeSettingsRepository(), plans)
+        val vm = MoodThemeViewModel(FakeSettingsRepository(), plans, telemetry = TestTelemetry)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
         dispatcher.scheduler.runCurrent()
         assertEquals(null, vm.state.value?.canPlus)
@@ -70,7 +71,7 @@ class MoodThemeViewModelTest {
     @Test
     fun an_unknown_theme_survives_other_changes() = runTest(dispatcher) {
         val settings = FakeSettingsRepository(AppSettings(moodLook = MoodLook(themeId = "galaxy")))
-        val vm = MoodThemeViewModel(settings, FakePlanRepository(Plan.PLUS))
+        val vm = MoodThemeViewModel(settings, FakePlanRepository(Plan.PLUS), telemetry = TestTelemetry)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
 
         vm.setSticker(true)

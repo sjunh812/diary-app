@@ -17,7 +17,6 @@ import org.sjhstudio.diary.core.model.MoodLook
 import org.sjhstudio.diary.core.model.MoodTheme
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
-import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.launchWrite
@@ -27,11 +26,7 @@ import org.sjhstudio.diary.core.ui.stateInSafely
 data class MoodThemeUiState(val look: MoodLook, val canPlus: Boolean?)
 
 /** 기분 테마와 클레이 꾸미기 화면 */
-class MoodThemeViewModel(
-    private val settings: SettingsRepository,
-    plans: PlanRepository,
-    private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
-) : ViewModel() {
+class MoodThemeViewModel(private val settings: SettingsRepository, plans: PlanRepository, private val telemetry: Telemetry) : ViewModel() {
     // 아는 요금제를 먼저 쓰고, 모르면 확정될 때까지 기다림
     // 들어올 때 잠금 표시 깜빡임 방지
     private val settledPlan: Flow<Plan?> =

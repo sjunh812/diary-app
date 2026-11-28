@@ -38,6 +38,7 @@ import org.sjhstudio.diary.core.testing.FakePinKeyStore
 import org.sjhstudio.diary.core.testing.FakePlanRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
+import org.sjhstudio.diary.core.testing.TestTelemetry
 
 // 이전 상태는 파일을 읽어서 확인
 // 화면을 만들 때 막고 읽지 않고, 읽지 못해도 설정은 그대로 씀
@@ -73,7 +74,7 @@ class SettingsViewModelTest {
         val viewModel =
             SettingsViewModel(settings, lock, flowOf(0), FakePlanRepository(Plan.FREE), {
                 false
-            }, fonts = fonts, notifications = notifications)
+            }, fonts = fonts, notifications = notifications, telemetry = TestTelemetry)
         advanceUntilIdle()
         assertEquals(null, viewModel.look.value.fontPath)
 
@@ -88,7 +89,7 @@ class SettingsViewModelTest {
         val viewModel =
             SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), FakePlanRepository(Plan.FREE), {
                 true
-            }, fonts = FakeFontInstaller(), notifications = notifications)
+            }, fonts = FakeFontInstaller(), notifications = notifications, telemetry = TestTelemetry)
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -101,7 +102,7 @@ class SettingsViewModelTest {
         val viewModel =
             SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), FakePlanRepository(Plan.FREE), {
                 error("읽을 수 없음")
-            }, fonts = FakeFontInstaller(), notifications = notifications)
+            }, fonts = FakeFontInstaller(), notifications = notifications, telemetry = TestTelemetry)
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -115,7 +116,7 @@ class SettingsViewModelTest {
         val viewModel =
             SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), FakePlanRepository(Plan.FREE), {
                 false
-            }, fonts = FakeFontInstaller(), notifications = notifications, lastBackupAt = flowOf(at))
+            }, fonts = FakeFontInstaller(), notifications = notifications, lastBackupAt = flowOf(at), telemetry = TestTelemetry)
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -127,7 +128,7 @@ class SettingsViewModelTest {
         val viewModel =
             SettingsViewModel(FakeSettingsRepository(), lock, flowOf(3), FakePlanRepository(Plan.PLUS), {
                 false
-            }, fonts = FakeFontInstaller(), notifications = notifications)
+            }, fonts = FakeFontInstaller(), notifications = notifications, telemetry = TestTelemetry)
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -141,7 +142,7 @@ class SettingsViewModelTest {
         val viewModel =
             SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), FakePlanRepository(Plan.FREE, known = false), {
                 false
-            }, fonts = FakeFontInstaller(), notifications = notifications)
+            }, fonts = FakeFontInstaller(), notifications = notifications, telemetry = TestTelemetry)
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -155,7 +156,7 @@ class SettingsViewModelTest {
         val viewModel =
             SettingsViewModel(FakeSettingsRepository(), lock, emptyFlow(), FakePlanRepository(Plan.FREE), {
                 false
-            }, fonts = FakeFontInstaller(), notifications = notifications)
+            }, fonts = FakeFontInstaller(), notifications = notifications, telemetry = TestTelemetry)
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -170,7 +171,7 @@ class SettingsViewModelTest {
         val viewModel =
             SettingsViewModel(settings, lock, flowOf(0), FakePlanRepository(Plan.FREE), {
                 false
-            }, fonts = FakeFontInstaller(), notifications = notifications)
+            }, fonts = FakeFontInstaller(), notifications = notifications, telemetry = TestTelemetry)
         backgroundScope.launch { viewModel.state.collect {} }
         granted = false
         viewModel.refreshNotifications()
@@ -190,7 +191,7 @@ class SettingsViewModelTest {
         val viewModel =
             SettingsViewModel(settings, lock, flowOf(0), FakePlanRepository(Plan.FREE), {
                 false
-            }, fonts = FakeFontInstaller(), notifications = notifications)
+            }, fonts = FakeFontInstaller(), notifications = notifications, telemetry = TestTelemetry)
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
         assertNull(viewModel.state.value.reminderBlocked)
@@ -207,7 +208,8 @@ class SettingsViewModelTest {
                 plans,
                 { false },
                 fonts = FakeFontInstaller(),
-                notifications = notifications
+                notifications = notifications,
+                telemetry = TestTelemetry
             )
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
@@ -226,7 +228,7 @@ class SettingsViewModelTest {
         val viewModel =
             SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), FakePlanRepository(Plan.FREE), {
                 false
-            }, fonts = FakeFontInstaller(), notifications = notifications)
+            }, fonts = FakeFontInstaller(), notifications = notifications, telemetry = TestTelemetry)
 
         assertFalse(viewModel.state.value.loaded)
         assertEquals(Plan.FREE, viewModel.state.value.plan)
@@ -273,7 +275,7 @@ class SettingsViewModelTest {
         val viewModel =
             SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), FakePlanRepository(Plan.AD_FREE), {
                 false
-            }, fonts = FakeFontInstaller(), notifications = notifications)
+            }, fonts = FakeFontInstaller(), notifications = notifications, telemetry = TestTelemetry)
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -287,7 +289,7 @@ class SettingsViewModelTest {
         val viewModel =
             SettingsViewModel(FakeSettingsRepository(), lock, never, FakePlanRepository(Plan.PLUS), {
                 false
-            }, fonts = FakeFontInstaller(), notifications = notifications)
+            }, fonts = FakeFontInstaller(), notifications = notifications, telemetry = TestTelemetry)
         backgroundScope.launch { viewModel.theme.collect {} }
         advanceUntilIdle()
 
@@ -300,7 +302,7 @@ class SettingsViewModelTest {
         val viewModel =
             SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), FakePlanRepository(Plan.PLUS), {
                 false
-            }, fonts = FakeFontInstaller(), notifications = notifications)
+            }, fonts = FakeFontInstaller(), notifications = notifications, telemetry = TestTelemetry)
         val seen = mutableListOf<Boolean?>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.theme.collect { state -> state?.let { seen += it.canCustom } }

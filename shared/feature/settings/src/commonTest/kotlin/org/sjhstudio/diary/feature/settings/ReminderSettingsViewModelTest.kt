@@ -23,6 +23,7 @@ import org.sjhstudio.diary.core.data.reminder.ReminderRepository
 import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.ReminderScheduler
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
+import org.sjhstudio.diary.core.testing.TestTelemetry
 
 // 매일 알림(R1): 켜고 끄기, 시각 바꾸기, 알림 허용 안내(스펙 001 FR-022)
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -41,8 +42,12 @@ class ReminderSettingsViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun viewModel() =
-        ReminderSettingsViewModel(settings, ReminderRepository(settings, scheduler), NotificationAllowance(permission))
+    private fun viewModel() = ReminderSettingsViewModel(
+        settings,
+        ReminderRepository(settings, scheduler),
+        NotificationAllowance(permission),
+        telemetry = TestTelemetry
+    )
 
     @Test
     fun turning_on_and_off_saves_and_reschedules() = runTest(dispatcher) {

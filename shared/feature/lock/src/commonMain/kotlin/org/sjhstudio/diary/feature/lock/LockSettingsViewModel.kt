@@ -7,7 +7,6 @@ import org.sjhstudio.diary.core.data.lock.LockRepository
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.RelockAfter
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
-import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.launchSafely
@@ -17,10 +16,7 @@ import org.sjhstudio.diary.core.ui.stateInSafely
  * 잠금 설정(L4)
  * 켜기·끄기·바꾸기는 비밀번호 화면을 거쳐 [LockRepository]가 함
  */
-class LockSettingsViewModel(
-    private val repository: LockRepository,
-    private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
-) : ViewModel() {
+class LockSettingsViewModel(private val repository: LockRepository, private val telemetry: Telemetry) : ViewModel() {
     val settings: StateFlow<LockSettings> = repository.settings.stateInSafely(
         viewModelScope,
         WhileUiSubscribed,

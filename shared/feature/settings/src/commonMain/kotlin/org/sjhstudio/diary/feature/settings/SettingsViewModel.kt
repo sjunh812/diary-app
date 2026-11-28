@@ -30,7 +30,6 @@ import org.sjhstudio.diary.core.model.withCustom
 import org.sjhstudio.diary.core.model.withPreset
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.FontInstaller
-import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.WhileUiSubscribed
@@ -86,7 +85,7 @@ class SettingsViewModel(
     private val notifications: NotificationAllowance,
     lastBackupAt: Flow<Instant?> = flowOf(null),
     adPrivacyRequired: Flow<Boolean> = flowOf(false),
-    private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
+    private val telemetry: Telemetry
 ) : ViewModel() {
     /** 본문 글자 크기 견본이 고른 글꼴(받은 글꼴 포함)로 그림 */
     val look: StateFlow<BodyLook> = settings.bodyLookIn(viewModelScope, fonts)

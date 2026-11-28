@@ -9,7 +9,6 @@ import org.sjhstudio.diary.core.data.reminder.NotificationAllowance
 import org.sjhstudio.diary.core.data.reminder.ReminderRepository
 import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
-import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.launchSafely
@@ -38,7 +37,7 @@ class ReminderSettingsViewModel(
     private val settings: SettingsRepository,
     private val reminder: ReminderRepository,
     private val notifications: NotificationAllowance,
-    private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
+    private val telemetry: Telemetry
 ) : ViewModel() {
     val state: StateFlow<ReminderUiState> =
         combine(settings.settings, notifications.allowed) { app, granted ->
