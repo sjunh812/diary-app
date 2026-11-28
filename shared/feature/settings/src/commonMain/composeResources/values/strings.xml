@@ -211,7 +211,6 @@
     <string name="clay_skin_5">Medium dark</string>
     <string name="clay_skin_6">Dark</string>
     <string name="mood_theme_preview_body">With Plus, your moods show in this theme.</string>
-    <string name="mood_theme_options">%1$s options</string>
     <string name="mood_theme_sticker_body">Adds a white border and shadow.</string>
     <string name="clay_look_value">%1$s · %2$s</string>
 </resources>

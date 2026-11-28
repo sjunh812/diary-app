@@ -200,7 +200,6 @@
     <string name="clay_skin_5">Moyen foncé</string>
     <string name="clay_skin_6">Foncé</string>
     <string name="mood_theme_preview_body">Avec Plus, vos humeurs s’affichent dans ce thème.</string>
-    <string name="mood_theme_options">Options de %1$s</string>
     <string name="mood_theme_sticker_body">Ajoute un contour blanc et une ombre.</string>
     <string name="clay_look_value">%1$s · %2$s</string>
 </resources>

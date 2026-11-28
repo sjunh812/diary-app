@@ -512,8 +512,6 @@ private fun DayCell(
  * 기분을 고른 일기가 둘 이상이면 다른 기분 색을 그 테마 얼굴 모양으로 옅게 뒤에 겹침. 편수는 고른 날 목록에서 보임
  * 앞 얼굴 둘레는 칸 바탕색으로 얼굴 모양을 따라 띄움
  */
-private const val STACK_BACK_ALPHA = 0.35f
-
 @Composable
 private fun DayFace(day: DayMood, size: Dp, stackOffset: Dp, background: Color) {
     val mood = day.mood
@@ -632,3 +630,6 @@ internal fun monthCells(month: YearMonth): List<LocalDate> {
 
 /** 달력 격자의 주 수. 가장 긴 달에 맞춤 */
 private const val WEEKS_SHOWN = 6
+
+/** 하루 여러 편의 뒤 얼굴 투명도. 앞 얼굴보다 나서지 않게 옅게 */
+private const val STACK_BACK_ALPHA = 0.35f

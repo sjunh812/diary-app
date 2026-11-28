@@ -205,7 +205,6 @@
     <string name="clay_skin_5">짙은</string>
     <string name="clay_skin_6">깊은</string>
     <string name="mood_theme_preview_body">Plus에서는 기분을 이 테마로 볼 수 있어요.</string>
-    <string name="mood_theme_options">%1$s 설정</string>
     <string name="mood_theme_sticker_body">흰 테두리와 그림자를 붙여요.</string>
     <string name="clay_look_value">%1$s · %2$s</string>
 </resources>

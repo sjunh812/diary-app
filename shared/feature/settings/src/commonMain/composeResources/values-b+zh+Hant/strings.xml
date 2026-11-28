@@ -196,7 +196,6 @@
     <string name="clay_skin_5">偏深</string>
     <string name="clay_skin_6">深</string>
     <string name="mood_theme_preview_body">Plus 可用這個主題顯示心情。</string>
-    <string name="mood_theme_options">%1$s設定</string>
     <string name="mood_theme_sticker_body">加上白色描邊和陰影。</string>
     <string name="clay_look_value">%1$s · %2$s</string>
 </resources>

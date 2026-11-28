@@ -52,7 +52,7 @@ class PlacePartsTest {
         assertEquals("San Francisco, California", PlaceParts("US", "California", "San Francisco", "SoMa", "Market Street").label())
     }
 
-    // 아래는 iOS 지오코더가 한국어로 돌려준 값(2026-11-27)
+    // 아래는 iOS 지오코더가 한국어로 돌려준 값
     @Test
     fun ios_county_is_not_placed_before_the_city() {
         assertEquals("쿠퍼티노, CA", PlaceParts("US", "CA", "쿠퍼티노", "산타클라라", null).label())

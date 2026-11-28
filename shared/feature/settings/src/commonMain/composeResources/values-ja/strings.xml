@@ -205,7 +205,6 @@
     <string name="clay_skin_5">やや濃い</string>
     <string name="clay_skin_6">濃い</string>
     <string name="mood_theme_preview_body">Plusならこのテーマで気分を表示できます。</string>
-    <string name="mood_theme_options">%1$sの設定</string>
     <string name="mood_theme_sticker_body">白いふちと影を付けます。</string>
     <string name="clay_look_value">%1$s · %2$s</string>
 </resources>
