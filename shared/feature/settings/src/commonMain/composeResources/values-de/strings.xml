@@ -185,6 +185,7 @@
     <string name="mood_theme_clay">Knetgesichter</string>
     <string name="mood_theme_sticker">Sticker-Effekt</string>
     <string name="mood_theme_clay_custom">Anpassen</string>
+    <string name="mood_theme_clay_tag">Frisur, Haut &amp; Brille anpassen</string>
     <string name="clay_preview_note">Alle 15 Stimmungen nutzen dieses Gesicht. Die Haarfarbe ändert sich je nach Stimmung.</string>
     <string name="clay_hair_title">Frisur</string>
     <string name="clay_skin_title">Hautton</string>

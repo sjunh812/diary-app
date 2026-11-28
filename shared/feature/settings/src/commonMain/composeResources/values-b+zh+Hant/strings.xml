@@ -175,6 +175,7 @@
     <string name="mood_theme_clay">黏土臉</string>
     <string name="mood_theme_sticker">貼紙效果</string>
     <string name="mood_theme_clay_custom">自訂</string>
+    <string name="mood_theme_clay_tag">自訂髮型・膚色・眼鏡</string>
     <string name="clay_preview_note">15種心情都會用這張臉呈現，髮色會隨心情改變。</string>
     <string name="clay_hair_title">髮型</string>
     <string name="clay_skin_title">膚色</string>

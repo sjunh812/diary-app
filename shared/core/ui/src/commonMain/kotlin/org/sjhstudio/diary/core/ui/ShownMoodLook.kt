@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.ui
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.unit.Dp
 import org.jetbrains.compose.resources.DrawableResource
 import org.sjhstudio.diary.core.model.ClayHair
 import org.sjhstudio.diary.core.model.ClaySkin
@@ -60,6 +61,12 @@ internal fun ShownMoodLook.art(mood: Mood, dark: Boolean): DrawableResource? {
 
 /** 테마 그림 칸은 기본 얼굴 원보다 큼. Figma 테마 줄에서 기본 얼굴 23, 그림 칸 28 */
 internal const val MOOD_ART_SCALE = 28f / 23f
+
+/**
+ * 테마 그림이 얼굴 칸 밖으로 한쪽에 넘치는 폭
+ * 얼굴을 늘어놓을 때 사이에 두 배를 더해야 그림끼리 보이는 간격이 맞음
+ */
+fun moodArtBleed(face: Dp): Dp = face * (MOOD_ART_SCALE - 1f) / 2
 
 /** 클레이 얼굴 한 겹. [tint]가 있으면 흰 그림에 그 색을 곱함 */
 internal data class ClayLayer(val art: DrawableResource, val tint: Tint?)

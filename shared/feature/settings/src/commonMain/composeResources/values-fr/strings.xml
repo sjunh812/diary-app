@@ -179,6 +179,7 @@
     <string name="mood_theme_clay">Visages en pâte</string>
     <string name="mood_theme_sticker">Effet autocollant</string>
     <string name="mood_theme_clay_custom">Personnaliser</string>
+    <string name="mood_theme_clay_tag">Coiffure, teint et lunettes au choix</string>
     <string name="clay_preview_note">Les 15 humeurs utilisent ce visage. La couleur des cheveux change selon l’humeur.</string>
     <string name="clay_hair_title">Coiffure</string>
     <string name="clay_skin_title">Teint</string>

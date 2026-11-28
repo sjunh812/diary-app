@@ -179,10 +179,13 @@ object DiaryWriteSize {
     val moodCellHeight: Dp = 84.dp
 
     /**
-     * 기분 테마 카드의 대표 얼굴 원(Figma "기분 테마 (G5)" 그림 칸 40)
-     * 테마 그림은 얼굴 원의 28/23로 그려져 칸 40을 채움
+     * 기분 테마 줄의 대표 얼굴 원(Figma "기분 테마 (G5)" 그림 칸 28)
+     * 테마 그림은 얼굴 원의 28/23로 그려져 칸 28을 채움
      */
-    val moodThemeFace: Dp = 33.dp
+    val moodThemeFace: Dp = 23.dp
+
+    /** Plus 미리보기 시트 얼굴 원(Figma 그림 칸 44) */
+    val moodPreviewFace: Dp = 36.dp
 
     /** 클레이 꾸미기: 위 미리보기 얼굴 원(그림 칸 56), 머리 스타일 칸 얼굴 원(그림 칸 48), 피부톤 원과 누르는 칸 */
     val clayPreviewFace: Dp = 46.dp

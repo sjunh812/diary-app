@@ -1,24 +1,17 @@
 package org.sjhstudio.diary.feature.settings
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
@@ -26,47 +19,45 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
+import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryPlusChip
-import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
+import org.sjhstudio.diary.core.designsystem.component.DiarySettingsChoiceRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsSwitchRow
+import org.sjhstudio.diary.core.designsystem.component.DiaryTag
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
-import org.sjhstudio.diary.core.designsystem.component.diaryPress
-import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
+import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
-import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.MoodLook
 import org.sjhstudio.diary.core.model.MoodTheme
 import org.sjhstudio.diary.core.ui.LocalMoodLook
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.ShownMoodLook
+import org.sjhstudio.diary.core.ui.moodArtBleed
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.clay_look_value
 import org.sjhstudio.diary.feature.settings.resources.mood_theme_basic
 import org.sjhstudio.diary.feature.settings.resources.mood_theme_bubble
 import org.sjhstudio.diary.feature.settings.resources.mood_theme_clay
 import org.sjhstudio.diary.feature.settings.resources.mood_theme_clay_custom
+import org.sjhstudio.diary.feature.settings.resources.mood_theme_clay_tag
 import org.sjhstudio.diary.feature.settings.resources.mood_theme_doodle
 import org.sjhstudio.diary.feature.settings.resources.mood_theme_dot
 import org.sjhstudio.diary.feature.settings.resources.mood_theme_gouache
 import org.sjhstudio.diary.feature.settings.resources.mood_theme_line
-import org.sjhstudio.diary.feature.settings.resources.mood_theme_options
 import org.sjhstudio.diary.feature.settings.resources.mood_theme_preview_body
 import org.sjhstudio.diary.feature.settings.resources.mood_theme_shape
 import org.sjhstudio.diary.feature.settings.resources.mood_theme_sticker
@@ -78,8 +69,8 @@ import org.sjhstudio.diary.feature.settings.resources.settings_plus_action
 
 /**
  * 설정 > 일기 > 기분 테마(Figma "기분 테마 (G5)", 스펙 013 US3·US4)
- * 두 칸 카드마다 테마 이름과 그 테마로 그린 얼굴 셋. 무료 사용자에게만 Plus 테마에 Plus 칩
- * 무료에서 Plus 테마를 누르면 미리보기 시트, 시트에서 결제 화면으로
+ * 줄마다 고름 표시, 테마 이름, 그 테마로 그린 얼굴 다섯. 무료 사용자에게만 Plus 테마에 Plus 칩
+ * 고른 테마에 설정이 있으면 그 줄 바로 아래에 둠. 무료에서 Plus 테마를 누르면 미리보기 시트
  */
 @Composable
 fun MoodThemeSettingsScreen(
@@ -104,72 +95,21 @@ fun MoodThemeSettingsScreen(
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = DiarySpacing.x2)
+                .selectableGroup()
         ) {
-            // 두 칸 카드. 고르는 기준인 얼굴을 크게 보이고 고른 카드만 칠함(강조 한 곳)
-            BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2)) {
-                // 좁은 폰에서는 카드 안에 들어가게 얼굴을 줄임(최대 33)
-                // 카드 줄 높이를 맞추는 측정 안에서는 잴 수 없어 여기서 정함
-                val cardInner = (maxWidth - DiarySpacing.x3) / 2 - DiarySpacing.x4 * 2
-                val fit = (cardInner - FACE_GAP * (SAMPLE_MOODS.size - 1)) / SAMPLE_MOODS.size
-                val faceSize = minOf(DiaryWriteSize.moodThemeFace, fit)
-                Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
-                    for (pair in MoodTheme.entries.chunked(2)) {
-                        Row(
-                            Modifier.fillMaxWidth().height(IntrinsicSize.Min),
-                            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
-                        ) {
-                            for (theme in pair) {
-                                val locked = theme.plus && canPlus == false
-                                MoodThemeCard(
-                                    theme,
-                                    look,
-                                    selected = shown == theme,
-                                    locked = locked,
-                                    onClick = {
-                                        when {
-                                            // 요금제를 아직 모르면 기다림. 잠금 표시도 하지 않음
-                                            theme.plus && canPlus == null -> Unit
+            for (theme in MoodTheme.entries) {
+                val locked = theme.plus && canPlus == false
+                MoodThemeRow(theme, look, selected = shown == theme, locked = locked) {
+                    when {
+                        // 요금제를 아직 모르면 기다림. 잠금 표시도 하지 않음
+                        theme.plus && canPlus == null -> Unit
 
-                                            locked -> preview = theme.id
+                        locked -> preview = theme.id
 
-                                            else -> onTheme(theme)
-                                        }
-                                    },
-                                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                                    faceSize = faceSize
-                                )
-                            }
-                            if (pair.size == 1) Spacer(Modifier.weight(1f))
-                        }
+                        else -> onTheme(theme)
                     }
                 }
-            }
-            // 고른 테마에 딸린 설정. 묶음 이름에 테마 이름을 넣어 어느 테마 것인지 바로 읽힘
-            when (shown) {
-                MoodTheme.SHAPE -> {
-                    DiarySettingsHeader(stringResource(Res.string.mood_theme_options, stringResource(shown.label())), gapAbove = true)
-                    DiarySettingsSwitchRow(
-                        stringResource(Res.string.mood_theme_sticker),
-                        checked = look.sticker,
-                        onCheckedChange = onSticker,
-                        description = stringResource(Res.string.mood_theme_sticker_body)
-                    )
-                }
-
-                MoodTheme.CLAY -> {
-                    DiarySettingsHeader(stringResource(Res.string.mood_theme_options, stringResource(shown.label())), gapAbove = true)
-                    DiarySettingsRow(
-                        stringResource(Res.string.mood_theme_clay_custom),
-                        onClick = onClayLook,
-                        value = stringResource(
-                            Res.string.clay_look_value,
-                            stringResource(look.hair.label()),
-                            stringResource(look.skin.label())
-                        )
-                    )
-                }
-
-                else -> Unit
+                if (theme == shown) ThemeOptions(theme, look, onSticker, onClayLook)
             }
         }
     }
@@ -182,6 +122,33 @@ fun MoodThemeSettingsScreen(
     }
 }
 
+/** 고른 테마에 딸린 설정. 위 테마 이름 글줄에 맞춰 들여 어느 테마 것인지 읽힘 */
+@Composable
+private fun ThemeOptions(theme: MoodTheme, look: MoodLook, onSticker: (Boolean) -> Unit, onClayLook: () -> Unit) {
+    // 고름 표시 24 + 사이 12
+    val indent = Modifier.padding(start = DiaryIconSize.i24 + DiarySpacing.x3)
+    when (theme) {
+        MoodTheme.SHAPE ->
+            DiarySettingsSwitchRow(
+                stringResource(Res.string.mood_theme_sticker),
+                checked = look.sticker,
+                onCheckedChange = onSticker,
+                modifier = indent,
+                description = stringResource(Res.string.mood_theme_sticker_body)
+            )
+
+        MoodTheme.CLAY ->
+            DiarySettingsRow(
+                stringResource(Res.string.mood_theme_clay_custom),
+                onClick = onClayLook,
+                modifier = indent,
+                value = stringResource(Res.string.clay_look_value, stringResource(look.hair.label()), stringResource(look.skin.label()))
+            )
+
+        else -> Unit
+    }
+}
+
 /** Plus 테마 미리보기 시트. 그 테마로 기분 15가지와 [Plus 알아보기] */
 @Composable
 private fun MoodThemePreviewSheet(theme: MoodTheme, look: MoodLook, onPlus: () -> Unit, onDismiss: () -> Unit) {
@@ -190,15 +157,20 @@ private fun MoodThemePreviewSheet(theme: MoodTheme, look: MoodLook, onPlus: () -
         title = stringResource(theme.label()),
         description = stringResource(Res.string.mood_theme_preview_body)
     ) {
+        // 클레이는 꾸미기도 Plus에서 됨을 짚어 줌
+        if (theme == MoodTheme.CLAY) DiaryTag(stringResource(Res.string.mood_theme_clay_tag))
         CompositionLocalProvider(LocalMoodLook provides ShownMoodLook(theme, look.sticker, look.hair, look.skin, look.glasses)) {
+            // 그림 기준으로 위 글과 24, 그림끼리 12, 아래 버튼과 32. 시트 안 사이 12와 넘치는 그림 몫을 뺌
+            val face = DiaryWriteSize.moodPreviewFace
+            val edge = moodArtBleed(face) * 2
             Column(
-                Modifier.fillMaxWidth().padding(vertical = DiarySpacing.x4),
-                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4),
-                horizontalAlignment = Alignment.CenterHorizontally
+                Modifier.fillMaxWidth().padding(top = DiarySpacing.x3 + edge / 2, bottom = DiarySpacing.x5 + edge / 2),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(PREVIEW_GAP + edge)
             ) {
                 for (row in Mood.ordered.chunked(PREVIEW_COLUMNS)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
-                        for (mood in row) MoodFace(mood, DiaryWriteSize.moodFace)
+                    Row(horizontalArrangement = Arrangement.spacedBy(PREVIEW_GAP + edge)) {
+                        for (mood in row) MoodFace(mood, face)
                     }
                 }
             }
@@ -208,64 +180,66 @@ private fun MoodThemePreviewSheet(theme: MoodTheme, look: MoodLook, onPlus: () -
 }
 
 private const val PREVIEW_COLUMNS = 5
+private val PREVIEW_GAP = DiarySpacing.x3
 
-/**
- * 테마 카드: 위에 이름(무료 사용자에게만 Plus 칩), 아래 가운데 그 테마로 그린 얼굴 셋
- * 고른 카드는 `selected` 면과 `accent` 테두리
- */
+/** 테마 줄: 고름 표시, 이름(Plus 칩), 오른쪽 그 테마로 그린 얼굴 다섯 */
 @Composable
-private fun MoodThemeCard(
-    theme: MoodTheme,
-    look: MoodLook,
-    selected: Boolean,
-    locked: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    faceSize: Dp = DiaryWriteSize.moodThemeFace
-) {
+private fun MoodThemeRow(theme: MoodTheme, look: MoodLook, selected: Boolean, locked: Boolean, onClick: () -> Unit) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
-    val interaction = remember { MutableInteractionSource() }
-    val border = if (selected) Modifier.border(DiarySpacing.x0_5, colors.accent, DiaryShapes.r16) else Modifier
-    Column(
-        modifier
-            .clip(DiaryShapes.r16)
-            .background(if (selected) colors.selected else colors.sunken)
-            .then(border)
-            .diaryPress(interaction, colors.textPrimary, DiaryShapes.r16)
-            .selectable(selected, interactionSource = interaction, indication = null, role = Role.RadioButton, onClick = onClick)
-            .padding(DiarySpacing.x4),
-        // 이웃 카드 이름이 두 줄이어도 얼굴 줄은 바닥에 맞춤
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5), verticalAlignment = Alignment.CenterVertically) {
-            BasicText(
-                stringResource(theme.label()),
-                Modifier.weight(1f, fill = false),
-                style = (if (selected) typography.bodyStrong else typography.body).copy(color = colors.textPrimary),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            if (locked) DiaryPlusChip(stringResource(Res.string.plus_badge))
-        }
-        // 그 테마로 그림. 앱 전체 테마와 상관없이 이 카드 안에서만
-        // 이름과 얼굴 사이 8은 카드 안쪽 16보다 좁아 한 묶음으로 읽힘
-        CompositionLocalProvider(LocalMoodLook provides ShownMoodLook(theme, look.sticker, look.hair, look.skin, look.glasses)) {
-            Row(
-                Modifier.fillMaxWidth().padding(top = DiarySpacing.x2),
-                horizontalArrangement = Arrangement.spacedBy(FACE_GAP, Alignment.CenterHorizontally)
-            ) {
-                for (mood in SAMPLE_MOODS) MoodFace(mood, faceSize)
+    val name = stringResource(theme.label())
+    DiarySettingsChoiceRow(
+        label = name,
+        selected = selected,
+        onClick = onClick,
+        title = {
+            Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3), verticalAlignment = Alignment.CenterVertically) {
+                ChoiceMark(selected)
+                Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2), verticalAlignment = Alignment.CenterVertically) {
+                    BasicText(
+                        name,
+                        Modifier.weight(1f, fill = false),
+                        style = (if (selected) typography.bodyStrong else typography.body).copy(color = colors.textPrimary),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (locked) DiaryPlusChip(stringResource(Res.string.plus_badge))
+                }
+            }
+        },
+        trailing = {
+            // 그 테마로 그림. 앱 전체 테마와 상관없이 이 줄 안에서만
+            // 그림끼리 보이는 간격 4(Figma 테마 줄)
+            val face = DiaryWriteSize.moodThemeFace
+            CompositionLocalProvider(LocalMoodLook provides ShownMoodLook(theme, look.sticker, look.hair, look.skin, look.glasses)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1 + moodArtBleed(face) * 2)) {
+                    for (mood in SAMPLE_MOODS) MoodFace(mood, face)
+                }
             }
         }
+    )
+}
+
+/**
+ * 고름 표시(TDS Checkbox.Line, SEED Checkbox ghost)
+ * 자리는 24로 두어 이름 글줄을 맞추고 체크는 20(SEED 큰 칸 24에 체크 18)
+ * 원을 줄마다 두면 아홉 줄에 회색 원이 되풀이돼 고른 줄만 색을 바꿈
+ */
+@Composable
+private fun ChoiceMark(selected: Boolean) {
+    val colors = DiaryTheme.colors
+    Box(Modifier.size(DiaryIconSize.i24), contentAlignment = Alignment.Center) {
+        // 같은 체크에 색만 바꿈(SEED ghost)
+        DiaryIcon(
+            DiaryIcons.CheckSelected,
+            contentDescription = null,
+            tint = if (selected) colors.accentText else colors.lineStrong,
+            size = DiaryIconSize.i20
+        )
     }
 }
 
-// 그림이 얼굴보다 커서(28/23) 그림 칸 사이 8(Figma)이 얼굴 사이로는 16
-private val FACE_GAP = DiarySpacing.x4
-
-// 좋음, 웃음, 쿨. 테마 색이 고르게 보이게 따뜻한 둘과 시원한 하나
-private val SAMPLE_MOODS = listOf(Mood.GOOD, Mood.LAUGH, Mood.COOL)
+private val SAMPLE_MOODS = listOf(Mood.GOOD, Mood.LAUGH, Mood.COOL, Mood.SAD, Mood.ANGRY)
 
 internal fun MoodTheme.label(): StringResource = when (this) {
     MoodTheme.BASIC -> Res.string.mood_theme_basic

@@ -184,6 +184,7 @@
     <string name="mood_theme_clay">클레이 얼굴</string>
     <string name="mood_theme_sticker">스티커 효과</string>
     <string name="mood_theme_clay_custom">꾸미기</string>
+    <string name="mood_theme_clay_tag">머리·피부톤·안경 꾸미기</string>
     <string name="clay_preview_note">기분 15가지를 이 얼굴로 볼 수 있어요. 머리색은 기분마다 달라요.</string>
     <string name="clay_hair_title">머리 스타일</string>
     <string name="clay_skin_title">피부톤</string>

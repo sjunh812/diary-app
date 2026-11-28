@@ -179,6 +179,7 @@
     <string name="mood_theme_clay">Rostos de massinha</string>
     <string name="mood_theme_sticker">Efeito adesivo</string>
     <string name="mood_theme_clay_custom">Personalizar</string>
+    <string name="mood_theme_clay_tag">Personalize cabelo, pele e óculos</string>
     <string name="clay_preview_note">Os 15 humores usam este rosto. A cor do cabelo muda com cada um.</string>
     <string name="clay_hair_title">Penteado</string>
     <string name="clay_skin_title">Tom de pele</string>

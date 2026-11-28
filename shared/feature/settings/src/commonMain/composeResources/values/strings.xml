@@ -190,6 +190,7 @@
     <string name="mood_theme_clay">Clay Faces</string>
     <string name="mood_theme_sticker">Sticker effect</string>
     <string name="mood_theme_clay_custom">Customize</string>
+    <string name="mood_theme_clay_tag">Customize hair, skin &amp; glasses</string>
     <string name="clay_preview_note">All 15 moods use this face. Hair color follows each mood.</string>
     <string name="clay_hair_title">Hairstyle</string>
     <string name="clay_skin_title">Skin tone</string>

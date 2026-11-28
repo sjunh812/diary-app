@@ -179,6 +179,7 @@
     <string name="mood_theme_clay">Caras de arcilla</string>
     <string name="mood_theme_sticker">Efecto pegatina</string>
     <string name="mood_theme_clay_custom">Personalizar</string>
+    <string name="mood_theme_clay_tag">Personaliza pelo, piel y gafas</string>
     <string name="clay_preview_note">Los 15 estados de ánimo usan esta cara. El color del pelo cambia con cada uno.</string>
     <string name="clay_hair_title">Peinado</string>
     <string name="clay_skin_title">Tono de piel</string>

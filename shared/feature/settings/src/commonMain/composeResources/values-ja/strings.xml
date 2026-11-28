@@ -184,6 +184,7 @@
     <string name="mood_theme_clay">ねんど</string>
     <string name="mood_theme_sticker">ステッカー風</string>
     <string name="mood_theme_clay_custom">カスタマイズ</string>
+    <string name="mood_theme_clay_tag">髪型・肌・メガネをカスタマイズ</string>
     <string name="clay_preview_note">15種類の気分をこの顔で表示します。髪の色は気分ごとに変わります。</string>
     <string name="clay_hair_title">髪型</string>
     <string name="clay_skin_title">肌の色</string>
