@@ -2,7 +2,6 @@ package org.sjhstudio.diary.feature.insight
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -66,7 +65,6 @@ import org.sjhstudio.diary.feature.insight.resources.insight_adv_day_afternoon
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_day_dawn
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_day_evening
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_day_morning
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_legend_neutral
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_share
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_tab_part
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_tab_place
@@ -261,24 +259,19 @@ internal fun ToneLegend() {
     ) {
         LegendItem(colors.toneGood, stringResource(Res.string.insight_adv_change_good))
         LegendItem(colors.toneHard, stringResource(Res.string.insight_adv_change_hard))
-        // 가운데 빈칸(트랙)의 뜻. 트랙 색은 바탕과 비슷해 테두리로 보이게
-        LegendItem(
-            colors.sunken,
-            stringResource(Res.string.insight_adv_legend_neutral, moodName(Mood.COOL), moodName(Mood.MEH), moodName(Mood.BORED)),
-            outline = colors.textTertiary
-        )
+        // 가운데 빈칸(트랙)의 뜻
+        LegendItem(colors.lineStrong, stringResource(Res.string.insight_adv_tone_neutral))
     }
 }
 
 @Composable
-internal fun LegendItem(color: Color, label: String, outline: Color? = null) {
+internal fun LegendItem(color: Color, label: String) {
     Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5), verticalAlignment = Alignment.CenterVertically) {
         Box(
             Modifier
                 .size(DiarySpacing.x2)
                 .clip(DiaryShapes.full)
                 .background(color)
-                .then(if (outline != null) Modifier.border(DiarySpacing.hairline, outline, DiaryShapes.full) else Modifier)
         )
         BasicText(label, style = DiaryTheme.typography.caption.copy(color = DiaryTheme.colors.textSecondary))
     }
@@ -332,7 +325,8 @@ internal fun ToneBar(good: Float, hard: Float, modifier: Modifier = Modifier) {
     val colors = DiaryTheme.colors
     val goodColor = colors.toneGood
     val hardColor = colors.toneHard
-    val track = colors.sunken
+    // 범례 점과 같은 색. 바탕과 구별되는 가장 옅은 회색
+    val track = colors.lineStrong
     Canvas(modifier.height(DiarySpacing.x2).clip(DiaryShapes.full).background(track)) {
         val gap = DiarySpacing.x0_5.toPx()
         val g = size.width * good.coerceIn(0f, 1f)

@@ -69,7 +69,6 @@
     <string name="insight_adv_when_hard_weather">Mais humores negativos: %1$s</string>
     <string name="insight_adv_when_good_place">Mais humores positivos: %1$s</string>
     <string name="insight_adv_when_hard_place">Mais humores negativos: %1$s</string>
-    <string name="insight_adv_legend_neutral">%1$s·%2$s·%3$s</string>
     <string name="insight_adv_company">Clima, dias e locais por humor</string>
     <string name="insight_adv_habit">Em números</string>
     <string name="insight_adv_habit_entries">Entradas</string>
@@ -125,6 +124,6 @@
     <string name="insight_adv_tone_info">Como os humores são agrupados</string>
     <string name="insight_adv_tone_sheet_title">Humores positivos e negativos</string>
     <string name="insight_adv_tone_sheet_body">Entre as entradas com humor, mostra a parcela que escolheu um humor positivo ou negativo.</string>
-    <string name="insight_adv_tone_neutral">Não contado</string>
+    <string name="insight_adv_tone_neutral">Humores neutros</string>
     <string name="insight_adv_tone_ok">OK</string>
 </resources>
