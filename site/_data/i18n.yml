@@ -1,7 +1,12 @@
-# 사이트 문구. 앱처럼 한국어·영어·일본어, 말투는 docs/design.md "여러 언어"와 스토어 소개(docs/store/listing.md)를 따른다
+# 사이트 문구. 앱과 같은 여덟 언어, 말투는 docs/design.md "여러 언어"와 스토어 소개(docs/store/listing.md)를 따른다
+# 기분 테마 이름과 Plus 혜택 이름은 앱 문자열(feature/settings, feature/plus)과 같다
+# font: ko·라틴은 창원단감둥근체, 유럽 네 언어는 악센트 글자가 없어 Pretendard, 일본어·중국어는 시스템 글꼴
 ko:
   html: ko
   locale: ko_KR
+  label: 한국어
+  font: round
+  badge: ko
   name: 1일 1일기
   home: /1day1diary/
   screens: /assets/screens/
@@ -20,16 +25,21 @@ ko:
   features: 주요 기능
   write_label: 일기 쓰기
   write_title: 사진과 기분도<br>같이 남겨요
-  write_body: 사진, 날씨, 장소를 함께 담아요. 아홉 가지 기분으로 그날을 표시할 수도 있어요.
-  alt_write: 기분을 고르고 일기를 쓰는 화면
+  write_body: 사진, 날씨, 장소를 함께 담아요. 15가지 기분 가운데 그날에 맞는 얼굴을 골라요.
+  alt_write: 15가지 기분 가운데 하나를 고르는 화면
   insight_label: 돌아보기
   insight_title: 어떤 기분이 많았는지<br>한눈에 봐요
   insight_body: 주, 월, 년 단위로 기분을 모아 보여줘요. 지난 일기는 달력과 검색으로 금방 찾을 수 있어요.
   alt_insight: 기분 흐름을 돌아보는 화면
   backup_label: 백업
   backup_title: 휴대폰을 바꿔도<br>일기는 그대로예요
-  backup_body: 일기와 사진을 내 구글 드라이브에 백업할 수 있어요. 새 휴대폰에서 같은 계정으로 복원하면 돼요.
+  backup_body: 일기와 사진을 내 구글 드라이브에 백업해요. 아이폰과 안드로이드 사이에서도 같은 계정으로 복원하면 돼요.
   alt_backup: 사진까지 드라이브에 백업하는 화면
+  theme_label: 기분 테마
+  theme_title: 기분 얼굴도<br>내 취향대로
+  theme_body: 테마를 고르면 앱 속 기분 얼굴이 모두 바뀌어요. 무료 테마 5가지, Plus 테마 4가지가 있어요.
+  alt_theme: "기분 테마로 바꾼 달력:"
+  themes: [기본, 도형, 채소·과일, 클레이 얼굴]
   tablet_label: 태블릿
   tablet_title: 넓은 화면에서는<br>목록과 일기를 나란히
   tablet_body: iPad, 안드로이드 태블릿, 폴더블에서도 화면에 맞게 보여요.
@@ -42,12 +52,12 @@ ko:
       d: 실수로 삭제한 일기도 30일 안에 복원할 수 있어요.
     - t: 글꼴
       d: 손글씨부터 바탕체까지 10가지 글꼴 중에서 골라요.
+    - t: 테마 색
+      d: 7가지 색 중에서 앱 색을 골라요.
     - t: 목록 모양
       d: 피드, 카드, 사진 격자 중에서 골라봐요.
     - t: 글 서식
       d: 글자 색과 형광펜으로 중요한 부분을 표시해요.
-    - t: 다크 모드
-      d: 밤에도 눈부시지 않게 어두운 화면으로 써요.
   trust_title: 일기는 나만 봐요
   trust1_title: 개발자도 볼 수 없어요
   trust1_body: 일기를 모아두는 서버가 없어요. 일기와 사진은 이 기기와 내 구글 드라이브에만 있어요.
@@ -55,14 +65,30 @@ ko:
   trust2_body: 설치하고 바로 쓰면 돼요. 백업할 때만 구글 계정을 연결해요.
   trust3_title: 잠금을 걸 수 있어요
   trust3_body: 비밀번호나 생체인증을 켜두면 나만 열 수 있어요.
+  plans_title: 무료와 Plus
+  free_name: 무료
+  free_sub: 지금 쓰는 기능은 앞으로도 무료예요.
+  free_items:
+    - 일기 쓰기와 한 편에 사진 10장
+    - 사진까지 구글 드라이브 백업
+    - 기분 15가지와 무료 기분 테마 5가지
+    - 테마 색 7가지, 글꼴 10가지
+    - 잠금, 달력, 검색, 돌아보기
+  plus_sub: 광고 없이 쓰고, 더 꾸며요.
+  plus_items: [광고 제거, 사진 30장, 고급 통계, 테마 색 커스텀, 기분 테마, 체크리스트, 서식 그대로 보기]
+  plans_note: 광고만 없애고 싶다면 광고 제거(한 번 구매)도 있어요. 가격은 앱에서 볼 수 있어요.
   faq_title: 자주 묻는 질문
   faq:
     - q: 무료인가요?
       a: 네. 일기 쓰기와 사진 백업은 모두 무료예요. 광고 없이 쓰고 싶다면 광고 제거(1회 구매)나 Plus(연 구독)를 고르면 돼요.
+    - q: 기분 테마도 무료인가요?
+      a: 기본, 도형, 과슈 붓, 테두리, 도트는 무료예요. 비눗방울, 말랑 낙서 친구, 채소·과일, 클레이 얼굴은 Plus에서 쓸 수 있어요.
     - q: 휴대폰을 바꾸면 일기는 어떻게 되나요?
       a: 새 휴대폰에서 같은 구글 계정으로 복원하면 돼요. 아이폰과 안드로이드 사이에서도 옮길 수 있어요.
     - q: 예전 버전에서 쓴 일기도 남아 있나요?
-      a: 네. 안드로이드에서 쓰던 일기는 앱을 업데이트하면 사진까지 그대로 옮겨져요. 아이폰 앱은 이번에 처음 나와서 예전 버전이 없어요.
+      a: 네. 안드로이드에서 쓰던 일기는 앱을 업데이트하면 사진까지 그대로 옮겨져요.
+    - q: 어떤 언어로 쓸 수 있나요?
+      a: 한국어, 영어, 일본어, 중국어(번체), 스페인어, 포르투갈어, 독일어, 프랑스어로 쓸 수 있어요. 휴대폰 언어에 맞춰 바뀌어요.
     - q: 일기 내용을 다른 곳에 보내나요?
       a: 아니요. 일기와 사진은 이 기기와 내가 연결한 구글 드라이브에만 있어요. 광고나 사용 통계에도 쓰지 않아요.
   cta_title: 오늘부터 <em class="hl">1일 1일기</em><br>시작해 보세요
@@ -74,6 +100,9 @@ ko:
 en:
   html: en
   locale: en_US
+  label: English
+  font: round
+  badge: en
   name: 1 Day 1 Diary
   home: /en/1day1diary/
   screens: /assets/screens/en/
@@ -94,16 +123,21 @@ en:
   features: Key features
   write_label: Writing
   write_title: Add photos<br>and your mood
-  write_body: Add photos, the weather, and where you were. You can also mark the day with one of nine moods.
-  alt_write: Picking a mood while writing an entry
+  write_body: Add photos, the weather, and where you were. Pick the face that fits your day from 15 moods.
+  alt_write: Picking one of 15 moods
   insight_label: Look back
   insight_title: See which moods<br>came up most
   insight_body: Your moods are grouped by week, month, and year. Find past entries quickly with the calendar and search.
   alt_insight: Looking back on your moods
   backup_label: Backup
   backup_title: New phone,<br>same diary
-  backup_body: Back up your entries and photos to your own Google Drive. On a new phone, restore them with the same account.
-  alt_backup: Backing up to Google Drive
+  backup_body: Back up your entries and photos to your own Google Drive. Restore them with the same account, even between iPhone and Android.
+  alt_backup: Backing up photos to Google Drive
+  theme_label: Mood themes
+  theme_title: Mood faces,<br>your way
+  theme_body: Pick a theme and every mood face in the app changes. 5 themes are free, and Plus adds 4 more.
+  alt_theme: "Calendar with the mood theme:"
+  themes: [Classic, Shapes, Fruit & Veg, Clay Faces]
   tablet_label: Tablet
   tablet_title: On big screens,<br>list and entry side by side
   tablet_body: Fits the screen on iPad, Android tablets, and foldables.
@@ -116,12 +150,12 @@ en:
       d: Deleted an entry by mistake? Restore it within 30 days.
     - t: Fonts
       d: Pick from 10 fonts, from handwriting to serif.
+    - t: Theme colors
+      d: Choose the app color from 7 options.
     - t: List styles
       d: Choose a feed, cards, or a photo grid.
     - t: Formatting
       d: Mark what matters with text color and highlights.
-    - t: Dark mode
-      d: Easy on the eyes at night.
   trust_title: Your diary is yours alone
   trust1_title: Not even the developer can see it
   trust1_body: There's no server that collects entries. Your entries and photos stay on this device and in your Google Drive.
@@ -129,12 +163,28 @@ en:
   trust2_body: Install it and start writing. You only connect a Google account to back up.
   trust3_title: Lock it
   trust3_body: Turn on a passcode or biometrics so only you can open it.
+  plans_title: Free and Plus
+  free_name: Free
+  free_sub: Everything free today stays free.
+  free_items:
+    - Write entries with up to 10 photos each
+    - Back up photos to Google Drive
+    - 15 moods and 5 free mood themes
+    - 7 theme colors and 10 fonts
+    - Lock, calendar, search, and look back
+  plus_sub: No ads, and more ways to make it yours.
+  plus_items: [No ads, 30 photos, Advanced stats, Custom theme color, Mood themes, Checklists, Keep formatting]
+  plans_note: Just want to remove ads? There's also a one-time Remove Ads purchase. Prices are shown in the app.
   faq_title: FAQ
   faq:
     - q: Is it free?
       a: Yes. Writing and photo backups are free. To use it without ads, choose Remove Ads (one-time purchase) or Plus (yearly subscription).
+    - q: Are mood themes free?
+      a: Classic, Shapes, Gouache, Outline, and Pixel are free. Bubble, Doodle Pals, Fruit & Veg, and Clay Faces come with Plus.
     - q: What happens to my entries when I switch phones?
       a: Restore them on your new phone with the same Google account. You can move between iPhone and Android too.
+    - q: Which languages are supported?
+      a: Korean, English, Japanese, Traditional Chinese, Spanish, Portuguese, German, and French. The app follows your phone's language.
     - q: Do you send my entries anywhere?
       a: No. Your entries and photos stay on this device and in the Google Drive you connect. They're never used for ads or usage stats.
   cta_title: Start your <em class="hl">1 Day 1 Diary</em><br>today
@@ -146,6 +196,9 @@ en:
 ja:
   html: ja
   locale: ja_JP
+  label: 日本語
+  font: system
+  badge: ja
   name: 1日1日記
   home: /ja/1day1diary/
   screens: /assets/screens/ja/
@@ -166,16 +219,21 @@ ja:
   features: 主な機能
   write_label: 日記を書く
   write_title: 写真や気分も<br>一緒に残せます
-  write_body: 写真、天気、場所を一緒に残せます。9種類の気分で、その日を記録することもできます。
-  alt_write: 気分を選んで日記を書く画面
+  write_body: 写真、天気、場所を一緒に残せます。15種類の気分から、その日に合う顔を選べます。
+  alt_write: 15種類の気分から選ぶ画面
   insight_label: ふりかえり
   insight_title: どんな気分が多かったか<br>ひと目でわかる
   insight_body: 週・月・年ごとに気分をまとめて表示します。過去の日記はカレンダーと検索ですぐ見つかります。
   alt_insight: 気分の流れをふりかえる画面
   backup_label: バックアップ
   backup_title: 機種変更しても<br>日記はそのまま
-  backup_body: 日記と写真を自分のGoogleドライブにバックアップできます。新しいスマホで同じアカウントから復元するだけです。
-  alt_backup: Googleドライブにバックアップする画面
+  backup_body: 日記と写真を自分のGoogleドライブにバックアップできます。iPhoneとAndroidの間でも、同じアカウントで復元できます。
+  alt_backup: 写真までGoogleドライブにバックアップする画面
+  theme_label: 気分テーマ
+  theme_title: 気分の顔も<br>好みに合わせて
+  theme_body: テーマを選ぶと、アプリの気分の顔がすべて変わります。無料テーマが5種類、Plusテーマが4種類あります。
+  alt_theme: "気分テーマに変えたカレンダー："
+  themes: [ベーシック, かたち, やさい・くだもの, ねんど]
   tablet_label: タブレット
   tablet_title: 大きな画面では<br>一覧と日記を並べて
   tablet_body: iPad、Androidタブレット、折りたたみスマホでも画面に合わせて表示します。
@@ -188,12 +246,12 @@ ja:
       d: うっかり削除した日記も、30日以内なら復元できます。
     - t: フォント
       d: 手書き風から明朝体まで、10種類のフォントから選べます。
+    - t: テーマカラー
+      d: 7色の中からアプリの色を選べます。
     - t: 一覧表示
       d: フィード、カード、写真グリッドから選べます。
     - t: 文字の装飾
       d: 文字色やマーカーで、大事なところを目立たせられます。
-    - t: ダークモード
-      d: 夜でもまぶしくない暗い画面で使えます。
   trust_title: 日記は自分だけのもの
   trust1_title: 開発者も見られません
   trust1_body: 日記を集めるサーバーはありません。日記と写真は、この端末と自分のGoogleドライブにだけ保存されます。
@@ -201,12 +259,28 @@ ja:
   trust2_body: インストールしてすぐ使えます。Googleアカウントをつなぐのはバックアップのときだけです。
   trust3_title: ロックをかけられます
   trust3_body: パスコードや生体認証をオンにすれば、自分だけが開けます。
+  plans_title: 無料とPlus
+  free_name: 無料
+  free_sub: いま無料の機能は、これからも無料です。
+  free_items:
+    - 日記を書く、1件に写真10枚まで
+    - 写真までGoogleドライブにバックアップ
+    - 15種類の気分と無料の気分テーマ5種類
+    - テーマカラー7色、フォント10種類
+    - ロック、カレンダー、検索、ふりかえり
+  plus_sub: 広告なしで、もっと自分らしく。
+  plus_items: [広告なし, 写真30枚, 詳しい統計, テーマカラーのカスタム, 気分テーマ, チェックリスト, 書式をそのまま表示]
+  plans_note: 広告だけを消したい場合は、広告削除（買い切り）もあります。価格はアプリで確認できます。
   faq_title: よくある質問
   faq:
     - q: 無料ですか？
       a: はい。日記を書くことも、写真のバックアップも無料です。広告なしで使いたい場合は、広告削除（買い切り）かPlus（年額）を選べます。
+    - q: 気分テーマも無料ですか？
+      a: ベーシック、かたち、ガッシュ、ふちどり、ドットは無料です。シャボン玉、らくがき、やさい・くだもの、ねんどはPlusで使えます。
     - q: 機種変更したら日記はどうなりますか？
       a: 新しいスマホで同じGoogleアカウントから復元できます。iPhoneとAndroidの間でも移せます。
+    - q: どの言語で使えますか？
+      a: 日本語、韓国語、英語、中国語（繁体字）、スペイン語、ポルトガル語、ドイツ語、フランス語で使えます。スマホの言語に合わせて切り替わります。
     - q: 日記の内容をどこかに送っていますか？
       a: いいえ。日記と写真は、この端末とつないだGoogleドライブにだけ置かれます。広告や利用統計にも使いません。
   cta_title: 今日から<em class="hl">1日1日記</em><br>始めてみませんか
@@ -214,3 +288,483 @@ ja:
   badge_apple: App Storeからダウンロード
   badge_google: Google Play で手に入れよう
   apple_width: 109
+
+zh-hant:
+  html: zh-Hant
+  locale: zh_TW
+  label: 繁體中文
+  font: system
+  badge: en
+  name: 1日1日記
+  home: /zh-hant/1day1diary/
+  screens: /assets/screens/zh-hant/
+  description: 給忙碌的人的簡單日記本。一行就寫完今天的日記。
+  og: 一行就寫完今天的日記。短短幾句，每天累積，就是屬於你的紀錄。
+  get: 下載
+  privacy: 隱私權政策（英文）
+  terms: 使用條款（英文）
+  privacy_url: /en/1day1diary/privacy/
+  terms_url: /en/1day1diary/terms/
+  contact: 聯絡我們
+  copied: 已複製
+  mail: "電子郵件："
+  language: 語言
+  hero: <em class="hl">一行</em>就寫完<br>今天的日記
+  lead: 短短幾句，每天累積，就是屬於你的紀錄。
+  alt_list: 過去日記的列表畫面
+  features: 主要功能
+  write_label: 寫日記
+  write_title: 照片和心情<br>一起留下
+  write_body: 照片、天氣和地點都能一起記下。從 15 種心情中，選出最符合今天的表情。
+  alt_write: 從 15 種心情中挑選的畫面
+  insight_label: 回顧
+  insight_title: 哪種心情最多<br>一眼就知道
+  insight_body: 按週、月、年整理你的心情。過去的日記可以用月曆和搜尋快速找到。
+  alt_insight: 回顧心情變化的畫面
+  backup_label: 備份
+  backup_title: 換了手機<br>日記也還在
+  backup_body: 把日記和照片備份到你自己的 Google 雲端硬碟。在 iPhone 和 Android 之間，也能用同一個帳號還原。
+  alt_backup: 連照片一起備份到雲端硬碟的畫面
+  theme_label: 心情主題
+  theme_title: 心情表情<br>也照你的喜好
+  theme_body: 選好主題，App 裡所有的心情表情都會跟著換。免費主題 5 種，Plus 主題 4 種。
+  alt_theme: 換成心情主題的月曆：
+  themes: [基本, 圖形, 蔬果, 黏土臉]
+  tablet_label: 平板
+  tablet_title: 大螢幕上<br>列表和日記並排
+  tablet_body: 在 iPad、Android 平板和摺疊手機上，也會配合畫面顯示。
+  alt_tablet: 在平板上並排顯示列表和日記的畫面
+  more_title: 還有這些功能
+  more:
+    - t: 自動存草稿
+      d: 寫到一半關掉 App，寫好的內容也會留著。
+    - t: 垃圾桶
+      d: 不小心刪掉的日記，30 天內都能還原。
+    - t: 字型
+      d: 從手寫風到明體，10 種字型任你挑選。
+    - t: 主題顏色
+      d: 從 7 種顏色中挑選 App 的顏色。
+    - t: 列表樣式
+      d: 可以選動態、卡片或照片格狀。
+    - t: 文字格式
+      d: 用文字顏色和螢光筆標出重點。
+  trust_title: 日記只有你看得到
+  trust1_title: 連開發者也看不到
+  trust1_body: 沒有收集日記的伺服器。日記和照片只會在這台裝置和你的 Google 雲端硬碟裡。
+  trust2_title: 不用註冊
+  trust2_body: 安裝後馬上就能寫。只有備份時才需要連結 Google 帳號。
+  trust3_title: 可以上鎖
+  trust3_body: 開啟密碼或生物辨識，就只有你能打開。
+  plans_title: 免費與 Plus
+  free_name: 免費
+  free_sub: 現在免費的功能，之後也一直免費。
+  free_items:
+    - 寫日記，每篇最多 10 張照片
+    - 連照片一起備份到 Google 雲端硬碟
+    - 15 種心情與 5 種免費心情主題
+    - 7 種主題顏色、10 種字型
+    - 鎖定、月曆、搜尋、回顧
+  plus_sub: 沒有廣告，還能裝飾得更有你的風格。
+  plus_items: [無廣告, 30張照片, 進階統計, 自訂主題顏色, 心情主題, 核取清單, 保留格式]
+  plans_note: 只想去除廣告的話，也有一次購買的「移除廣告」。價格請在 App 內查看。
+  faq_title: 常見問題
+  faq:
+    - q: 免費嗎？
+      a: 是的。寫日記和照片備份都免費。想要沒有廣告，可以選擇移除廣告（一次購買）或 Plus（年訂閱）。
+    - q: 心情主題也免費嗎？
+      a: 基本、圖形、水粉、描邊、像素是免費的。泡泡、塗鴉夥伴、蔬果、黏土臉可在 Plus 中使用。
+    - q: 換手機的話，日記會怎樣？
+      a: 在新手機上用同一個 Google 帳號還原就可以了。iPhone 和 Android 之間也能轉移。
+    - q: 支援哪些語言？
+      a: 支援繁體中文、韓文、英文、日文、西班牙文、葡萄牙文、德文和法文，會依手機的語言自動切換。
+    - q: 會把日記內容傳到別的地方嗎？
+      a: 不會。日記和照片只會在這台裝置和你連結的 Google 雲端硬碟裡，也不會用於廣告或使用統計。
+  cta_title: 從今天開始<br><em class="hl">1日1日記</em>
+  cta_body: iPhone、iPad、Android 都能免費使用。
+  badge_apple: 在 App Store 下載
+  badge_google: 在 Google Play 下載
+  apple_width: 120
+
+es:
+  html: es
+  locale: es_419
+  label: Español
+  font: sans
+  badge: en
+  name: 1 Day 1 Diary
+  home: /es/1day1diary/
+  screens: /assets/screens/es/
+  description: Un diario simple para gente ocupada. Tu entrada de hoy en una línea.
+  og: Tu entrada de hoy en una línea. Las entradas cortas se vuelven tu registro.
+  get: Descargar
+  privacy: Privacidad (en inglés)
+  terms: Términos (en inglés)
+  privacy_url: /en/1day1diary/privacy/
+  terms_url: /en/1day1diary/terms/
+  contact: Contacto
+  copied: copiado
+  mail: "Correo:"
+  language: Idioma
+  hero: Tu entrada de hoy<br>en <em class="hl">una línea</em>
+  lead: Las entradas cortas, día a día, se vuelven tu propio registro.
+  alt_list: Lista de entradas anteriores
+  features: Funciones principales
+  write_label: Escribir
+  write_title: Guarda fotos<br>y tu estado de ánimo
+  write_body: Agrega fotos, el clima y el lugar. Elige entre 15 estados de ánimo la carita que va con tu día.
+  alt_write: Eligiendo uno de 15 estados de ánimo
+  insight_label: Mirar atrás
+  insight_title: Mira qué ánimo<br>tuviste más
+  insight_body: Tus estados de ánimo se agrupan por semana, mes y año. Encuentra entradas anteriores con el calendario y la búsqueda.
+  alt_insight: Repasando tus estados de ánimo
+  backup_label: Copia de seguridad
+  backup_title: Cambias de teléfono,<br>tu diario sigue igual
+  backup_body: Guarda tus entradas y fotos en tu propio Google Drive. Restáuralas con la misma cuenta, incluso entre iPhone y Android.
+  alt_backup: Copia de seguridad con fotos en Google Drive
+  theme_label: Temas de ánimo
+  theme_title: Caritas de ánimo<br>a tu estilo
+  theme_body: Elige un tema y cambian todas las caritas de la app. Hay 5 temas gratis y Plus suma 4 más.
+  alt_theme: "Calendario con el tema de ánimo:"
+  themes: [Clásico, Formas, Frutas y verduras, Caras de arcilla]
+  tablet_label: Tableta
+  tablet_title: En pantallas grandes,<br>lista y entrada lado a lado
+  tablet_body: Se adapta a iPad, tabletas Android y plegables.
+  alt_tablet: Lista y entrada lado a lado en una tableta
+  more_title: Y algo más
+  more:
+    - t: Borradores
+      d: Si cierras la app a mitad de frase, tu texto sigue ahí.
+    - t: Papelera
+      d: ¿Borraste una entrada sin querer? Recupérala en 30 días.
+    - t: Fuentes
+      d: Elige entre 10 fuentes, de manuscrita a serif.
+    - t: Colores de tema
+      d: Elige el color de la app entre 7 opciones.
+    - t: Estilos de lista
+      d: Elige entre feed, tarjetas o cuadrícula de fotos.
+    - t: Formato
+      d: Resalta lo importante con color de texto y marcador.
+  trust_title: Tu diario es solo tuyo
+  trust1_title: Ni el desarrollador puede verlo
+  trust1_body: No hay un servidor que guarde tus entradas. Tus entradas y fotos se quedan en este dispositivo y en tu Google Drive.
+  trust2_title: Sin registro
+  trust2_body: Instala la app y empieza a escribir. Solo conectas una cuenta de Google para la copia de seguridad.
+  trust3_title: Ponle bloqueo
+  trust3_body: Activa un código o la biometría para que solo tú puedas abrirla.
+  plans_title: Gratis y Plus
+  free_name: Gratis
+  free_sub: Lo que hoy es gratis, seguirá siendo gratis.
+  free_items:
+    - Escribe con hasta 10 fotos por entrada
+    - Copia de seguridad con fotos en Google Drive
+    - 15 estados de ánimo y 5 temas gratis
+    - 7 colores de tema y 10 fuentes
+    - Bloqueo, calendario, búsqueda y repaso
+  plus_sub: Sin anuncios y con más formas de personalizarla.
+  plus_items: [Sin anuncios, 30 fotos, Estadísticas avanzadas, Color de tema personalizado, Temas de ánimo, Listas de tareas, Conservar formato]
+  plans_note: ¿Solo quieres quitar los anuncios? También puedes comprar Quitar anuncios una sola vez. Los precios están en la app.
+  faq_title: Preguntas frecuentes
+  faq:
+    - q: ¿Es gratis?
+      a: Sí. Escribir y hacer copias de seguridad de fotos es gratis. Para usarla sin anuncios, elige Quitar anuncios (compra única) o Plus (suscripción anual).
+    - q: ¿Los temas de ánimo son gratis?
+      a: Clásico, Formas, Gouache, Contorno y Píxel son gratis. Burbujas, Garabatos, Frutas y verduras y Caras de arcilla vienen con Plus.
+    - q: ¿Qué pasa con mis entradas si cambio de teléfono?
+      a: Restáuralas en tu nuevo teléfono con la misma cuenta de Google. También puedes pasar de iPhone a Android y al revés.
+    - q: ¿En qué idiomas está?
+      a: En español, inglés, coreano, japonés, chino tradicional, portugués, alemán y francés. La app sigue el idioma de tu teléfono.
+    - q: ¿Envían mis entradas a algún lado?
+      a: No. Tus entradas y fotos se quedan en este dispositivo y en el Google Drive que conectes. Nunca se usan para anuncios ni estadísticas.
+  cta_title: Empieza hoy tu<br><em class="hl">1 Day 1 Diary</em>
+  cta_body: Gratis en iPhone, iPad y Android.
+  badge_apple: Descargar en el App Store
+  badge_google: Disponible en Google Play
+  apple_width: 120
+
+pt:
+  html: pt-BR
+  locale: pt_BR
+  label: Português
+  font: sans
+  badge: en
+  name: 1 Day 1 Diary
+  home: /pt/1day1diary/
+  screens: /assets/screens/pt/
+  description: Um diário simples para quem tem pressa. Sua entrada de hoje em uma linha.
+  og: Sua entrada de hoje em uma linha. Pouco a pouco, as entradas viram o seu registro.
+  get: Baixar
+  privacy: Privacidade (em inglês)
+  terms: Termos (em inglês)
+  privacy_url: /en/1day1diary/privacy/
+  terms_url: /en/1day1diary/terms/
+  contact: Contato
+  copied: copiado
+  mail: "E-mail:"
+  language: Idioma
+  hero: Sua entrada de hoje<br>em <em class="hl">uma linha</em>
+  lead: Entradas curtas, dia após dia, viram o seu próprio registro.
+  alt_list: Lista de entradas anteriores
+  features: Principais recursos
+  write_label: Escrever
+  write_title: Guarde fotos<br>e o seu humor
+  write_body: Adicione fotos, o clima e o lugar. Escolha entre 15 humores a carinha que combina com o seu dia.
+  alt_write: Escolhendo um de 15 humores
+  insight_label: Relembrar
+  insight_title: Veja qual humor<br>apareceu mais
+  insight_body: Seus humores são agrupados por semana, mês e ano. Encontre entradas antigas com o calendário e a busca.
+  alt_insight: Relembrando seus humores
+  backup_label: Backup
+  backup_title: Trocou de celular,<br>o diário continua
+  backup_body: Faça backup das entradas e fotos no seu próprio Google Drive. Restaure com a mesma conta, até entre iPhone e Android.
+  alt_backup: Backup com fotos no Google Drive
+  theme_label: Temas de humor
+  theme_title: Carinhas de humor<br>do seu jeito
+  theme_body: Escolha um tema e todas as carinhas do app mudam. São 5 temas grátis, e o Plus traz mais 4.
+  alt_theme: "Calendário com o tema de humor:"
+  themes: [Clássico, Formas, Frutas e legumes, Rostos de massinha]
+  tablet_label: Tablet
+  tablet_title: Em telas grandes,<br>lista e entrada lado a lado
+  tablet_body: Se ajusta ao iPad, a tablets Android e a dobráveis.
+  alt_tablet: Lista e entrada lado a lado em um tablet
+  more_title: E mais algumas coisas
+  more:
+    - t: Rascunhos
+      d: Fechou o app no meio da frase? O texto continua lá.
+    - t: Lixeira
+      d: Apagou uma entrada sem querer? Recupere em até 30 dias.
+    - t: Fontes
+      d: Escolha entre 10 fontes, de manuscrita a serifada.
+    - t: Cores do tema
+      d: Escolha a cor do app entre 7 opções.
+    - t: Estilos de lista
+      d: Escolha entre feed, cartões ou grade de fotos.
+    - t: Formatação
+      d: Destaque o que importa com cor de texto e marca-texto.
+  trust_title: Seu diário é só seu
+  trust1_title: Nem o desenvolvedor pode ver
+  trust1_body: Não há servidor que guarde suas entradas. Entradas e fotos ficam neste aparelho e no seu Google Drive.
+  trust2_title: Sem cadastro
+  trust2_body: Instale e comece a escrever. Você só conecta uma conta Google para fazer backup.
+  trust3_title: Proteja com bloqueio
+  trust3_body: Ative um código ou a biometria para que só você possa abrir.
+  plans_title: Grátis e Plus
+  free_name: Grátis
+  free_sub: O que é grátis hoje continua grátis.
+  free_items:
+    - Escreva com até 10 fotos por entrada
+    - Backup com fotos no Google Drive
+    - 15 humores e 5 temas grátis
+    - 7 cores de tema e 10 fontes
+    - Bloqueio, calendário, busca e relembrar
+  plus_sub: Sem anúncios e com mais jeitos de deixar com a sua cara.
+  plus_items: [Sem anúncios, 30 fotos, Estatísticas avançadas, Cor do tema personalizada, Temas de humor, Checklists, Manter formatação]
+  plans_note: Só quer tirar os anúncios? Também dá para comprar Remover anúncios uma única vez. Os preços aparecem no app.
+  faq_title: Perguntas frequentes
+  faq:
+    - q: É grátis?
+      a: Sim. Escrever e fazer backup das fotos é grátis. Para usar sem anúncios, escolha Remover anúncios (compra única) ou Plus (assinatura anual).
+    - q: Os temas de humor são grátis?
+      a: Clássico, Formas, Guache, Contorno e Pixel são grátis. Bolhas, Rabiscos, Frutas e legumes e Rostos de massinha vêm com o Plus.
+    - q: O que acontece com as entradas se eu trocar de celular?
+      a: Restaure no celular novo com a mesma conta Google. Dá para passar entre iPhone e Android também.
+    - q: Em quais idiomas funciona?
+      a: Em português, inglês, coreano, japonês, chinês tradicional, espanhol, alemão e francês. O app segue o idioma do seu celular.
+    - q: Vocês enviam minhas entradas para algum lugar?
+      a: Não. Entradas e fotos ficam neste aparelho e no Google Drive que você conectar. Nunca são usadas para anúncios ou estatísticas.
+  cta_title: Comece hoje o seu<br><em class="hl">1 Day 1 Diary</em>
+  cta_body: Grátis no iPhone, iPad e Android.
+  badge_apple: Baixar na App Store
+  badge_google: Disponível no Google Play
+  apple_width: 120
+
+de:
+  html: de
+  locale: de_DE
+  label: Deutsch
+  font: sans
+  badge: en
+  name: 1 Day 1 Diary
+  home: /de/1day1diary/
+  screens: /assets/screens/de/
+  description: Ein einfaches Tagebuch für Vielbeschäftigte. Dein Eintrag für heute in einer Zeile.
+  og: Dein Eintrag für heute in einer Zeile. Kurze Einträge werden zu deiner Chronik.
+  get: Laden
+  privacy: Datenschutz (Englisch)
+  terms: Nutzungsbedingungen (Englisch)
+  privacy_url: /en/1day1diary/privacy/
+  terms_url: /en/1day1diary/terms/
+  contact: Kontakt
+  copied: kopiert
+  mail: "E-Mail:"
+  language: Sprache
+  hero: Dein Eintrag für heute<br>in <em class="hl">einer Zeile</em>
+  lead: Kurze Einträge, Tag für Tag, werden zu deiner eigenen Chronik.
+  alt_list: Liste früherer Einträge
+  features: Wichtigste Funktionen
+  write_label: Schreiben
+  write_title: Fotos und Stimmung<br>gleich mit dabei
+  write_body: Füge Fotos, Wetter und Ort hinzu. Wähle aus 15 Stimmungen das Gesicht, das zu deinem Tag passt.
+  alt_write: Auswahl aus 15 Stimmungen
+  insight_label: Rückblick
+  insight_title: Sieh auf einen Blick,<br>welche Stimmung überwog
+  insight_body: Deine Stimmungen werden nach Woche, Monat und Jahr gebündelt. Frühere Einträge findest du schnell über Kalender und Suche.
+  alt_insight: Rückblick auf deine Stimmungen
+  backup_label: Backup
+  backup_title: Neues Handy,<br>gleiches Tagebuch
+  backup_body: Sichere Einträge und Fotos in deinem eigenen Google Drive. Stelle sie mit demselben Konto wieder her, auch zwischen iPhone und Android.
+  alt_backup: Backup mit Fotos in Google Drive
+  theme_label: Stimmungsthemen
+  theme_title: Stimmungsgesichter<br>nach deinem Geschmack
+  theme_body: Wähle ein Thema, und alle Stimmungsgesichter in der App ändern sich. 5 Themen sind kostenlos, Plus bringt 4 weitere.
+  alt_theme: "Kalender mit dem Stimmungsthema:"
+  themes: [Klassisch, Formen, Obst & Gemüse, Knetgesichter]
+  tablet_label: Tablet
+  tablet_title: Auf großen Bildschirmen<br>Liste und Eintrag nebeneinander
+  tablet_body: Passt sich an iPad, Android-Tablets und Foldables an.
+  alt_tablet: Liste und Eintrag nebeneinander auf einem Tablet
+  more_title: Und noch ein paar Dinge
+  more:
+    - t: Entwürfe
+      d: App mitten im Satz geschlossen? Dein Text ist noch da.
+    - t: Papierkorb
+      d: Aus Versehen gelöscht? Innerhalb von 30 Tagen wiederherstellen.
+    - t: Schriften
+      d: Wähle aus 10 Schriften, von Handschrift bis Serif.
+    - t: Designfarben
+      d: Wähle die App-Farbe aus 7 Optionen.
+    - t: Listenansicht
+      d: Wähle Feed, Karten oder Fotoraster.
+    - t: Formatierung
+      d: Markiere Wichtiges mit Textfarbe und Textmarker.
+  trust_title: Dein Tagebuch gehört nur dir
+  trust1_title: Nicht einmal der Entwickler sieht es
+  trust1_body: Es gibt keinen Server, der Einträge sammelt. Einträge und Fotos bleiben auf diesem Gerät und in deinem Google Drive.
+  trust2_title: Keine Registrierung
+  trust2_body: Installieren und losschreiben. Ein Google-Konto verbindest du nur fürs Backup.
+  trust3_title: Mit Sperre schützen
+  trust3_body: Aktiviere einen Code oder Biometrie, damit nur du sie öffnen kannst.
+  plans_title: Kostenlos und Plus
+  free_name: Kostenlos
+  free_sub: Was heute kostenlos ist, bleibt kostenlos.
+  free_items:
+    - Einträge mit bis zu 10 Fotos
+    - Backup mit Fotos in Google Drive
+    - 15 Stimmungen und 5 kostenlose Themen
+    - 7 Designfarben und 10 Schriften
+    - Sperre, Kalender, Suche und Rückblick
+  plus_sub: Ohne Werbung und mit mehr Möglichkeiten, sie zu deiner zu machen.
+  plus_items: [Keine Werbung, 30 Fotos, Erweiterte Statistik, Eigene Designfarbe, Stimmungsthemen, Checklisten, Formatierung zeigen]
+  plans_note: Nur die Werbung entfernen? Dafür gibt es auch einen einmaligen Kauf. Preise siehst du in der App.
+  faq_title: Häufige Fragen
+  faq:
+    - q: Ist die App kostenlos?
+      a: Ja. Schreiben und Foto-Backups sind kostenlos. Ohne Werbung nutzt du sie mit „Werbung entfernen“ (Einmalkauf) oder Plus (Jahresabo).
+    - q: Sind die Stimmungsthemen kostenlos?
+      a: Klassisch, Formen, Gouache, Umriss und Pixel sind kostenlos. Seifenblasen, Kritzelfreunde, Obst & Gemüse und Knetgesichter gibt es mit Plus.
+    - q: Was passiert mit meinen Einträgen, wenn ich das Handy wechsle?
+      a: Stelle sie auf dem neuen Handy mit demselben Google-Konto wieder her. Auch zwischen iPhone und Android.
+    - q: In welchen Sprachen gibt es die App?
+      a: Auf Deutsch, Englisch, Koreanisch, Japanisch, traditionellem Chinesisch, Spanisch, Portugiesisch und Französisch. Die App folgt der Sprache deines Handys.
+    - q: Werden meine Einträge irgendwohin geschickt?
+      a: Nein. Einträge und Fotos bleiben auf diesem Gerät und in dem Google Drive, das du verbindest. Sie werden nie für Werbung oder Statistiken genutzt.
+  cta_title: Starte heute dein<br><em class="hl">1 Day 1 Diary</em>
+  cta_body: Kostenlos für iPhone, iPad und Android.
+  badge_apple: Laden im App Store
+  badge_google: Jetzt bei Google Play
+  apple_width: 120
+
+fr:
+  html: fr
+  locale: fr_FR
+  label: Français
+  font: sans
+  badge: en
+  name: 1 Day 1 Diary
+  home: /fr/1day1diary/
+  screens: /assets/screens/fr/
+  description: Un journal simple pour les gens pressés. L’entrée du jour en une ligne.
+  og: L’entrée du jour en une ligne. Peu à peu, vos entrées forment votre journal.
+  get: Télécharger
+  privacy: Confidentialité (en anglais)
+  terms: Conditions (en anglais)
+  privacy_url: /en/1day1diary/privacy/
+  terms_url: /en/1day1diary/terms/
+  contact: Contact
+  copied: copié
+  mail: "E-mail :"
+  language: Langue
+  hero: L’entrée du jour<br>en <em class="hl">une ligne</em>
+  lead: Jour après jour, de courtes entrées forment votre propre journal.
+  alt_list: Liste des entrées précédentes
+  features: Fonctionnalités principales
+  write_label: Écrire
+  write_title: Photos et humeur,<br>tout y est
+  write_body: Ajoutez des photos, la météo et le lieu. Choisissez parmi 15 humeurs le visage qui correspond à votre journée.
+  alt_write: Choix parmi 15 humeurs
+  insight_label: Revoir
+  insight_title: Voyez quelle humeur<br>revient le plus
+  insight_body: Vos humeurs sont regroupées par semaine, mois et année. Retrouvez vite vos anciennes entrées avec le calendrier et la recherche.
+  alt_insight: Revoir l’évolution de vos humeurs
+  backup_label: Sauvegarde
+  backup_title: Nouveau téléphone,<br>même journal
+  backup_body: Sauvegardez vos entrées et photos dans votre propre Google Drive. Restaurez-les avec le même compte, même entre iPhone et Android.
+  alt_backup: Sauvegarde des photos sur Google Drive
+  theme_label: Thèmes d’humeur
+  theme_title: Des visages d’humeur<br>à votre goût
+  theme_body: Choisissez un thème et tous les visages d’humeur de l’app changent. 5 thèmes sont gratuits, Plus en ajoute 4.
+  alt_theme: "Calendrier avec le thème d’humeur :"
+  themes: [Classique, Formes, Fruits et légumes, Visages en pâte]
+  tablet_label: Tablette
+  tablet_title: Sur grand écran,<br>liste et entrée côte à côte
+  tablet_body: S’adapte à l’iPad, aux tablettes Android et aux pliables.
+  alt_tablet: Liste et entrée côte à côte sur une tablette
+  more_title: Et encore quelques détails
+  more:
+    - t: Brouillons
+      d: Vous fermez l’app en pleine phrase ? Votre texte est toujours là.
+    - t: Corbeille
+      d: Une entrée supprimée par erreur ? Restaurez-la sous 30 jours.
+    - t: Polices
+      d: Choisissez parmi 10 polices, de manuscrite à serif.
+    - t: Couleurs du thème
+      d: Choisissez la couleur de l’app parmi 7 options.
+    - t: Styles de liste
+      d: Fil, cartes ou grille de photos, à vous de choisir.
+    - t: Mise en forme
+      d: Faites ressortir l’essentiel avec la couleur du texte et le surligneur.
+  trust_title: Votre journal n’est qu’à vous
+  trust1_title: Même le développeur ne peut pas le lire
+  trust1_body: Aucun serveur ne collecte vos entrées. Vos entrées et photos restent sur cet appareil et dans votre Google Drive.
+  trust2_title: Sans inscription
+  trust2_body: Installez et commencez à écrire. Vous ne connectez un compte Google que pour la sauvegarde.
+  trust3_title: Verrouillez-le
+  trust3_body: Activez un code ou la biométrie pour être seul à pouvoir l’ouvrir.
+  plans_title: Gratuit et Plus
+  free_name: Gratuit
+  free_sub: Ce qui est gratuit aujourd’hui le restera.
+  free_items:
+    - Écrire avec jusqu’à 10 photos par entrée
+    - Sauvegarde des photos sur Google Drive
+    - 15 humeurs et 5 thèmes gratuits
+    - 7 couleurs de thème et 10 polices
+    - Verrouillage, calendrier, recherche et bilan
+  plus_sub: Sans pub, avec plus de façons de le personnaliser.
+  plus_items: [Sans pub, 30 photos, Statistiques avancées, Couleur du thème personnalisée, Thèmes d’humeur, Listes à cocher, Garder la mise en forme]
+  plans_note: Vous voulez seulement retirer la pub ? Un achat unique « Supprimer la pub » existe aussi. Les prix sont indiqués dans l’app.
+  faq_title: Questions fréquentes
+  faq:
+    - q: Est-ce gratuit ?
+      a: Oui. Écrire et sauvegarder vos photos est gratuit. Pour l’utiliser sans pub, choisissez Supprimer la pub (achat unique) ou Plus (abonnement annuel).
+    - q: Les thèmes d’humeur sont-ils gratuits ?
+      a: Classique, Formes, Gouache, Contour et Pixel sont gratuits. Bulles, Gribouillis, Fruits et légumes et Visages en pâte sont inclus dans Plus.
+    - q: Que deviennent mes entrées si je change de téléphone ?
+      a: Restaurez-les sur le nouveau téléphone avec le même compte Google, même entre iPhone et Android.
+    - q: Dans quelles langues est disponible l’app ?
+      a: En français, anglais, coréen, japonais, chinois traditionnel, espagnol, portugais et allemand. L’app suit la langue de votre téléphone.
+    - q: Envoyez-vous mes entrées quelque part ?
+      a: Non. Vos entrées et photos restent sur cet appareil et dans le Google Drive que vous connectez. Elles ne servent jamais à la pub ni aux statistiques.
+  cta_title: Commencez votre<br><em class="hl">1 Day 1 Diary</em> aujourd’hui
+  cta_body: Gratuit sur iPhone, iPad et Android.
+  badge_apple: Télécharger dans l’App Store
+  badge_google: Disponible sur Google Play
+  apple_width: 120

@@ -1,13 +1,15 @@
 {% assign lang = page.lang | default: 'ko' %}{% assign t = site.data.i18n[lang] %}<!doctype html>
-<html lang="{{ t.html }}">
+<html lang="{{ t.html }}" data-font="{{ t.font }}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 {% if page.home and lang == 'ko' %}<script>
-// 처음 온 사람은 기기 언어로. 고른 언어가 있으면 그대로, 검색 로봇은 넘기지 않음
-(function(){var s;try{s=localStorage.getItem('lang')}catch(e){}if(s==='ko'||/bot|crawl|spider|slurp|lighthouse/i.test(navigator.userAgent))return;
-if(s!=='en'&&s!=='ja'){s='en';var l=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||''];
-for(var i=0;i<l.length;i++){var c=String(l[i]).toLowerCase().slice(0,2);if(c==='ko')return;if(c==='ja'||c==='en'){s=c;break}}}
+// 처음 온 사람은 기기 언어로(사는 곳이 아니라 언어 기준). 고른 언어가 있으면 그대로, 검색 로봇은 넘기지 않음
+(function(){var ok=['ko','en','ja','zh-hant','es','pt','de','fr'],s;try{s=localStorage.getItem('lang')}catch(e){}if(s==='ko'||/bot|crawl|spider|slurp|lighthouse/i.test(navigator.userAgent))return;
+if(ok.indexOf(s)<0){s='en';var l=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||''];
+for(var i=0;i<l.length;i++){var c=String(l[i]).toLowerCase();if(c.slice(0,2)==='ko')return;
+if(c.slice(0,2)==='zh'){if(/hant|tw|hk|mo/.test(c)){s='zh-hant';break}continue}
+var b=c.slice(0,2);if(ok.indexOf(b)>0){s=b;break}}}
 location.replace('/'+s+'/1day1diary/'+location.hash)})();
 </script>{% endif %}
 <script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&'IntersectionObserver' in window)document.documentElement.classList.add('motion')</script>
@@ -19,7 +21,7 @@ location.replace('/'+s+'/1day1diary/'+location.hash)})();
 <meta property="og:description" content="{{ t.og }}">
 <meta property="og:locale" content="{{ t.locale }}">
 {% if page.home %}<link rel="canonical" href="{{ site.url }}{{ t.home }}">
-{% for l in site.data.i18n %}<link rel="alternate" hreflang="{{ l[0] }}" href="{{ site.url }}{{ l[1].home }}">
+{% for l in site.data.i18n %}<link rel="alternate" hreflang="{{ l[1].html }}" href="{{ site.url }}{{ l[1].home }}">
 {% endfor %}<link rel="alternate" hreflang="x-default" href="{{ site.url }}/1day1diary/">{% endif %}
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="{{ t.name }}">
@@ -31,11 +33,15 @@ location.replace('/'+s+'/1day1diary/'+location.hash)})();
 <meta property="og:image:alt" content="{{ t.name }}">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/favicon.png">
-{% if lang != 'ja' %}<link rel="preload" href="/assets/fonts/changwon-round.woff2" as="font" type="font/woff2" crossorigin>
+{% if t.font == 'round' %}<link rel="preload" href="/assets/fonts/changwon-round.woff2" as="font" type="font/woff2" crossorigin>
+{% elsif t.font == 'sans' %}<link rel="preload" href="/assets/fonts/pretendard-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
 {% endif %}<style>
 /* 글꼴: 스토어 그림·앱 캡처와 같은 창원단감둥근체(한글 2350자로 줄임). 굵기가 하나라 굵은 글은 테두리로 두껍게(스토어 그림과 같은 방식)
    일본어는 이 글꼴에 한자가 없어 시스템 글꼴(docs/design.md 여러 언어) */
 @font-face{font-family:"Changwon Round";src:url(/assets/fonts/changwon-round.woff2) format("woff2");font-display:swap}
+/* 유럽 네 언어: 창원체에 악센트 글자가 없어 앱 스토어 그림과 같은 Pretendard(라틴만 줄임, OFL) */
+@font-face{font-family:"Pretendard Latin";src:url(/assets/fonts/pretendard-latin-regular.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Pretendard Latin";src:url(/assets/fonts/pretendard-latin-semibold.woff2) format("woff2");font-weight:600;font-display:swap}
 :root{--ease:cubic-bezier(.05,.7,.1,1);--toast:#2A3038;--onToast:#fff;--canvas:#fff;--card:#F8F8FF;--sunken:#F3F4F5;--line:#EEEFF1;--text:#1A1C20;--text2:#555D6D;--text3:#868B94;--accent:#6E56CF;--accentText:#6550B9;--selected:#EBE4FF;--onAccent:#fff;--frame:#E9EAEE;--header:rgba(255,255,255,.82);--divider:#E6E8EB}
 @media (prefers-color-scheme:dark){:root{--canvas:#16171B;--card:#1D2025;--sunken:#2B2E35;--line:#2B2E35;--text:#F3F4F5;--text2:#DCDEE3;--text3:#9BA0AA;--accentText:#BAA7FF;--selected:#291F43;--frame:#2B2E35;--header:rgba(22,23,27,.82);--divider:#3A3E46;--toast:#393D46;--onToast:#F3F4F5}}
 *{box-sizing:border-box}
@@ -45,9 +51,11 @@ body{margin:0;overflow-x:hidden;background:var(--canvas);color:var(--text);font:
 a{color:var(--accentText)}
 /* 일본어는 띄어쓰기가 없어 keep-all이면 줄이 넘침. 구절 단위로 줄바꿈 */
 html[lang=ja] body{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;font-synthesis:weight;word-break:normal;line-break:strict}
+html[lang=zh-Hant] body{font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;font-synthesis:weight;word-break:normal;line-break:strict}
+html[data-font=sans] body{font-family:"Pretendard Latin",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;word-break:normal;hyphens:manual}
 /* 굵은 글: 큰 제목은 글자 크기의 3.4%, 작은 글은 1.6% 테두리(make_screens.swift와 같음) */
-html:not([lang=ja]) :is(h1,h2,.section-title){-webkit-text-stroke:.034em currentColor}
-html:not([lang=ja]) :is(h3,.label,.button,.brand,.faq summary,th,strong,b,footer .langs a[aria-current]){-webkit-text-stroke:.016em currentColor}
+html[data-font=round] :is(h1,h2,.section-title){-webkit-text-stroke:.034em currentColor}
+html[data-font=round] :is(h3,.label,.button,.brand,.faq summary,th,strong,b,footer .langs a[aria-current],.tag){-webkit-text-stroke:.016em currentColor}
 @supports (word-break:auto-phrase){html[lang=ja] body{word-break:auto-phrase}}
 /* 제목은 줄 길이를 고르게, 설명은 마지막 줄에 한 단어만 남지 않게 */
 h1,h2,h3{text-wrap:balance}
@@ -98,6 +106,9 @@ th{background:var(--sunken);font-weight:600}
 .hero h1{font-size:72px;line-height:1.16;font-weight:800;letter-spacing:-.035em;margin:0 0 20px}
 /* 일본어는 한 줄 글자 수가 많아 줄여 두 줄에 맞춤 */
 html[lang=ja] .hero h1{font-size:60px}
+/* 라틴 언어는 제목이 길어 줄여 두세 줄에 맞춤. 굵기는 Pretendard SemiBold */
+html[data-font=sans] .hero h1{font-size:60px;letter-spacing:-.03em}
+html[data-font=sans] :is(h1,h2,.section-title){font-weight:600}
 /* 첫 제목에서 한 곳만 브랜드색. 앱의 약속(하루 한 줄)을 짚음 */
 .hl{font-style:normal;color:var(--accentText)}
 .lead{font-size:20px;line-height:1.6;color:var(--text2);margin:0}
@@ -141,7 +152,7 @@ html[lang=ja] .hero h1{font-size:60px}
 .features:focus-visible{outline-offset:4px}
 
 /* 태블릿: 넓은 화면이라 기기 하나를 크게 */
-.wide-card{text-align:center;padding:0}
+.wide-card{text-align:center;padding:0;margin-top:20px}
 .wide-card p{max-width:560px;margin:0 auto}
 /* iPad 캡처 귀퉁이에 남은 기기 모서리가 보이지 않게 둥글림. 틀은 사진 반지름 + 틀 두께 */
 .tablet{width:min(960px,100%);margin:56px auto 0;padding:10px;border-radius:50px;background:var(--frame);box-shadow:0 24px 56px rgba(26,28,32,.14)}
@@ -182,6 +193,33 @@ html[lang=ja] .hero h1{font-size:60px}
 .cta p{margin:14px 0 0;font-size:18px;line-height:1.55;color:var(--text2)}
 .cta .badges{justify-content:center}
 
+
+/* 기분 테마: 칩으로 같은 달력의 테마를 바꿈. 칩은 앱 칩과 같은 꼴(높이 40, 알약). 고른 칩만 브랜드 면 */
+.theme-pick{padding-top:0}
+.theme-pick .feature-text{order:2}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border:1px solid var(--divider);border-radius:999px;background:var(--canvas);color:var(--text2);font:inherit;font-size:15px;line-height:1;cursor:pointer;transition:background-color .15s,border-color .15s,color .15s}
+.chip[aria-pressed=true]{border-color:transparent;background:var(--selected);color:var(--accentText)}
+html[data-font=round] .chip[aria-pressed=true]{-webkit-text-stroke:.016em currentColor}
+html[data-font=sans] .chip[aria-pressed=true]{font-weight:600}
+@media (hover:hover){.chip:hover{border-color:var(--text3)}}
+.theme-shot{transition:opacity .2s}
+.theme-shot.is-swapping{opacity:0}
+.tag{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:999px;background:var(--accent);color:var(--onAccent);font-size:11px;font-weight:600;line-height:1}
+.chip[aria-pressed=true] .tag{background:var(--accentText)}
+/* 무료와 Plus: 두 칸을 같은 높이로. Plus 칸만 옅은 브랜드 면 */
+.plans{padding:140px 0 0}
+.plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:880px;margin:0 auto}
+.plan{padding:36px;border-radius:28px;background:var(--card)}
+.plan.plus{background:var(--selected)}
+.plan h3{margin:0;font-size:26px;line-height:1.3;letter-spacing:-.02em}
+.plan.plus h3{color:var(--accentText)}
+.plan-sub{margin:8px 0 24px;font-size:16px;line-height:1.55;color:var(--text2)}
+.plan ul{display:grid;gap:12px;margin:0;padding:0;list-style:none}
+.plan li{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start;font-size:17px;line-height:1.5}
+.check{width:20px;height:20px;margin-top:3px;color:var(--text3)}
+.plan.plus .check{color:var(--accentText)}
+.plan-note{max-width:880px;margin:20px auto 0;text-align:center;font-size:15px;line-height:1.6;color:var(--text3)}
 /* 스크롤로 나타나기: 투명에서 48px 아래 → 제자리 1000ms(투명도 700ms). 레퍼런스를 시간별로 재서 맞춤
    (카카오뱅크 20px·600ms, Apple 60px·700ms, 100ms 때 30~40% 진행). 처음이 덜 급한 감속 곡선. 한 번만
    숨길 곳은 HTML에 적고 움직임 여부는 head에서 그리기 전에 정함(첫 진입 때 보였다 사라지지 않게). 스크립트가 없으면 처음부터 보임
@@ -207,6 +245,7 @@ footer .langs a[aria-current]{color:var(--text);font-weight:600}
 @media (max-width:1024px){
   .hero h1{font-size:56px}
   html[lang=ja] .hero h1{font-size:46px}
+  html[data-font=sans] .hero h1{font-size:46px}
   .feature{gap:40px;padding-bottom:96px}
   .feature-visual{padding:44px 0}
   .more-list{grid-template-columns:repeat(2,1fr)}
@@ -223,6 +262,7 @@ footer .langs a[aria-current]{color:var(--text);font-weight:600}
   .badges{justify-content:center}
   .hero h1{font-size:40px;margin:0 0 16px}
   html[lang=ja] .hero h1{font-size:34px}
+  html[data-font=sans] .hero h1{font-size:32px}
   .lead{font-size:17px}
   .badges{margin-top:28px}
   .hero-visual::before{width:400px;height:400px;top:0}
@@ -268,12 +308,23 @@ footer .langs a[aria-current]{color:var(--text);font-weight:600}
   .cta{margin-top:96px;padding:56px 16px;border-radius:28px}
   .ring .face{width:44px;height:44px}.ring .f0{left:6%}.ring .f2{left:2%}.ring .f3{right:2%}
   /* 아홉 개가 한 줄에 들어가게(375 폭 카드 안쪽 311) */
-  .face-row{gap:4px}.face-row .face{width:30px;height:30px}
   .cta p{font-size:16px}
   .cta .badges{gap:8px}
   .cta .badge-apple{height:40px}
   .cta .badge-google{height:52px;margin:-6px -6px -6px 0}
   footer .copy{margin-left:0;width:100%}
+  /* 넘기는 기능 카드와 달리 높이를 내용에 맞춤. 폰은 위 달력까지만 보이게 자름 */
+  .theme-pick{display:flex;flex-direction:column;gap:0;height:auto;margin-top:96px;padding:36px 20px 0;text-align:center}
+  .theme-pick .feature-text{order:0}
+  .chips{justify-content:center;margin-top:20px}
+  .theme-pick .feature-visual{height:300px;overflow:hidden;align-items:flex-start;margin-top:28px;padding:0}
+  .theme-pick .phone{width:220px}
+  .plans{padding-top:96px}
+  .plan-grid{grid-template-columns:1fr;gap:12px}
+  .plan{padding:28px 24px;border-radius:24px}
+  .plan h3{font-size:22px}
+  .plan li{font-size:16px}
+  .face-row{gap:6px;max-width:312px;margin:0 auto}.face-row .face{width:32px;height:32px}
 }
 @media (max-width:640px){.wrap{padding:0 16px}}
 </style>
@@ -288,7 +339,7 @@ footer .langs a[aria-current]{color:var(--text);font-weight:600}
 </div>{% endif %}</main>
 <footer><div class="wrap{% if page.home %} wide{% endif %}">
 <nav><a href="{{ t.privacy_url | default: '/1day1diary/privacy/' }}">{{ t.privacy }}</a><a href="{{ t.terms_url | default: '/1day1diary/terms/' }}">{{ t.terms }}</a><a href="mailto:sjunh812@naver.com" data-copy="sjunh812@naver.com" data-done="{{ t.copied }}" data-fail="{{ t.mail }}">{{ t.contact }}</a></nav>
-{% if page.home %}<nav class="langs" aria-label="{{ t.language }}">{% for l in site.data.i18n %}<a href="{{ l[1].home }}" hreflang="{{ l[0] }}" lang="{{ l[0] }}" data-lang="{{ l[0] }}"{% if l[0] == lang %} aria-current="page"{% endif %}>{% case l[0] %}{% when 'ko' %}한국어{% when 'en' %}English{% when 'ja' %}日本語{% endcase %}</a>{% endfor %}</nav>{% endif %}
+{% if page.home %}<nav class="langs" aria-label="{{ t.language }}">{% for l in site.data.i18n %}<a href="{{ l[1].home }}" hreflang="{{ l[1].html }}" lang="{{ l[1].html }}" data-lang="{{ l[0] }}"{% if l[0] == lang %} aria-current="page"{% endif %}>{{ l[1].label }}</a>{% endfor %}</nav>{% endif %}
 <span class="copy">© 서주냥</span>
 </div></footer>
 <script>
@@ -358,6 +409,21 @@ footer .langs a[aria-current]{color:var(--text);font-weight:600}
     });
   });
 })();
+// 기분 테마 칩: 누르면 달력 화면을 그 테마로 바꿈(사라졌다 나타남 200ms)
+document.querySelectorAll('.theme-pick').forEach(function (sec) {
+  var img = sec.querySelector('.theme-shot');
+  sec.querySelectorAll('.chip').forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      if (chip.getAttribute('aria-pressed') === 'true') return;
+      sec.querySelectorAll('.chip').forEach(function (c) { c.setAttribute('aria-pressed', c === chip ? 'true' : 'false'); });
+      var base = chip.dataset.shot, next = new Image();
+      next.srcset = base + '-432.jpg 432w, ' + base + '.jpg 864w'; next.sizes = img.sizes; next.src = base + '.jpg';
+      img.classList.add('is-swapping');
+      var swap = function () { img.srcset = next.srcset; img.src = next.src; img.alt = chip.dataset.alt; img.classList.remove('is-swapping'); };
+      (next.decode ? next.decode() : Promise.resolve()).then(swap, swap);
+    });
+  });
+});
 // 언어를 고르면 기억해 다음 방문에도 그 언어로
 document.querySelectorAll('[data-lang]').forEach(function (a) {
   a.addEventListener('click', function () { try { localStorage.setItem('lang', a.dataset.lang); } catch (e) {} });

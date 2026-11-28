@@ -8,44 +8,42 @@
     </div>
     <div class="hero-visual">
       {% include faces-ring.html %}
-      <div class="phone hero-shot"><img src="{{ t.screens }}list.jpg" srcset="{{ t.screens }}list-432.jpg 432w, {{ t.screens }}list.jpg 864w" sizes="(max-width:760px) 240px, 320px" alt="{{ t.alt_list }}" width="864" height="1762"></div>
+      <div class="phone hero-shot"><img src="{{ t.screens }}list.jpg" srcset="{{ t.screens }}list-432.jpg 432w, {{ t.screens }}list.jpg 864w" sizes="(max-width:760px) 240px, 320px" alt="{{ t.alt_list }}" width="864" height="1877" fetchpriority="high"></div>
     </div>
   </div>
 </section>
 
 <div class="wrap wide">
   <div class="features" role="region" aria-label="{{ t.features }}" tabindex="0">
+    {% assign feats = 'write,insight,backup' | split: ',' %}{% for f in feats %}{% assign label = f | append: '_label' %}{% assign title = f | append: '_title' %}{% assign body = f | append: '_body' %}{% assign alt = 'alt_' | append: f %}
     <section class="feature reveal">
       <div class="feature-text">
-        <p class="label">{{ t.write_label }}</p>
-        <h2>{{ t.write_title }}</h2>
-        <p>{{ t.write_body }}</p>
+        <p class="label">{{ t[label] }}</p>
+        <h2>{{ t[title] }}</h2>
+        <p>{{ t[body] }}</p>
       </div>
-      <div class="feature-visual"><div class="phone"><img src="{{ t.screens }}write.jpg" srcset="{{ t.screens }}write-432.jpg 432w, {{ t.screens }}write.jpg 864w" sizes="(max-width:760px) 196px, (max-width:1024px) 240px, 280px" alt="{{ t.alt_write }}" width="864" height="1762" loading="lazy"></div></div>
-    </section>
-    <section class="feature reveal">
-      <div class="feature-text">
-        <p class="label">{{ t.insight_label }}</p>
-        <h2>{{ t.insight_title }}</h2>
-        <p>{{ t.insight_body }}</p>
-      </div>
-      <div class="feature-visual"><div class="phone"><img src="{{ t.screens }}insight.jpg" srcset="{{ t.screens }}insight-432.jpg 432w, {{ t.screens }}insight.jpg 864w" sizes="(max-width:760px) 196px, (max-width:1024px) 240px, 280px" alt="{{ t.alt_insight }}" width="864" height="1762" loading="lazy"></div></div>
-    </section>
-    <section class="feature reveal">
-      <div class="feature-text">
-        <p class="label">{{ t.backup_label }}</p>
-        <h2>{{ t.backup_title }}</h2>
-        <p>{{ t.backup_body }}</p>
-      </div>
-      <div class="feature-visual"><div class="phone"><img src="{{ t.screens }}backup.jpg" srcset="{{ t.screens }}backup-432.jpg 432w, {{ t.screens }}backup.jpg 864w" sizes="(max-width:760px) 196px, (max-width:1024px) 240px, 280px" alt="{{ t.alt_backup }}" width="864" height="1762" loading="lazy"></div></div>
-    </section>
+      <div class="feature-visual"><div class="phone"><img src="{{ t.screens }}{{ f }}.jpg" srcset="{{ t.screens }}{{ f }}-432.jpg 432w, {{ t.screens }}{{ f }}.jpg 864w" sizes="(max-width:760px) 196px, (max-width:1024px) 240px, 280px" alt="{{ t[alt] }}" width="864" height="1877" loading="lazy"></div></div>
+    </section>{% endfor %}
   </div>
+
+  <!-- 기분 테마: 칩을 누르면 같은 달력이 그 테마로 바뀜. 넷 중 뒤 둘은 Plus -->
+  <section class="feature theme-pick reveal">
+    <div class="feature-text">
+      <p class="label">{{ t.theme_label }}</p>
+      <h2>{{ t.theme_title }}</h2>
+      <p>{{ t.theme_body }}</p>
+      <div class="chips" role="group" aria-label="{{ t.theme_label }}">
+        {% assign shots = 'basic,shape,veggie,clay' | split: ',' %}{% for s in shots %}<button type="button" class="chip" aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}" data-shot="{{ t.screens }}theme-{{ s }}" data-alt="{{ t.alt_theme }} {{ t.themes[forloop.index0] }}">{{ t.themes[forloop.index0] }}{% if forloop.index0 > 1 %}<span class="tag">Plus</span>{% endif %}</button>{% endfor %}
+      </div>
+    </div>
+    <div class="feature-visual"><div class="phone"><img class="theme-shot" src="{{ t.screens }}theme-basic.jpg" srcset="{{ t.screens }}theme-basic-432.jpg 432w, {{ t.screens }}theme-basic.jpg 864w" sizes="(max-width:760px) 220px, (max-width:1024px) 240px, 280px" alt="{{ t.alt_theme }} {{ t.themes[0] }}" width="864" height="1877" loading="lazy"></div></div>
+  </section>
 
   <section class="wide-card reveal">
     <p class="label">{{ t.tablet_label }}</p>
     <h2>{{ t.tablet_title }}</h2>
     <p>{{ t.tablet_body }}</p>
-    <div class="tablet"><img src="{{ t.screens }}tablet.jpg" alt="{{ t.alt_tablet }}" width="1600" height="1128" loading="lazy"></div>
+    <div class="tablet"><img src="{{ t.screens }}tablet.jpg" alt="{{ t.alt_tablet }}" width="1600" height="1200" loading="lazy"></div>
   </section>
 
   <section class="more reveal">
@@ -75,6 +73,24 @@
         <p>{{ t.trust3_body }}</p>
       </li>
     </ul>
+  </section>
+
+  <!-- 무료와 Plus를 나란히(Bear 가격 섹션). 강조는 Plus 칸 바탕 하나 -->
+  <section class="plans reveal">
+    <h2 class="section-title">{{ t.plans_title }}</h2>
+    <div class="plan-grid">
+      <div class="plan">
+        <h3>{{ t.free_name }}</h3>
+        <p class="plan-sub">{{ t.free_sub }}</p>
+        <ul>{% for i in t.free_items %}<li>{% include check.html %}{{ i }}</li>{% endfor %}</ul>
+      </div>
+      <div class="plan plus">
+        <h3>Plus</h3>
+        <p class="plan-sub">{{ t.plus_sub }}</p>
+        <ul>{% for i in t.plus_items %}<li>{% include check.html %}{{ i }}</li>{% endfor %}</ul>
+      </div>
+    </div>
+    <p class="plan-note">{{ t.plans_note }}</p>
   </section>
 
   <section class="faq reveal">
