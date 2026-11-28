@@ -498,19 +498,20 @@ App Store는 상품 설명 칸이 짧아(비소모품 45자, 구독 55자 안팎
 </fr-FR>
 ```
 
-Remote Config 업데이트 요약 초안(새 버전이 스토어에 열린 뒤 넣는다). 홈 카드 "새 버전이 나왔어요" 아래 줄이라 2.2.0처럼 "이제"를 붙인다.
+Remote Config 업데이트 요약 초안(새 버전이 스토어에 열린 뒤 넣는다). 홈 카드 "새 버전이 나왔어요" 아래에 두 줄로 둔다(사용자 결정 2026-11-28). 첫 줄은 출시 노트 첫 줄과 같은 뜻이다.
+이 값은 이미 설치된 2.1.0·2.2.0 앱이 읽으므로, 콘솔 값에 **실제 줄바꿈**을 넣는다. `\n`을 글자로 적으면 옛 앱에 "\n"이 그대로 보인다. 아래 표의 ⏎ 자리가 줄바꿈이다.
 
 | 키 | 값 |
 | --- | --- |
 | `update_note_version` | 2.3.0 |
-| `update_note_ko` | 이제 기분 15가지와 기분 테마를 고를 수 있어요. |
-| `update_note_en` | You can now pick from 15 moods and mood themes. |
-| `update_note_ja` | 15種類の気分と気分テーマが使えるようになりました。 |
-| `update_note_zh_Hant` | 現在可以選擇 15 種心情和心情主題。 |
-| `update_note_es` | Ahora hay 15 estados de ánimo y temas de ánimo. |
-| `update_note_pt` | Agora você pode escolher entre 15 humores e temas de humor. |
-| `update_note_de` | Jetzt gibt es 15 Stimmungen und Stimmungsthemen. |
-| `update_note_fr` | Nouveau : 15 humeurs et des thèmes d’humeur. |
+| `update_note_ko` | 고를 수 있는 기분이 15가지로 늘었어요. ⏎ 개성 넘치는 기분 테마를 고를 수 있어요. |
+| `update_note_en` | You can now choose from 15 moods. ⏎ Pick a mood theme full of character. |
+| `update_note_ja` | 選べる気分が15種類に増えました。 ⏎ 個性あふれる気分テーマを選べます。 |
+| `update_note_zh_Hant` | 可選的心情增加到 15 種。 ⏎ 可以挑選個性十足的心情主題。 |
+| `update_note_es` | Ahora hay 15 estados de ánimo. ⏎ Elige un tema de ánimo con personalidad. |
+| `update_note_pt` | Agora são 15 humores para escolher. ⏎ Escolha um tema de humor cheio de personalidade. |
+| `update_note_de` | Jetzt gibt es 15 Stimmungen. ⏎ Wähle ein Stimmungsthema mit Charakter. |
+| `update_note_fr` | Choisissez parmi 15 humeurs. ⏎ Optez pour un thème d’humeur plein de caractère. |
 
 ### 2.2.0 (49)
 
