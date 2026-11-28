@@ -137,19 +137,14 @@ private fun MoodCell(mood: Mood, selected: Boolean, pop: Boolean, onClick: () ->
             .semantics { this.selected = selected }
             .clickable(interactionSource = interaction, indication = null, role = Role.Button) {
                 haptic.performHapticFeedback(HapticFeedbackType.SegmentTick)
-                when {
-                    // 튀는 중에 또 누르면 같은 기분을 두 번 골라 풀리지 않게 무시
-                    scale.isRunning -> Unit
-
-                    !pop || selected -> onClick()
-
-                    else ->
-                        // 시트가 바로 닫히면 움직임이 보이지 않아 커지는 순간까지 본 뒤 고름
-                        scope.launch {
-                            scale.animateTo(POP_SCALE, tween(DiaryMotion.EXIT_MILLIS, easing = DiaryMotion.decelerate))
-                            onClick()
-                            scale.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
-                        }
+                // 고르기는 바로 알리고 튀는 움직임은 따로. 시트를 바로 닫아도 고른 기분이 남음
+                val popping = pop && !selected
+                onClick()
+                if (popping) {
+                    scope.launch {
+                        scale.animateTo(POP_SCALE, tween(DiaryMotion.EXIT_MILLIS, easing = DiaryMotion.decelerate))
+                        scale.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
+                    }
                 }
             }
             .padding(horizontal = DiarySpacing.x0_5)

@@ -388,10 +388,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
         Sheet.Mood ->
             MoodSheet(
                 mood = state.mood,
-                onMood = {
-                    vm.selectMood(it)
-                    sheet = null
-                },
+                onMood = vm::selectMood,
                 onClear = {
                     state.mood?.let(vm::selectMood)
                     sheet = null
