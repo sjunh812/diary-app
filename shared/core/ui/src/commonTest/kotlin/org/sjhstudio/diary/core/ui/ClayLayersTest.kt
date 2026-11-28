@@ -15,13 +15,13 @@ class ClayLayersTest {
     @Test
     fun glasses_are_drawn_on_every_mood_but_cool() {
         for (mood in Mood.ordered) {
-            val glasses = look.clayLayers(mood).any { it.art == Res.drawable.clay_glasses }
+            val glasses = look.clayLayers(mood, small = false).any { it.art == Res.drawable.clay_glasses }
             assertEquals(mood != Mood.COOL, glasses, mood.id)
         }
     }
 
     @Test
     fun every_mood_has_a_face_layer() {
-        for (mood in Mood.ordered) assertTrue(look.clayLayers(mood).any { it.tint == null }, mood.id)
+        for (mood in Mood.ordered) assertTrue(look.clayLayers(mood, small = false).any { it.tint == null }, mood.id)
     }
 }

@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
@@ -85,7 +86,8 @@ fun MoodFace(mood: Mood, size: Dp, modifier: Modifier = Modifier, contentDescrip
         ClayFace(look, mood, size, contentDescription, modifier)
         return
     }
-    val art = remember(look, mood, dark) { look.art(mood, dark) }
+    val small = smallArt(size * MOOD_ART_SCALE)
+    val art = remember(look, mood, dark, small) { look.art(mood, dark, small) }
     if (art != null) {
         // 그림 칸이 얼굴 칸보다 커서 얼굴 칸 밖으로 고르게 넘침. 자리는 얼굴 칸만 차지
         Box(modifier.size(size), contentAlignment = Alignment.Center) {
@@ -108,7 +110,8 @@ fun MoodFace(mood: Mood, size: Dp, modifier: Modifier = Modifier, contentDescrip
 @Composable
 private fun ClayFace(look: ShownMoodLook, mood: Mood, size: Dp, contentDescription: String?, modifier: Modifier = Modifier) {
     val hair = DiaryTheme.colors.mood.of(mood)
-    val layers = remember(look, mood) { look.clayLayers(mood) }
+    val small = smallArt(size * MOOD_ART_SCALE)
+    val layers = remember(look, mood, small) { look.clayLayers(mood, small) }
     val tone = look.skin.tone
     Box(
         modifier.size(size).semantics {
@@ -146,12 +149,14 @@ private fun ClayFace(look: ShownMoodLook, mood: Mood, size: Dp, contentDescripti
 fun MoodSilhouette(mood: Mood?, size: Dp, color: Color, modifier: Modifier = Modifier, grow: Dp = Dp.Hairline) {
     val dark = DiaryTheme.colors.canvas.luminance() < DARK_LUMINANCE
     val look = LocalMoodLook.current
+    // 앞 얼굴과 같은 그림을 써서 한 칸에 두 벌을 읽지 않게. 둘레는 몇 dp라 화질 차이가 없음
+    val small = smallArt(size * MOOD_ART_SCALE)
     val arts =
-        remember(look, mood, dark) {
+        remember(look, mood, dark, small) {
             when {
                 mood == null -> emptyList()
-                look.theme == MoodTheme.CLAY -> look.clayLayers(mood).map { it.art }
-                else -> listOfNotNull(look.art(mood, dark))
+                look.theme == MoodTheme.CLAY -> look.clayLayers(mood, small).map { it.art }
+                else -> listOfNotNull(look.art(mood, dark, small))
             }
         }
     // 겹(클레이)이 겹쳐도 진해지지 않게 투명도는 묶음 전체에 한 번만
@@ -335,3 +340,7 @@ val ClaySkin.tone: DiaryClayTone
             ClaySkin.SKIN5 -> DiaryClaySkin.mediumDark
             ClaySkin.SKIN6 -> DiaryClaySkin.dark
         }
+
+/** 이 크기의 그림 칸에 작은 그림(120px)을 쓸지 */
+@Composable
+private fun smallArt(box: Dp): Boolean = with(LocalDensity.current) { box.toPx() } <= SMALL_ART_PX

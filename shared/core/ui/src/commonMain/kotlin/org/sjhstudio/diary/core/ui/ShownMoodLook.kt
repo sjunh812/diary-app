@@ -35,8 +35,9 @@ val LocalMoodLook = staticCompositionLocalOf { ShownMoodLook() }
  * 테마 그림(Figma 시안 · 기분 테마 후보의 라이트·다크 판, 72칸을 240px로 내보냄)
  * 기본 테마는 코드로 그려 null
  * 다크 그림이 따로 있는 테마만 다크 판을 씀
+ * [small]이면 반으로 줄인 120px 그림(`_s`)
  */
-internal fun ShownMoodLook.art(mood: Mood, dark: Boolean): DrawableResource? {
+internal fun ShownMoodLook.art(mood: Mood, dark: Boolean, small: Boolean): DrawableResource? {
     val set =
         when (theme) {
             // 기본은 코드로, 클레이는 겹으로 그림([clayLayers])
@@ -56,8 +57,18 @@ internal fun ShownMoodLook.art(mood: Mood, dark: Boolean): DrawableResource? {
 
             MoodTheme.VEGGIE -> "veggie"
         }
-    return set?.let { Res.allDrawableResources["mood_${it}_${mood.id}"] }
+    return set?.let { moodDrawable("mood_${it}_${mood.id}", small) }
 }
+
+/**
+ * 그림 칸이 이 화소 이하면 작은 그림을 씀
+ * 240px를 한 번에 크게 줄이면 테두리 같은 가는 선이 계단처럼 깨져, 미리 반으로 줄인 그림에서 그림
+ */
+internal const val SMALL_ART_PX = 120f
+
+/** 작은 그림이 없으면 큰 그림 */
+private fun moodDrawable(name: String, small: Boolean): DrawableResource? =
+    Res.allDrawableResources.let { all -> (if (small) all["${name}_s"] else null) ?: all[name] }
 
 /** 테마 그림 칸은 기본 얼굴 원보다 큼. Figma 테마 줄에서 기본 얼굴 23, 그림 칸 28 */
 internal const val MOOD_ART_SCALE = 28f / 23f
@@ -74,15 +85,15 @@ internal data class ClayLayer(val art: DrawableResource, val tint: Tint?)
 internal enum class Tint { HAIR, SKIN, NOSE }
 
 /** 뒤 머리 → 얼굴 피부 → 코 → 앞머리 → 표정 → 안경 차례. 머리 모양마다 없는 겹은 건너뜀 */
-internal fun ShownMoodLook.clayLayers(mood: Mood): List<ClayLayer> {
-    val all = Res.allDrawableResources
+internal fun ShownMoodLook.clayLayers(mood: Mood, small: Boolean): List<ClayLayer> {
+    fun layer(name: String) = moodDrawable(name, small)
     return listOfNotNull(
-        all["clay_back_${hair.id}"]?.let { ClayLayer(it, Tint.HAIR) },
-        all["clay_skin_${hair.id}"]?.let { ClayLayer(it, Tint.SKIN) },
-        all["clay_nose"]?.let { ClayLayer(it, Tint.NOSE) },
-        all["clay_front_${hair.id}"]?.let { ClayLayer(it, Tint.HAIR) },
-        all["clay_face_${mood.id}"]?.let { ClayLayer(it, null) },
+        layer("clay_back_${hair.id}")?.let { ClayLayer(it, Tint.HAIR) },
+        layer("clay_skin_${hair.id}")?.let { ClayLayer(it, Tint.SKIN) },
+        layer("clay_nose")?.let { ClayLayer(it, Tint.NOSE) },
+        layer("clay_front_${hair.id}")?.let { ClayLayer(it, Tint.HAIR) },
+        layer("clay_face_${mood.id}")?.let { ClayLayer(it, null) },
         // 쿨은 표정에 선글라스가 있어 안경을 겹치지 않음
-        all["clay_glasses"]?.takeIf { glasses && mood != Mood.COOL }?.let { ClayLayer(it, null) }
+        layer("clay_glasses")?.takeIf { glasses && mood != Mood.COOL }?.let { ClayLayer(it, null) }
     )
 }

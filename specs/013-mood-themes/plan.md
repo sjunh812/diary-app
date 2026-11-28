@@ -14,7 +14,7 @@ DB 스키마는 그대로다. 기분 칸이 이미 글자 id라 새 값이 그�
 
 
 - 축은 스펙 001과 같다(Kotlin, CMP, Koin, DataStore, Room). 새 라이브러리는 없다.
-- 그림: Figma 72칸 판을 240px webp로 내보내 `shared/core/ui/src/commonMain/composeResources/drawable/mood_<테마>_<기분>.webp`에 둔다. 클레이는 겹 webp를 앱에서 쌓는다(`ShownMoodLook.clayLayers`). 기본 테마만 코드 경로(`DiaryMoodFace`)다.
+- 그림: Figma 72칸 판을 240px webp로 내보내 `shared/core/ui/src/commonMain/composeResources/drawable/mood_<테마>_<기분>.webp`에 둔다. 그림마다 정확히 반으로 줄인 120px 짝(`_s`, `scripts/mood-art/make_small.py`)을 두고 그림 칸이 120px 이하면 그것을 쓴다(240px를 한 번에 줄이면 테두리 테마의 검은 원이 계단처럼 깨졌다. 밉맵은 Android Compose 경로에서 쓰이지 않아 효과가 없었다, 2026-11-28). 클레이는 겹 webp를 앱에서 쌓는다(`ShownMoodLook.clayLayers`). 기본 테마만 코드 경로(`DiaryMoodFace`)다.
 - 질감: 그림 파일에 들어 있어 따로 그리지 않는다.
 - (2026-11-28 바뀜) 처음 계획한 SVG 생성기(`scripts/mood/make_mood_art.py`), `ImageVector` 캐시, 질감 타일은 하지 않았다. 질감·속 그림자를 경로로 옮기지 못해서다(contracts/mood-art.md 머리글, `docs/DECISIONS.md` 2026-11-28).
 - 움직임: `graphicsLayer` 한 가지 움직임을 테마가 고름, `rememberReduceMotion()`을 따름.

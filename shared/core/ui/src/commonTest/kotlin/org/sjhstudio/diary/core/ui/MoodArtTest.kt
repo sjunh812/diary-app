@@ -1,6 +1,8 @@
 package org.sjhstudio.diary.core.ui
 
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -20,8 +22,12 @@ class MoodArtTest {
             for (sticker in listOf(false, true)) {
                 for (dark in listOf(false, true)) {
                     for (mood in Mood.ordered) {
-                        val art = ShownMoodLook(theme, sticker = sticker).art(mood, dark)
-                        assertNotNull(art, "${theme.id} sticker=$sticker dark=$dark ${mood.id}")
+                        val look = ShownMoodLook(theme, sticker = sticker)
+                        val large = look.art(mood, dark, small = false)
+                        val small = look.art(mood, dark, small = true)
+                        assertNotNull(large, "${theme.id} sticker=$sticker dark=$dark ${mood.id}")
+                        // 작은 칸용 그림이 빠지면 그 기분만 큰 그림을 줄여 테두리가 깨짐
+                        assertNotEquals(large, small, "${theme.id} sticker=$sticker dark=$dark ${mood.id} small")
                     }
                 }
             }
@@ -31,8 +37,8 @@ class MoodArtTest {
     @Test
     fun basic_and_clay_are_not_single_pictures() {
         for (mood in Mood.ordered) {
-            assertNull(ShownMoodLook(MoodTheme.BASIC).art(mood, false))
-            assertNull(ShownMoodLook(MoodTheme.CLAY).art(mood, false))
+            assertNull(ShownMoodLook(MoodTheme.BASIC).art(mood, false, small = false))
+            assertNull(ShownMoodLook(MoodTheme.CLAY).art(mood, false, small = false))
         }
     }
 
@@ -41,7 +47,11 @@ class MoodArtTest {
         val all = Res.allDrawableResources
         for (hair in ClayHair.entries) {
             for (mood in Mood.ordered) {
-                val layers = ShownMoodLook(MoodTheme.CLAY, hair = hair).clayLayers(mood)
+                val look = ShownMoodLook(MoodTheme.CLAY, hair = hair, glasses = true)
+                val layers = look.clayLayers(mood, small = false)
+                val smallLayers = look.clayLayers(mood, small = true)
+                assertEquals(layers.size, smallLayers.size, "${hair.id} ${mood.id} small count")
+                assertTrue(layers.zip(smallLayers).none { (large, small) -> large.art == small.art }, "${hair.id} ${mood.id} small")
                 assertTrue(layers.any { it.tint == Tint.SKIN }, "${hair.id} skin")
                 assertTrue(layers.any { it.tint == Tint.HAIR }, "${hair.id} hair")
                 assertTrue(layers.any { it.tint == Tint.NOSE }, "${hair.id} nose")
