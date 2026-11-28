@@ -48,7 +48,7 @@
     <string name="plus_format_title">Garder la mise en forme</string>
     <string name="plus_format_body">Le gras, le soulignement, la couleur du texte et le surlignage s’affichent aussi dans la liste.</string>
     <string name="plus_theme_title">Couleur du thème personnalisée</string>
-    <string name="plus_theme_body">Choisissez la couleur de votre choix pour le thème de l’app.</string>
+    <string name="plus_theme_body">Choisissez la couleur de votre choix comme couleur du thème.</string>
     <string name="plus_mood_theme_title">Thèmes d’humeur</string>
-    <string name="plus_mood_theme_body">Utilisez des thèmes d’humeur variés et pleins de caractère. Personnalisez vos Visages en pâte.</string>
+    <string name="plus_mood_theme_body">Utilisez des thèmes d’humeur variés et pleins de caractère.</string>
 </resources>

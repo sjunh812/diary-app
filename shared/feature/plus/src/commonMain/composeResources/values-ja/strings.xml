@@ -48,7 +48,7 @@
     <string name="plus_format_title">書式をそのまま表示</string>
     <string name="plus_format_body">一覧でも太字、下線、文字色、マーカーがそのまま表示されます。</string>
     <string name="plus_theme_title">テーマカラーのカスタム</string>
-    <string name="plus_theme_body">好きな色を選んでアプリのテーマにできます。</string>
+    <string name="plus_theme_body">好きな色を自分で選んで、テーマカラーにできます。</string>
     <string name="plus_mood_theme_title">気分テーマ</string>
-    <string name="plus_mood_theme_body">個性あふれるさまざまな気分テーマを使えます。ねんどの顔は自分好みに変えられます。</string>
+    <string name="plus_mood_theme_body">個性あふれるさまざまな気分テーマを使えます。</string>
 </resources>
