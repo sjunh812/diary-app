@@ -30,6 +30,9 @@ object DiaryIcons {
     val ChevronLeft: ImageVector by lazy { lucide("chevron-left", "m15 18-6-6 6-6") }
     val ChevronRight: ImageVector by lazy { lucide("chevron-right", "m9 18 6-6-6-6") }
     val Check: ImageVector by lazy { lucide("check", "M20 6 9 17l-5-5") }
+
+    /** 고름 표시 체크. 고른 탭처럼 선을 2.25로 굵게(Figma icon/check) */
+    val CheckSelected: ImageVector by lazy { lucide("check-selected", "M20 6 9 17l-5-5", strokeWidth = SELECTED_STROKE) }
     val Close: ImageVector by lazy { lucide("x", "M18 6 6 18", "m6 6 12 12") }
     val CircleCheck: ImageVector by lazy { lucide("circle-check", CIRCLE, "m16 9-5.5 5.5L8 12") }
     val CircleAlert: ImageVector by lazy { lucide("circle-alert", CIRCLE, "M12 8L12 12", "M12 16L12.01 16") }
@@ -536,3 +539,6 @@ object DiaryIcons {
         return builder.build()
     }
 }
+
+/** 고른 것을 나타내는 아이콘 선 굵기(고른 탭과 같음) */
+private const val SELECTED_STROKE = 2.25f

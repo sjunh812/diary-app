@@ -309,7 +309,14 @@ fun DiarySettingsChoiceRow(
         title = title,
         description = description
     ) {
-        if (selected) DiaryIcon(DiaryIcons.Check, contentDescription = null, tint = DiaryTheme.colors.accentText)
+        if (selected) {
+            DiaryIcon(
+                DiaryIcons.CheckSelected,
+                contentDescription = null,
+                tint = DiaryTheme.colors.accentText,
+                size = DiaryIconSize.i20
+            )
+        }
     }
 }
 
@@ -350,7 +357,7 @@ fun DiarySettingsChoiceRow(
         Box(Modifier.weight(1f).clearAndSetSemantics {}) { title() }
         when {
             trailing != null -> trailing()
-            selected -> DiaryIcon(DiaryIcons.Check, contentDescription = null, tint = colors.accentText)
+            selected -> DiaryIcon(DiaryIcons.CheckSelected, contentDescription = null, tint = colors.accentText, size = DiaryIconSize.i20)
         }
     }
 }
