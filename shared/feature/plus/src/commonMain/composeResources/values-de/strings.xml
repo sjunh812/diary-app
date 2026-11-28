@@ -50,5 +50,6 @@
     <string name="plus_theme_title">Eigene Designfarbe</string>
     <string name="plus_theme_body">Wähle eine beliebige Farbe und nutze sie als Designfarbe.</string>
     <string name="plus_mood_theme_title">Stimmungsthemen</string>
+    <string name="plus_new_tag">Neu</string>
     <string name="plus_mood_theme_body">Nutze vielfältige Stimmungsthemen mit Charakter.</string>
 </resources>

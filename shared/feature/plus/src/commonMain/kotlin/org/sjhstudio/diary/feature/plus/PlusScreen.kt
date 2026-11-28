@@ -50,6 +50,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsValueRow
+import org.sjhstudio.diary.core.designsystem.component.DiaryTag
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
@@ -93,6 +94,7 @@ import org.sjhstudio.diary.feature.plus.resources.plus_manage_title
 import org.sjhstudio.diary.feature.plus.resources.plus_manage_top
 import org.sjhstudio.diary.feature.plus.resources.plus_mood_theme_body
 import org.sjhstudio.diary.feature.plus.resources.plus_mood_theme_title
+import org.sjhstudio.diary.feature.plus.resources.plus_new_tag
 import org.sjhstudio.diary.feature.plus.resources.plus_no_store
 import org.sjhstudio.diary.feature.plus.resources.plus_notice
 import org.sjhstudio.diary.feature.plus.resources.plus_others_in_all
@@ -126,7 +128,8 @@ private const val ART_TINT = 0.4f
  * 이미 Plus면 관리 화면(US3)
  */
 @Composable
-fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier, from: PlusBenefit? = null) {
+fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier, from: PlusBenefit? = null, appVersion: String = "") {
+    val newBenefits = remember(appVersion) { newBenefitsIn(appVersion) }
     val viewModel = koinViewModel<PlusViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val plan by viewModel.plan.collectAsStateWithLifecycle()
@@ -180,6 +183,7 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier, from: PlusBene
                 onAdFree = { adFreeSheet = true },
                 onLink = openWeb,
                 from = from,
+                newBenefits = newBenefits,
                 onSeeAll = { allBenefits = true }
             )
         }
@@ -190,7 +194,7 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier, from: PlusBene
         )
     }
     if (adFreeSheet) AdFreeSheet(onDismiss = { adFreeSheet = false })
-    if (allBenefits) AllBenefitsSheet(onDismiss = { allBenefits = false })
+    if (allBenefits) AllBenefitsSheet(onDismiss = { allBenefits = false }, newBenefits = newBenefits)
 }
 
 /**
@@ -217,6 +221,7 @@ internal fun PaywallScreen(
     onAdFree: () -> Unit = {},
     onLink: (String) -> Unit = {},
     from: PlusBenefit? = null,
+    newBenefits: Set<PlusBenefit> = emptySet(),
     onSeeAll: () -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
@@ -247,12 +252,12 @@ internal fun PaywallScreen(
                         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x8, Alignment.CenterVertically)
                     ) {
                         PlusArt(DiaryArtSize.banner)
-                        PaywallBenefits(adFreeOwned, from, onSeeAll)
+                        PaywallBenefits(adFreeOwned, from, newBenefits, onSeeAll)
                         PaywallBuy(price, loading, busy, onRetry, onBuy, adFreeOwned, onAdFree, onLink, Modifier.fillMaxWidth())
                     }
                 }
             } else {
-                PaywallTop(adFreeOwned, from, onSeeAll, column.weight(1f))
+                PaywallTop(adFreeOwned, from, newBenefits, onSeeAll, column.weight(1f))
                 // 약관 링크는 자동 갱신 고지 바로 아래(스펙 008 FR-021)
                 PaywallBuy(
                     price,
@@ -301,14 +306,14 @@ private fun PlusArt(height: Dp, modifier: Modifier = Modifier) {
  * 그림은 늘 보임. 글을 놓고 남는 높이만큼 키우고, 자리가 모자라면 최소 높이로 두고 내용이 스크롤됨
  */
 @Composable
-private fun PaywallTop(adFreeOwned: Boolean, from: PlusBenefit?, onSeeAll: () -> Unit, modifier: Modifier) {
+private fun PaywallTop(adFreeOwned: Boolean, from: PlusBenefit?, newBenefits: Set<PlusBenefit>, onSeeAll: () -> Unit, modifier: Modifier) {
     BoxWithConstraints(modifier) {
         val room = maxHeight
         val scroll = rememberScrollState()
         // 짧은 화면에서는 혜택 아래가 가려짐. 끝을 흐려 더 있다는 것을 보임
         SubcomposeLayout(Modifier.fillMaxWidth().diaryScrollFade(scroll, DiaryTheme.colors.canvas).verticalScroll(scroll)) { constraints ->
             val width = constraints.copy(minHeight = 0)
-            val text = subcompose("text") { PaywallBenefits(adFreeOwned, from, onSeeAll) }.map { it.measure(width) }
+            val text = subcompose("text") { PaywallBenefits(adFreeOwned, from, newBenefits, onSeeAll) }.map { it.measure(width) }
             val textHeight = text.sumOf { it.height }
             val gap = DiarySpacing.x6.roundToPx()
             val top = DiarySpacing.x2.roundToPx()
@@ -330,7 +335,7 @@ private fun PaywallTop(adFreeOwned: Boolean, from: PlusBenefit?, onSeeAll: () ->
  * [모두 보기]는 모든 혜택을 설명과 함께 시트로 보임
  */
 @Composable
-private fun PaywallBenefits(adFreeOwned: Boolean, from: PlusBenefit?, onSeeAll: () -> Unit) {
+private fun PaywallBenefits(adFreeOwned: Boolean, from: PlusBenefit?, newBenefits: Set<PlusBenefit>, onSeeAll: () -> Unit) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
     Column(Modifier.fillMaxWidth()) {
@@ -339,7 +344,7 @@ private fun PaywallBenefits(adFreeOwned: Boolean, from: PlusBenefit?, onSeeAll: 
         CoreBenefits()
         enteredOther(from)?.let {
             Spacer(Modifier.height(DiarySpacing.x6))
-            OtherBenefit(it)
+            OtherBenefit(it, new = it in newBenefits)
         }
         Spacer(Modifier.height(DiarySpacing.x6))
         // 다른 혜택은 목록 대신 [모두 보기]로 이끔
@@ -381,7 +386,7 @@ private fun BenefitsHeader(title: String, style: TextStyle, onSeeAll: () -> Unit
 
 /** 들어온 다른 혜택 한 줄. 핵심보다 가볍게 체크와 이름만 */
 @Composable
-private fun OtherBenefit(benefit: PlusBenefit) {
+private fun OtherBenefit(benefit: PlusBenefit, new: Boolean) {
     val colors = DiaryTheme.colors
     Row(
         Modifier.padding(start = DiarySpacing.x2),
@@ -389,7 +394,16 @@ private fun OtherBenefit(benefit: PlusBenefit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         DiaryIcon(DiaryIcons.Check, contentDescription = null, tint = colors.accentText, size = DiaryIconSize.i20)
-        PhraseText(stringResource(benefit.title), style = DiaryTheme.typography.body.copy(color = colors.textPrimary))
+        BenefitName(benefit, DiaryTheme.typography.body.copy(color = colors.textPrimary), new)
+    }
+}
+
+/** 혜택 이름. 새로 나온 혜택은 옆에 회색 "새 기능" 꼬리표 */
+@Composable
+private fun BenefitName(benefit: PlusBenefit, style: TextStyle, new: Boolean) {
+    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5), verticalAlignment = Alignment.CenterVertically) {
+        PhraseText(stringResource(benefit.title), style = style)
+        if (new) DiaryTag(stringResource(Res.string.plus_new_tag))
     }
 }
 
@@ -457,10 +471,10 @@ private fun CoreBenefits() {
 
 /** 모든 혜택. 묶음 머리 없이 핵심 → 다른 혜택(스펙 008 FR-019) */
 @Composable
-internal fun AllBenefitsSheet(onDismiss: () -> Unit) {
+internal fun AllBenefitsSheet(onDismiss: () -> Unit, newBenefits: Set<PlusBenefit> = emptySet()) {
     DiaryBottomSheet(onDismiss, title = stringResource(Res.string.plus_all_title)) {
         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x5)) {
-            PlusBenefit.entries.forEach { OwnedBenefit(it) }
+            PlusBenefit.entries.forEach { OwnedBenefit(it, new = it in newBenefits) }
         }
     }
 }
@@ -532,7 +546,7 @@ internal fun PlusManageScreen(
  * 무엇을 받는지 한 문장으로 덧붙임
  */
 @Composable
-private fun OwnedBenefit(benefit: PlusBenefit) {
+private fun OwnedBenefit(benefit: PlusBenefit, new: Boolean = false) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
     Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3), verticalAlignment = Alignment.CenterVertically) {
@@ -543,7 +557,7 @@ private fun OwnedBenefit(benefit: PlusBenefit) {
             DiaryIcon(benefit.icon, contentDescription = null, tint = colors.accentText, size = DiaryIconSize.i20)
         }
         Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
-            PhraseText(stringResource(benefit.title), style = typography.bodyStrong.copy(color = colors.textPrimary))
+            BenefitName(benefit, typography.bodyStrong.copy(color = colors.textPrimary), new)
             PhraseText(stringResource(benefit.body), style = typography.caption.copy(color = colors.textSecondary))
         }
     }

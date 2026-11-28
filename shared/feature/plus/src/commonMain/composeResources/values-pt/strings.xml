@@ -50,5 +50,6 @@
     <string name="plus_theme_title">Cor do tema personalizada</string>
     <string name="plus_theme_body">Escolha a cor que quiser e use como cor do tema.</string>
     <string name="plus_mood_theme_title">Temas de humor</string>
+    <string name="plus_new_tag">Novo</string>
     <string name="plus_mood_theme_body">Use temas de humor variados e cheios de personalidade.</string>
 </resources>

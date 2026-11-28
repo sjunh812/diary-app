@@ -50,5 +50,6 @@
     <string name="plus_theme_title">테마 색 커스텀</string>
     <string name="plus_theme_body">원하는 색을 직접 골라 테마 색으로 쓸 수 있어요.</string>
     <string name="plus_mood_theme_title">기분 테마</string>
+    <string name="plus_new_tag">새 기능</string>
     <string name="plus_mood_theme_body">개성 넘치는 다양한 기분 테마를 사용할 수 있어요.</string>
 </resources>

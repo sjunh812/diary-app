@@ -50,5 +50,6 @@
     <string name="plus_theme_title">Color de tema personalizado</string>
     <string name="plus_theme_body">Elige el color que quieras y úsalo como color de tema.</string>
     <string name="plus_mood_theme_title">Temas de ánimo</string>
+    <string name="plus_new_tag">Nuevo</string>
     <string name="plus_mood_theme_body">Usa temas de ánimo variados y llenos de personalidad.</string>
 </resources>

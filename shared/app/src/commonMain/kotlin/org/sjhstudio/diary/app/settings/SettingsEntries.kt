@@ -200,7 +200,9 @@ fun EntryProviderScope<NavKey>.settingsEntries(
     }
     entry<RestoreProgressKey> { RestoreProgressRoute(onHome = home, onLock = { push(LockSettingsKey) }, onPickOther = pop) }
     entry<TrashKey>(metadata = SettingsDetailPane) { TrashRoute(onBack = pop) }
-    entry<PlusKey>(metadata = FullScreenEntry) { key -> PlusRoute(onClose = pop, from = key.from) }
+    entry<PlusKey>(metadata = FullScreenEntry) { key ->
+        PlusRoute(onClose = pop, from = key.from, appVersion = koinInject<BackupAppInfo>().versionName)
+    }
     entry<LetterKey> {
         val letter by koinViewModel<LetterViewModel>().letter.collectAsStateWithLifecycle()
         val app = koinInject<BackupAppInfo>()

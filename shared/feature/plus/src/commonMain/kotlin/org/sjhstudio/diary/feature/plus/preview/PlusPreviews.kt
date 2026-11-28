@@ -60,13 +60,34 @@ private fun PaywallFromFormatting() = DiaryTheme(darkTheme = false) {
     PaywallScreen(won("14,900", 14_900).label(), false, false, false, {}, {}, {}, {}, from = PlusBenefit.LIST_FORMATTING)
 }
 
+@Preview(name = "결제 화면 · 새 기능 기분 테마에서 옴", locale = "ko")
+@Composable
+private fun PaywallFromNewMoodTheme() = DiaryTheme(darkTheme = false) {
+    PaywallScreen(
+        won("14,900", 14_900).label(),
+        false,
+        false,
+        false,
+        {},
+        {},
+        {},
+        {},
+        from = PlusBenefit.MOOD_THEME,
+        newBenefits = setOf(PlusBenefit.MOOD_THEME)
+    )
+}
+
 @Preview(name = "모든 혜택 시트", locale = "ko")
 @Composable
-private fun AllBenefitsLight() = DiaryTheme(darkTheme = false) { AllBenefitsSheet {} }
+private fun AllBenefitsLight() = DiaryTheme(darkTheme = false) {
+    AllBenefitsSheet(onDismiss = {}, newBenefits = setOf(PlusBenefit.MOOD_THEME))
+}
 
 @Preview(name = "모든 혜택 시트 · 다크", locale = "ko")
 @Composable
-private fun AllBenefitsDark() = DiaryTheme(darkTheme = true) { AllBenefitsSheet {} }
+private fun AllBenefitsDark() = DiaryTheme(darkTheme = true) {
+    AllBenefitsSheet(onDismiss = {}, newBenefits = setOf(PlusBenefit.MOOD_THEME))
+}
 
 @Preview(name = "광고 제거 시트", locale = "ko")
 @Composable

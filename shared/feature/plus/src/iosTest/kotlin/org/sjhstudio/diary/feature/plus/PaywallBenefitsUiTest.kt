@@ -16,6 +16,8 @@ import org.sjhstudio.diary.feature.plus.resources.Res
 import org.sjhstudio.diary.feature.plus.resources.plus_checklist_title
 import org.sjhstudio.diary.feature.plus.resources.plus_coming
 import org.sjhstudio.diary.feature.plus.resources.plus_format_title
+import org.sjhstudio.diary.feature.plus.resources.plus_mood_theme_title
+import org.sjhstudio.diary.feature.plus.resources.plus_new_tag
 import org.sjhstudio.diary.feature.plus.resources.plus_others_in_all
 import org.sjhstudio.diary.feature.plus.resources.plus_see_all
 
@@ -24,16 +26,20 @@ import org.sjhstudio.diary.feature.plus.resources.plus_see_all
 class PaywallBenefitsUiTest {
     private fun text(res: StringResource) = runBlocking { getString(res) }
 
-    private fun run(from: PlusBenefit?, check: ComposeUiTest.(MutableList<Unit>) -> Unit) = runComposeUiTest {
-        val seeAll = mutableListOf<Unit>()
-        setContent {
-            DiaryTheme(darkTheme = false) {
-                PaywallScreen("₩14,900", false, false, false, {}, {}, {}, {}, from = from, onSeeAll = { seeAll += Unit })
+    private fun run(from: PlusBenefit?, newBenefits: Set<PlusBenefit> = emptySet(), check: ComposeUiTest.(MutableList<Unit>) -> Unit) =
+        runComposeUiTest {
+            val seeAll = mutableListOf<Unit>()
+            setContent {
+                DiaryTheme(darkTheme = false) {
+                    PaywallScreen("₩14,900", false, false, false, {}, {}, {}, {}, from = from, newBenefits = newBenefits, onSeeAll = {
+                        seeAll +=
+                            Unit
+                    })
+                }
             }
+            waitForIdle()
+            check(seeAll)
         }
-        waitForIdle()
-        check(seeAll)
-    }
 
     @Test
     fun other_benefits_point_to_see_all_without_list() = run(from = null) {
@@ -55,5 +61,16 @@ class PaywallBenefitsUiTest {
         onNodeWithText(text(Res.string.plus_see_all)).performClick()
         waitForIdle()
         assertEquals(1, seeAll.size)
+    }
+
+    @Test
+    fun a_new_benefit_entry_shows_the_new_tag() = run(from = PlusBenefit.MOOD_THEME, newBenefits = setOf(PlusBenefit.MOOD_THEME)) {
+        onNodeWithText(text(Res.string.plus_mood_theme_title)).assertIsDisplayed()
+        onNodeWithText(text(Res.string.plus_new_tag)).assertIsDisplayed()
+    }
+
+    @Test
+    fun an_older_benefit_has_no_new_tag() = run(from = PlusBenefit.LIST_FORMATTING, newBenefits = setOf(PlusBenefit.MOOD_THEME)) {
+        onNodeWithText(text(Res.string.plus_new_tag)).assertDoesNotExist()
     }
 }

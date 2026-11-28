@@ -50,5 +50,6 @@
     <string name="plus_theme_title">Custom theme color</string>
     <string name="plus_theme_body">Pick any color you like and use it as your theme color.</string>
     <string name="plus_mood_theme_title">Mood themes</string>
+    <string name="plus_new_tag">New</string>
     <string name="plus_mood_theme_body">Use a variety of mood themes full of character.</string>
 </resources>

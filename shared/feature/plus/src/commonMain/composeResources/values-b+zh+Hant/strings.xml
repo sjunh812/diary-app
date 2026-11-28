@@ -50,5 +50,6 @@
     <string name="plus_theme_title">自訂主題顏色</string>
     <string name="plus_theme_body">可以自己挑選喜歡的顏色當作主題顏色。</string>
     <string name="plus_mood_theme_title">心情主題</string>
+    <string name="plus_new_tag">新功能</string>
     <string name="plus_mood_theme_body">可以使用各種個性十足的心情主題。</string>
 </resources>
