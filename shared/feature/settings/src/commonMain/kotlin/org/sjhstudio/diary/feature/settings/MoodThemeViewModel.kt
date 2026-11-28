@@ -32,7 +32,8 @@ class MoodThemeViewModel(
     plans: PlanRepository,
     private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
 ) : ViewModel() {
-    // 이미 아는 요금제부터, 모르면 기다리다 끝내 모르면 잠시 뒤 지금 값. 들어올 때마다 잠금 표시가 깜빡이지 않게
+    // 아는 요금제를 먼저 쓰고, 모르면 확정될 때까지 기다림
+    // 들어올 때 잠금 표시 깜빡임 방지
     private val settledPlan: Flow<Plan?> =
         merge<Plan?>(plans.confirmed.filterNotNull(), flow { emit(plans.awaitConfirmed()) }).onStart { emit(plans.confirmedNow) }
 

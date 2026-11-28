@@ -66,7 +66,7 @@ fun DiaryMoodGrid(
     isSelected: (Mood) -> Boolean,
     onToggle: (Mood) -> Unit,
     modifier: Modifier = Modifier,
-    /** 고를 때 얼굴이 한 번 통 튐(쓰기 시트만, 스펙 013 US5). 동작 줄이기면 움직이지 않음 */
+    /** 고를 때 얼굴이 한 번 커졌다 돌아옴(쓰기 시트만). 동작 줄이기면 움직이지 않음 */
     popOnSelect: Boolean = false
 ) {
     val pop = popOnSelect && !rememberReduceMotion()

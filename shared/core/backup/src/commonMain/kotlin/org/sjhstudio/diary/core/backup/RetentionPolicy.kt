@@ -7,7 +7,7 @@ package org.sjhstudio.diary.core.backup
 data class RetainedBackup(val name: String, val createdAt: Long, val month: String)
 
 /**
- * 이 기기의 끝까지 된 백업 중 최근 5개와, 그보다 옛것은 백업이 있는 최근 12개 달마다 가장 늦은 1개를 남김(FR-010)
+ * 이 기기에서 끝난 백업 중 최근 5개와, 그 전 백업은 백업이 있는 최근 12개 달마다 마지막 1개를 남김
  * 한 기기에 많아야 17개라 일기가 많아도 드라이브에 끝없이 쌓이지 않음
  * 달 수는 달력이 아니라 백업이 있는 달로 셈. 한동안 쉬었다 다시 써도 되돌아갈 시점이 남음
  */

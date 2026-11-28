@@ -41,7 +41,7 @@ enum class Mood(
 
 /**
  * 기분 고르기 묶음. 시트 제목 "기분은 어땠나요?"에 답하는 이름을 붙임
- * 마음·몸 묶음은 통계에서 모두 힘든 기분. 묶음 안은 색 차례
+ * 마음·몸 묶음은 통계에서 모두 부정적인 기분. 묶음 안은 색 차례
  */
 enum class MoodGroup(val moods: List<Mood>) {
     GOOD(listOf(Mood.EXCITED, Mood.GOOD, Mood.LAUGH, Mood.PROUD, Mood.CALM)),

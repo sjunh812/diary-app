@@ -39,7 +39,7 @@ data class Manifest(
         /** 묶음 파일 형식. 스냅샷을 그대로 담아 옛 앱도 읽게 2로 둠 */
         private const val BUNDLE_FORMAT_VERSION = 2
 
-        /** 새 6종 기분이 든 백업. 옛 앱이 새 기분을 "기분 없음"으로 읽고 고쳐 저장하면 지워져 막게 함 */
+        /** 새 6종 기분이 든 백업. 옛 앱이 새 기분을 "기분 없음"으로 읽어 수정 저장 때 지우지 않게 형식을 올림 */
         private const val NEW_MOODS_FORMAT_VERSION = 4
 
         /** 드라이브 백업에 적는 형식. 새 기분이 없으면 옛 앱도 읽게 3 */

@@ -223,7 +223,7 @@ private fun MoodThemeRow(theme: MoodTheme, look: MoodLook, selected: Boolean, lo
 /**
  * 고름 표시(TDS Checkbox.Line, SEED Checkbox ghost)
  * 자리는 24로 두어 이름 글줄을 맞추고 체크는 20(SEED 큰 칸 24에 체크 18)
- * 원을 줄마다 두면 아홉 줄에 회색 원이 되풀이돼 고른 줄만 색을 바꿈
+ * 줄마다 원을 두면 회색 원이 되풀이돼 고른 줄만 색을 바꿈
  */
 @Composable
 private fun ChoiceMark(selected: Boolean) {
