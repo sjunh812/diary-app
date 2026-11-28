@@ -503,7 +503,7 @@ Remote Config 업데이트 요약 초안(새 버전이 스토어에 열린 뒤 �
 | 키 | 값 |
 | --- | --- |
 | `update_note_version` | 2.3.0 |
-| `update_note_ko` | 이제 기분 15가지와 기분 테마를 쓸 수 있어요. |
+| `update_note_ko` | 이제 기분 15가지와 기분 테마를 고를 수 있어요. |
 | `update_note_en` | You can now pick from 15 moods and mood themes. |
 | `update_note_ja` | 15種類の気分と気分テーマが使えるようになりました。 |
 | `update_note_zh_Hant` | 現在可以選擇 15 種心情和心情主題。 |
