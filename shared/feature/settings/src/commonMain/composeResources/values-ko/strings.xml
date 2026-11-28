@@ -185,7 +185,7 @@
     <string name="mood_theme_sticker">스티커 효과</string>
     <string name="mood_theme_clay_custom">꾸미기</string>
     <string name="mood_theme_clay_tag">머리·피부톤·안경 꾸미기</string>
-    <string name="clay_preview_note">기분 15가지를 이 얼굴로 볼 수 있어요. 머리색은 기분마다 달라요.</string>
+    <string name="clay_preview_note">기분 15가지 모두 이 얼굴로 보여요. 머리색은 기분마다 달라요.</string>
     <string name="clay_hair_title">머리 스타일</string>
     <string name="clay_skin_title">피부톤</string>
     <string name="clay_glasses">안경</string>
@@ -200,11 +200,11 @@
     <string name="clay_hair_buzz">버즈컷</string>
     <string name="clay_skin_1">아주 밝음</string>
     <string name="clay_skin_2">밝음</string>
-    <string name="clay_skin_3">연한</string>
+    <string name="clay_skin_3">조금 밝음</string>
     <string name="clay_skin_4">중간</string>
-    <string name="clay_skin_5">짙은</string>
-    <string name="clay_skin_6">깊은</string>
+    <string name="clay_skin_5">조금 어두움</string>
+    <string name="clay_skin_6">어두움</string>
     <string name="mood_theme_preview_body">Plus에서는 기분을 이 테마로 볼 수 있어요.</string>
-    <string name="mood_theme_sticker_body">흰 테두리와 그림자를 붙여요.</string>
+    <string name="mood_theme_sticker_body">얼굴에 흰 테두리와 그림자를 넣어요.</string>
     <string name="clay_look_value">%1$s · %2$s</string>
 </resources>

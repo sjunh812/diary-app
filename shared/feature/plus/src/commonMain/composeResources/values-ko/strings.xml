@@ -50,5 +50,5 @@
     <string name="plus_theme_title">테마 색</string>
     <string name="plus_theme_body">원하는 색을 골라 앱 테마로 쓸 수 있어요.</string>
     <string name="plus_mood_theme_title">기분 테마</string>
-    <string name="plus_mood_theme_body">기분 얼굴을 다른 그림으로 바꿀 수 있어요. 직접 꾸미는 테마도 있어요.</string>
+    <string name="plus_mood_theme_body">테마 4가지를 더 쓸 수 있어요. 클레이 얼굴은 직접 꾸밀 수 있어요.</string>
 </resources>
