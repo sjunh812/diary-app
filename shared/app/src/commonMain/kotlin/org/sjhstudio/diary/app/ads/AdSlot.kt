@@ -49,6 +49,10 @@ enum class AdShape { Row, Card }
 @Composable
 internal expect fun NativeAdCard(key: String, shape: AdShape, frame: @Composable (ad: @Composable () -> Unit) -> Unit)
 
+/** 이 자리가 화면에 있고 앱이 앞에 있는 동안 아직 답하지 않은 사람에게 광고 동의 창을 띄움 */
+@Composable
+internal expect fun AskConsentWhileShown(key: String)
+
 /**
  * 홈과 돌아보기의 광고 자리
  * [showAds]는 앱 틀이 들고 있는 값. 화면이 새로 그려져도 처음부터 광고 자리를 둠
@@ -89,6 +93,8 @@ internal fun AdRemovalSheets(viewModel: AdRemovalViewModel) {
                 title = stringResource(Res.string.reward_title),
                 description = stringResource(Res.string.reward_body)
             ) {
+                // 영상을 기다리는 동안만 동의 창을 원함. 앱이 뒤에 갔다 오면 다시 물음
+                if (state.watching) AskConsentWhileShown(REWARD_ASKER)
                 DiaryButtonPair(
                     secondary = stringResource(Res.string.reward_close),
                     onSecondary = viewModel::dismiss,
@@ -129,3 +135,5 @@ internal fun RewardNotSavedNotice(viewModel: AdRemovalViewModel, toast: DiaryToa
         }
     }
 }
+
+private const val REWARD_ASKER = "reward"

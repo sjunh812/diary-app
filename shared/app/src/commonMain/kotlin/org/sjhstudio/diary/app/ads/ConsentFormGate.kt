@@ -7,7 +7,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * 광고 동의 창을 띄울 때를 정함(`docs/business.md` 광고 동의)
- * 창은 미리 받아 두고, 목록 광고 자리가 화면에 있는 동안만 띄움
+ * 창은 미리 받아 두고, 목록 광고 자리나 보상 영상 시트가 화면에 있는 동안만 띄움
+ * 앱이 뒤에 있어 못 띄운 창은 앞으로 돌아와 다시 물을 때 띄움
  * 받는 사이 상세·작성 화면으로 넘어가면 그 화면 위에 뜨지 않게(헌법 III)
  * 화면 스레드에서만 부름
  *
@@ -45,35 +46,29 @@ class ConsentFormGate(
         finish()
     }
 
-    /** 목록 광고 자리가 화면에 나옴 */
+    /** 광고 자리나 보상 영상 시트가 화면에 나옴 */
     fun ask(asker: String) {
         askers += asker
         showIfWanted()
     }
 
-    /** 목록 광고 자리가 화면에서 사라지거나 앱이 뒤로 감 */
+    /** 광고 자리나 시트가 화면에서 사라지거나 앱이 뒤로 감 */
     fun stopAsking(asker: String) {
         askers -= asker
     }
 
     /**
      * 사용자가 눌러 광고를 부를 때(보상형). 답하거나 창을 못 받을 때까지 기다림
-     * 기다리다 취소되면 묻기도 거둠. 다른 화면으로 넘어간 뒤 창이 뜨지 않게
+     * 창은 시트가 화면에 있을 때만 뜸. 기다리다 취소되면 기다림만 거둠
      */
     suspend fun answer() {
         if (!needed()) return
         suspendCancellableCoroutine { result ->
             val resume = { if (result.isActive) result.resume(Unit) }
             afterAnswer += resume
-            result.invokeOnCancellation { withdraw(resume) }
-            ask(TAPPED)
+            result.invokeOnCancellation { afterAnswer -= resume }
             prepare()
         }
-    }
-
-    private fun withdraw(work: () -> Unit) {
-        afterAnswer -= work
-        if (afterAnswer.isEmpty()) askers -= TAPPED
     }
 
     private fun showIfWanted() {
@@ -93,14 +88,9 @@ class ConsentFormGate(
     }
 
     private fun finish() {
-        askers -= TAPPED
         val works = afterAnswer.toList()
         afterAnswer.clear()
         works.forEach { it() }
-    }
-
-    private companion object {
-        const val TAPPED = "tapped"
     }
 }
 

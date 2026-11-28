@@ -72,6 +72,7 @@ class ConsentFormGateTest {
     fun a_tap_asks_at_once_and_continues_after_the_answer() = runTest {
         gate.formReady()
         val tap = launch(start = CoroutineStart.UNDISPATCHED) { gate.answer() }
+        gate.ask(SHEET)
         assertTrue(tap.isActive)
 
         closes.single()(true)
@@ -106,6 +107,7 @@ class ConsentFormGateTest {
         val tap = launch(start = CoroutineStart.UNDISPATCHED) { gate.answer() }
 
         assertEquals(2, loads)
+        gate.ask(SHEET)
         gate.formReady()
         closes.single()(true)
         runCurrent()
@@ -124,12 +126,30 @@ class ConsentFormGateTest {
 
     @Test
     fun a_cancelled_tap_does_not_show_the_form_later() = runTest {
+        gate.ask(SHEET)
         val tap = launch(start = CoroutineStart.UNDISPATCHED) { gate.answer() }
         tap.cancel()
+        gate.stopAsking(SHEET)
 
         gate.formReady()
 
         assertTrue(closes.isEmpty())
+    }
+
+    @Test
+    fun a_form_missed_in_the_background_shows_when_the_sheet_asks_again() = runTest {
+        gate.formReady()
+        gate.ask(SHEET)
+        val tap = launch(start = CoroutineStart.UNDISPATCHED) { gate.answer() }
+        closes.single()(false)
+        gate.stopAsking(SHEET)
+
+        gate.ask(SHEET)
+        closes.last()(true)
+        runCurrent()
+
+        assertEquals(2, closes.size)
+        assertTrue(tap.isCompleted)
     }
 
     @Test
@@ -140,5 +160,9 @@ class ConsentFormGateTest {
         gate.ask("home-5")
 
         assertTrue(closes.isEmpty())
+    }
+
+    private companion object {
+        const val SHEET = "reward"
     }
 }

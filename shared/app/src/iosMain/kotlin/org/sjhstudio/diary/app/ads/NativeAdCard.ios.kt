@@ -57,6 +57,11 @@ import platform.UIKit.UIGraphicsPushContext
 import platform.UIKit.UIScreen
 import platform.UIKit.UIView
 
+@Composable
+internal actual fun AskConsentWhileShown(key: String) {
+    (koinInject<AdPlayer>() as? IosAdPlayer)?.consent?.gate?.AskWhileShown(key)
+}
+
 /**
  * Android와 같은 꼴의 네이티브 광고(NativeAdCard.android.kt)
  * `sunken` 면과 "광고" 표시로 일기 줄과 구별함(AdMob 네이티브 정책)

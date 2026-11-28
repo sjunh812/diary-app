@@ -117,6 +117,10 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
 
     var consentNeeded: Bool { ConsentInformation.shared.consentStatus == .required }
 
+    func afterConsentKnown(then: @escaping () -> Void) {
+        onMain { [self] in whenConsentKnown(then) }
+    }
+
     func prepareConsentForm(onReady: @escaping () -> Void, onFailed: @escaping () -> Void) {
         onMain { [self] in
             guard available, consentForm == nil, !preparingConsentForm else { return }

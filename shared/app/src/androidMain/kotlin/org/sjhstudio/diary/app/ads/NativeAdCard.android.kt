@@ -41,6 +41,11 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
+@Composable
+internal actual fun AskConsentWhileShown(key: String) {
+    (koinInject<AdPlayer>() as? AdMobPlayer)?.consent?.gate?.AskWhileShown(key)
+}
+
 /**
  * 일기 줄과 구별되게 `sunken` 면과 "광고" 표시를 둠(AdMob 네이티브 정책)
  * 받기 전이나 못 받으면 그리지 않음

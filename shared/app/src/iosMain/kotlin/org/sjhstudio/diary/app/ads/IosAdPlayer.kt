@@ -52,6 +52,9 @@ interface IosConsentBridge {
     /** 아직 동의 창에 답하지 않았으면 true */
     val consentNeeded: Boolean
 
+    /** 앱을 켠 뒤 동의 정보를 받으면 [then]. 받지 못해도 지난번 답으로 이어 감 */
+    fun afterConsentKnown(then: () -> Unit)
+
     /** 광고를 받을 수 있는지와 동의를 다시 고르는 곳이 필요한지 알림. 등록하면 지금 값부터 */
     fun setConsentListener(listener: (allowed: Boolean, choicesRequired: Boolean) -> Unit)
 
@@ -143,6 +146,8 @@ class IosAdPlayer(private val bridge: IosAdBridge) : AdPlayer {
     // 동의 문지기는 화면 스레드에서만 다룸. 부르는 쪽(앱 범위)은 IO
     override suspend fun loadRewarded(): ReadyReward? = withContext(Dispatchers.Main.immediate) {
         if (!available) return@withContext null
+        // 답할 차례인지는 동의 정보를 받은 뒤에야 앎. 앱을 켜자마자 눌러도 묻지 않고 지나가지 않게
+        suspendCancellableCoroutine { result -> bridge.afterConsentKnown { if (result.isActive) result.resume(Unit) } }
         // 사용자가 눌러 부르는 자리라 아직 답하지 않았으면 바로 물음
         consent.gate.answer()
         val loaded = suspendCancellableCoroutine { result ->
