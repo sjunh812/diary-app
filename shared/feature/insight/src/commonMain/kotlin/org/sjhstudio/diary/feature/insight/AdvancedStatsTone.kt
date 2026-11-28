@@ -260,7 +260,7 @@ internal fun ToneLegend() {
         LegendItem(colors.toneGood, stringResource(Res.string.insight_adv_change_good))
         LegendItem(colors.toneHard, stringResource(Res.string.insight_adv_change_hard))
         // 가운데 빈칸(트랙)의 뜻
-        LegendItem(colors.lineStrong, stringResource(Res.string.insight_adv_tone_neutral))
+        LegendItem(colors.toneNeutral, stringResource(Res.string.insight_adv_tone_neutral))
     }
 }
 
@@ -326,7 +326,7 @@ internal fun ToneBar(good: Float, hard: Float, modifier: Modifier = Modifier) {
     val goodColor = colors.toneGood
     val hardColor = colors.toneHard
     // 범례 점과 같은 색. 바탕과 구별되는 가장 옅은 회색
-    val track = colors.lineStrong
+    val track = colors.toneNeutral
     Canvas(modifier.height(DiarySpacing.x2).clip(DiaryShapes.full).background(track)) {
         val gap = DiarySpacing.x0_5.toPx()
         val g = size.width * good.coerceIn(0f, 1f)
@@ -363,7 +363,7 @@ internal fun ToneSheet(onDismiss: () -> Unit) {
             ToneGroup(colors.toneGood, stringResource(Res.string.insight_adv_change_good), Mood.entries.filter { it.tone == MoodTone.GOOD })
             ToneGroup(colors.toneHard, stringResource(Res.string.insight_adv_change_hard), Mood.entries.filter { it.tone == MoodTone.HARD })
             ToneGroup(
-                colors.lineStrong,
+                colors.toneNeutral,
                 stringResource(Res.string.insight_adv_tone_neutral),
                 Mood.entries.filter {
                     it.tone ==
