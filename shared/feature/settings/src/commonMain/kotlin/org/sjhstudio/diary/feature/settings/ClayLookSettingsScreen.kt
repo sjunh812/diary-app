@@ -40,7 +40,6 @@ import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsSwitchRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
-import org.sjhstudio.diary.core.designsystem.theme.DiaryClaySkin
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -55,6 +54,7 @@ import org.sjhstudio.diary.core.ui.FaceLabel
 import org.sjhstudio.diary.core.ui.LocalMoodLook
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.ShownMoodLook
+import org.sjhstudio.diary.core.ui.tone
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.clay_glasses
 import org.sjhstudio.diary.feature.settings.resources.clay_hair_bob
@@ -110,10 +110,10 @@ fun ClayLookSettingsScreen(
                     ),
                     contentAlignment = Alignment.Center
                 ) {
-                    val fit = (maxWidth - DiarySpacing.x5 * (PREVIEW_MOODS.size - 1)) / PREVIEW_MOODS.size
+                    val fit = (maxWidth - DiarySpacing.x5 * (SAMPLE_MOODS.size - 1)) / SAMPLE_MOODS.size
                     val face = minOf(DiaryWriteSize.clayPreviewFace, fit)
                     Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x5)) {
-                        for (mood in PREVIEW_MOODS) MoodFace(mood, face)
+                        for (mood in SAMPLE_MOODS) MoodFace(mood, face)
                     }
                 }
                 BasicText(
@@ -212,14 +212,13 @@ private fun SkinRow(selected: ClaySkin, onSkin: (ClaySkin) -> Unit) {
                     .then(ring),
                 contentAlignment = Alignment.Center
             ) {
-                Box(Modifier.size(DiaryWriteSize.claySkinDot).clip(DiaryShapes.full).background(DiaryClaySkin.faces[skin.ordinal]))
+                Box(Modifier.size(DiaryWriteSize.claySkinDot).clip(DiaryShapes.full).background(skin.tone.face))
             }
         }
     }
 }
 
 private const val HAIR_COLUMNS = 5
-private val PREVIEW_MOODS = listOf(Mood.GOOD, Mood.LAUGH, Mood.COOL, Mood.SAD, Mood.ANGRY)
 
 internal fun ClayHair.label(): StringResource = when (this) {
     ClayHair.BOB -> Res.string.clay_hair_bob

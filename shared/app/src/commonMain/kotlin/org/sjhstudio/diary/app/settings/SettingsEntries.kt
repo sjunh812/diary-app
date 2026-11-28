@@ -133,6 +133,10 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         val openLink = rememberOpenLink()
         val language = diaryLanguage()
         val updates = koinViewModel<UpdateCardViewModel>()
+        val adPrivacy = koinInject<AdPrivacy>()
+        // 개발 빌드에만 있음
+        val koin = getKoin()
+        val devMenu = remember(koin) { koin.getOrNull<DevMenu>() }
         val update by updates.notice.collectAsStateWithLifecycle()
         Box(Modifier.fillMaxSize()) {
             SettingsScreen(
@@ -145,7 +149,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
                     if (!openLink(feedback.url)) scope.launch { toast.show(feedback.noMail) }
                 },
                 onRate = storeReviewUrl(app.platform)?.let { url -> { openWeb(url) } },
-                onDevMode = getKoin().getOrNull<DevMenu>()?.let { menu -> menu::open },
+                onDevMode = devMenu?.let { menu -> menu::open },
                 onFont = { open(FontSettingsKey) },
                 onTextSize = { open(TextSizeSettingsKey) },
                 onTheme = { open(ThemeSettingsKey) },
@@ -161,7 +165,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
                 onLetter = { push(LetterKey) },
                 onTerms = { openWeb(LegalLinks.terms(language)) },
                 onPrivacy = { openWeb(LegalLinks.privacy(language)) },
-                onAdPrivacy = getKoin().getOrNull<AdPrivacy>()?.let { privacy -> privacy::showChoices } ?: {},
+                onAdPrivacy = adPrivacy::showChoices,
                 onPlus = { push(PlusKey()) },
                 selected = opened()?.let(::settingsPane)
             )

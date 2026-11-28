@@ -7,7 +7,6 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import org.sjhstudio.diary.core.data.AdPrivacy
 import org.sjhstudio.diary.core.data.BackupRepository
-import org.sjhstudio.diary.core.data.NoAdPrivacy
 import org.sjhstudio.diary.core.data.diary.TrashRepository
 import org.sjhstudio.diary.core.migration.MigrationFollowUp
 
@@ -28,7 +27,7 @@ val settingsFeatureModule =
                 fonts = get(),
                 notifications = get(),
                 lastBackupAt = get<BackupRepository>().status.map { it.lastSuccessAt }.distinctUntilChanged(),
-                adPrivacyRequired = (getOrNull<AdPrivacy>() ?: NoAdPrivacy).choicesRequired,
+                adPrivacyRequired = get<AdPrivacy>().choicesRequired,
                 telemetry = get()
             )
         }

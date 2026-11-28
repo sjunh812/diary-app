@@ -33,9 +33,11 @@ import org.sjhstudio.diary.core.designsystem.icon.DiaryMoodFace
 import org.sjhstudio.diary.core.designsystem.icon.moodFaceLine
 import org.sjhstudio.diary.core.designsystem.icon.vector
 import org.sjhstudio.diary.core.designsystem.theme.DiaryClaySkin
+import org.sjhstudio.diary.core.designsystem.theme.DiaryClayTone
 import org.sjhstudio.diary.core.designsystem.theme.DiaryMoodColors
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.model.ClaySkin
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.MoodTheme
 import org.sjhstudio.diary.core.model.Weather
@@ -107,7 +109,7 @@ fun MoodFace(mood: Mood, size: Dp, modifier: Modifier = Modifier, contentDescrip
 private fun ClayFace(look: ShownMoodLook, mood: Mood, size: Dp, contentDescription: String?, modifier: Modifier = Modifier) {
     val hair = DiaryTheme.colors.mood.of(mood)
     val layers = remember(look, mood) { look.clayLayers(mood) }
-    val skinIndex = look.skin.ordinal
+    val tone = look.skin.tone
     Box(
         modifier.size(size).semantics {
             if (contentDescription !=
@@ -122,8 +124,8 @@ private fun ClayFace(look: ShownMoodLook, mood: Mood, size: Dp, contentDescripti
             val tint =
                 when (layer.tint) {
                     Tint.HAIR -> hair
-                    Tint.SKIN -> DiaryClaySkin.faces[skinIndex]
-                    Tint.NOSE -> DiaryClaySkin.noses[skinIndex]
+                    Tint.SKIN -> tone.face
+                    Tint.NOSE -> tone.nose
                     null -> null
                 }
             Image(
@@ -321,3 +323,15 @@ private fun DiaryMoodColors.of(mood: Mood): Color = when (mood) {
     Mood.ANXIOUS -> anxious
     Mood.ANNOYED -> annoyed
 }
+
+/** 피부톤마다 얼굴·코 색. 차례가 아니라 단계 이름으로 짝지어 순서가 바뀌어도 어긋나지 않게 */
+val ClaySkin.tone: DiaryClayTone
+    get() =
+        when (this) {
+            ClaySkin.SKIN1 -> DiaryClaySkin.veryLight
+            ClaySkin.SKIN2 -> DiaryClaySkin.light
+            ClaySkin.SKIN3 -> DiaryClaySkin.lightMedium
+            ClaySkin.SKIN4 -> DiaryClaySkin.medium
+            ClaySkin.SKIN5 -> DiaryClaySkin.mediumDark
+            ClaySkin.SKIN6 -> DiaryClaySkin.dark
+        }

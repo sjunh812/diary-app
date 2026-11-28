@@ -239,7 +239,8 @@ private fun ChoiceMark(selected: Boolean) {
     }
 }
 
-private val SAMPLE_MOODS = listOf(Mood.GOOD, Mood.LAUGH, Mood.COOL, Mood.SAD, Mood.ANGRY)
+/** 테마 줄과 클레이 꾸미기 미리보기에 그리는 기분 다섯 */
+internal val SAMPLE_MOODS = listOf(Mood.GOOD, Mood.LAUGH, Mood.COOL, Mood.SAD, Mood.ANGRY)
 
 internal fun MoodTheme.label(): StringResource = when (this) {
     MoodTheme.BASIC -> Res.string.mood_theme_basic

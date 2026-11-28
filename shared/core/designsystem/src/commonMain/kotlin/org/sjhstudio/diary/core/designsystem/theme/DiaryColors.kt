@@ -291,11 +291,16 @@ fun diaryColors(dark: Boolean, brand: DiaryBrand = DiaryBrand.Lavender): DiaryCo
 
 /**
  * 클레이 얼굴 피부톤 여섯 단계(Figma "9-옵션" 피부톤, 밝은 쪽부터)
- * 얼굴과 코 색을 함께 둠. 라이트·다크 같은 값
+ * 얼굴과 코 색을 한 단계씩 짝지어 둠. 라이트·다크 같은 값
  */
 object DiaryClaySkin {
-    val faces: List<Color> =
-        listOf(Color(0xFFFBE5D6), Color(0xFFF5CFB3), Color(0xFFE8B690), Color(0xFFD09A72), Color(0xFFA56C4B), Color(0xFF6C432E))
-    val noses: List<Color> =
-        listOf(Color(0xFFFCBCB7), Color(0xFFF9ADA0), Color(0xFFF09D8A), Color(0xFFE08B76), Color(0xFFC56D5D), Color(0xFF9F524A))
+    val veryLight = DiaryClayTone(face = Color(0xFFFBE5D6), nose = Color(0xFFFCBCB7))
+    val light = DiaryClayTone(face = Color(0xFFF5CFB3), nose = Color(0xFFF9ADA0))
+    val lightMedium = DiaryClayTone(face = Color(0xFFE8B690), nose = Color(0xFFF09D8A))
+    val medium = DiaryClayTone(face = Color(0xFFD09A72), nose = Color(0xFFE08B76))
+    val mediumDark = DiaryClayTone(face = Color(0xFFA56C4B), nose = Color(0xFFC56D5D))
+    val dark = DiaryClayTone(face = Color(0xFF6C432E), nose = Color(0xFF9F524A))
 }
+
+/** 피부톤 한 단계의 얼굴과 코 색 */
+data class DiaryClayTone(val face: Color, val nose: Color)
