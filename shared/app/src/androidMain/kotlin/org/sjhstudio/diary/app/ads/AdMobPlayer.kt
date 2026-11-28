@@ -110,7 +110,7 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
     /** 동의 전이면 받지 않고 끝남. 동의 창은 자리가 화면에 있을 때 [AdConsent.gate]가 띄움 */
     fun loadNative(key: String) {
         if (!available || key in natives || !loading.add(key)) return
-        whenReady(askConsent = false, onFailed = { loading -= key }) { requestNative(key) }
+        whenReady(onFailed = { loading -= key }) { requestNative(key) }
     }
 
     private fun requestNative(key: String) {
@@ -179,23 +179,13 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
         }
     }
 
-    /**
-     * 화면 스레드에서 부름. 광고를 받을 수 있으면 초기화 뒤에 [request], 아니면 [onFailed]
-     * [askConsent]면 아직 답하지 않은 사람에게 바로 동의 창을 띄움. 사용자가 눌러 부르는 보상형에서만
-     */
-    private fun whenReady(askConsent: Boolean, onFailed: () -> Unit = {}, request: () -> Unit) {
+    /** 화면 스레드에서 부름. 광고를 받을 수 있으면 초기화 뒤에 [request], 아니면 [onFailed] */
+    private fun whenReady(onFailed: () -> Unit = {}, request: () -> Unit) {
         if (failed) return onFailed()
         consent.afterUpdate {
-            when {
-                consent.canRequestAds -> {
-                    start()
-                    if (ready) request() else waiting += request to onFailed
-                }
-
-                askConsent -> consent.gate.askNow { if (consent.canRequestAds) whenReady(false, onFailed, request) else onFailed() }
-
-                else -> onFailed()
-            }
+            if (!consent.canRequestAds) return@afterUpdate onFailed()
+            start()
+            if (ready) request() else waiting += request to onFailed
         }
     }
 
@@ -215,7 +205,7 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
         interstitial = null
         loadingInterstitial = true
         // 작성 화면을 열 때 받으므로 동의 창은 띄우지 않음
-        whenReady(askConsent = false, onFailed = { loadingInterstitial = false }) {
+        whenReady(onFailed = { loadingInterstitial = false }) {
             InterstitialAd.load(
                 app,
                 units.interstitial,
@@ -260,6 +250,9 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
 
     override suspend fun loadRewarded(): ReadyReward? = withContext(Dispatchers.Main.immediate) {
         if (!available) return@withContext null
+        // 사용자가 눌러 부르는 자리라 아직 답하지 않았으면 바로 물음
+        suspendCancellableCoroutine { result -> consent.afterUpdate { if (result.isActive) result.resume(Unit) } }
+        if (!consent.canRequestAds) consent.gate.answer()
         // 받는 동안 취소되면 늦게 온 광고는 버려짐(아래 isActive)
         val ad = requestRewardedAd()
         ad?.let {
@@ -271,7 +264,7 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
 
     private suspend fun requestRewardedAd(): RewardedAd? = suspendCancellableCoroutine { result ->
         // 초기화를 못 하면 기다리지 않고 없음으로
-        whenReady(askConsent = true, onFailed = { if (result.isActive) result.resume(null) }) {
+        whenReady(onFailed = { if (result.isActive) result.resume(null) }) {
             requestRewarded { ad -> if (result.isActive) result.resume(ad) }
         }
     }

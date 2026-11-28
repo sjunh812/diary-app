@@ -3,6 +3,10 @@ package org.sjhstudio.diary.app.ads
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 
 // 동의 창은 목록 광고 자리가 화면에 있을 때만 뜸
 class ConsentFormGateTest {
@@ -63,36 +67,44 @@ class ConsentFormGateTest {
     }
 
     @Test
-    fun a_tap_asks_at_once_and_continues_after_the_answer() {
-        var continued = 0
+    fun a_tap_asks_at_once_and_continues_after_the_answer() = runTest {
         gate.formReady()
-        gate.askNow { continued++ }
-        assertEquals(0, continued)
+        val tap = launch(start = CoroutineStart.UNDISPATCHED) { gate.answer() }
+        assertTrue(tap.isActive)
 
         closes.single()(true)
+        runCurrent()
 
-        assertEquals(1, continued)
+        assertTrue(tap.isCompleted)
     }
 
     @Test
-    fun a_tap_continues_at_once_when_nothing_needs_asking() {
+    fun a_tap_continues_at_once_when_nothing_needs_asking() = runTest {
         needed = false
-        var continued = 0
 
-        gate.askNow { continued++ }
+        gate.answer()
 
-        assertEquals(1, continued)
         assertTrue(closes.isEmpty())
     }
 
     @Test
-    fun a_tap_continues_when_the_form_failed_to_load() {
-        var continued = 0
-        gate.askNow { continued++ }
+    fun a_tap_continues_when_the_form_failed_to_load() = runTest {
+        val tap = launch(start = CoroutineStart.UNDISPATCHED) { gate.answer() }
 
         gate.formFailed()
+        runCurrent()
 
-        assertEquals(1, continued)
+        assertTrue(tap.isCompleted)
+    }
+
+    @Test
+    fun a_cancelled_tap_does_not_show_the_form_later() = runTest {
+        val tap = launch(start = CoroutineStart.UNDISPATCHED) { gate.answer() }
+        tap.cancel()
+
+        gate.formReady()
+
+        assertTrue(closes.isEmpty())
     }
 
     @Test

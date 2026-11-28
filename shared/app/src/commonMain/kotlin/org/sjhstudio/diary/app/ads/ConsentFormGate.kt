@@ -2,6 +2,8 @@ package org.sjhstudio.diary.app.ads
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import kotlin.coroutines.resume
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * 광고 동의 창을 띄울 때를 정함(`docs/business.md` 광고 동의)
@@ -40,11 +42,23 @@ class ConsentFormGate(private val needed: () -> Boolean, private val present: (o
         askers -= asker
     }
 
-    /** 사용자가 눌러 광고를 부를 때(보상형). 답한 뒤 [then], 물을 것이 없으면 바로 */
-    fun askNow(then: () -> Unit) {
-        if (!needed()) return then()
-        afterAnswer += then
-        ask(TAPPED)
+    /**
+     * 사용자가 눌러 광고를 부를 때(보상형). 답하거나 창을 못 받을 때까지 기다림
+     * 기다리다 취소되면 묻기도 거둠. 다른 화면으로 넘어간 뒤 창이 뜨지 않게
+     */
+    suspend fun answer() {
+        if (!needed()) return
+        suspendCancellableCoroutine { result ->
+            val resume = { if (result.isActive) result.resume(Unit) }
+            afterAnswer += resume
+            result.invokeOnCancellation { withdraw(resume) }
+            ask(TAPPED)
+        }
+    }
+
+    private fun withdraw(work: () -> Unit) {
+        afterAnswer -= work
+        if (afterAnswer.isEmpty()) askers -= TAPPED
     }
 
     private fun showIfWanted() {

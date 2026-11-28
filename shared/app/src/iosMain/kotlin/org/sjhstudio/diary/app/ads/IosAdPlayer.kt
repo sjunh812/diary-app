@@ -136,7 +136,7 @@ class IosAdPlayer(private val bridge: IosAdBridge) : AdPlayer {
     override suspend fun loadRewarded(): ReadyReward? {
         if (!available) return null
         // 사용자가 눌러 부르는 자리라 아직 답하지 않았으면 바로 물음
-        suspendCancellableCoroutine { result -> consent.gate.askNow { if (result.isActive) result.resume(Unit) } }
+        consent.gate.answer()
         val loaded = suspendCancellableCoroutine { result ->
             result.invokeOnCancellation { bridge.cancelRewarded() }
             bridge.loadRewarded { ok -> if (result.isActive) result.resume(ok) }
