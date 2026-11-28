@@ -15,7 +15,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -133,6 +135,59 @@ private fun ClayFace(look: ShownMoodLook, mood: Mood, size: Dp, contentDescripti
         }
     }
 }
+
+/**
+ * 기분 얼굴의 실루엣을 [color] 한 색으로. 기본 테마와 기분 없음은 원, 테마 그림은 그 그림 모양
+ * [grow]만큼 둘레를 키워 겹친 얼굴 사이를 띄우는 데 씀(달력 하루 여러 편)
+ */
+@Composable
+fun MoodSilhouette(mood: Mood?, size: Dp, color: Color, modifier: Modifier = Modifier, grow: Dp = Dp.Hairline) {
+    val dark = DiaryTheme.colors.canvas.luminance() < DARK_LUMINANCE
+    val look = LocalMoodLook.current
+    val arts =
+        remember(look, mood, dark) {
+            when {
+                mood == null -> emptyList()
+                look.theme == MoodTheme.CLAY -> look.clayLayers(mood).map { it.art }
+                else -> listOfNotNull(look.art(mood, dark))
+            }
+        }
+    // 겹(클레이)이 겹쳐도 진해지지 않게 투명도는 묶음 전체에 한 번만
+    val solid = color.copy(alpha = 1f)
+    Box(modifier.size(size).graphicsLayer { alpha = color.alpha }, contentAlignment = Alignment.Center) {
+        if (arts.isEmpty()) {
+            Box(Modifier.requiredSize(size + grow * 2).clip(DiaryShapes.full).background(solid))
+        } else {
+            // 반투명 그림(비눗방울)도 속까지 한 색으로 채움
+            val filter = remember(solid) { solidFilter(solid) }
+            for (art in arts) {
+                Image(
+                    painterResource(art),
+                    contentDescription = null,
+                    Modifier.requiredSize(size * MOOD_ART_SCALE + grow * 2),
+                    colorFilter = filter
+                )
+            }
+        }
+    }
+}
+
+/** 그림 알파를 이만큼 키워 가장자리만 부드럽게 남기고 속은 불투명하게 */
+private const val SILHOUETTE_ALPHA_BOOST = 8f
+
+/** 색 행렬의 더하는 값은 0~255 */
+private const val CHANNEL_MAX = 255f
+
+private fun solidFilter(color: Color): ColorFilter = ColorFilter.colorMatrix(
+    ColorMatrix(
+        floatArrayOf(
+            0f, 0f, 0f, 0f, color.red * CHANNEL_MAX,
+            0f, 0f, 0f, 0f, color.green * CHANNEL_MAX,
+            0f, 0f, 0f, 0f, color.blue * CHANNEL_MAX,
+            0f, 0f, 0f, SILHOUETTE_ALPHA_BOOST, 0f
+        )
+    )
+)
 
 private const val DARK_LUMINANCE = 0.5f
 

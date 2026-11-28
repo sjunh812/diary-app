@@ -454,7 +454,8 @@ class DiaryReadRepositoryTest {
 
         val day = stats.moodFlow(StatsPeriod.Month(YearMonth(2026, 10))).first().single()
 
-        assertEquals(null, day.mood)
+        // 그날 얼굴은 기분을 고른 마지막 일기
+        assertEquals(Mood.MEH, day.mood)
         assertEquals(listOf(Mood.SICK, Mood.MEH), day.moods)
         assertEquals(mapOf(LocalDate(2026, 10, 31) to Mood.MEH), stats.yearPixels(2026).first())
     }
