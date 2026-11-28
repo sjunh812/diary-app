@@ -1,0 +1,4 @@
+phone|home|[Una línea]\ny listo por hoy|Un diario fácil incluso en días ocupados
+phone|detail|Guarda tu día\ncon [fotos]|Hasta 10 fotos en cada entrada
+phone|home-grid|Repasa tus días\ncon [fotos]|Ve tu lista como cuadrícula de fotos
+phone|backup|Respalda tus fotos\nen tu propio [Drive]|Sin registro. Automático, una vez al día.

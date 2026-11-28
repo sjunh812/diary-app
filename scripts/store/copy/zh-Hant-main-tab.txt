@@ -1,0 +1,7 @@
+phone|home|[一行]\n就寫完今天的日記|忙碌的日子也能輕鬆寫
+phone|calendar|每天的心情\n留在[月曆]上|一眼看完整個月的心情
+stack|cal-shape=圖形/cal-clay=黏土臉 · Plus/cal-veggie=蔬果 · Plus|依喜好更換\n[心情主題]|9種充滿個性的主題
+phone|detail|和[照片]一起\n留下今天|每篇最多10張照片
+phone|insight|[回顧]哪種心情\n最多|可依週、月、年分別查看
+phone|theme-rose|換成\n喜歡的[顏色]|從7種主題色中挑選
+phone|backup|連照片都備份到\n自己的[雲端硬碟]|免註冊，每天自動備份一次

@@ -352,7 +352,7 @@ App Store 상품 페이지 맨 위 헤더(21:9, 3840×1646)와 검색 결과 카
   - 앱 업데이트와 따로 심사받는다.
 - 첫 장은 어느 페이지든 기본 페이지 1장("한 줄이면 오늘 일기 끝" 목록)으로 둔다(사용자 결정 2026-11-28).
 - iPad는 기분 고르기 장을 뺀다. iPad 쓰기 화면은 기분이 옆 칸에 작게 놓여 빈 화면처럼 보인다.
-- 2026-11-28에 세 페이지를 세 언어(한국어·영어 미국·일본어), iPhone·iPad로 채웠다. 모두 제출 전 초안이다. 키워드는 2.3.0이 승인된 뒤에 잇고 심사에 낸다.
+- 2026-11-28에 세 페이지를 여덟 언어(한국어·영어 미국·일본어·중국어 번체·스페인어 멕시코·포르투갈어 브라질·독일어·프랑스어), iPhone·iPad로 채웠다. 영국 영어는 기본 페이지를 쓴다. 모두 제출 전 초안이다. 키워드는 2.3.0이 승인된 뒤에 잇고 심사에 낸다.
 - 그림은 `docs/store/screens/ios/<언어>/{mood,photo,secret}`, 문구 표는 `scripts/store/copy/<언어>-{mood,photo,secret}[-tab].txt`다.
 
 | 페이지 | 이을 키워드(한국어) | iPhone 장 | iPad 장 |
@@ -372,7 +372,7 @@ App Store 상품 페이지 맨 위 헤더(21:9, 3840×1646)와 검색 결과 카
 
 사진 일기는 한 줄 목록 → 사진 상세 → 사진 격자 → 백업, 비밀 일기는 한 줄 목록 → 잠금 화면("비밀번호 잠금으로 나만 안전하게 봐요") → 백업("회원가입 없이 내 드라이브에 백업해요")이다.
 
-홍보 문구(영어·일본어는 원어민 검수 전):
+홍보 문구(한국어 말고는 원어민 검수 전):
 
 ```text
 그날의 기분도 함께 남겨요. 기분은 15가지 중에서 골라요.
@@ -418,6 +418,104 @@ Your entries and photos stay on your device and your own Google Drive.
 일기와 사진은 내 기기와 내 구글 드라이브에만 남아요.
 ```
 
+다섯 언어 홍보 문구(중국어 번체·스페인어·포르투갈어·독일어·프랑스어 차례):
+
+감정 일기:
+
+```text
+也能留下當天的心情，從15種心情中挑選。
+用月曆看一整個月的心情，回顧哪種心情最多。
+用9種心情主題換成喜歡的樣子。
+```
+
+```text
+Guarda también cómo te sentiste, entre 15 estados de ánimo.
+Mira tu mes en el calendario y repasa qué ánimos se repitieron más.
+Personalízalo con 9 temas de ánimo.
+```
+
+```text
+Guarde também como você se sentiu, entre 15 humores.
+Veja seu mês no calendário e reveja quais humores apareceram mais.
+Deixe do seu jeito com 9 temas de humor.
+```
+
+```text
+Halte auch deine Stimmung fest, aus 15 Stimmungen.
+Sieh deinen Monat im Kalender und blick zurück, welche Stimmung am häufigsten war.
+Mach es mit 9 Stimmungsthemen zu deinem.
+```
+
+```text
+Notez aussi votre humeur, parmi 15 humeurs.
+Voyez votre mois sur le calendrier et revoyez les humeurs qui reviennent le plus.
+Personnalisez-le avec 9 thèmes d’humeur.
+```
+
+사진 일기:
+
+```text
+一篇日記可以放好幾張照片。
+用照片回顧過去的日記。
+日記和照片只會留在自己的裝置和自己的Google雲端硬碟。
+```
+
+```text
+Agrega varias fotos a una entrada.
+Repasa tus entradas por foto.
+Tus entradas y fotos quedan en tu dispositivo y en tu propio Google Drive.
+```
+
+```text
+Coloque várias fotos em um registro.
+Reveja seus registros pelas fotos.
+Seus registros e fotos ficam no seu aparelho e no seu próprio Google Drive.
+```
+
+```text
+Füge mehrere Fotos zu einem Eintrag hinzu.
+Blick über Fotos auf frühere Einträge zurück.
+Einträge und Fotos bleiben auf deinem Gerät und in deinem eigenen Google Drive.
+```
+
+```text
+Ajoutez plusieurs photos à une entrée.
+Revoyez vos entrées en photos.
+Vos entrées et photos restent sur votre appareil et dans votre propre Google Drive.
+```
+
+비밀 일기:
+
+```text
+用密碼鎖定，安心使用。
+不需要註冊。
+日記和照片只會留在自己的裝置和自己的Google雲端硬碟。
+```
+
+```text
+Protege tu diario con contraseña.
+Sin registro.
+Tus entradas y fotos quedan en tu dispositivo y en tu propio Google Drive.
+```
+
+```text
+Proteja seu diário com senha.
+Sem cadastro.
+Seus registros e fotos ficam no seu aparelho e no seu próprio Google Drive.
+```
+
+```text
+Sperre dein Tagebuch sicher mit einem Code.
+Ohne Konto.
+Einträge und Fotos bleiben auf deinem Gerät und in deinem eigenen Google Drive.
+```
+
+```text
+Protégez votre journal par un code.
+Sans inscription.
+Vos entrées et photos restent sur votre appareil et dans votre propre Google Drive.
+```
+
 ## App Store 앱 내 이벤트
 
 정말 기간이 정해진 일만 올린다. 늘 있는 기능을 이벤트로 포장하면 반려된다([Apple 배지](https://developer.apple.com/help/app-store-connect/reference/in-app-events/in-app-event-badges), [Phiture](https://phiture.com/mobilegrowthstack/in-app-events-how-to-get-approved/)). 기간은 31일까지, 공개는 시작 14일 전부터다. 카드 그림은 16:9(1920×1080 이상), 상세 그림은 9:16(1080×1920 이상)이다.
@@ -432,8 +530,21 @@ Your entries and photos stay on your device and your own Google Drive.
 - 영어(en-US)·일본어(ja-JP)를 더했다(2026-11-13). 같은 날 앱 콘텐츠 신고 5건과 함께 검토에 들어갔고, 관리형 게시라 승인 뒤 직접 게시해야 한다. 두 언어는 그룹을 물려받지 못해 기본 등록정보와 같은 것을 직접 넣었다: 위 이름·간단한 설명·자세한 설명, 아이콘 `play-512.png`, 피처 그래픽 `feature.png`(한국어 그림, 기본 등록정보와 같음), 휴대폰 `{en,ja}-phone-1~4`, 7·10인치 태블릿 `{en,ja}-tablet-1~4`.
 - 한국어는 그룹을 물려받는데, 그룹이 아직 1.7.4 시절 글과 그림을 보여 준다. 기본 등록정보 초안을 게시하면 함께 바뀌는지 게시 뒤에 확인한다.
 - 기본 등록정보의 문구나 그림을 바꾸면 여기 영어·일본어도 함께 바꾼다.
+- 2026-11-28에 언어별로 나눴다(사용자 결정). "1일 1일기"에는 한국어 검색어 38개만 남기고, 영어 14개는 `1Day1Diary en`, 일본어 10개는 `1Day1Diary ja`로 옮겼다. 이름 "1일 1일기"는 게시된 등록정보라 바꿀 수 없어 그대로 두었다. 세 개 모두 문구·그림은 그룹 애셋을 물려받는다(지금은 영어·일본어도 직접 넣은 것 없이 상속). 저장만 했고 2.3.0과 함께 검토에 보낸다.
+  - en: diary, journal, diary app, journal app, daily journal, simple diary, private diary, secret diary, diary with lock, mood journal, mood tracker, mood diary, photo diary, gratitude journal
+  - ja: 日記, 日記帳, 日記アプリ, ダイアリー, 一行日記, 感謝日記, 気分 日記, 感情 日記, 写真 日記, 鍵付き 日記
+  - 日記·一行日記는 zh-TW 등록정보에도 있다. 콘솔이 막지 않았고, 어느 쪽이 걸려도 사용자는 자기 언어 글과 그림을 본다.
 
-### 다섯 언어 검색어 맞춤 등록정보 (2.3.0 출시 전에 만든다)
+### 다섯 언어 검색어 맞춤 등록정보 (2026-11-28 만듦, 검토 전송 대기)
+
+2026-11-28에 다섯 개를 기본 등록정보 그룹 안에 만들었다. 참조 이름은 `1Day1Diary zh-TW`·`es-419`·`pt-BR`·`de-DE`·`fr-FR`이다.
+
+- 출시 100%, 종료일 없음이다. 문구·그림은 그룹 애셋을 물려받는다. 아홉 언어가 다 들어 있어 사용자는 자기 언어 글을 본다.
+- 검색 키워드는 zh-TW 17개, es-419 16개, pt-BR·de-DE·fr-FR 15개씩이고, 아래 목록 그대로다.
+- 상태는 "검토를 위해 전송 준비 완료"다. 2.3.0 스크린샷 변경과 함께 검토에 보낸다.
+- 만들기 전 확인: 다섯 언어 기본 등록정보는 11-28 게시 뒤 그룹에 들어와 있었고, 게시 개요 대기 목록에도 없었다.
+- 콘솔 확인(2026-11-28, 2.3.0 스크린샷 저장 뒤): 다섯 개와 `en`·`ja` 모두 애셋 단계에서 각 언어를 고르면 그 언어의 이름·간단한 설명과 새 스크린샷(폰 `<언어>-phone-1~8-mt.png` 8장, 태블릿 7장)이 보였다. zh-TW 등록정보는 여덟 언어를 모두 넘겨 보았다. 콘솔이 그리는 것은 저장한 초안이라, 실제 Play에는 검토를 지나야 나온다.
+
 
 언어마다 따로 만든다. 지금 것(한국어)에 다른 언어 검색어를 넣으면 그 언어 사용자에게 한국어 글이 보인다. 새 맞춤 등록정보는 기본 등록정보 그룹의 언어를 물려받는데, 다섯 언어가 그룹에 들어오는 것은 기본 등록정보 검토가 끝난 뒤라 그다음에 만든다(2026-11-27 검토 제출). 만들 때 참조 이름 `1Day1Diary <언어 코드>`, 출시 100%, 기간 종료일 없음, 잠재고객 검색 키워드(일괄 추가), 문구·그림은 그룹 애셋 상속.
 
@@ -709,10 +820,11 @@ Plusが登場しました
 - 근거: 한국 App Store 상위 9개 앱(토스·당근·배민·하루콩·몽글하루·Day One·꼬박일기·DAILY NOTE·MOODA)을 비교했다. 평균 7.6장이고, 기분 일기 상위권은 2장 안에 기분 고르기나 기분 달력을 보여 준다.
 - 화면: develop 개발 빌드를 견본 전용 시뮬레이터(iPhone 17 Pro Max, iPad Pro 13")에서 찍었다. 견본은 `seed_ios.py … mood` 뒤에 `seed_extra.py`를 돌린다. 백업 켜짐은 `seed_backup_prefs.py`로 넣고, Plus 테마는 실행 인자 `-diaryPlan PLUS`로 연다.
 - 올림(2026-11-28):
-  - App Store: 2.3.0 버전에 iPhone 8장(1206×2622)과 iPad 7장(2064×2752)을 넣었다. 한국어·영어(미국·영국)·일본어이고, 2.3.0 출시 때 함께 나간다.
-  - Play: 기본 등록정보와 맞춤 등록정보 "1일 1일기"의 세 언어에 폰 8장, 7·10인치 태블릿 7장씩을 저장만 했다. 관리형 게시가 꺼져 있어 2.3.0을 낼 때 함께 검토에 보낸다.
+  - App Store: 2.3.0 버전에 iPhone 8장(1206×2622)과 iPad 7장(2064×2752)을 넣었다. 처음 세 언어(한국어·영어 미국·영국·일본어)에 이어 같은 날 다섯 언어(중국어 번체·스페인어·포르투갈어·독일어·프랑스어)까지 아홉 곳 모두 넣었다. 6.9" 칸은 어느 언어에도 없어 6.1" 그림이 큰 iPhone에도 쓰인다. 2.3.0 출시 때 함께 나간다.
+  - Play: 기본 등록정보 여덟 언어(en·ko·ja·zh-TW·es-419·pt-BR·de-DE·fr-FR)에 폰 8장, 7·10인치 태블릿 7장씩을 저장만 했다. 맞춤 등록정보는 모두 그룹 애셋을 물려받아 따로 올리지 않았다. 관리형 게시가 꺼져 있어 2.3.0을 낼 때 함께 검토에 보낸다.
 - 남은 것:
-  - 다섯 언어는 2.2.0 그림 그대로다.
+  - 다섯 언어 글은 원어민 검수 전이다. 문구 표는 `scripts/store/copy/{zh-Hant,es,pt,de,fr}-*.txt`, 글꼴은 중국어 PingFang TC, 나머지 넷은 Pretendard다.
+  - 다섯 언어의 옛 6.9" 그림(`iphone-large-*`, 2.2.0)은 어느 스토어에도 쓰지 않아 지웠다.
   - 그래픽 이미지와 App Store 헤더·검색 결과 그림은 바꾸지 않았다.
 
 | # | 화면 | 한국어 | 영어 | 일본어 |

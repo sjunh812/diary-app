@@ -30,9 +30,13 @@ let bezelPt: CGFloat = 14
 
 func R(_ x: CGFloat, _ top: CGFloat, _ w: CGFloat, _ h: CGFloat) -> NSRect { NSRect(x: x, y: H - top - h, width: w, height: h) }
 
+// 창원단감둥근체에 가나·한자·악센트 글자가 없어 일본어·중국어는 시스템 글꼴, 유럽 언어는 앱 기본 글꼴(Pretendard)
+let usesSystemFont = ["ja", "zh-Hant", "es", "pt", "de", "fr"].contains(lang)
 func font(bold: Bool, size: CGFloat) -> NSFont {
     switch lang {
     case "ja": return NSFont(name: bold ? "HiraginoSans-W6" : "HiraginoSans-W3", size: size * 0.92)!
+    case "zh-Hant": return NSFont(name: bold ? "PingFangTC-Semibold" : "PingFangTC-Light", size: size * 0.92)!
+    case "es", "pt", "de", "fr": return NSFont(name: bold ? "Pretendard-SemiBold" : "Pretendard-Regular", size: size * 0.92)!
     default: return NSFont(name: "ChangwonDangamRound-Regular", size: size)!
     }
 }
@@ -41,7 +45,7 @@ func font(bold: Bool, size: CGFloat) -> NSFont {
 func text(_ raw: String, size: CGFloat, color c: NSColor, top: CGFloat, bold: Bool) -> CGFloat {
     let style = NSMutableParagraphStyle(); style.alignment = .center; style.lineHeightMultiple = 1.18
     let f = font(bold: bold, size: size)
-    let stroke: CGFloat = lang == "ja" ? 0 : (bold ? (lang == "ko" ? -3.4 : -5.0) : -0.6)
+    let stroke: CGFloat = usesSystemFont ? 0 : (bold ? (lang == "ko" ? -3.4 : -5.0) : -0.6)
     let s = NSMutableAttributedString()
     var hot = false
     for part in raw.replacingOccurrences(of: "\\n", with: "\n").split(omittingEmptySubsequences: false, whereSeparator: { $0 == "[" || $0 == "]" }).map(String.init) {
@@ -55,7 +59,7 @@ func text(_ raw: String, size: CGFloat, color c: NSColor, top: CGFloat, bold: Bo
 }
 
 func header(_ title: String, _ line: String) -> CGFloat {
-    let oneLine = land ? title.replacingOccurrences(of: "\\n", with: lang == "ja" ? "" : " ") : title
+    let oneLine = land ? title.replacingOccurrences(of: "\\n", with: ["ja", "zh-Hant"].contains(lang) ? "" : " ") : title
     let t = text(oneLine, size: 92 * k, color: ink, top: (land ? 110 : 190) * k, bold: true)
     return text(line, size: 46 * k, color: sub, top: t + 34 * k, bold: false)
 }
@@ -105,7 +109,7 @@ func stackRow(_ items: [String], top: CGFloat) {
         let p = item.components(separatedBy: "="), img = image(p[0]), label = p.count > 1 ? p[1] : ""
         let x = margin + CGFloat(j) * (w + gap)
         let style = NSMutableParagraphStyle(); style.alignment = .left
-        NSAttributedString(string: label, attributes: [.font: font(bold: false, size: 40 * k), .foregroundColor: sub, .strokeColor: sub, .strokeWidth: lang == "ja" ? 0 : -0.6, .paragraphStyle: style])
+        NSAttributedString(string: label, attributes: [.font: font(bold: false, size: 40 * k), .foregroundColor: sub, .strokeColor: sub, .strokeWidth: usesSystemFont ? 0 : -0.6, .paragraphStyle: style])
             .draw(with: R(x + 20 * k, top, w, 60 * k), options: [.usesLineFragmentOrigin])
         let y = top + 84 * k
         let cropTop: CGFloat = 330, cropH: CGFloat = 640
@@ -130,7 +134,7 @@ func stack(_ items: [String], top: CGFloat) {
         let p = item.components(separatedBy: "="), img = image(p[0]), label = p.count > 1 ? p[1] : ""
         let w = 1010 * k * f, padX = 36 * k * f, padY = 40 * k * f
         let style = NSMutableParagraphStyle(); style.alignment = .left
-        NSAttributedString(string: label, attributes: [.font: font(bold: false, size: 40 * k), .foregroundColor: sub, .strokeColor: sub, .strokeWidth: lang == "ja" ? 0 : -0.6, .paragraphStyle: style])
+        NSAttributedString(string: label, attributes: [.font: font(bold: false, size: 40 * k), .foregroundColor: sub, .strokeColor: sub, .strokeWidth: usesSystemFont ? 0 : -0.6, .paragraphStyle: style])
             .draw(with: R((W - w) / 2 + 24 * k, y, w, 60 * k), options: [.usesLineFragmentOrigin])
         y += 84 * k * f
         let cropTop: CGFloat = 330, cropH: CGFloat = 640
