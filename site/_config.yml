@@ -5,4 +5,4 @@ kramdown:
   input: GFM
   hard_wrap: false
 exclude: [README.md, build.sh]
-include: [sw.min.js]
+include: [sw.min.js, llms.txt]

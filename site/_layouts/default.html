@@ -33,6 +33,13 @@ location.replace('/'+s+'/1day1diary/'+location.hash)})();
 <meta property="og:image:alt" content="{{ t.name }}">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/favicon.png">
+{% if page.home %}<!-- 구조화 데이터: 검색엔진·AI 답변이 앱 사실(무료, iOS·Android, 언어)과 자주 묻는 질문을 바로 읽게 -->
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"MobileApplication","name":{{ t.name | jsonify }},"alternateName":["1일 1일기","1Day1Diary","1 Day 1 Diary","1日1日記"],"description":{{ t.description | jsonify }},"url":"{{ site.url }}{{ t.home }}","image":"{{ site.url }}/assets/icon.png","operatingSystem":"iOS, iPadOS, Android","applicationCategory":"LifestyleApplication","inLanguage":["ko","en","ja","zh-Hant","es","pt-BR","de","fr"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Person","name":"서주냥"},"sameAs":["https://apps.apple.com/app/id6835116731","https://play.google.com/store/apps/details?id=org.sjhstudio.diary"]},
+{"@type":"FAQPage","inLanguage":"{{ t.html }}","mainEntity":[{% for f in t.faq %}{"@type":"Question","name":{{ f.q | jsonify }},"acceptedAnswer":{"@type":"Answer","text":{{ f.a | jsonify }}}}{% unless forloop.last %},{% endunless %}{% endfor %}]}
+]}
+</script>{% endif %}
 {% if t.font == 'round' %}<link rel="preload" href="/assets/fonts/changwon-round.woff2" as="font" type="font/woff2" crossorigin>
 {% elsif t.font == 'sans' %}<link rel="preload" href="/assets/fonts/pretendard-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
 {% endif %}<style>

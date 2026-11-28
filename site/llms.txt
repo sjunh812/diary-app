@@ -1,0 +1,30 @@
+# 1 Day 1 Diary (1일 1일기)
+
+> A simple diary app for busy people, on iPhone, iPad, and Android. One line is enough for today's entry. No sign-up, no server that stores entries: diaries and photos stay on the device and in the user's own Google Drive.
+
+- Developer: 서주냥, Korea
+- Platforms: iOS, iPadOS, Android (phones, tablets, foldables)
+- Languages: Korean, English, Japanese, Traditional Chinese, Spanish, Portuguese, German, French
+- Price: free to download. Free features stay free. Optional Remove Ads (one-time) and Plus (yearly subscription)
+
+## Features
+
+- Write entries with photos (up to 10 per entry, 30 with Plus), weather, and place
+- Pick a mood from 15 moods; mood themes change every mood face in the app (5 free themes: Classic, Shapes, Gouache, Outline, Pixel; 4 Plus themes: Bubble, Doodle Pals, Fruit & Veg, Clay Faces)
+- Look back on moods by week, month, and year; calendar and search
+- Back up entries and photos to the user's own Google Drive; restore on a new phone, including between iPhone and Android
+- Passcode or biometric lock, drafts, 30-day trash, 10 fonts, 7 theme colors, list styles, text formatting
+- Plus: no ads, 30 photos per entry, advanced stats, custom theme color, Plus mood themes, checklists, keep formatting in the list
+
+## Privacy
+
+- No account and no diary server. The developer cannot read entries or photos.
+- Entries are never used for ads, analytics, or crash reports.
+
+## Links
+
+- Website (Korean): https://sjunh812.pages.dev/1day1diary/
+- Website (English): https://sjunh812.pages.dev/en/1day1diary/
+- App Store: https://apps.apple.com/app/id6835116731
+- Google Play: https://play.google.com/store/apps/details?id=org.sjhstudio.diary
+- Privacy policy: https://sjunh812.pages.dev/en/1day1diary/privacy/

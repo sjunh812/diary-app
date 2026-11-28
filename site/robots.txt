@@ -1,2 +1,20 @@
+# 검색엔진과 AI 답변 서비스 모두 허용. 앱 소개를 그대로 인용해도 된다
 User-agent: *
 Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://sjunh812.pages.dev/sitemap.xml
